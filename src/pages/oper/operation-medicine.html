@@ -447,6 +447,41 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 
 <script>
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ROLE CONTEXT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const MED_USER_ROLE  = sessionStorage.getItem('userRole') || 'org_admin';
+const MED_IS_TEACHER = MED_USER_ROLE === 'teacher';
+const MED_ASSIGNED   = MED_IS_TEACHER
+  ? JSON.parse(sessionStorage.getItem('assignedClasses') || '[{"id":"CLS001","name":"햇님반"}]')
+  : null;
+const MED_ASSIGNED_NAMES = MED_ASSIGNED ? MED_ASSIGNED.map(c => c.name) : null;
+
+function initRoleContext() {
+  // 교사: 반 필터를 담당 반으로 제한
+  const sel = document.getElementById('filterClass');
+  if (sel && MED_IS_TEACHER && MED_ASSIGNED_NAMES) {
+    Array.from(sel.options).forEach(opt => {
+      if (opt.value && !MED_ASSIGNED_NAMES.includes(opt.value)) {
+        opt.disabled = true;
+        opt.textContent += ' (비담당)';
+      }
+    });
+    sel.value = MED_ASSIGNED_NAMES[0];
+  }
+
+  // medicinePrefill: 대시보드에서 pre-fill로 이동한 경우 해당 원아로 필터
+  const prefill = JSON.parse(sessionStorage.getItem('medicinePrefill') || 'null');
+  if (prefill && prefill.childName) {
+    sessionStorage.removeItem('medicinePrefill');
+    const searchEl = document.getElementById('searchInput');
+    if (searchEl) {
+      searchEl.value = prefill.childName;
+      // applyFilter는 DOMContentLoaded 이후 호출되므로 여기서는 값만 설정
+    }
+  }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    MOCK DATA
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 const MEDICINES = [
@@ -547,9 +582,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const now = new Date();
   document.getElementById('topbarDate').textContent =
     now.toLocaleDateString('ko-KR', {year:'numeric', month:'2-digit', day:'2-digit', weekday:'short'});
+  initRoleContext();
   applyFilter();
   updateKPI();
   checkAlertBanner();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeDrawer();
 });
 
 function reloadData() {
@@ -611,6 +651,8 @@ function applyFilter() {
     if (classVal && m.className !== classVal) ok = false;
     if (statusVal && m.status !== statusVal) ok = false;
     if (searchVal && !m.childName.toLowerCase().includes(searchVal)) ok = false;
+    // 교사: 담당 반 투약의뢰서만 조회
+    if (MED_IS_TEACHER && MED_ASSIGNED_NAMES && !MED_ASSIGNED_NAMES.includes(m.className)) ok = false;
     return ok;
   });
 

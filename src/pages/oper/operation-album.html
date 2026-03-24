@@ -448,6 +448,32 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 
 <script>
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 0. 역할 컨텍스트
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const AL_USER_ROLE  = sessionStorage.getItem('userRole') || 'org_admin';
+const AL_IS_TEACHER = AL_USER_ROLE === 'teacher';
+const AL_ASSIGNED   = AL_IS_TEACHER
+  ? JSON.parse(sessionStorage.getItem('assignedClasses') || '[{"id":"CLS001","name":"햇님반"}]')
+  : null;
+const AL_ASSIGNED_NAMES = AL_ASSIGNED ? AL_ASSIGNED.map(c => c.name) : null;
+
+function initRoleContext() {
+  // 교사: 필터 클래스 셀렉트 비담당 반 disabled
+  const sel = document.getElementById('filterClass');
+  if (sel && AL_IS_TEACHER && AL_ASSIGNED_NAMES) {
+    Array.from(sel.options).forEach(opt => {
+      if (opt.value && !AL_ASSIGNED_NAMES.includes(opt.value)) {
+        opt.disabled = true;
+        opt.textContent += ' (비담당)';
+      }
+    });
+    sel.value = AL_ASSIGNED_NAMES[0];
+  }
+  // 교사가 타 작성자 앨범 편집 버튼 제어는 openDetail에서 처리
+  // 앨범 만들기 버튼: 교사도 허용
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // 1. 목 데이터
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const ALBUMS_RAW = [
@@ -502,6 +528,7 @@ let lbIndex = 0;
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 document.addEventListener('DOMContentLoaded', () => {
   renderTopbarRight();
+  initRoleContext();
   applyFilter();
 });
 
@@ -528,6 +555,8 @@ function applyFilter() {
   filteredAlbums = albums.filter(a => {
     if (cls && a.cls !== cls) return false;
     if (q && !a.title.toLowerCase().includes(q)) return false;
+    // 교사: 담당 반 앨범 + 전체 앨범만 표시
+    if (AL_IS_TEACHER && AL_ASSIGNED_NAMES && a.cls !== '전체' && !AL_ASSIGNED_NAMES.includes(a.cls)) return false;
     if (period) {
       const d = parseDate(a.date);
       if (period === 'thisMonth'  && !(d.getFullYear()===2026 && d.getMonth()===2)) return false;
@@ -652,7 +681,10 @@ function openDetail(id) {
   document.getElementById('detailTitle').textContent = a.title;
   document.getElementById('detailSub').textContent = `${a.author} · ${a.date} · 사진 ${a.count}장`;
   document.getElementById('detailClassBadge').innerHTML = `<span class="badge ${CLASS_BADGE_CLS[a.cls]}">${a.cls}</span>`;
-  document.getElementById('detailEditBtn').onclick = () => { closeModal('detailModal'); openEditModal(null, id); };
+  const canEditAlbum = !AL_IS_TEACHER || a.author === sessionStorage.getItem('userName');
+  const editBtn = document.getElementById('detailEditBtn');
+  editBtn.style.display = canEditAlbum ? 'inline-flex' : 'none';
+  editBtn.onclick = () => { closeModal('detailModal'); openEditModal(null, id); };
 
   // 사진 그리드 생성 (사진 수만큼 컬러 박스)
   const palette = PHOTO_PALETTES[a.cls] || PHOTO_PALETTES['전체'];

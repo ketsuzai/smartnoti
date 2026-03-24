@@ -486,6 +486,32 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 <div id="toast-container"></div>
 
 <script>
+/* ━━━━━━━━━━━━━━━━ ROLE CONTEXT ━━━━━━━━━━━━━━━━ */
+const AN_USER_ROLE   = sessionStorage.getItem('userRole') || 'org_admin';
+const AN_IS_TEACHER  = AN_USER_ROLE === 'teacher';
+const AN_ASSIGNED    = AN_IS_TEACHER
+  ? JSON.parse(sessionStorage.getItem('assignedClasses') || '[{"id":"CLS001","name":"햇님반"}]')
+  : null;
+const AN_ASSIGNED_NAMES = AN_ASSIGNED ? AN_ASSIGNED.map(c => c.name) : null;
+
+function initRoleContext() {
+  // 교사: filterClass를 담당 반으로 고정
+  const sel = document.getElementById('filterClass');
+  if (!sel) return;
+  if (AN_IS_TEACHER && AN_ASSIGNED_NAMES && AN_ASSIGNED_NAMES.length > 0) {
+    // 비담당 반 option disabled
+    Array.from(sel.options).forEach(opt => {
+      if (opt.value && !AN_ASSIGNED_NAMES.includes(opt.value)) {
+        opt.disabled = true;
+        opt.textContent += ' (비담당)';
+      }
+    });
+    sel.value = AN_ASSIGNED_NAMES[0];
+  }
+  // 교사: 공지 작성 버튼은 허용 (담당 반 공지 작성 가능)
+  // 단, 본인 미작성 공지의 수정/삭제는 renderTable에서 제어
+}
+
 /* ━━━━━━━━━━━━━━━━ DATA ━━━━━━━━━━━━━━━━ */
 let notices = [
   { id:1, pinned:true,  title:"2026년 봄 소풍 안내",        target:"전체",  author:"김원장", startDate:"2026.03.20", endDate:"2026.03.30", views:128, status:"게시중",   content:"안녕하세요 학부모님.\n2026년 봄 소풍 일정을 안내드립니다.\n\n일시: 2026년 3월 27일(금)\n장소: 서울 어린이대공원\n준비물: 도시락, 편한 복장, 모자\n\n자세한 사항은 담임 선생님께 문의해 주세요." },
@@ -508,8 +534,13 @@ let deleteTargetId = null;
 /* ━━━━━━━━━━━━━━━━ INIT ━━━━━━━━━━━━━━━━ */
 document.addEventListener('DOMContentLoaded', () => {
   setTopbarDate();
+  initRoleContext();
   renderKPI();
-  renderTable(filteredNotices);
+  applyFilter();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeWriteModal(); closeDeleteModal(); }
 });
 
 function setTopbarDate() {
@@ -580,8 +611,10 @@ function renderTable(data) {
       <td class="tc views-cell">${n.views > 0 ? n.views : '<span style="color:var(--text-muted)">0</span>'}</td>
       <td class="tc">${statusBadge(n.status)}</td>
       <td class="action-cell" onclick="event.stopPropagation()">
-        <button class="btn btn-outline btn-xs" onclick="openEditModal(${n.id})">수정</button>
-        <button class="btn btn-danger-outline btn-xs" onclick="openDeleteModal(${n.id})">삭제</button>
+        ${(!AN_IS_TEACHER || n.author === sessionStorage.getItem('userName'))
+          ? `<button class="btn btn-outline btn-xs" onclick="openEditModal(${n.id})">수정</button>
+             <button class="btn btn-danger-outline btn-xs" onclick="openDeleteModal(${n.id})">삭제</button>`
+          : `<span style="font-size:11px;color:var(--text-muted)">조회만</span>`}
       </td>
     </tr>`;
   }).join('');
@@ -597,6 +630,8 @@ function applyFilter() {
     if (cls && n.target !== '전체' && n.target !== cls) return false;
     if (status && n.status !== status) return false;
     if (kw && !n.title.toLowerCase().includes(kw)) return false;
+    // 교사: 담당 반 대상 공지만 표시
+    if (AN_IS_TEACHER && AN_ASSIGNED_NAMES && n.target !== '전체' && !AN_ASSIGNED_NAMES.includes(n.target)) return false;
     return true;
   });
   renderTable(filteredNotices);

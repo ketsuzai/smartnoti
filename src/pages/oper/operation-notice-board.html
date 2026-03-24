@@ -879,6 +879,22 @@ document.addEventListener('DOMContentLoaded', () => {
   initClassFilter();
   renderTodayDashboard();
   renderList('sent');
+
+  // noticePrefill: 대시보드에서 pre-fill로 이동한 경우 처리
+  const prefill = JSON.parse(sessionStorage.getItem('noticePrefill') || 'null');
+  if (prefill && prefill.childName) {
+    sessionStorage.removeItem('noticePrefill');
+    if (prefill.mode === 'write') {
+      // 알림장 작성 패널 열기 (작성 화면)
+      showToast(`✏️ ${prefill.childName} 알림장 작성 화면으로 이동합니다.`);
+      setTimeout(() => openWritePanel && openWritePanel(prefill.childId), 300);
+    } else {
+      // 알림장 조회: 해당 원아 검색
+      showToast(`👁️ ${prefill.childName}의 알림장을 조회합니다.`);
+      const searchEl = document.getElementById('sentSearch') || document.getElementById('searchInput');
+      if (searchEl) { searchEl.value = prefill.childName; renderList('sent'); }
+    }
+  }
 });
 
 // ━━━ 탭 전환 ━━━
@@ -1030,9 +1046,13 @@ function renderSentList(area) {
                 <span class="nc-footer-item" style="margin-left:auto;font-family:'JetBrains Mono',monospace">${n.publishedAt||'--:--'}</span>
               </div>
               <div class="nc-act-btns" onclick="event.stopPropagation()">
-                <div class="nc-act-btn" title="수정" onclick="showToast('수정 기능은 준비 중입니다.')">✏️</div>
-                ${n.status==='published'?`<div class="nc-act-btn" title="회수" onclick="showToast('알림장이 회수되었습니다.')">↩️</div>`:''}
-                <div class="nc-act-btn danger" title="삭제" onclick="showToast('삭제 기능은 권한 확인 후 처리됩니다.','error')">🗑️</div>
+                ${(() => {
+                  const canAct = !NB_ASSIGNED || n.teacher === sessionStorage.getItem('userName') || NB_USER_ROLE !== 'teacher';
+                  if (!canAct) return `<span style="font-size:10px;color:var(--text-muted)">조회만</span>`;
+                  return `<div class="nc-act-btn" title="수정" onclick="showToast('수정 기능은 준비 중입니다.')">✏️</div>
+                    ${n.status==='published'?`<div class="nc-act-btn" title="회수" onclick="showToast('알림장이 회수되었습니다.')">↩️</div>`:''}
+                    <div class="nc-act-btn danger" title="삭제" onclick="showToast('삭제 기능은 권한 확인 후 처리됩니다.','error')">🗑️</div>`;
+                })()}
               </div>
             </div>
           </div>
