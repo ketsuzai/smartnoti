@@ -6,6 +6,19 @@
 
 ---
 
+## ⚡ QUICK REF
+> 빌드 시 핵심 요약. 상세 스펙은 아래 섹션 참조.
+
+- **파일**: `src/pages/oper/operation-class.html` ✅ 완료
+- **역할**: 기관 내 반 목록 조회·생성·수정·삭제, 담당교사 배정, 정원 관리
+- **권한**: super/org_admin → 생성·삭제·전체 반 수정; teacher → 담당 반 수정만 (생성·삭제 불가)
+- **UI 구조**: KPI 4개 → 필터바 → 3열 카드 그리드 → 우측 드로어 → 추가/수정/삭제 모달
+- **카드**: 컬러 상단바, 정원 프로그레스바(90%↑red/70%↑amber/else green), 교사명
+- **원아관리 연동**: `sessionStorage.setItem('currentClass', clsId)` → operation-child.html 이동
+- **Mock 데이터**: 햇님반(CLS001), 달님반(CLS002), 별빛반(CLS003), 새싹반(CLS004), 꽃잎반(CLS005)
+
+---
+
 ## 1. 개요
 
 운영관리 내 반(Class) 관리 페이지. 기관에 속한 반 목록을 조회·생성·수정·삭제하며, 담당 교사 배정과 정원 현황을 관리한다.

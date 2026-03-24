@@ -31,11 +31,19 @@
 │       ├── 📄 member-status-admin.html         ← 회원 상태 관리 [🔒 수정 금지]
 │       ├── 📄 invitation-admin.html            ← 초대장 관리 [🔒 수정 금지]
 │       ├── 📄 org-admin.html                   ← 기관관리 [🔒 수정 금지]
-│       └── 📁 oper/                            ← 운영관리 섹션 (신규 파일 전용)
-│           ├── 📄 operation-dashboard.html     ← 운영관리 대시보드 (기관·교사 공용) [🔲 작업중]
-│           ├── 📄 operation-org-selector.html  ← 기관 선택 팝업 [🔲 작업중]
-│           ├── 📄 operation-child.html         ← 원아관리 [🔲 작업중]
-│           └── 📄 operation-notice-board.html  ← 알림장 [🔲 작업중]
+│       └── 📁 oper/                            ← 운영관리 섹션
+│           ├── 📄 operation-notice-board.html  ← 알림장 [✅ 완료]
+│           ├── 📄 operation-invitation.html    ← 초대 관리 [✅ 완료]
+│           ├── 📄 operation-org-info.html      ← 기관정보 관리 [✅ 완료]
+│           ├── 📄 operation-class.html         ← 반 관리 [✅ 완료]
+│           ├── 📄 operation-child.html         ← 원아관리 [✅ 완료]
+│           ├── 📄 operation-dashboard.html     ← 운영관리 대시보드 [🔲 미시작]
+│           ├── 📄 operation-org-selector.html  ← 기관 선택 팝업 [🔲 미시작]
+│           ├── 📄 operation-announcement.html  ← 공지사항 [🔲 미시작]
+│           ├── 📄 operation-album.html         ← 앨범 [🔲 미시작]
+│           ├── 📄 operation-schedule.html      ← 일정 관리 [🔲 미시작]
+│           ├── 📄 operation-consulting.html    ← 상담 관리 [🔲 미시작]
+│           └── 📄 operation-medicine.html      ← 투약의뢰서 관리 [🔲 미시작]
 └── 📁 .brain/                                  ← 프로젝트 브레인 (지식베이스)
     ├── 📄 00-PROJECT-OVERVIEW.md               ← 프로젝트 개요
     ├── 📄 01-MEMBER-MANAGEMENT.md              ← 회원 관리 기능정의
@@ -48,7 +56,9 @@
     ├── 📄 08-OPERATION-MANAGEMENT.md           ← 운영관리 기능정의
     ├── 📄 09-ROADMAP.md                        ← 작업 로드맵
     ├── 📄 10-CHILD-MANAGEMENT.md               ← 원아관리 기능정의
-    └── 📄 11-NOTICE-BOARD.md                   ← 알림장 기능정의
+    ├── 📄 11-NOTICE-BOARD.md                   ← 알림장 기능정의
+    ├── 📄 12-ORG-INFO.md                       ← 기관정보 관리 기능정의
+    └── 📄 13-CLASS-MANAGEMENT.md               ← 반 관리 기능정의
 ```
 
 ---
@@ -73,12 +83,13 @@
 
 | 경로 | 설명 | 상태 |
 |------|------|------|
-| `/src/pages/oper/operation-dashboard.html` | 운영관리 대시보드 (기관·교사 공용, 로그인 후 진입) | 🔲 작업중 |
-| `/src/pages/oper/operation-org-selector.html` | 기관 선택 팝업 | 🔲 작업중 |
-| `/src/pages/oper/operation-child.html` | 원아관리 | 🔲 작업중 |
-| `/src/pages/oper/operation-notice-board.html` | 알림장 | 🔲 작업중 |
-| `/src/pages/oper/operation-org-info.html` | 기관정보 관리 | 🔲 미시작 |
-| `/src/pages/oper/operation-class.html` | 반 관리 | 🔲 미시작 |
+| `/src/pages/oper/operation-notice-board.html` | 알림장 | ✅ 완료 |
+| `/src/pages/oper/operation-invitation.html` | 초대 관리 | ✅ 완료 |
+| `/src/pages/oper/operation-org-info.html` | 기관정보 관리 | ✅ 완료 |
+| `/src/pages/oper/operation-class.html` | 반 관리 | ✅ 완료 |
+| `/src/pages/oper/operation-child.html` | 원아관리 | ✅ 완료 |
+| `/src/pages/oper/operation-dashboard.html` | 운영관리 대시보드 (기관·교사 공용) | 🔲 미시작 |
+| `/src/pages/oper/operation-org-selector.html` | 기관 선택 팝업 | 🔲 미시작 |
 | `/src/pages/oper/operation-announcement.html` | 공지사항 | 🔲 미시작 |
 | `/src/pages/oper/operation-album.html` | 앨범 | 🔲 미시작 |
 | `/src/pages/oper/operation-schedule.html` | 일정 관리 | 🔲 미시작 |
@@ -119,14 +130,39 @@
 - 3탭: 기관 조회 / 기관 승인 / 기관 상태
 - 기관 상세 패널 / 멤버십 등급 시스템
 
+### 8. 알림장 (`operation-notice-board.html`)
+- 보낸 알림장 / 받은 알림장 2탭 구조
+- 알림장 작성 패널 (원아 선택, 날씨·기온, 본문, 종합평가 6개 카테고리)
+- AI 예문 생성 / 문장 교정 기능
+- 발행·임시저장·예약발행·회수 상태 관리
+
+### 9. 초대 관리 (`operation-invitation.html`)
+- 학부모/교직원 서브탭
+- 초대 링크 생성·복사·만료 관리 / 초대 현황 KPI
+
+### 10. 기관정보 관리 (`operation-org-info.html`)
+- 6개 섹션: 프로필·기본정보·운영정보·위치·서비스설정·담당자
+- 뷰↔편집 인라인 전환 / 역할별 편집 권한 분기
+
+### 11. 반 관리 (`operation-class.html`)
+- KPI 4개 / 3열 카드 그리드 (컬러 상단바, 정원 프로그레스바)
+- 우측 드로어 상세 / 반 추가·수정·삭제 모달
+- 원아관리 페이지 연동 (`sessionStorage.currentClass`)
+
+### 12. 원아관리 (`operation-child.html`)
+- 반별 탭 필터 + 상태/검색 필터바
+- 원아 목록 테이블 → 우측 드로어 (상세·보호자·수정)
+- 원아 등록·상태변경 모달 / 보호자 연결 관리
+
 ---
 
 ## 🚧 미구현 / 준비중 기능
 
 | 기능 | 상태 | 설명 |
 |------|------|------|
-| 운영관리 화면 전체 | 🔲 작업중 | operation-*.html 순차 제작 |
-| 기관·교사 대시보드 | 🔲 작업중 | org-dashboard.html |
+| 운영관리 나머지 화면 | 🔲 미시작 | 공지사항·앨범·일정·상담·투약의뢰서 |
+| 운영관리 대시보드 | 🔲 미시작 | 기관·교사 공용 대시보드 |
+| 기관 선택 팝업 | 🔲 미시작 | 통합관리자 운영관리 진입 시 |
 | 통계관리 | 🔒 준비중 | 사이드바에 "준비중" 표시 |
 | 서버 연동 | ❌ 미구현 | 현재 모든 데이터는 프론트엔드 하드코딩 |
 | 실제 인증 | ❌ 미구현 | 클라이언트 사이드 테스트 계정만 |
@@ -157,6 +193,8 @@
 - **09-ROADMAP**: Phase별 작업 로드맵, 미결 사항
 - **10-CHILD-MANAGEMENT**: 원아관리 스키마, 화면 스펙, 모킹 데이터
 - **11-NOTICE-BOARD**: 알림장 스키마, 체크필드, AI 기능, 화면 스펙
+- **12-ORG-INFO**: 기관정보 관리 화면 스펙
+- **13-CLASS-MANAGEMENT**: 반 관리 화면 스펙, 권한 매트릭스
 
 > AI 협업 시 `CLAUDE.md`를 기준으로 작업하며, `.brain/`에서 상세 기획을 참조합니다.
 

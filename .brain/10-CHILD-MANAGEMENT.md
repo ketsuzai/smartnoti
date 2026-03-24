@@ -1,8 +1,22 @@
 # 🧠 프로젝트 브레인: 원아관리 기능정의
 
-> **최종 업데이트**: 2026-03-18  
-> **작업 범위**: 운영관리 내 원아관리 (`operation-child.html`)  
+> **최종 업데이트**: 2026-03-24 (operation-child.html 완료)
+> **작업 범위**: 운영관리 내 원아관리 (`operation-child.html`)
 > **연관 브레인**: `07-ROLE-PERMISSION.md`, `08-OPERATION-MANAGEMENT.md`, `05-DATABASE-SCHEMA.md`
+
+---
+
+## ⚡ QUICK REF
+> 빌드 시 핵심 요약. 상세 스펙은 아래 섹션 참조.
+
+- **파일**: `src/pages/oper/operation-child.html` ✅ 완료
+- **역할**: 기관 내 원아 목록 조회·등록·수정·상태관리 + 보호자 연결 관리
+- **권한**: super/org_admin → CRUD 전체; teacher → 담당 반 원아 조회·수정만
+- **상태값**: `enrolled`재원중 / `graduated`졸업 / `withdrawn`퇴소 / `on_leave`휴원중 / `pending`등록대기
+- **핵심 필드**: id, name, birth, gender, class_id, status, primary_parent_id, parents[]
+- **UI 구조**: 반 탭 필터 + 검색/상태 필터바 → 테이블 목록 → 우측 드로어(상세/보호자/수정)
+- **반 연동**: `sessionStorage.getItem('currentClass')` 로 반 관리에서 진입 가능
+- **보호자**: 주계정 1명 + 가족계정 N명, parents[] 배열로 관리
 
 ---
 

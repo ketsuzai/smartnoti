@@ -4,6 +4,26 @@
 
 ---
 
+## ⚡ QUICK REF
+> 빌드 시 핵심 토큰. 상세 패턴은 아래 참조.
+
+```
+레이아웃: 사이드바 240px / 상단바 60px / 카드 radius 12~16px
+배경: --bg-base #F4F5F7 / --bg-surface #FFFFFF
+사이드바: 통합관리자 #1A1D2E / 운영관리·기관교사 #0C2D48
+액센트: 통합관리자 #4361EE / 운영관리 #0EA5E9
+텍스트: primary #1A1D2E / secondary #6B7280 / border #E5E7EB
+상태색: 성공/활성 #10B981(bg #D1FAE5) / 정보 #3B82F6(bg #DBEAFE)
+        경고 #F59E0B(bg #FEF3C7) / 위험 #EF4444(bg #FEE2E2) / 특수 #8B5CF6(bg #EDE9FE)
+```
+```html
+<!-- 상태 뱃지 -->  <span class="sbadge"><span class="sdot"></span>상태명</span>
+<!-- 필터 셀렉트 --> <div class="fsel-wrap"><select class="fsel">...</select></div>
+<!-- 검색 -->        <div class="search-wrap"><input class="search-inp"><button class="search-btn">🔍</button></div>
+```
+
+---
+
 ## 1. 색상 시스템 (CSS Variables)
 
 ### 1.1 기본 색상
