@@ -47,14 +47,6 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .breadcrumb{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary);flex:1;}
 .breadcrumb .cur{color:var(--text-primary);font-weight:600;}
 .bc-sep{color:var(--text-muted);font-size:11px;}
-.class-filter-wrap{display:flex;align-items:center;gap:8px;background:var(--bg-base);border:1.5px solid var(--border-light);border-radius:var(--radius-md);padding:5px 12px;transition:0.18s;}
-.class-filter-wrap:focus-within{border-color:var(--accent);background:#fff;}
-.class-filter-label{font-size:11px;color:var(--text-secondary);font-weight:600;white-space:nowrap;}
-.class-filter-divider{width:1px;height:14px;background:var(--border-medium);}
-.class-select-wrap{position:relative;}
-.class-select{appearance:none;-webkit-appearance:none;border:none;background:transparent;font-size:13px;font-weight:700;color:var(--text-primary);cursor:pointer;font-family:'Pretendard',sans-serif;outline:none;padding-right:20px;min-width:120px;}
-.class-select-arrow{position:absolute;right:0;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--text-muted);font-size:11px;}
-
 /* ━━━ 오늘의 현황 ━━━ */
 .today-section{margin-bottom:16px;}
 .today-section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
@@ -127,13 +119,17 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .tab-btn:not(.active) .tab-count{background:var(--border-light);color:var(--text-secondary);}
 
 /* ━━━ 필터바 ━━━ */
-.filter-bar{background:var(--bg-surface);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:12px 16px;margin-bottom:12px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;box-shadow:var(--shadow-sm);}
-.filter-group{display:flex;align-items:center;gap:5px;}
-.filter-label{font-size:11px;font-weight:600;color:var(--text-secondary);white-space:nowrap;}
-.filter-select,.filter-input{height:32px;padding:0 10px;border:1.5px solid var(--border-light);border-radius:var(--radius-md);font-size:12px;font-weight:500;color:var(--text-primary);background:#fff;font-family:'Pretendard',sans-serif;transition:border-color .18s;outline:none;}
-.filter-select:focus,.filter-input:focus{border-color:var(--accent);}
-.filter-input{width:160px;}
-.filter-divider{width:1px;height:20px;background:var(--border-light);}
+.filter-bar{background:var(--bg-surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);padding:14px 18px;border:1px solid var(--border-light);display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.filter-group{display:flex;align-items:center;gap:8px;flex:1;flex-wrap:wrap;}
+.fsel-wrap{position:relative;}
+.fsel-wrap::after{content:'▾';position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--text-muted);pointer-events:none;}
+.fsel{height:34px;padding:0 28px 0 10px;border:1.5px solid var(--border-light);border-radius:var(--radius-md);font-size:12px;font-family:'Pretendard',sans-serif;color:var(--text-primary);background:var(--bg-surface);appearance:none;cursor:pointer;outline:none;transition:.18s;}
+.fsel:focus{border-color:var(--accent);}
+.search-wrap{display:flex;align-items:center;border:1.5px solid var(--border-light);border-radius:var(--radius-md);overflow:hidden;background:var(--bg-surface);transition:.18s;}
+.search-wrap:focus-within{border-color:var(--accent);}
+.search-inp{height:34px;padding:0 10px;border:none;outline:none;font-size:13px;font-family:'Pretendard',sans-serif;color:var(--text-primary);background:transparent;width:140px;}
+.btn-reset{height:34px;padding:0 12px;background:var(--bg-base);border:1.5px solid var(--border-light);border-radius:var(--radius-md);font-size:12px;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:.18s;font-family:'Pretendard',sans-serif;}
+.btn-reset:hover{background:var(--border-light);}
 .filter-date-range{display:flex;align-items:center;gap:4px;}
 .filter-date-range input{height:32px;padding:0 8px;border:1.5px solid var(--border-light);border-radius:var(--radius-md);font-size:12px;color:var(--text-primary);font-family:'Pretendard',sans-serif;outline:none;transition:border-color .18s;}
 .filter-date-range input:focus{border-color:var(--accent);}
@@ -506,20 +502,6 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
       <span id="breadcrumbOrg">운영관리</span><span class="bc-sep">›</span>
       <span class="cur">알림장</span>
     </div>
-    <!-- 반 필터 -->
-    <div class="class-filter-wrap">
-      <span class="class-filter-label">📌 반 선택</span>
-      <div class="class-filter-divider"></div>
-      <div class="class-select-wrap">
-        <select class="class-select" id="classFilter" onchange="applyFilters()">
-          <option value="">전체 반</option>
-          <option value="CLS001">햇님반</option>
-          <option value="CLS002">달님반</option>
-          <option value="CLS003">별님반</option>
-        </select>
-        <span class="class-select-arrow">▼</span>
-      </div>
-    </div>
     <div class="topbar-right">
       <span class="topbar-date" id="topDate"></span>
       <div class="icon-btn notif-dot" title="알림">🔔</div>
@@ -558,57 +540,53 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
     <!-- 필터바 (보낸) -->
     <div class="filter-bar" id="sentFilterBar">
       <div class="filter-group">
-        <span class="filter-label">상태</span>
-        <select class="filter-select" id="filterStatus" onchange="applyFilters()">
-          <option value="">전체</option>
-          <option value="published">발행됨</option>
-          <option value="draft">임시저장</option>
-          <option value="recalled">회수됨</option>
-          <option value="scheduled">예약발행</option>
-        </select>
-      </div>
-      <div class="filter-divider"></div>
-      <div class="filter-group">
-        <span class="filter-label">원아</span>
-        <input class="filter-input" type="text" id="filterChildName" placeholder="원아명 검색" oninput="applyFilters()">
-      </div>
-      <div class="filter-divider"></div>
-      <div class="filter-group">
-        <span class="filter-label">날짜</span>
-        <div class="filter-date-range">
-          <input type="date" id="filterDateFrom" onchange="applyFilters()">
-          <span>~</span>
-          <input type="date" id="filterDateTo" onchange="applyFilters()">
+        <div class="fsel-wrap" id="classFilterGroup">
+          <select class="fsel" id="classFilter" onchange="applyFilters()"><!-- JS 렌더링 --></select>
         </div>
+        <div class="fsel-wrap">
+          <select class="fsel" id="filterStatus" onchange="applyFilters()">
+            <option value="">전체 상태</option>
+            <option value="published">발행됨</option>
+            <option value="draft">임시저장</option>
+            <option value="recalled">회수됨</option>
+            <option value="scheduled">예약발행</option>
+          </select>
+        </div>
+        <div class="filter-date-range">
+          <input type="date" id="filterDateFrom" onchange="applyFilters()" style="height:34px;padding:0 10px;border:1.5px solid var(--border-light);border-radius:var(--radius-md);font-size:12px;font-family:'Pretendard',sans-serif;color:var(--text-primary);outline:none;">
+          <span style="font-size:12px;color:var(--text-muted)">~</span>
+          <input type="date" id="filterDateTo" onchange="applyFilters()" style="height:34px;padding:0 10px;border:1.5px solid var(--border-light);border-radius:var(--radius-md);font-size:12px;font-family:'Pretendard',sans-serif;color:var(--text-primary);outline:none;">
+        </div>
+        <div class="search-wrap">
+          <input class="search-inp" type="text" id="filterChildName" placeholder="원아명 검색" oninput="applyFilters()">
+        </div>
+        <button class="btn-reset" onclick="resetSentFilters()">초기화</button>
       </div>
-      <button class="btn btn-outline btn-sm" onclick="resetSentFilters()" style="margin-left:auto">초기화</button>
     </div>
 
     <!-- 필터바 (받은) -->
     <div class="filter-bar" id="receivedFilterBar" style="display:none;">
       <div class="filter-group">
-        <span class="filter-label">카테고리</span>
-        <select class="filter-select" onchange="applyFilters()">
-          <option value="">전체</option>
-          <option value="ABSENCE">결석/지각/조퇴</option>
-          <option value="HEALTH">건강/병원</option>
-          <option value="SCHEDULE">일정/가족사유</option>
-          <option value="SUPPLY">준비물/전달</option>
-        </select>
-      </div>
-      <div class="filter-divider"></div>
-      <div class="filter-group">
-        <span class="filter-label">원아</span>
-        <input class="filter-input" type="text" placeholder="원아명 검색" oninput="applyFilters()">
-      </div>
-      <div class="filter-divider"></div>
-      <div class="filter-group">
-        <span class="filter-label">읽음 여부</span>
-        <select class="filter-select" onchange="applyFilters()">
-          <option value="">전체</option>
-          <option value="unread">미읽음</option>
-          <option value="read">읽음</option>
-        </select>
+        <div class="fsel-wrap">
+          <select class="fsel" id="receivedCategory" onchange="applyFilters()">
+            <option value="">전체 카테고리</option>
+            <option value="ABSENCE">결석/지각/조퇴</option>
+            <option value="HEALTH">건강/병원</option>
+            <option value="SCHEDULE">일정/가족사유</option>
+            <option value="SUPPLY">준비물/전달</option>
+          </select>
+        </div>
+        <div class="fsel-wrap">
+          <select class="fsel" id="receivedReadStatus" onchange="applyFilters()">
+            <option value="">전체 읽음</option>
+            <option value="unread">미읽음</option>
+            <option value="read">읽음</option>
+          </select>
+        </div>
+        <div class="search-wrap">
+          <input class="search-inp" type="text" id="receivedChildName" placeholder="원아명 검색" oninput="applyFilters()">
+        </div>
+        <button class="btn-reset" onclick="resetSentFilters()">초기화</button>
       </div>
     </div>
 
@@ -852,6 +830,40 @@ const TODAY_CHILDREN = [
   { id:'C008', name:'강민재',  color:'#F97316', age:5, attendance:'출석',  noticeWritten:true,  parentComment:true,  class:'CLS003' },
 ];
 
+// ━━━ 역할/반 컨텍스트 ━━━
+const NB_USER_ROLE     = sessionStorage.getItem('userRole') || 'org_admin';
+const NB_OP_CONTEXT    = JSON.parse(sessionStorage.getItem('operationContext') || 'null');
+const NB_ASSIGNED      = NB_USER_ROLE === 'teacher'
+  ? JSON.parse(sessionStorage.getItem('assignedClasses') || '[{"id":"CLS001","name":"햇님반"}]')
+  : null;
+const NB_ALL_CLASSES   = [
+  { id:'CLS001', name:'햇님반' },
+  { id:'CLS002', name:'달님반' },
+  { id:'CLS003', name:'별님반' },
+  { id:'CLS004', name:'꽃님반' },
+];
+
+// ━━━ 반 필터 초기화 ━━━
+function initClassFilter() {
+  const sel = document.getElementById('classFilter');
+  if (!sel) return;
+  sel.innerHTML = '';
+  if (NB_USER_ROLE !== 'teacher') {
+    sel.innerHTML += '<option value="">전체 반</option>';
+  }
+  NB_ALL_CLASSES.forEach(cls => {
+    const isAssigned = !NB_ASSIGNED || NB_ASSIGNED.some(a => a.id === cls.id);
+    const opt = document.createElement('option');
+    opt.value = cls.id;
+    opt.textContent = cls.name;
+    if (!isAssigned) { opt.disabled = true; opt.textContent += ' — 비담당'; }
+    sel.appendChild(opt);
+  });
+  if (NB_USER_ROLE === 'teacher' && NB_ASSIGNED && NB_ASSIGNED.length > 0) {
+    sel.value = NB_ASSIGNED[0].id;
+  }
+}
+
 // ━━━ 상태 ━━━
 let currentTab = 'sent';
 
@@ -864,6 +876,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const todayStr = now.toLocaleDateString('ko-KR', { month:'long', day:'numeric', weekday:'long' });
   document.getElementById('todayMeta').textContent = todayStr + ' 기준';
 
+  initClassFilter();
   renderTodayDashboard();
   renderList('sent');
 });
@@ -1811,14 +1824,11 @@ function applyFilters() {
 }
 
 function resetSentFilters() {
-  const fs = document.getElementById('filterStatus');
-  const fc = document.getElementById('filterChildName');
-  const fd = document.getElementById('filterDateFrom');
-  const ft = document.getElementById('filterDateTo');
-  if (fs) fs.value = '';
-  if (fc) fc.value = '';
-  if (fd) fd.value = '';
-  if (ft) ft.value = '';
+  ['classFilter','filterStatus','filterChildName','filterDateFrom','filterDateTo',
+   'receivedCategory','receivedReadStatus','receivedChildName'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
   applyFilters();
 }
 

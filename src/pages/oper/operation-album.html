@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>앨범 — 키드키즈</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="operation-sidebar.js" defer></script>
+<style>
+:root {
+  --sidebar-bg:     #0C2D48;
+  --sidebar-hover:  #1A4A6B;
+  --sidebar-active: #1E5580;
+  --sidebar-text:   #B8D9F0;
+  --sidebar-width:  240px;
+  --header-height:  60px;
+  --accent:         #0EA5E9;
+  --accent-light:   #E0F2FE;
+  --accent-dark:    #0284C7;
+  --bg-base:        #F0F7FF;
+  --bg-surface:     #FFFFFF;
+  --text-primary:   #0C2D48;
+  --text-secondary: #4B7FA3;
+  --text-muted:     #94B8D0;
+  --border-light:   #DBEAFE;
+  --border-medium:  #BAD9F7;
+  --green:  #10B981; --green-bg:  #D1FAE5; --green-text:  #065F46;
+  --blue:   #3B82F6; --blue-bg:   #DBEAFE; --blue-text:   #1E40AF;
+  --amber:  #F59E0B; --amber-bg:  #FEF3C7; --amber-text:  #92400E;
+  --red:    #EF4444; --red-bg:    #FEE2E2; --red-text:    #991B1B;
+  --purple: #8B5CF6; --purple-bg: #EDE9FE; --purple-text: #5B21B6;
+  --shadow-sm: 0 1px 3px rgba(12,45,72,0.06);
+  --shadow-md: 0 4px 12px rgba(12,45,72,0.09);
+  --shadow-lg: 0 8px 28px rgba(12,45,72,0.11);
+  --radius-sm:6px; --radius-md:10px; --radius-lg:14px; --radius-xl:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--text-primary);display:flex;height:100vh;overflow:hidden;}
+
+/* ━━━ LAYOUT ━━━ */
+.main-wrap{margin-left:var(--sidebar-width);flex:1;display:flex;flex-direction:column;overflow:hidden;}
+
+/* ━━━ TOPBAR ━━━ */
+.topbar{height:var(--header-height);background:var(--bg-surface);border-bottom:1px solid var(--border-light);display:flex;align-items:center;padding:0 24px;gap:12px;box-shadow:var(--shadow-sm);flex-shrink:0;z-index:50;}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary);flex:1;}
+.breadcrumb .cur{color:var(--text-primary);font-weight:700;}
+.bc-sep{color:var(--text-muted);font-size:11px;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.topbar-date{font-size:12px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;}
+.icon-btn{width:36px;height:36px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;background:var(--bg-base);border:1px solid var(--border-light);cursor:pointer;transition:.18s;font-size:16px;}
+.icon-btn:hover{background:var(--accent-light);border-color:var(--accent);}
+
+/* ━━━ CONTENT ━━━ */
+.content{flex:1;overflow-y:auto;padding:24px;}
+.content::-webkit-scrollbar{width:5px;}
+.content::-webkit-scrollbar-thumb{background:var(--border-medium);border-radius:3px;}
+.content-inner{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:20px;}
+
+/* ━━━ KPI CARDS ━━━ */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.kpi-card{background:var(--bg-surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);padding:18px 20px;border:1px solid var(--border-light);display:flex;align-items:center;gap:14px;}
+.kpi-icon{width:46px;height:46px;border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.kpi-info{flex:1;}
+.kpi-val{font-size:26px;font-weight:800;line-height:1;color:var(--text-primary);}
+.kpi-label{font-size:11px;font-weight:600;color:var(--text-secondary);margin-top:4px;}
+.kpi-sub{font-size:11px;color:var(--text-muted);margin-top:2px;}
+
+/* ━━━ FILTER BAR / ACTION BAR ━━━ */
+.filter-bar{background:var(--bg-surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);padding:14px 18px;border:1px solid var(--border-light);display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+.filter-group{display:flex;align-items:center;gap:8px;flex:1;flex-wrap:wrap;}
+.fsel-wrap{position:relative;}
+.fsel-wrap::after{content:'▾';position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--text-muted);pointer-events:none;}
+.fsel{height:34px;padding:0 28px 0 10px;border:1.5px solid var(--border-light);border-radius:var(--radius-md);font-size:12px;font-family:'Pretendard',sans-serif;color:var(--text-primary);background:var(--bg-surface);appearance:none;cursor:pointer;outline:none;transition:.18s;}
+.fsel:focus{border-color:var(--accent);}
+.search-wrap{display:flex;align-items:center;border:1.5px solid var(--border-light);border-radius:var(--radius-md);overflow:hidden;background:var(--bg-surface);transition:.18s;}
+.search-wrap:focus-within{border-color:var(--accent);}
+.search-inp{height:34px;padding:0 10px;border:none;outline:none;font-size:13px;font-family:'Pretendard',sans-serif;color:var(--text-primary);background:transparent;width:180px;}
+.btn-reset{height:34px;padding:0 12px;background:var(--bg-base);border:1.5px solid var(--border-light);border-radius:var(--radius-md);font-size:12px;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:.18s;font-family:'Pretendard',sans-serif;}
+.btn-reset:hover{background:var(--border-light);}
+.action-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+.action-left{display:flex;align-items:center;gap:8px;}
+.action-right{display:flex;align-items:center;gap:8px;}
+.total-count{font-size:13px;color:var(--text-secondary);}
+.total-count strong{color:var(--text-primary);font-weight:700;}
+
+/* ━━━ BUTTONS ━━━ */
+.btn{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 16px;border-radius:var(--radius-md);font-size:13px;font-weight:600;font-family:'Pretendard',sans-serif;cursor:pointer;border:none;transition:.18s;white-space:nowrap;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{background:var(--accent-dark);}
+.btn-outline{background:#fff;color:var(--text-primary);border:1.5px solid var(--border-medium);}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent-dark);background:var(--accent-light);}
+.btn-outline.active-view{background:var(--accent-light);border-color:var(--accent);color:var(--accent-dark);}
+.btn-danger{background:var(--red);color:#fff;}
+.btn-danger:hover{background:#DC2626;}
+.btn-danger-outline{background:var(--bg-surface);color:var(--red-text);border:1.5px solid var(--red-bg);}
+.btn-danger-outline:hover{background:var(--red-bg);}
+.btn-sm{height:30px;padding:0 12px;font-size:12px;}
+.btn-xs{padding:3px 8px;font-size:10px;border-radius:var(--radius-sm);}
+
+/* ━━━ VIEW TOGGLE ━━━ */
+.view-toggle{display:flex;gap:4px;}
+.view-toggle .btn-outline{padding:6px 10px;font-size:13px;}
+
+/* ━━━ ALBUM GRID ━━━ */
+.album-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+@media(max-width:960px){.album-grid{grid-template-columns:repeat(2,1fr);}}
+
+/* ━━━ ALBUM CARD ━━━ */
+.album-card{background:var(--bg-surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);border:1.5px solid var(--border-light);overflow:hidden;cursor:pointer;transition:.22s;position:relative;}
+.album-card:hover{box-shadow:var(--shadow-md);transform:translateY(-3px);border-color:var(--border-medium);}
+.album-cover{height:160px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.album-cover-icon{font-size:44px;opacity:.7;}
+.cover-badge-class{position:absolute;top:10px;left:10px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:rgba(255,255,255,0.88);backdrop-filter:blur(4px);color:var(--text-primary);border:1px solid rgba(255,255,255,0.5);}
+.cover-badge-count{position:absolute;top:10px;right:10px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;background:rgba(0,0,0,0.40);color:#fff;display:flex;align-items:center;gap:4px;}
+.album-body{padding:14px 16px 10px;}
+.album-title{font-size:15px;font-weight:800;color:var(--text-primary);margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.album-meta{font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:6px;}
+.album-meta-sep{color:var(--border-medium);}
+.album-footer{padding:8px 16px 12px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border-light);}
+.album-stats{display:flex;align-items:center;gap:12px;}
+.album-stat{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-secondary);font-weight:600;}
+.album-stat-icon{font-size:12px;}
+.album-actions{display:flex;align-items:center;gap:4px;opacity:0;transition:.18s;}
+.album-card:hover .album-actions{opacity:1;}
+
+/* ━━━ ALBUM LIST VIEW ━━━ */
+.album-list-view{display:flex;flex-direction:column;gap:10px;}
+.album-list-item{background:var(--bg-surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);border:1.5px solid var(--border-light);display:flex;align-items:center;gap:14px;padding:12px 16px;cursor:pointer;transition:.18s;}
+.album-list-item:hover{box-shadow:var(--shadow-md);border-color:var(--border-medium);transform:translateX(2px);}
+.ali-thumb{width:60px;height:52px;border-radius:var(--radius-md);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;}
+.ali-info{flex:1;min-width:0;}
+.ali-title{font-size:14px;font-weight:800;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ali-meta{font-size:11px;color:var(--text-muted);margin-top:3px;display:flex;gap:8px;}
+.ali-right{display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.ali-class-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;}
+.ali-stats{display:flex;align-items:center;gap:10px;}
+.ali-stat{font-size:11px;color:var(--text-secondary);font-weight:600;display:flex;align-items:center;gap:3px;}
+.ali-actions{display:flex;align-items:center;gap:4px;opacity:0;transition:.18s;}
+.album-list-item:hover .ali-actions{opacity:1;}
+
+/* ━━━ BADGE ━━━ */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;}
+.badge-sky{background:var(--accent-light);color:var(--accent-dark);}
+.badge-yellow{background:#FEF3C7;color:#92400E;}
+.badge-purple{background:var(--purple-bg);color:var(--purple-text);}
+.badge-green{background:var(--green-bg);color:var(--green-text);}
+.badge-pink{background:#FEE2E2;color:#9B1C1C;}
+.badge-gray{background:#F3F4F6;color:#6B7280;}
+
+/* ━━━ EMPTY STATE ━━━ */
+.empty-state{text-align:center;padding:60px 20px;color:var(--text-muted);}
+.empty-state-icon{font-size:40px;margin-bottom:12px;}
+.empty-state-title{font-size:14px;font-weight:700;margin-bottom:6px;color:var(--text-secondary);}
+
+/* ━━━ MODAL BASE ━━━ */
+.modal-overlay{position:fixed;inset:0;background:rgba(12,45,72,0.38);z-index:400;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:.2s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal-box{background:var(--bg-surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-lg);max-width:95vw;overflow:hidden;display:flex;flex-direction:column;transform:scale(.96);transition:.2s;}
+.modal-overlay.open .modal-box{transform:scale(1);}
+.modal-header{padding:20px 24px 16px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;gap:10px;justify-content:space-between;flex-shrink:0;}
+.modal-title{font-size:15px;font-weight:800;color:var(--text-primary);}
+.modal-title-sub{font-size:12px;color:var(--text-muted);font-weight:500;}
+.modal-close{width:28px;height:28px;border-radius:var(--radius-sm);background:var(--bg-base);border:1.5px solid var(--border-light);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--text-secondary);transition:.15s;flex-shrink:0;}
+.modal-close:hover{background:var(--red-bg);border-color:var(--red-bg);color:var(--red-text);}
+.modal-body{padding:20px 24px;overflow-y:auto;flex:1;}
+.modal-body::-webkit-scrollbar{width:4px;}
+.modal-body::-webkit-scrollbar-thumb{background:var(--border-medium);border-radius:2px;}
+.modal-footer{padding:14px 24px;border-top:1px solid var(--border-light);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0;}
+
+/* ━━━ DETAIL MODAL ━━━ */
+.detail-modal-box{width:860px;max-height:88vh;}
+.photo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.photo-item{aspect-ratio:1/1;border-radius:var(--radius-md);overflow:hidden;cursor:pointer;position:relative;background:var(--bg-base);}
+.photo-item:hover .photo-hover{opacity:1;}
+.photo-thumb{width:100%;height:100%;object-fit:cover;display:block;}
+.photo-color-box{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.photo-hover{position:absolute;inset:0;background:rgba(12,45,72,0.4);display:flex;align-items:center;justify-content:center;opacity:0;transition:.18s;border-radius:var(--radius-md);}
+.photo-hover-icon{font-size:22px;color:#fff;}
+
+/* ━━━ LIGHTBOX ━━━ */
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:800;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:.22s;}
+.lightbox.open{opacity:1;pointer-events:all;}
+.lb-img{max-width:80vw;max-height:80vh;border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;background:#1e2d3d;font-size:80px;width:600px;height:460px;}
+.lb-close{position:absolute;top:20px;right:24px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.12);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.18s;}
+.lb-close:hover{background:rgba(239,68,68,.6);}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.12);border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.18s;}
+.lb-nav:hover{background:rgba(14,165,233,.5);}
+.lb-prev{left:20px;}
+.lb-next{right:20px;}
+.lb-caption{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.7);font-size:12px;font-family:'JetBrains Mono',monospace;background:rgba(0,0,0,.35);padding:6px 14px;border-radius:20px;}
+
+/* ━━━ CREATE MODAL ━━━ */
+.create-modal-box{width:500px;max-height:88vh;}
+.form-field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
+.form-field:last-child{margin-bottom:0;}
+.form-label{font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.4px;}
+.form-label .req{color:var(--red);margin-left:2px;}
+.form-input{border:1.5px solid var(--border-light);border-radius:var(--radius-md);height:38px;padding:0 12px;font-size:14px;font-family:'Pretendard',sans-serif;color:var(--text-primary);background:var(--bg-surface);outline:none;transition:.18s;width:100%;}
+.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(14,165,233,.10);}
+.form-select{border:1.5px solid var(--border-light);border-radius:var(--radius-md);height:38px;padding:0 12px;font-size:14px;font-family:'Pretendard',sans-serif;color:var(--text-primary);background:var(--bg-surface);outline:none;transition:.18s;width:100%;appearance:none;cursor:pointer;}
+.form-select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(14,165,233,.10);}
+.upload-area{border:2px dashed var(--border-medium);border-radius:var(--radius-lg);padding:32px 20px;text-align:center;background:var(--bg-base);cursor:pointer;transition:.18s;}
+.upload-area:hover,.upload-area.drag-over{border-color:var(--accent);background:var(--accent-light);}
+.upload-icon{font-size:32px;margin-bottom:10px;}
+.upload-title{font-size:14px;font-weight:700;color:var(--text-secondary);margin-bottom:4px;}
+.upload-hint{font-size:12px;color:var(--text-muted);}
+.upload-fake-files{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;}
+.fake-file-chip{display:flex;align-items:center;gap:5px;padding:4px 10px;background:var(--bg-surface);border:1.5px solid var(--border-light);border-radius:var(--radius-sm);font-size:11px;color:var(--text-secondary);}
+.fake-file-chip .remove-file{cursor:pointer;color:var(--text-muted);font-size:10px;margin-left:2px;}
+.fake-file-chip .remove-file:hover{color:var(--red);}
+
+/* ━━━ DELETE CONFIRM ━━━ */
+.delete-modal-box{width:400px;}
+.delete-warning{display:flex;align-items:flex-start;gap:12px;padding:14px;background:var(--red-bg);border-radius:var(--radius-md);margin-bottom:16px;}
+.delete-warning-icon{font-size:20px;flex-shrink:0;}
+.delete-warning-text{font-size:13px;color:var(--red-text);font-weight:600;line-height:1.5;}
+.delete-info-card{background:var(--bg-base);border-radius:var(--radius-md);padding:12px 14px;border:1.5px solid var(--border-light);}
+.delete-info-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;}
+.delete-info-row+.delete-info-row{border-top:1px solid var(--border-light);}
+.delete-info-key{font-size:12px;color:var(--text-secondary);}
+.delete-info-val{font-size:12px;font-weight:700;color:var(--text-primary);}
+
+/* ━━━ TOAST ━━━ */
+#toast-container{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:9999;}
+.toast{display:flex;align-items:center;gap:10px;padding:12px 18px;border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);font-size:13px;font-weight:600;color:#fff;min-width:240px;animation:toastIn .25s ease;pointer-events:none;}
+.toast-success{background:#10B981;}
+.toast-info{background:var(--accent);}
+.toast-warning{background:var(--amber);}
+.toast-danger{background:var(--red);}
+@keyframes toastIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+</style>
+</head>
+<body>
+
+<aside id="appSidebar"></aside>
+
+<div class="main-wrap">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="breadcrumb">
+      <span>🏠</span>
+      <span class="bc-sep">›</span>
+      <span>운영관리</span>
+      <span class="bc-sep">›</span>
+      <span class="cur">앨범</span>
+    </div>
+    <div class="topbar-right" id="topbarRight"></div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <div class="content-inner">
+
+      <!-- KPI -->
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:#E0F2FE;">📚</div>
+          <div class="kpi-info">
+            <div class="kpi-val" id="kpi-total-albums">47</div>
+            <div class="kpi-label">전체 앨범</div>
+            <div class="kpi-sub">등록된 전체 앨범 수</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:#D1FAE5;">🗓️</div>
+          <div class="kpi-info">
+            <div class="kpi-val" id="kpi-month-albums">12</div>
+            <div class="kpi-label">이달 앨범</div>
+            <div class="kpi-sub">이번 달 등록 앨범</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:#EDE9FE;">🖼️</div>
+          <div class="kpi-info">
+            <div class="kpi-val" id="kpi-total-photos">1,284</div>
+            <div class="kpi-label">전체 사진</div>
+            <div class="kpi-sub">전체 등록 사진 수</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:#FEF3C7;">📷</div>
+          <div class="kpi-info">
+            <div class="kpi-val" id="kpi-month-photos">326</div>
+            <div class="kpi-label">이달 사진</div>
+            <div class="kpi-sub">이번 달 등록 사진</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FILTER BAR -->
+      <div class="filter-bar">
+        <div class="filter-group">
+          <div class="fsel-wrap">
+            <select class="fsel" id="filterClass" onchange="applyFilter()">
+              <option value="">전체 반</option>
+              <option value="햇님반">햇님반</option>
+              <option value="달님반">달님반</option>
+              <option value="별님반">별님반</option>
+              <option value="꽃님반">꽃님반</option>
+            </select>
+          </div>
+          <div class="fsel-wrap">
+            <select class="fsel" id="filterPeriod" onchange="applyFilter()">
+              <option value="">전체 기간</option>
+              <option value="thisMonth">이번달</option>
+              <option value="lastMonth">지난달</option>
+              <option value="3months">3개월</option>
+            </select>
+          </div>
+          <div class="search-wrap">
+            <input class="search-inp" id="searchInput" placeholder="앨범명 검색" oninput="applyFilter()">
+          </div>
+          <button class="btn-reset" onclick="resetFilter()">초기화</button>
+        </div>
+      </div>
+      <!-- ACTION BAR -->
+      <div class="action-bar">
+        <div class="action-left">
+          <span class="total-count">총 <strong id="resultsCount">0</strong>개</span>
+          <div class="view-toggle">
+            <button class="btn btn-outline btn-sm active-view" id="btnGrid" onclick="setView('grid')" title="그리드 보기">⊞</button>
+            <button class="btn btn-outline btn-sm" id="btnList" onclick="setView('list')" title="리스트 보기">☰</button>
+          </div>
+        </div>
+        <div class="action-right">
+          <button class="btn btn-primary" onclick="openCreateModal()">📷 앨범 만들기</button>
+        </div>
+      </div>
+
+      <!-- ALBUM CONTAINER -->
+      <div id="albumContainer"></div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ━━━ DETAIL MODAL ━━━ -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal-box detail-modal-box">
+    <div class="modal-header">
+      <div style="display:flex;flex-direction:column;gap:3px;">
+        <span class="modal-title" id="detailTitle"></span>
+        <span class="modal-title-sub" id="detailSub"></span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span id="detailClassBadge"></span>
+        <button class="modal-close" onclick="closeModal('detailModal')">✕</button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="photo-grid" id="photoGrid"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('detailModal')">닫기</button>
+      <button class="btn btn-primary" id="detailEditBtn">✏️ 편집</button>
+    </div>
+  </div>
+</div>
+
+<!-- ━━━ LIGHTBOX ━━━ -->
+<div class="lightbox" id="lightbox">
+  <button class="lb-close" onclick="closeLightbox()">✕</button>
+  <button class="lb-nav lb-prev" onclick="lbNav(-1)">‹</button>
+  <div class="lb-img" id="lbImg"></div>
+  <button class="lb-nav lb-next" onclick="lbNav(1)">›</button>
+  <div class="lb-caption" id="lbCaption"></div>
+</div>
+
+<!-- ━━━ CREATE MODAL ━━━ -->
+<div class="modal-overlay" id="createModal">
+  <div class="modal-box create-modal-box">
+    <div class="modal-header">
+      <span class="modal-title">📷 앨범 만들기</span>
+      <button class="modal-close" onclick="closeModal('createModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-field">
+        <label class="form-label">앨범명 <span class="req">*</span></label>
+        <input class="form-input" id="c_name" placeholder="예: 봄 소풍 나들이" maxlength="30">
+      </div>
+      <div class="form-field">
+        <label class="form-label">대상 반 <span class="req">*</span></label>
+        <select class="form-select" id="c_class">
+          <option value="전체">전체 (공통)</option>
+          <option value="햇님반">햇님반</option>
+          <option value="달님반">달님반</option>
+          <option value="별님반">별님반</option>
+          <option value="꽃님반">꽃님반</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label class="form-label">사진 업로드</label>
+        <div class="upload-area" id="uploadArea"
+             ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)"
+             onclick="triggerFileInput()">
+          <div class="upload-icon">🖼️</div>
+          <div class="upload-title">사진을 드래그하거나 클릭해서 추가</div>
+          <div class="upload-hint">JPG, PNG, GIF · 최대 50장 · 파일당 10MB 이하</div>
+          <div class="upload-fake-files" id="uploadFakeFiles"></div>
+        </div>
+        <input type="file" id="fileInput" multiple accept="image/*" style="display:none" onchange="onFileSelected(event)">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('createModal')">취소</button>
+      <button class="btn btn-primary" onclick="saveAlbum()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ━━━ DELETE CONFIRM MODAL ━━━ -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box delete-modal-box">
+    <div class="modal-header">
+      <span class="modal-title">앨범 삭제</span>
+      <button class="modal-close" onclick="closeModal('deleteModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="delete-warning">
+        <span class="delete-warning-icon">⚠️</span>
+        <span class="delete-warning-text">앨범을 삭제하면 포함된 모든 사진이 함께 삭제됩니다. 이 작업은 되돌릴 수 없습니다.</span>
+      </div>
+      <div class="delete-info-card">
+        <div class="delete-info-row">
+          <span class="delete-info-key">앨범명</span>
+          <span class="delete-info-val" id="delAlbumName">—</span>
+        </div>
+        <div class="delete-info-row">
+          <span class="delete-info-key">대상 반</span>
+          <span class="delete-info-val" id="delAlbumClass">—</span>
+        </div>
+        <div class="delete-info-row">
+          <span class="delete-info-key">사진 수</span>
+          <span class="delete-info-val" id="delAlbumCount">—</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('deleteModal')">취소</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">삭제</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast-container"></div>
+
+<script>
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 1. 목 데이터
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const ALBUMS_RAW = [
+  {id:'A001', title:'봄 소풍 나들이',   cls:'전체',  count:34, author:'김원장', date:'2026.03.22', likes:18, comments:5},
+  {id:'A002', title:'3월 생일 파티',    cls:'전체',  count:28, author:'김원장', date:'2026.03.20', likes:24, comments:8},
+  {id:'A003', title:'햇님반 텃밭 가꾸기',cls:'햇님반',count:18, author:'박교사', date:'2026.03.18', likes:12, comments:3},
+  {id:'A004', title:'달님반 요리활동',  cls:'달님반', count:22, author:'이교사', date:'2026.03.15', likes:15, comments:4},
+  {id:'A005', title:'별님반 과학실험',  cls:'별님반', count:15, author:'최교사', date:'2026.03.12', likes:9,  comments:2},
+  {id:'A006', title:'꽃님반 미술시간',  cls:'꽃님반', count:19, author:'정교사', date:'2026.03.10', likes:21, comments:6},
+  {id:'A007', title:'3월 입학식',       cls:'전체',  count:45, author:'김원장', date:'2026.03.02', likes:52, comments:17},
+  {id:'A008', title:'햇님반 독서활동',  cls:'햇님반', count:12, author:'박교사', date:'2026.02.28', likes:7,  comments:1},
+  {id:'A009', title:'달님반 체육활동',  cls:'달님반', count:20, author:'이교사', date:'2026.02.25', likes:11, comments:3},
+  {id:'A010', title:'전체 등원 첫날',   cls:'전체',  count:38, author:'김원장', date:'2026.02.03', likes:40, comments:13},
+  {id:'A011', title:'꽃님반 블록놀이',  cls:'꽃님반', count:10, author:'정교사', date:'2026.02.20', likes:6,  comments:2},
+  {id:'A012', title:'별님반 야외수업',  cls:'별님반', count:17, author:'최교사', date:'2026.02.18', likes:13, comments:4},
+];
+
+// 앨범별 커버 그라디언트
+const COVER_GRADIENT = {
+  '전체':  'linear-gradient(135deg, #38BDF8 0%, #0EA5E9 50%, #0284C7 100%)',
+  '햇님반':'linear-gradient(135deg, #FDE68A 0%, #F59E0B 50%, #D97706 100%)',
+  '달님반':'linear-gradient(135deg, #C4B5FD 0%, #8B5CF6 50%, #7C3AED 100%)',
+  '별님반':'linear-gradient(135deg, #6EE7B7 0%, #10B981 50%, #059669 100%)',
+  '꽃님반':'linear-gradient(135deg, #FCA5A5 0%, #F87171 50%, #EC4899 100%)',
+};
+const COVER_EMOJI = {'전체':'🌤️','햇님반':'☀️','달님반':'🌙','별님반':'⭐','꽃님반':'🌸'};
+const CLASS_BADGE_CLS = {
+  '전체':'badge-sky','햇님반':'badge-yellow','달님반':'badge-purple','별님반':'badge-green','꽃님반':'badge-pink',
+};
+
+// 사진 색상 팔레트 (per-album, 4열 사진 그리드)
+const PHOTO_PALETTES = {
+  '전체':  ['#BAE6FD','#7DD3FC','#38BDF8','#0EA5E9','#0284C7','#075985','#BAE6FD','#7DD3FC','#93C5FD','#60A5FA','#3B82F6','#2563EB'],
+  '햇님반':['#FDE68A','#FCD34D','#F59E0B','#D97706','#FBBF24','#FEF3C7','#FDE68A','#FCD34D','#FCA5A5','#F97316','#EA580C','#FFF7ED'],
+  '달님반':['#DDD6FE','#C4B5FD','#A78BFA','#8B5CF6','#7C3AED','#EDE9FE','#DDD6FE','#C4B5FD','#F0ABFC','#E879F9','#D946EF','#FAE8FF'],
+  '별님반':['#A7F3D0','#6EE7B7','#34D399','#10B981','#059669','#D1FAE5','#A7F3D0','#6EE7B7','#99F6E4','#2DD4BF','#0D9488','#CCFBF1'],
+  '꽃님반':['#FCA5A5','#F87171','#EF4444','#DC2626','#FBCFE8','#F9A8D4','#F472B6','#EC4899','#FCA5A5','#F87171','#FDA4AF','#FB7185'],
+};
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 2. 상태
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let albums = [...ALBUMS_RAW];
+let filteredAlbums = [...albums];
+let currentView = 'grid'; // 'grid' | 'list'
+let deleteTargetId = null;
+let lbPhotos = [];
+let lbIndex = 0;
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 3. 초기화
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+document.addEventListener('DOMContentLoaded', () => {
+  renderTopbarRight();
+  applyFilter();
+});
+
+function renderTopbarRight() {
+  const el = document.getElementById('topbarRight');
+  if (!el) return;
+  const today = new Date();
+  const fmt = `${today.getFullYear()}.${String(today.getMonth()+1).padStart(2,'0')}.${String(today.getDate()).padStart(2,'0')}`;
+  el.innerHTML = `
+    <span class="topbar-date">${fmt}</span>
+    <button class="icon-btn" title="새로고침" onclick="showToast('info','새로고침되었습니다.')">🔄</button>
+    <button class="icon-btn" title="도움말">❓</button>`;
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 4. 필터 / 검색
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function applyFilter() {
+  const cls    = document.getElementById('filterClass').value;
+  const period = document.getElementById('filterPeriod').value;
+  const q      = document.getElementById('searchInput').value.trim().toLowerCase();
+
+  const now = new Date(2026, 2, 24); // 기준일 2026-03-24
+  filteredAlbums = albums.filter(a => {
+    if (cls && a.cls !== cls) return false;
+    if (q && !a.title.toLowerCase().includes(q)) return false;
+    if (period) {
+      const d = parseDate(a.date);
+      if (period === 'thisMonth'  && !(d.getFullYear()===2026 && d.getMonth()===2)) return false;
+      if (period === 'lastMonth'  && !(d.getFullYear()===2026 && d.getMonth()===1)) return false;
+      if (period === '3months') {
+        const cut = new Date(now); cut.setMonth(cut.getMonth()-3);
+        if (d < cut) return false;
+      }
+    }
+    return true;
+  });
+
+  document.getElementById('resultsCount').textContent = filteredAlbums.length;
+  renderAlbums();
+}
+
+function parseDate(str) {
+  const p = str.split('.');
+  return new Date(Number(p[0]), Number(p[1])-1, Number(p[2]));
+}
+
+function resetFilter() {
+  document.getElementById('filterClass').value = '';
+  document.getElementById('filterPeriod').value = '';
+  document.getElementById('searchInput').value = '';
+  applyFilter();
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 5. 뷰 토글
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function setView(v) {
+  currentView = v;
+  document.getElementById('btnGrid').classList.toggle('active-view', v==='grid');
+  document.getElementById('btnList').classList.toggle('active-view', v==='list');
+  renderAlbums();
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 6. 렌더링
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function renderAlbums() {
+  const container = document.getElementById('albumContainer');
+  if (!filteredAlbums.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-title">앨범이 없습니다.</div><p style="font-size:12px;color:var(--text-muted)">검색 조건을 변경하거나 새 앨범을 만들어 보세요.</p></div>`;
+    return;
+  }
+  if (currentView === 'grid') renderGrid(container);
+  else renderList(container);
+}
+
+function renderGrid(container) {
+  const cards = filteredAlbums.map(a => `
+    <div class="album-card" onclick="openDetail('${a.id}')">
+      <div class="album-cover" style="background:${COVER_GRADIENT[a.cls]}">
+        <span class="album-cover-icon">${COVER_EMOJI[a.cls]}</span>
+        <span class="cover-badge-class">${a.cls}</span>
+        <span class="cover-badge-count">📷 ${a.count}장</span>
+      </div>
+      <div class="album-body">
+        <div class="album-title" title="${a.title}">${a.title}</div>
+        <div class="album-meta">
+          <span>${a.author}</span>
+          <span class="album-meta-sep">·</span>
+          <span>${a.date}</span>
+        </div>
+      </div>
+      <div class="album-footer">
+        <div class="album-stats">
+          <span class="album-stat"><span class="album-stat-icon">❤️</span>${a.likes}</span>
+          <span class="album-stat"><span class="album-stat-icon">💬</span>${a.comments}</span>
+        </div>
+        <div class="album-actions">
+          <button class="btn btn-outline btn-xs" onclick="openEditModal(event,'${a.id}')">✏️</button>
+          <button class="btn btn-danger-outline btn-xs" onclick="openDeleteModal(event,'${a.id}')">🗑️</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  container.innerHTML = `<div class="album-grid">${cards}</div>`;
+}
+
+function renderList(container) {
+  const items = filteredAlbums.map(a => `
+    <div class="album-list-item" onclick="openDetail('${a.id}')">
+      <div class="ali-thumb" style="background:${COVER_GRADIENT[a.cls]}">
+        <span style="font-size:22px;">${COVER_EMOJI[a.cls]}</span>
+      </div>
+      <div class="ali-info">
+        <div class="ali-title">${a.title}</div>
+        <div class="ali-meta">
+          <span>${a.author}</span>
+          <span>·</span>
+          <span>${a.date}</span>
+          <span>·</span>
+          <span>📷 ${a.count}장</span>
+        </div>
+      </div>
+      <div class="ali-right">
+        <span class="ali-class-badge badge ${CLASS_BADGE_CLS[a.cls]}">${a.cls}</span>
+        <div class="ali-stats">
+          <span class="ali-stat">❤️ ${a.likes}</span>
+          <span class="ali-stat">💬 ${a.comments}</span>
+        </div>
+        <div class="ali-actions">
+          <button class="btn btn-outline btn-xs" onclick="openEditModal(event,'${a.id}')">✏️</button>
+          <button class="btn btn-danger-outline btn-xs" onclick="openDeleteModal(event,'${a.id}')">🗑️</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  container.innerHTML = `<div class="album-list-view">${items}</div>`;
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 7. 상세 모달
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function openDetail(id) {
+  const a = albums.find(x => x.id === id);
+  if (!a) return;
+
+  document.getElementById('detailTitle').textContent = a.title;
+  document.getElementById('detailSub').textContent = `${a.author} · ${a.date} · 사진 ${a.count}장`;
+  document.getElementById('detailClassBadge').innerHTML = `<span class="badge ${CLASS_BADGE_CLS[a.cls]}">${a.cls}</span>`;
+  document.getElementById('detailEditBtn').onclick = () => { closeModal('detailModal'); openEditModal(null, id); };
+
+  // 사진 그리드 생성 (사진 수만큼 컬러 박스)
+  const palette = PHOTO_PALETTES[a.cls] || PHOTO_PALETTES['전체'];
+  lbPhotos = Array.from({length: a.count}, (_, i) => ({
+    color: palette[i % palette.length],
+    label: `사진 ${i+1}`,
+    albumTitle: a.title,
+  }));
+
+  const photoItems = lbPhotos.map((p, i) => `
+    <div class="photo-item" onclick="openLightbox(${i})">
+      <div class="photo-color-box" style="background:${p.color};">📸</div>
+      <div class="photo-hover"><span class="photo-hover-icon">🔍</span></div>
+    </div>
+  `).join('');
+
+  document.getElementById('photoGrid').innerHTML = photoItems;
+  openModal('detailModal');
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 8. 라이트박스
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function openLightbox(idx) {
+  lbIndex = idx;
+  renderLightbox();
+  document.getElementById('lightbox').classList.add('open');
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+}
+
+function lbNav(dir) {
+  lbIndex = (lbIndex + dir + lbPhotos.length) % lbPhotos.length;
+  renderLightbox();
+}
+
+function renderLightbox() {
+  const p = lbPhotos[lbIndex];
+  document.getElementById('lbImg').style.background = p.color;
+  document.getElementById('lbImg').innerHTML = `<span style="font-size:80px;opacity:.6;">📸</span>`;
+  document.getElementById('lbCaption').textContent = `${p.albumTitle} · ${p.label} (${lbIndex+1} / ${lbPhotos.length})`;
+}
+
+document.addEventListener('keydown', e => {
+  const lb = document.getElementById('lightbox');
+  if (!lb.classList.contains('open')) return;
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowLeft')  lbNav(-1);
+  if (e.key === 'ArrowRight') lbNav(1);
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 9. 앨범 만들기 모달
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let fakeFiles = [];
+
+function openCreateModal() {
+  document.getElementById('c_name').value = '';
+  document.getElementById('c_class').value = '전체';
+  fakeFiles = [];
+  renderFakeFiles();
+  openModal('createModal');
+}
+
+function saveAlbum() {
+  const name = document.getElementById('c_name').value.trim();
+  const cls  = document.getElementById('c_class').value;
+  if (!name) { showToast('warning','앨범명을 입력해주세요.'); return; }
+
+  const newAlbum = {
+    id: 'A' + String(Date.now()).slice(-4),
+    title: name,
+    cls,
+    count: fakeFiles.length || Math.floor(Math.random()*15)+3,
+    author: '관리자',
+    date: '2026.03.24',
+    likes: 0,
+    comments: 0,
+  };
+  albums.unshift(newAlbum);
+  closeModal('createModal');
+  applyFilter();
+  showToast('success', `"${name}" 앨범이 생성되었습니다.`);
+}
+
+// 파일 업로드 UI (실제 업로드 없이 UI만)
+function triggerFileInput() { document.getElementById('fileInput').click(); }
+
+function onFileSelected(e) {
+  const files = Array.from(e.target.files);
+  files.forEach(f => { if (!fakeFiles.find(x=>x===f.name)) fakeFiles.push(f.name); });
+  renderFakeFiles();
+  e.target.value = '';
+}
+
+function onDragOver(e) {
+  e.preventDefault();
+  document.getElementById('uploadArea').classList.add('drag-over');
+}
+function onDragLeave(e) {
+  document.getElementById('uploadArea').classList.remove('drag-over');
+}
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadArea').classList.remove('drag-over');
+  const files = Array.from(e.dataTransfer.files);
+  files.forEach(f => { if (f.type.startsWith('image/') && !fakeFiles.find(x=>x===f.name)) fakeFiles.push(f.name); });
+  renderFakeFiles();
+}
+
+function renderFakeFiles() {
+  const wrap = document.getElementById('uploadFakeFiles');
+  if (!fakeFiles.length) { wrap.innerHTML = ''; return; }
+  wrap.innerHTML = fakeFiles.map((n,i) => `
+    <span class="fake-file-chip">
+      🖼️ ${n.length > 16 ? n.slice(0,14)+'…' : n}
+      <span class="remove-file" onclick="removeFakeFile(event,${i})">✕</span>
+    </span>`).join('');
+}
+function removeFakeFile(e, i) {
+  e.stopPropagation();
+  fakeFiles.splice(i, 1);
+  renderFakeFiles();
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 10. 편집 모달 (앨범 만들기 재활용)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let editTargetId = null;
+function openEditModal(e, id) {
+  if (e) e.stopPropagation();
+  const a = albums.find(x => x.id === id);
+  if (!a) return;
+  editTargetId = id;
+  fakeFiles = [];
+  document.getElementById('c_name').value = a.title;
+  document.getElementById('c_class').value = a.cls;
+  renderFakeFiles();
+
+  // 모달 타이틀 변경
+  document.querySelector('#createModal .modal-title').textContent = '✏️ 앨범 편집';
+  document.querySelector('#createModal .modal-footer .btn-primary').onclick = () => saveEditAlbum();
+  openModal('createModal');
+}
+
+function saveEditAlbum() {
+  const name = document.getElementById('c_name').value.trim();
+  const cls  = document.getElementById('c_class').value;
+  if (!name) { showToast('warning','앨범명을 입력해주세요.'); return; }
+  const a = albums.find(x => x.id === editTargetId);
+  if (a) { a.title = name; a.cls = cls; }
+  editTargetId = null;
+  document.querySelector('#createModal .modal-title').textContent = '📷 앨범 만들기';
+  document.querySelector('#createModal .modal-footer .btn-primary').onclick = saveAlbum;
+  closeModal('createModal');
+  applyFilter();
+  showToast('success', `"${name}" 앨범이 수정되었습니다.`);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 11. 삭제 모달
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function openDeleteModal(e, id) {
+  e.stopPropagation();
+  const a = albums.find(x => x.id === id);
+  if (!a) return;
+  deleteTargetId = id;
+  document.getElementById('delAlbumName').textContent  = a.title;
+  document.getElementById('delAlbumClass').textContent = a.cls;
+  document.getElementById('delAlbumCount').textContent = `${a.count}장`;
+  openModal('deleteModal');
+}
+
+function confirmDelete() {
+  const a = albums.find(x => x.id === deleteTargetId);
+  if (!a) return;
+  const title = a.title;
+  albums = albums.filter(x => x.id !== deleteTargetId);
+  deleteTargetId = null;
+  closeModal('deleteModal');
+  applyFilter();
+  showToast('danger', `"${title}" 앨범이 삭제되었습니다.`);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 12. 모달 유틸
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// 모달 오버레이 클릭 닫기
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) closeModal(el.id); });
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    ['detailModal','createModal','deleteModal'].forEach(closeModal);
+  }
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 13. 토스트
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function showToast(type, msg) {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  const icons = {success:'✅', info:'ℹ️', warning:'⚠️', danger:'🗑️'};
+  t.className = `toast toast-${type}`;
+  t.innerHTML = `<span>${icons[type]||'💬'}</span><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),320); }, 2800);
+}
+</script>
+</body>
+</html>

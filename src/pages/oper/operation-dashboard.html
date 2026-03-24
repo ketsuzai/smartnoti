@@ -86,6 +86,8 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg-base); color:
   background: #F9FAFB;
 }
 
+.class-filter-bar { margin-bottom: 14px; }
+
 .topbar-right { display: flex; align-items: center; gap: 10px; }
 .topbar-date  { font-size: 12px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
 .icon-btn {
@@ -237,6 +239,86 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg-base); color:
 .att-num  { font-size: 20px; font-weight: 800; line-height: 1; }
 .att-lbl  { font-size: 10px; color: var(--text-secondary); margin-top: 3px; }
 
+/* ━━━ 출석현황 전체 모달 ━━━ */
+.att-overlay {
+  position: fixed; inset: 0; background: rgba(12,45,72,0.55);
+  z-index: 200; display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.att-overlay.show { opacity: 1; pointer-events: auto; }
+.att-modal-box {
+  background: var(--bg-surface); border-radius: var(--radius-xl);
+  width: min(900px, 90vw); max-height: 88vh;
+  display: flex; flex-direction: column;
+  box-shadow: 0 24px 60px rgba(12,45,72,0.22);
+  transform: translateY(12px); transition: transform 0.22s;
+}
+.att-overlay.show .att-modal-box { transform: translateY(0); }
+.att-modal-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 22px; border-bottom: 1px solid var(--border-light);
+  flex-shrink: 0;
+}
+.att-modal-title { font-size: 16px; font-weight: 800; color: var(--text-primary); }
+.att-modal-title span { font-size: 12px; font-weight: 500; color: var(--text-secondary); margin-left: 8px; }
+.att-modal-close {
+  width: 32px; height: 32px; border-radius: var(--radius-md);
+  background: var(--bg-base); border: 1px solid var(--border-light);
+  cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
+  transition: 0.15s;
+}
+.att-modal-close:hover { background: var(--red-bg); color: var(--red-text); }
+.att-modal-summary {
+  display: flex; gap: 10px; padding: 14px 22px;
+  border-bottom: 1px solid var(--border-light); flex-shrink: 0;
+}
+.att-modal-stat {
+  flex: 1; padding: 10px 14px; border-radius: var(--radius-md);
+  border: 1px solid var(--border-light); text-align: center;
+}
+.att-modal-stat-num { font-size: 22px; font-weight: 800; line-height: 1; }
+.att-modal-stat-lbl { font-size: 10px; color: var(--text-secondary); margin-top: 3px; }
+.att-modal-filter {
+  display: flex; gap: 6px; padding: 10px 22px;
+  border-bottom: 1px solid var(--border-light); flex-shrink: 0;
+}
+.att-filter-btn {
+  padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  border: 1px solid var(--border-light); background: var(--bg-base);
+  color: var(--text-secondary); cursor: pointer; transition: 0.15s;
+}
+.att-filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.att-modal-body { flex: 1; overflow-y: auto; padding: 0 22px 16px; }
+.att-modal-body::-webkit-scrollbar { width: 4px; }
+.att-modal-body::-webkit-scrollbar-thumb { background: var(--border-medium); border-radius: 2px; }
+.att-full-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+.att-full-table th {
+  font-size: 11px; font-weight: 700; color: var(--text-secondary);
+  text-align: left; padding: 10px 10px 6px;
+  border-bottom: 2px solid var(--border-light);
+  position: sticky; top: 0; background: var(--bg-surface); z-index: 1;
+}
+.att-full-table td {
+  font-size: 13px; padding: 9px 10px;
+  border-bottom: 1px solid var(--border-light); vertical-align: middle;
+}
+.att-full-table tr:last-child td { border-bottom: none; }
+.att-full-table tr:hover td { background: var(--bg-base); }
+.att-full-table td.cell-link {
+  cursor: pointer; position: relative;
+}
+.att-full-table td.cell-link:hover .sbadge,
+.att-full-table td.cell-link:hover span { filter: brightness(0.92); }
+.att-full-table td.cell-link::after {
+  content: '↗'; font-size: 9px; color: var(--accent); margin-left: 4px;
+  opacity: 0; transition: opacity 0.15s;
+}
+.att-full-table td.cell-link:hover::after { opacity: 1; }
+.att-modal-hint {
+  text-align: center; font-size: 11px; color: var(--text-muted);
+  padding: 10px 0 4px; flex-shrink: 0; border-top: 1px solid var(--border-light); margin-top: 4px;
+}
+
 /* ━━━ 토스트 ━━━ */
 .toast-wrap { position: fixed; bottom: 24px; right: 24px; z-index: 500; display: flex; flex-direction: column; gap: 8px; }
 .toast { background: #1A1D2E; color: #fff; padding: 10px 16px; border-radius: var(--radius-md); font-size: 13px; box-shadow: var(--shadow-lg); animation: toastIn 0.25s ease; }
@@ -258,18 +340,6 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg-base); color:
       <span class="cur">대시보드</span>
     </div>
 
-    <!-- 반 필터 -->
-    <div class="class-filter-wrap">
-      <span class="class-filter-label">📌 반 선택</span>
-      <div class="class-filter-divider"></div>
-      <div class="class-select-wrap">
-        <select class="class-select" id="classFilterSelect" onchange="onClassChange(this)">
-          <!-- JS로 렌더링 -->
-        </select>
-        <span class="class-select-arrow">▼</span>
-      </div>
-    </div>
-
     <div class="topbar-right">
       <span class="topbar-date" id="topDate"></span>
       <div class="icon-btn notif-dot" title="알림">🔔</div>
@@ -287,6 +357,20 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg-base); color:
         <div class="page-sub"  id="pageSub">오늘 기관 현황을 한눈에 확인하세요.</div>
       </div>
       <div class="date-chip">📅 <span id="headerDate"></span></div>
+    </div>
+
+    <!-- 반 선택바 -->
+    <div class="class-filter-bar">
+      <div class="class-filter-wrap">
+        <span class="class-filter-label">📌 반 선택</span>
+        <div class="class-filter-divider"></div>
+        <div class="class-select-wrap">
+          <select class="class-select" id="classFilterSelect" onchange="onClassChange(this)">
+            <!-- JS로 렌더링 -->
+          </select>
+          <span class="class-select-arrow">▼</span>
+        </div>
+      </div>
     </div>
 
     <!-- 교사 전용: 담당 반 히어로 카드 -->
@@ -321,7 +405,7 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg-base); color:
       <div class="card" id="mainCard">
         <div class="card-header">
           <span class="card-title" id="mainCardTitle">🏫 반별 현황</span>
-          <span class="card-action">전체 보기</span>
+          <span class="card-action" id="mainCardAction">전체 보기</span>
         </div>
         <div class="card-body" id="mainCardBody">
           <!-- JS 렌더 -->
@@ -409,6 +493,38 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg-base); color:
 
 <div class="toast-wrap" id="toastWrap"></div>
 
+<!-- ━━━ 원아 출석현황 전체 모달 ━━━ -->
+<div class="att-overlay" id="attOverlay" onclick="overlayClose(event)">
+  <div class="att-modal-box">
+    <div class="att-modal-head">
+      <div class="att-modal-title">🧒 원아 출석 현황 <span id="attModalSub">햇님반 · 오늘</span></div>
+      <button class="att-modal-close" onclick="closeAttendanceModal()">✕</button>
+    </div>
+    <div class="att-modal-summary" id="attModalSummary"><!-- JS 렌더 --></div>
+    <div class="att-modal-filter">
+      <button class="att-filter-btn active" onclick="filterAtt('all',this)">전체</button>
+      <button class="att-filter-btn" onclick="filterAtt('miss-notice',this)">알림장 미작성</button>
+      <button class="att-filter-btn" onclick="filterAtt('medicine',this)">💊 투약 있음</button>
+      <button class="att-filter-btn" onclick="filterAtt('absent',this)">결석·조퇴·외출</button>
+    </div>
+    <div class="att-modal-body">
+      <table class="att-full-table">
+        <thead>
+          <tr>
+            <th style="width:44px">#</th>
+            <th>원아명</th>
+            <th style="width:110px">출석 상태</th>
+            <th style="width:120px">알림장</th>
+            <th style="width:130px">투약의뢰</th>
+          </tr>
+        </thead>
+        <tbody id="attModalTableBody"><!-- JS 렌더 --></tbody>
+      </table>
+    </div>
+    <div class="att-modal-hint">항목을 클릭하면 해당 원아의 기능으로 바로 이동합니다</div>
+  </div>
+</div>
+
 <script>
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // 목업 데이터
@@ -423,6 +539,28 @@ const ALL_CLASSES = [
 
 // 교사의 담당 반 (테스트: CLS001, CLS003 담당)
 const TEACHER_ASSIGNED = ['CLS001', 'CLS003'];
+
+// 원아 목록 (CLS001 햇님반 전체 — 대시보드 & 출석현황 모달 공용)
+const CHILDREN_CLS001 = [
+  { id:'CHD001', name:'김지우',  attend:'출석', noticeWritten:true,  medicine:null },
+  { id:'CHD002', name:'이서준',  attend:'출석', noticeWritten:false, medicine:{count:3, time:'오전 10시'} },
+  { id:'CHD003', name:'박하은',  attend:'결석', noticeWritten:false, medicine:null },
+  { id:'CHD004', name:'최민서',  attend:'출석', noticeWritten:true,  medicine:null },
+  { id:'CHD005', name:'정수아',  attend:'출석', noticeWritten:false, medicine:null },
+  { id:'CHD006', name:'강태양',  attend:'출석', noticeWritten:true,  medicine:{count:1, time:'점심 후'} },
+  { id:'CHD007', name:'윤아린',  attend:'조퇴', noticeWritten:true,  medicine:null },
+  { id:'CHD008', name:'임도현',  attend:'출석', noticeWritten:false, medicine:null },
+  { id:'CHD009', name:'한소율',  attend:'출석', noticeWritten:true,  medicine:null },
+  { id:'CHD010', name:'오세찬',  attend:'출석', noticeWritten:true,  medicine:{count:2, time:'오전 10시'} },
+  { id:'CHD011', name:'장미래',  attend:'출석', noticeWritten:false, medicine:null },
+  { id:'CHD012', name:'신예준',  attend:'결석', noticeWritten:false, medicine:null },
+  { id:'CHD013', name:'권하율',  attend:'출석', noticeWritten:true,  medicine:null },
+  { id:'CHD014', name:'문지호',  attend:'출석', noticeWritten:true,  medicine:null },
+  { id:'CHD015', name:'배나은',  attend:'출석', noticeWritten:false, medicine:{count:1, time:'오후 2시'} },
+  { id:'CHD016', name:'조성민',  attend:'외출', noticeWritten:true,  medicine:null },
+  { id:'CHD017', name:'노하진',  attend:'출석', noticeWritten:true,  medicine:null },
+  { id:'CHD018', name:'류채은',  attend:'출석', noticeWritten:false, medicine:null },
+];
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // 세션 & 역할 판별
@@ -452,7 +590,7 @@ const assignedClasses = assignedRaw
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 (function init() {
   if (!sessionStorage.getItem('userRole')) {
-    window.location.href = '../../index.html'; return;
+    window.location.href = '../../../index.html'; return;
   }
 
   // 날짜
@@ -596,24 +734,40 @@ function renderMainCard() {
   if (isTeacher) {
     // 교사: 원아 출석 현황 테이블
     document.getElementById('mainCardTitle').textContent = '🧒 원아 출석 현황';
+    const act = document.getElementById('mainCardAction');
+    act.textContent = '전체 보기';
+    act.onclick = openAttendanceModal;
+
+    const attCnt = s => CHILDREN_CLS001.filter(c => c.attend === s).length;
+    const preview = CHILDREN_CLS001.slice(0, 5);
+
     document.getElementById('mainCardBody').innerHTML = `
       <div class="att-row">
-        <div class="att-card" style="background:var(--green-bg);border-color:#A7F3D0"><div class="att-num" style="color:var(--green-text)">16</div><div class="att-lbl">출석</div></div>
-        <div class="att-card" style="background:var(--red-bg);border-color:#FCA5A5"><div class="att-num" style="color:var(--red-text)">2</div><div class="att-lbl">결석</div></div>
-        <div class="att-card" style="background:var(--amber-bg);border-color:#FDE68A"><div class="att-num" style="color:var(--amber-text)">0</div><div class="att-lbl">조퇴</div></div>
-        <div class="att-card" style="background:var(--blue-bg);border-color:#BAD9F7"><div class="att-num" style="color:var(--blue-text)">0</div><div class="att-lbl">외출</div></div>
+        <div class="att-card" style="background:var(--green-bg);border-color:#A7F3D0"><div class="att-num" style="color:var(--green-text)">${attCnt('출석')}</div><div class="att-lbl">출석</div></div>
+        <div class="att-card" style="background:var(--red-bg);border-color:#FCA5A5"><div class="att-num" style="color:var(--red-text)">${attCnt('결석')}</div><div class="att-lbl">결석</div></div>
+        <div class="att-card" style="background:var(--amber-bg);border-color:#FDE68A"><div class="att-num" style="color:var(--amber-text)">${attCnt('조퇴')}</div><div class="att-lbl">조퇴</div></div>
+        <div class="att-card" style="background:var(--blue-bg);border-color:#BAD9F7"><div class="att-num" style="color:var(--blue-text)">${attCnt('외출')}</div><div class="att-lbl">외출</div></div>
       </div>
       <table class="child-table">
         <thead><tr><th>원아</th><th>출석</th><th>알림장</th><th>투약</th></tr></thead>
         <tbody>
-          <tr><td>김지우</td><td><span class="sbadge" style="background:var(--green-bg);color:var(--green-text)"><span class="sdot" style="background:var(--green)"></span>출석</span></td><td><span class="sbadge" style="background:#CCFBF1;color:#0D9488">✓ 완료</span></td><td>—</td></tr>
-          <tr><td>이서준</td><td><span class="sbadge" style="background:var(--green-bg);color:var(--green-text)"><span class="sdot" style="background:var(--green)"></span>출석</span></td><td><span class="sbadge" style="background:var(--red-bg);color:var(--red-text)">✗ 미작성</span></td><td><span class="sbadge" style="background:var(--amber-bg);color:var(--amber-text)">💊 3회</span></td></tr>
-          <tr><td>박하은</td><td><span class="sbadge" style="background:var(--red-bg);color:var(--red-text)"><span class="sdot" style="background:var(--red)"></span>결석</span></td><td><span class="sbadge" style="background:var(--red-bg);color:var(--red-text)">✗ 미작성</span></td><td>—</td></tr>
-          <tr><td>최민서</td><td><span class="sbadge" style="background:var(--green-bg);color:var(--green-text)"><span class="sdot" style="background:var(--green)"></span>출석</span></td><td><span class="sbadge" style="background:#CCFBF1;color:#0D9488">✓ 완료</span></td><td>—</td></tr>
-          <tr><td>정수아</td><td><span class="sbadge" style="background:var(--green-bg);color:var(--green-text)"><span class="sdot" style="background:var(--green)"></span>출석</span></td><td><span class="sbadge" style="background:var(--red-bg);color:var(--red-text)">✗ 미작성</span></td><td>—</td></tr>
+          ${preview.map(c => `
+            <tr>
+              <td style="font-weight:600">${c.name}</td>
+              <td>${attendBadge(c.attend)}</td>
+              <td>${c.noticeWritten
+                ? `<span class="sbadge" style="background:#CCFBF1;color:#0D9488">✓ 완료</span>`
+                : `<span class="sbadge" style="background:var(--red-bg);color:var(--red-text)">✗ 미작성</span>`}
+              </td>
+              <td>${c.medicine
+                ? `<span class="sbadge" style="background:var(--amber-bg);color:var(--amber-text)">💊 ${c.medicine.count}회</span>`
+                : '—'}
+              </td>
+            </tr>`).join('')}
         </tbody>
       </table>
-      <div style="text-align:center;margin-top:10px;font-size:12px;color:var(--text-muted)">+ 13명 더 보기</div>
+      <div style="text-align:center;margin-top:10px;font-size:12px;color:var(--text-muted);cursor:pointer"
+           onclick="openAttendanceModal()">+ ${CHILDREN_CLS001.length - 5}명 더 보기 →</div>
     `;
   } else {
     // 기관관리자 / 통합관리자: 반별 현황 카드
@@ -770,7 +924,127 @@ function switchWeekChart(type, el) {
   window._weekChart.update();
 }
 
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 출석현황 전체 모달
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let attCurrentFilter = 'all';
+
+function attendBadge(status) {
+  const cfg = {
+    '출석': { bg:'var(--green-bg)', color:'var(--green-text)', dot:'var(--green)' },
+    '결석': { bg:'var(--red-bg)',   color:'var(--red-text)',   dot:'var(--red)'   },
+    '조퇴': { bg:'var(--amber-bg)', color:'var(--amber-text)', dot:'var(--amber)' },
+    '외출': { bg:'var(--blue-bg)',  color:'var(--blue-text)',  dot:'var(--blue)'  },
+  };
+  const c = cfg[status] || cfg['출석'];
+  return `<span class="sbadge" style="background:${c.bg};color:${c.color}"><span class="sdot" style="background:${c.dot}"></span>${status}</span>`;
+}
+
+function openAttendanceModal() {
+  attCurrentFilter = 'all';
+  document.querySelectorAll('.att-filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.att-filter-btn').classList.add('active');
+
+  // 요약 카드
+  const cnt = s => CHILDREN_CLS001.filter(c => c.attend === s).length;
+  document.getElementById('attModalSummary').innerHTML = `
+    <div class="att-modal-stat" style="background:var(--green-bg);border-color:#A7F3D0">
+      <div class="att-modal-stat-num" style="color:var(--green-text)">${cnt('출석')}</div>
+      <div class="att-modal-stat-lbl">출석</div>
+    </div>
+    <div class="att-modal-stat" style="background:var(--red-bg);border-color:#FCA5A5">
+      <div class="att-modal-stat-num" style="color:var(--red-text)">${cnt('결석')}</div>
+      <div class="att-modal-stat-lbl">결석</div>
+    </div>
+    <div class="att-modal-stat" style="background:var(--amber-bg);border-color:#FDE68A">
+      <div class="att-modal-stat-num" style="color:var(--amber-text)">${cnt('조퇴')}</div>
+      <div class="att-modal-stat-lbl">조퇴</div>
+    </div>
+    <div class="att-modal-stat" style="background:var(--blue-bg);border-color:#BAD9F7">
+      <div class="att-modal-stat-num" style="color:var(--blue-text)">${cnt('외출')}</div>
+      <div class="att-modal-stat-lbl">외출</div>
+    </div>
+    <div class="att-modal-stat" style="background:var(--amber-bg);border-color:#FDE68A">
+      <div class="att-modal-stat-num" style="color:var(--amber-text)">${CHILDREN_CLS001.filter(c=>c.medicine).length}</div>
+      <div class="att-modal-stat-lbl">투약 예정</div>
+    </div>
+    <div class="att-modal-stat" style="background:var(--red-bg);border-color:#FCA5A5">
+      <div class="att-modal-stat-num" style="color:var(--red-text)">${CHILDREN_CLS001.filter(c=>!c.noticeWritten).length}</div>
+      <div class="att-modal-stat-lbl">알림장 미작성</div>
+    </div>
+  `;
+
+  renderAttTable('all');
+  document.getElementById('attOverlay').classList.add('show');
+}
+
+function closeAttendanceModal() {
+  document.getElementById('attOverlay').classList.remove('show');
+}
+
+function overlayClose(e) {
+  if (e.target === document.getElementById('attOverlay')) closeAttendanceModal();
+}
+
+function filterAtt(type, btn) {
+  attCurrentFilter = type;
+  document.querySelectorAll('.att-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAttTable(type);
+}
+
+function renderAttTable(filter) {
+  let list = CHILDREN_CLS001;
+  if (filter === 'miss-notice') list = list.filter(c => !c.noticeWritten);
+  if (filter === 'medicine')    list = list.filter(c => c.medicine);
+  if (filter === 'absent')      list = list.filter(c => c.attend !== '출석');
+
+  document.getElementById('attModalTableBody').innerHTML = list.length === 0
+    ? `<tr><td colspan="5" style="text-align:center;padding:28px;color:var(--text-muted)">해당하는 원아가 없습니다.</td></tr>`
+    : list.map((c, i) => `
+      <tr>
+        <td style="color:var(--text-muted);font-size:11px">${String(i+1).padStart(2,'0')}</td>
+        <td style="font-weight:700">${c.name}</td>
+        <td class="cell-link" onclick="goToAttendance('${c.id}','${c.name}','${c.attend}')" title="출석 상태 변경">
+          ${attendBadge(c.attend)}
+        </td>
+        <td class="cell-link" onclick="goToNotice(${JSON.stringify(c)})" title="${c.noticeWritten ? '알림장 보기' : '알림장 작성'}">
+          ${c.noticeWritten
+            ? `<span class="sbadge" style="background:#CCFBF1;color:#0D9488">✓ 완료</span>`
+            : `<span class="sbadge" style="background:var(--red-bg);color:var(--red-text)">✗ 미작성</span>`}
+        </td>
+        <td ${c.medicine ? `class="cell-link" onclick="goToMedicine(${JSON.stringify(c)})" title="투약의뢰서로 이동"` : ''}>
+          ${c.medicine
+            ? `<span class="sbadge" style="background:var(--amber-bg);color:var(--amber-text)">💊 ${c.medicine.count}회 · ${c.medicine.time}</span>`
+            : `<span style="color:var(--text-muted);font-size:12px">—</span>`}
+        </td>
+      </tr>`).join('');
+}
+
+function goToNotice(child) {
+  sessionStorage.setItem('noticePrefill', JSON.stringify({
+    childId: child.id, childName: child.name,
+    mode: child.noticeWritten ? 'view' : 'write'
+  }));
+  location.href = 'operation-notice-board.html';
+}
+
+function goToMedicine(child) {
+  sessionStorage.setItem('medicinePrefill', JSON.stringify({
+    childId: child.id, childName: child.name
+  }));
+  location.href = 'operation-medicine.html';
+}
+
+function goToAttendance(id, name, currentStatus) {
+  showToast(`${name} 출석 상태: ${currentStatus} (출석 관리 기능 연동 예정)`);
+}
+
 // changeOrg / exitContext / logout → operation-sidebar.js 에서 전역 노출
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeAttendanceModal();
+});
+
 function showToast(msg) {
   const wrap = document.getElementById('toastWrap');
   const el = document.createElement('div');

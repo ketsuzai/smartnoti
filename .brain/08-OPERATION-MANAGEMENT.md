@@ -14,7 +14,8 @@
 - **상단바**: `🏫 OO어린이집 · 운영관리 모드  [기관 변경]  [컨텍스트 종료]`
 - **사이드바 테마**: `#0C2D48` (딥네이비), 액센트 `#0EA5E9`
 - **서브메뉴 완료**: 알림장 ✅ / 초대관리 ✅ / 기관정보 ✅ / 반관리 ✅ / 원아관리 ✅
-- **서브메뉴 미완**: 공지사항 / 앨범 / 일정관리 / 상담관리 / 투약의뢰서 / 대시보드 / 기관선택팝업
+- **서브메뉴 미완**: 일정관리 / 상담관리 / 기관선택팝업
+- **대시보드**: 교사 뷰 원아 출석현황 모달 구현 완료 (2026-03-24) → `14-OPERATION-DASHBOARD.md` 참조
 
 ---
 
@@ -197,11 +198,12 @@ if (userRole === 'super' && opContext) {
 | — | ↳ 기관정보 관리 | `operation-org-info.html` | ✅ 완료 (2026-03-23) |
 | — | ↳ 반 관리 | `operation-class.html` | ✅ 완료 (2026-03-23) |
 | — | ↳ 원아 관리 | `operation-child.html` | ✅ 완료 (2026-03-24) |
-| — | ↳ 공지사항 | `operation-announcement.html` | 🔲 미시작 |
-| — | ↳ 앨범 | `operation-album.html` | 🔲 미시작 |
+| — | ↳ 공지사항 | `operation-announcement.html` | ✅ 완료 (2026-03-24) |
+| — | ↳ 앨범 | `operation-album.html` | ✅ 완료 (2026-03-24) |
+| — | ↳ 대시보드 | `operation-dashboard.html` | 🔄 교사 뷰 구현 완료 (2026-03-24) |
 | — | ↳ 일정 관리 | `operation-schedule.html` | 🔲 미시작 |
 | — | ↳ 상담 관리 | `operation-consulting.html` | 🔲 미시작 |
-| — | ↳ 투약의뢰서 관리 | `operation-medicine.html` | 🔲 미시작 |
+| — | ↳ 투약의뢰서 관리 | `operation-medicine.html` | ✅ 완료 (2026-03-24) |
 | 5 | 통계 메뉴 → 대시보드 연동 | 기존 `dashboard.html` 활용 | 🔲 미시작 |
 
 > ⚠️ `index.html` 수정이 필요한 경우 → 기획자 확인 후 진행

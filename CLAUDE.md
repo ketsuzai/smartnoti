@@ -68,18 +68,18 @@
 
 | 파일 | 설명 | 상태 |
 |------|------|------|
-| `src/pages/oper/operation-dashboard.html` | 운영관리 대시보드 (기관·교사 공용) | 🔲 미시작 |
+| `src/pages/oper/operation-dashboard.html` | 운영관리 대시보드 (기관·교사 공용) | 🔄 교사 뷰 구현 완료 |
 | `src/pages/oper/operation-org-selector.html` | 기관 선택 팝업 | 🔲 미시작 |
 | `src/pages/oper/operation-notice-board.html` | 알림장 | ✅ 완료 |
 | `src/pages/oper/operation-invitation.html` | 초대 관리 | ✅ 완료 |
 | `src/pages/oper/operation-org-info.html` | 기관정보 관리 | ✅ 완료 |
 | `src/pages/oper/operation-child.html` | 원아관리 | ✅ 완료 |
 | `src/pages/oper/operation-class.html` | 반 관리 | ✅ 완료 |
-| `src/pages/oper/operation-announcement.html` | 공지사항 | 🔲 미시작 |
-| `src/pages/oper/operation-album.html` | 앨범 | 🔲 미시작 |
+| `src/pages/oper/operation-announcement.html` | 공지사항 | ✅ 완료 |
+| `src/pages/oper/operation-album.html` | 앨범 | ✅ 완료 |
 | `src/pages/oper/operation-schedule.html` | 일정 관리 | 🔲 미시작 |
 | `src/pages/oper/operation-consulting.html` | 상담 관리 | 🔲 미시작 |
-| `src/pages/oper/operation-medicine.html` | 투약의뢰서 관리 | 🔲 미시작 |
+| `src/pages/oper/operation-medicine.html` | 투약의뢰서 관리 | ✅ 완료 |
 
 ---
 
@@ -105,3 +105,4 @@
 | `11-NOTICE-BOARD.md` | 알림장 스키마, 체크필드, AI 기능, 화면 스펙 |
 | `12-ORG-INFO.md` | 기관정보 관리 화면 스펙 |
 | `13-CLASS-MANAGEMENT.md` | 반 관리 화면 스펙, 권한 매트릭스 |
+| `14-OPERATION-DASHBOARD.md` | 운영관리 대시보드 — 교사 뷰, 출석현황 모달, pre-fill 연동 |

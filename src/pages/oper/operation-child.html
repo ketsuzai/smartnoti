@@ -54,25 +54,6 @@ body { font-family:'Pretendard',sans-serif; background:var(--bg-base); color:var
 .breadcrumb .cur { color:var(--text-primary); font-weight:600; }
 .bc-sep { color:var(--text-muted); font-size:11px; }
 
-.class-filter-wrap {
-  display:flex; align-items:center; gap:8px;
-  background:var(--bg-base); border:1.5px solid var(--border-light);
-  border-radius:var(--radius-md); padding:5px 12px; transition:0.18s;
-}
-.class-filter-wrap:focus-within { border-color:var(--accent); background:#fff; }
-.class-filter-label   { font-size:11px; color:var(--text-secondary); font-weight:600; white-space:nowrap; }
-.class-filter-divider { width:1px; height:14px; background:var(--border-medium); }
-.class-select-wrap    { position:relative; }
-.class-select {
-  appearance:none; -webkit-appearance:none;
-  border:none; background:transparent;
-  font-size:13px; font-weight:700; color:var(--text-primary);
-  cursor:pointer; font-family:'Pretendard',sans-serif;
-  outline:none; padding-right:20px; min-width:120px;
-}
-.class-select-arrow { position:absolute; right:0; top:50%; transform:translateY(-50%); pointer-events:none; color:var(--text-muted); font-size:11px; }
-.class-select option.disabled-opt { color:#C0C0C0; background:#F9FAFB; }
-
 .topbar-right { display:flex; align-items:center; gap:10px; }
 .topbar-date  { font-size:12px; color:var(--text-muted); font-family:'JetBrains Mono',monospace; }
 .icon-btn {
@@ -113,24 +94,20 @@ body { font-family:'Pretendard',sans-serif; background:var(--bg-base); color:var
 .kpi-sub   { font-size:11px; color:var(--text-muted); margin-top:2px; }
 
 /* ━━━ 필터 바 ━━━ */
-.filter-bar {
-  background:var(--bg-surface); border:1px solid var(--border-light);
-  border-radius:var(--radius-lg); padding:14px 18px; margin-bottom:14px;
-  display:flex; flex-wrap:wrap; align-items:center; gap:10px;
-  box-shadow:var(--shadow-sm);
-}
-.filter-group { display:flex; align-items:center; gap:6px; }
-.filter-label { font-size:11px; font-weight:600; color:var(--text-secondary); white-space:nowrap; }
-.filter-select, .filter-input {
-  height:34px; padding:0 10px; border:1.5px solid var(--border-light);
-  border-radius:var(--radius-md); font-size:12px; font-weight:500;
-  color:var(--text-primary); background:#fff; font-family:'Pretendard',sans-serif;
-  transition:border-color 0.18s; outline:none;
-}
-.filter-select:focus, .filter-input:focus { border-color:var(--accent); }
-.filter-select { cursor:pointer; }
-.filter-input  { width:170px; }
-.filter-divider { width:1px; height:22px; background:var(--border-light); }
+.filter-bar{background:var(--bg-surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);padding:14px 18px;border:1px solid var(--border-light);display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.filter-group{display:flex;align-items:center;gap:8px;flex:1;flex-wrap:wrap;}
+.fsel-wrap{position:relative;}
+.fsel-wrap::after{content:'▾';position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--text-muted);pointer-events:none;}
+.fsel{height:34px;padding:0 28px 0 10px;border:1.5px solid var(--border-light);border-radius:var(--radius-md);font-size:12px;font-family:'Pretendard',sans-serif;color:var(--text-primary);background:var(--bg-surface);appearance:none;cursor:pointer;outline:none;transition:.18s;}
+.fsel:focus{border-color:var(--accent);}
+.search-wrap{display:flex;align-items:center;border:1.5px solid var(--border-light);border-radius:var(--radius-md);overflow:hidden;background:var(--bg-surface);transition:.18s;}
+.search-wrap:focus-within{border-color:var(--accent);}
+.search-inp{height:34px;padding:0 10px;border:none;outline:none;font-size:13px;font-family:'Pretendard',sans-serif;color:var(--text-primary);background:transparent;width:140px;}
+.btn-reset{height:34px;padding:0 12px;background:var(--bg-base);border:1.5px solid var(--border-light);border-radius:var(--radius-md);font-size:12px;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:.18s;font-family:'Pretendard',sans-serif;}
+.btn-reset:hover{background:var(--border-light);}
+/* filter-select 유지 (테이블 정렬 셀렉트 용) */
+.filter-select{height:28px;padding:0 8px;border:1.5px solid var(--border-light);border-radius:var(--radius-md);font-size:11px;font-family:'Pretendard',sans-serif;color:var(--text-primary);background:var(--bg-surface);cursor:pointer;outline:none;transition:.18s;}
+.filter-select:focus{border-color:var(--accent);}
 
 /* 보호자 검색 자동완성 */
 .parent-search-wrap { position:relative; }
@@ -455,16 +432,6 @@ body { font-family:'Pretendard',sans-serif; background:var(--bg-base); color:var
       <span id="breadcrumbOrg">운영관리</span><span class="bc-sep">›</span>
       <span class="cur">원아관리</span>
     </div>
-    <!-- 반 필터 -->
-    <div class="class-filter-wrap">
-      <span class="class-filter-label">📌 반 선택</span>
-      <div class="class-filter-divider"></div>
-      <div class="class-select-wrap">
-        <select class="class-select" id="classFilterSelect" onchange="onClassFilterChange(this)">
-        </select>
-        <span class="class-select-arrow">▼</span>
-      </div>
-    </div>
     <div class="topbar-right">
       <span class="topbar-date" id="topDate"></span>
       <div class="icon-btn notif-dot" title="알림">🔔</div>
@@ -487,56 +454,52 @@ body { font-family:'Pretendard',sans-serif; background:var(--bg-base); color:var
     <!-- 필터 바 -->
     <div class="filter-bar">
       <div class="filter-group">
-        <span class="filter-label">상태</span>
-        <select class="filter-select" id="filterStatus" onchange="applyFilters()">
-          <option value="">전체</option>
-          <option value="enrolled">재원중</option>
-          <option value="on_leave">휴원중</option>
-          <option value="graduated">졸업</option>
-          <option value="withdrawn">퇴소</option>
-          <option value="pending">등록대기</option>
-        </select>
-      </div>
-      <div class="filter-divider"></div>
-      <div class="filter-group">
-        <span class="filter-label">성별</span>
-        <select class="filter-select" id="filterGender" onchange="applyFilters()">
-          <option value="">전체</option>
-          <option value="남">남아</option>
-          <option value="여">여아</option>
-        </select>
-      </div>
-      <div class="filter-divider"></div>
-      <div class="filter-group">
-        <span class="filter-label">연령</span>
-        <select class="filter-select" id="filterAge" onchange="applyFilters()">
-          <option value="">전체</option>
-          <option value="만0세">만 0세</option>
-          <option value="만1세">만 1세</option>
-          <option value="만2세">만 2세</option>
-          <option value="만3세">만 3세</option>
-          <option value="만4세">만 4세</option>
-          <option value="만5세">만 5세</option>
-          <option value="만6세">만 6세</option>
-          <option value="만7세">만 7세</option>
-        </select>
-      </div>
-      <div class="filter-divider"></div>
-      <div class="filter-group">
-        <span class="filter-label">원아 검색</span>
-        <input class="filter-input" id="filterChildName" placeholder="원아 이름 입력" oninput="applyFilters()" style="width:140px">
-      </div>
-      <div class="filter-divider"></div>
-      <div class="filter-group">
-        <span class="filter-label">보호자</span>
+        <div class="fsel-wrap" id="classFilterGroup">
+          <select class="fsel" id="classFilterSelect" onchange="applyFilters()"><!-- JS 렌더링 --></select>
+        </div>
+        <div class="fsel-wrap">
+          <select class="fsel" id="filterStatus" onchange="applyFilters()">
+            <option value="">전체 상태</option>
+            <option value="enrolled">재원중</option>
+            <option value="on_leave">휴원중</option>
+            <option value="graduated">졸업</option>
+            <option value="withdrawn">퇴소</option>
+            <option value="pending">등록대기</option>
+          </select>
+        </div>
+        <div class="fsel-wrap">
+          <select class="fsel" id="filterGender" onchange="applyFilters()">
+            <option value="">전체 성별</option>
+            <option value="남">남아</option>
+            <option value="여">여아</option>
+          </select>
+        </div>
+        <div class="fsel-wrap">
+          <select class="fsel" id="filterAge" onchange="applyFilters()">
+            <option value="">전체 연령</option>
+            <option value="만0세">만 0세</option>
+            <option value="만1세">만 1세</option>
+            <option value="만2세">만 2세</option>
+            <option value="만3세">만 3세</option>
+            <option value="만4세">만 4세</option>
+            <option value="만5세">만 5세</option>
+            <option value="만6세">만 6세</option>
+            <option value="만7세">만 7세</option>
+          </select>
+        </div>
+        <div class="search-wrap">
+          <input class="search-inp" id="filterChildName" placeholder="원아명 검색" oninput="applyFilters()">
+        </div>
         <div class="parent-search-wrap" style="position:relative">
-          <input class="filter-input" id="filterParentInput" placeholder="보호자 이름·전화번호"
-                 oninput="onParentSearch(this.value)" autocomplete="off" style="width:160px; padding-right:26px;">
-          <button class="parent-clear-btn" id="parentClearBtn" onclick="clearParentFilter()">✕</button>
+          <div class="search-wrap">
+            <input class="search-inp" id="filterParentInput" placeholder="보호자 검색"
+                   oninput="onParentSearch(this.value)" autocomplete="off" style="padding-right:22px;">
+            <button class="parent-clear-btn" id="parentClearBtn" onclick="clearParentFilter()">✕</button>
+          </div>
           <div class="parent-dropdown" id="parentDropdown"></div>
         </div>
+        <button class="btn-reset" onclick="resetFilters()">초기화</button>
       </div>
-      <button class="btn btn-outline btn-sm" onclick="resetFilters()" style="margin-left:auto">초기화</button>
     </div>
 
     <!-- 액션 바 -->
@@ -734,18 +697,17 @@ const currentOrgName = opContext?.orgName ?? sessionStorage.getItem('orgName') ?
 
 // 담당 반 (교사용)
 const assignedClasses = userRole === 'teacher'
-  ? JSON.parse(sessionStorage.getItem('assignedClasses') || '[{"id":"CLS001","name":"햇님반"},{"id":"CLS003","name":"별빛반"}]')
+  ? JSON.parse(sessionStorage.getItem('assignedClasses') || '[{"id":"CLS001","name":"햇님반"}]')
   : null;
 
 // ═══════════════════════════════════════════════
 // 목업 데이터
 // ═══════════════════════════════════════════════
 const ALL_CLASSES = [
-  { id:'CLS001', name:'🌸 햇님반',   age:'만3세', teacher:'이하늘' },
-  { id:'CLS002', name:'🌿 새싹반',   age:'만4세', teacher:'박민지' },
-  { id:'CLS003', name:'⭐ 별빛반',   age:'만5세', teacher:'최서연' },
-  { id:'CLS004', name:'🌈 무지개반', age:'만2세', teacher:'김보라' },
-  { id:'CLS005', name:'🦋 나비반',   age:'만1세', teacher:'정다온' },
+  { id:'CLS001', name:'햇님반', age:'만3세', teacher:'이하늘' },
+  { id:'CLS002', name:'달님반', age:'만4세', teacher:'박민지' },
+  { id:'CLS003', name:'별님반', age:'만5세', teacher:'최서연' },
+  { id:'CLS004', name:'꽃님반', age:'만2세', teacher:'김보라' },
 ];
 
 const MOCK_PARENTS = [

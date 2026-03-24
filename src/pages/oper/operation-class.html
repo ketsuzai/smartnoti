@@ -210,6 +210,16 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .toggle-switch input:checked + .toggle-track{background:var(--green);}
 .toggle-switch input:checked ~ .toggle-thumb{left:20px;}
 
+/* ━━━ COLOR PALETTE ━━━ */
+.color-palette{display:flex;gap:8px;flex-wrap:wrap;padding:6px 0 2px;}
+.cp-chip{width:26px;height:26px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:.15s;flex-shrink:0;}
+.cp-chip:hover{transform:scale(1.18);}
+.cp-chip.selected{border-color:var(--text-primary);box-shadow:0 0 0 2px #fff inset;transform:scale(1.1);}
+
+/* ━━━ FORM HINT ━━━ */
+.form-hint{font-size:11px;color:var(--text-muted);margin-top:2px;}
+.form-hint.warn{color:var(--amber);}
+
 /* ━━━ DELETE MODAL ━━━ */
 .delete-modal-box{width:400px;}
 .delete-warning{display:flex;align-items:flex-start;gap:12px;padding:14px;background:var(--red-bg);border-radius:var(--radius-md);margin-bottom:16px;}
@@ -311,10 +321,12 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
     </div>
     <div class="modal-body">
       <div class="form-grid">
+        <!-- 반 이름 -->
         <div class="form-field full">
           <label class="form-label">반 이름 <span class="req">*</span></label>
           <input class="form-input" id="f_name" placeholder="예: 햇님반" maxlength="20">
         </div>
+        <!-- 연령 그룹 + 학년도 -->
         <div class="form-field">
           <label class="form-label">연령 그룹 <span class="req">*</span></label>
           <select class="form-select" id="f_age">
@@ -337,13 +349,10 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
             <option value="2024">2024년도</option>
           </select>
         </div>
-        <div class="form-field">
-          <label class="form-label">정원 <span class="req">*</span></label>
-          <input class="form-input" id="f_capacity" type="number" min="1" max="50" placeholder="20">
-        </div>
+        <!-- 담임 교사 + 보조 교사 -->
         <div class="form-field">
           <label class="form-label">담임 교사</label>
-          <select class="form-select" id="f_teacher">
+          <select class="form-select" id="f_teacher" onchange="onTeacherChange()">
             <option value="">미배정</option>
             <option value="이지현">이지현</option>
             <option value="박수진">박수진</option>
@@ -353,23 +362,41 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
             <option value="한소미">한소미</option>
             <option value="박민아">박민아</option>
             <option value="김다영">김다영</option>
-          </select>
-        </div>
-        <div class="form-field">
-          <label class="form-label">보조 교사</label>
-          <select class="form-select" id="f_coTeacher">
-            <option value="">없음</option>
-            <option value="박민아">박민아</option>
-            <option value="김다영">김다영</option>
-            <option value="한소미">한소미</option>
             <option value="이서준">이서준</option>
             <option value="오지영">오지영</option>
           </select>
         </div>
+        <div class="form-field">
+          <label class="form-label">보조 교사</label>
+          <select class="form-select" id="f_coTeacher" onchange="onCoTeacherChange()">
+            <option value="">없음</option>
+            <option value="이지현">이지현</option>
+            <option value="박수진">박수진</option>
+            <option value="최민준">최민준</option>
+            <option value="김예진">김예진</option>
+            <option value="정아름">정아름</option>
+            <option value="한소미">한소미</option>
+            <option value="박민아">박민아</option>
+            <option value="김다영">김다영</option>
+            <option value="이서준">이서준</option>
+            <option value="오지영">오지영</option>
+          </select>
+        </div>
+        <!-- 정원 + 반 색상 -->
+        <div class="form-field">
+          <label class="form-label">정원 <span class="req">*</span></label>
+          <input class="form-input" id="f_capacity" type="number" min="1" max="50" placeholder="20">
+          <span class="form-hint" id="capacityHint"></span>
+        </div>
+        <div class="form-field">
+          <label class="form-label">반 색상</label>
+          <div class="color-palette" id="colorPalette"></div>
+        </div>
+        <!-- 운영 상태 -->
         <div class="form-field full">
           <label class="form-label">운영 상태</label>
           <div class="status-toggle-row">
-            <span class="toggle-label" id="statusToggleLabel">운영중</span>
+            <span class="toggle-label" id="statusToggleLabel" style="font-weight:700">운영중</span>
             <label class="toggle-switch">
               <input type="checkbox" id="f_status" checked onchange="updateStatusLabel()">
               <div class="toggle-track"></div>
@@ -464,6 +491,9 @@ function isAssigned(clsId) {
   return assignedClasses.some(c => c.id === clsId);
 }
 
+const PALETTE_COLORS = ['#F59E0B','#10B981','#8B5CF6','#0EA5E9','#EF4444','#EC4899','#F97316','#14B8A6','#6366F1','#64748B'];
+let selectedColor = PALETTE_COLORS[0];
+
 let CLASSES = [...MOCK_CLASSES];
 let filteredClasses = [...CLASSES];
 let activeCardId = null;
@@ -478,6 +508,13 @@ document.addEventListener('DOMContentLoaded', () => {
   if (canCreate) document.getElementById('addClassBtn').style.display = 'inline-flex';
   renderKPI();
   applyFilter();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (document.getElementById('deleteModal').classList.contains('open')) closeModal('deleteModal');
+  else if (document.getElementById('classModal').classList.contains('open')) closeModal('classModal');
+  else if (document.getElementById('classDrawer').classList.contains('open')) closeDrawer();
 });
 
 function renderTopbar() {
@@ -819,7 +856,11 @@ function openAddModal() {
   document.getElementById('f_teacher').value = '';
   document.getElementById('f_coTeacher').value = '';
   document.getElementById('f_status').checked = true;
+  document.getElementById('capacityHint').textContent = '';
+  document.getElementById('capacityHint').className = 'form-hint';
+  syncTeacherOptions();
   updateStatusLabel();
+  renderColorPalette(PALETTE_COLORS[CLASSES.length % PALETTE_COLORS.length]);
   openModal('classModal');
 }
 
@@ -836,14 +877,20 @@ function openEditModal(id) {
   document.getElementById('f_teacher').value = c.teacher;
   document.getElementById('f_coTeacher').value = c.coTeacher;
   document.getElementById('f_status').checked = c.status === 'active';
+  document.getElementById('capacityHint').textContent = `현재 ${c.childCount}명 재원 중`;
+  document.getElementById('capacityHint').className = 'form-hint';
+  syncTeacherOptions();
   updateStatusLabel();
+  renderColorPalette(c.color || PALETTE_COLORS[0]);
   closeDrawer();
   openModal('classModal');
 }
 
 function updateStatusLabel() {
   const on = document.getElementById('f_status').checked;
-  document.getElementById('statusToggleLabel').textContent = on ? '운영중' : '비운영';
+  const label = document.getElementById('statusToggleLabel');
+  label.textContent = on ? '운영중' : '비운영';
+  label.style.color = on ? 'var(--green)' : 'var(--text-muted)';
 }
 
 function saveClass() {
@@ -855,28 +902,94 @@ function saveClass() {
   const coTeacher = document.getElementById('f_coTeacher').value;
   const status = document.getElementById('f_status').checked ? 'active' : 'inactive';
 
+  // 필수값 검증
   if (!name) { showToast('반 이름을 입력해주세요', 'warning'); return; }
   if (!ageGroup) { showToast('연령 그룹을 선택해주세요', 'warning'); return; }
   if (!capacity || capacity < 1) { showToast('정원을 입력해주세요', 'warning'); return; }
 
-  const classColors = ['#F59E0B','#10B981','#8B5CF6','#0EA5E9','#EF4444','#EC4899','#F97316','#14B8A6','#6366F1'];
+  // 반 이름 중복 체크 (동일 학년도 내)
+  const duplicate = CLASSES.find(c => c.name === name && c.year === year && c.id !== editingId);
+  if (duplicate) {
+    showToast(`'${name}' 반이 ${year}년도에 이미 존재합니다`, 'warning');
+    return;
+  }
+
+  // 수정 시 정원 감소 경고
+  if (editingId) {
+    const cur = CLASSES.find(c => c.id === editingId);
+    if (cur && capacity < cur.childCount) {
+      const hint = document.getElementById('capacityHint');
+      hint.textContent = `⚠ 현재 ${cur.childCount}명 재원 중 — 정원을 이보다 낮게 설정할 수 없습니다`;
+      hint.className = 'form-hint warn';
+      showToast(`정원은 현재 원아 수(${cur.childCount}명) 이상이어야 합니다`, 'warning');
+      return;
+    }
+  }
 
   if (editingId) {
     const idx = CLASSES.findIndex(c => c.id === editingId);
     if (idx !== -1) {
-      CLASSES[idx] = { ...CLASSES[idx], name, ageGroup, year, capacity, teacher, coTeacher, status };
+      CLASSES[idx] = { ...CLASSES[idx], name, ageGroup, year, capacity, teacher, coTeacher, status, color: selectedColor };
       showToast(`'${name}' 정보가 수정되었습니다`, 'success');
     }
+    closeModal('classModal');
+    renderKPI();
+    applyFilter();
+    openDrawer(editingId); // 수정 후 드로어 복원
   } else {
-    const newId = 'CLS' + String(CLASSES.length + 1).padStart(3, '0');
-    const color = classColors[CLASSES.length % classColors.length];
-    CLASSES.push({ id:newId, name, ageGroup, year, capacity, childCount:0, teacher, coTeacher, status, color, createdAt: new Date().toISOString().slice(0,10) });
+    const maxNum = CLASSES.reduce((m, c) => {
+      const n = parseInt(c.id.replace('CLS', '')) || 0;
+      return Math.max(m, n);
+    }, 0);
+    const newId = 'CLS' + String(maxNum + 1).padStart(3, '0');
+    CLASSES.push({ id:newId, name, ageGroup, year, capacity, childCount:0, teacher, coTeacher, status, color: selectedColor, createdAt: new Date().toISOString().slice(0,10) });
     showToast(`'${name}' 반이 추가되었습니다`, 'success');
+    closeModal('classModal');
+    renderKPI();
+    applyFilter();
   }
+}
 
-  closeModal('classModal');
-  renderKPI();
-  applyFilter();
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   COLOR PALETTE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function renderColorPalette(currentColor) {
+  selectedColor = currentColor;
+  document.getElementById('colorPalette').innerHTML = PALETTE_COLORS.map(c =>
+    `<div class="cp-chip${c === currentColor ? ' selected' : ''}" style="background:${c}" data-color="${c}" onclick="selectColor('${c}')" title="${c}"></div>`
+  ).join('');
+}
+
+function selectColor(color) {
+  selectedColor = color;
+  document.querySelectorAll('.cp-chip').forEach(chip => {
+    chip.classList.toggle('selected', chip.dataset.color === color);
+  });
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   TEACHER MUTUAL EXCLUSION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function onTeacherChange() {
+  const tVal = document.getElementById('f_teacher').value;
+  const coSel = document.getElementById('f_coTeacher');
+  [...coSel.options].forEach(opt => { opt.disabled = opt.value !== '' && opt.value === tVal; });
+  if (coSel.value === tVal) coSel.value = '';
+}
+
+function onCoTeacherChange() {
+  const coVal = document.getElementById('f_coTeacher').value;
+  const tSel = document.getElementById('f_teacher');
+  [...tSel.options].forEach(opt => { opt.disabled = opt.value !== '' && opt.value === coVal; });
+  if (tSel.value === coVal) tSel.value = '';
+}
+
+function syncTeacherOptions() {
+  // 모달 열릴 때 기존 선택값 기준으로 상호 disable 초기화
+  [...document.getElementById('f_teacher').options].forEach(o => { o.disabled = false; });
+  [...document.getElementById('f_coTeacher').options].forEach(o => { o.disabled = false; });
+  onTeacherChange();
+  onCoTeacherChange();
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
