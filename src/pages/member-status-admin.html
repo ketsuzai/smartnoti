@@ -1,0 +1,2087 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>알림장 관리자 시스템 - 회원 상태관리</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-base: #F4F5F7;
+    --bg-surface: #FFFFFF;
+    --bg-sidebar: #1A1D2E;
+    --bg-sidebar-hover: #252840;
+    --bg-sidebar-active: #2E3250;
+
+    --accent-primary: #4361EE;
+    --accent-primary-light: #EEF1FD;
+    --accent-secondary: #3A0CA3;
+
+    --text-primary: #1A1D2E;
+    --text-secondary: #6B7280;
+    --text-muted: #9CA3AF;
+    --text-sidebar: #C5C9D6;
+    --text-sidebar-active: #FFFFFF;
+
+    --border-light: #E5E7EB;
+    --border-medium: #D1D5DB;
+
+    --status-normal-bg: #D1FAE5;
+    --status-normal-text: #065F46;
+    --status-normal-dot: #10B981;
+
+    --status-pending-bg: #FEF3C7;
+    --status-pending-text: #92400E;
+    --status-pending-dot: #F59E0B;
+
+    --status-dormant-bg: #F3F4F6;
+    --status-dormant-text: #374151;
+    --status-dormant-dot: #9CA3AF;
+
+    --status-withdraw-bg: #FEE2E2;
+    --status-withdraw-text: #991B1B;
+    --status-withdraw-dot: #EF4444;
+
+    --status-graduate-bg: #EDE9FE;
+    --status-graduate-text: #5B21B6;
+    --status-graduate-dot: #8B5CF6;
+
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+    --shadow-modal: 0 20px 60px rgba(0,0,0,0.18);
+
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+
+    --sidebar-width: 240px;
+    --header-height: 60px;
+  }
+
+  body {
+    font-family: 'Pretendard', -apple-system, sans-serif;
+    background: var(--bg-base);
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar-width);
+    min-height: 100vh;
+    background: var(--bg-sidebar);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 100;
+  }
+
+  .sidebar-logo {
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    gap: 10px;
+  }
+
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: var(--accent-primary);
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+
+  .logo-text {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.3px;
+  }
+
+  .logo-badge {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--accent-primary);
+    background: rgba(67,97,238,0.15);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: auto;
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 12px 0;
+    overflow-y: auto;
+  }
+
+  .nav-section-title {
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(197,201,214,0.4);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 12px 20px 6px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 20px;
+    color: var(--text-sidebar);
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 400;
+    transition: all 0.15s ease;
+    position: relative;
+  }
+
+  .nav-item:hover { background: var(--bg-sidebar-hover); color: #fff; }
+
+  .nav-item.active {
+    background: var(--bg-sidebar-active);
+    color: var(--text-sidebar-active);
+    font-weight: 500;
+  }
+
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--accent-primary);
+    border-radius: 0 2px 2px 0;
+  }
+
+  .nav-item .nav-icon { width: 18px; height: 18px; opacity: 0.75; flex-shrink: 0; }
+  .nav-item.active .nav-icon { opacity: 1; }
+
+  .nav-item .nav-badge {
+    margin-left: auto;
+    background: var(--accent-primary);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+  }
+
+  .nav-sub {
+    background: rgba(0,0,0,0.15);
+  }
+
+  .nav-sub .nav-item {
+    padding-left: 44px;
+    font-size: 13px;
+  }
+
+  .nav-sub .nav-item.active {
+    background: rgba(67,97,238,0.2);
+    color: #fff;
+  }
+
+  .sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .sidebar-user:hover { background: var(--bg-sidebar-hover); }
+
+  .user-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4361EE, #7C3AED);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: #fff;
+    flex-shrink: 0;
+  }
+
+  .user-info { flex: 1; min-width: 0; }
+  .user-name { font-size: 13px; font-weight: 600; color: #fff; }
+  .user-role { font-size: 11px; color: rgba(197,201,214,0.6); }
+
+  /* ── MAIN ── */
+  .main {
+    margin-left: var(--sidebar-width);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    height: var(--header-height);
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .breadcrumb-sep { color: var(--text-muted); }
+  .breadcrumb-current { color: var(--text-primary); font-weight: 600; }
+
+  .topbar-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .icon-btn {
+    width: 34px; height: 34px;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-md);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.15s;
+    position: relative;
+  }
+  .icon-btn:hover { background: var(--bg-base); color: var(--text-primary); }
+
+  .notif-dot {
+    position: absolute;
+    top: 7px; right: 7px;
+    width: 7px; height: 7px;
+    background: #EF4444;
+    border-radius: 50%;
+    border: 1.5px solid #fff;
+  }
+
+  .topbar-divider {
+    width: 1px;
+    height: 22px;
+    background: var(--border-light);
+  }
+
+  .topbar-profile {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .topbar-profile:hover { background: var(--bg-base); }
+
+  .profile-avatar {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4361EE, #7C3AED);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #fff;
+  }
+
+  .profile-name { font-size: 13px; font-weight: 600; }
+
+  /* ── CONTENT ── */
+  .content {
+    flex: 1;
+    padding: 24px;
+  }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .page-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.4px;
+  }
+
+  .page-subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 3px;
+  }
+
+  .page-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .btn-primary {
+    background: var(--accent-primary);
+    color: #fff;
+  }
+  .btn-primary:hover { background: #3251D5; box-shadow: 0 2px 8px rgba(67,97,238,0.35); }
+
+  .btn-secondary {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-medium);
+  }
+  .btn-secondary:hover { background: var(--bg-base); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid transparent;
+  }
+  .btn-ghost:hover { background: var(--bg-base); color: var(--text-primary); }
+
+  .btn-danger {
+    background: #FEE2E2;
+    color: #991B1B;
+    border: 1px solid #FECACA;
+  }
+  .btn-danger:hover { background: #FECACA; }
+
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn-xs { padding: 3px 8px; font-size: 11px; border-radius: 5px; }
+
+  /* ── STATUS TABS ── */
+  .status-tabs {
+    display: flex;
+    gap: 2px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 4px;
+    margin-bottom: 16px;
+    width: fit-content;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .status-tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    border: none;
+    background: transparent;
+  }
+
+  .status-tab:hover { color: var(--text-primary); background: var(--bg-base); }
+
+  .status-tab.active {
+    background: var(--accent-primary);
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(67,97,238,0.3);
+  }
+
+  .tab-count {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.08);
+    min-width: 20px;
+    text-align: center;
+  }
+
+  .status-tab.active .tab-count {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+  }
+
+  /* ── SEARCH/FILTER CARD ── */
+  .filter-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .filter-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .filter-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .filter-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .filter-group { display: flex; flex-direction: column; gap: 5px; }
+
+  .filter-label {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.1px;
+  }
+
+  .filter-input, .filter-select {
+    width: 100%;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    color: var(--text-primary);
+    background: var(--bg-base);
+    appearance: none;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+
+  .filter-input:focus, .filter-select:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(67,97,238,0.1);
+  }
+
+  .filter-select-wrap { position: relative; }
+
+  .filter-select-wrap::after {
+    content: '';
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0; height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid var(--text-muted);
+    pointer-events: none;
+  }
+
+  .date-group {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .date-group .filter-input { flex: 1; }
+  .date-sep { color: var(--text-muted); font-size: 12px; flex-shrink: 0; }
+
+  .search-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .search-input-wrap {
+    flex: 1;
+    position: relative;
+    max-width: 400px;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+
+  .search-input {
+    width: 100%;
+    height: 36px;
+    padding: 0 12px 0 34px;
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    background: var(--bg-base);
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .search-input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(67,97,238,0.1);
+  }
+
+  .search-type-select {
+    height: 36px;
+    padding: 0 28px 0 10px;
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    background: var(--bg-base);
+    appearance: none;
+    font-family: inherit;
+    cursor: pointer;
+    min-width: 110px;
+    color: var(--text-primary);
+  }
+
+  .filter-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+  }
+
+  .active-filters {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-light);
+  }
+
+  .filter-chip {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    background: var(--accent-primary-light);
+    color: var(--accent-primary);
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .filter-chip-remove {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: rgba(67,97,238,0.2);
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--accent-primary);
+    font-size: 10px;
+    line-height: 1;
+  }
+
+  /* ── TABLE CARD ── */
+  .table-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+
+  .table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .table-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .result-count {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .result-count strong {
+    color: var(--text-primary);
+    font-weight: 700;
+  }
+
+  .table-tools {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .bulk-action-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #EEF1FD;
+    border-bottom: 1px solid #D4DBF9;
+    animation: slideDown 0.2s ease;
+  }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .bulk-info {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-primary);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  th {
+    background: #F8F9FB;
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.3px;
+    border-bottom: 1px solid var(--border-light);
+    white-space: nowrap;
+    text-transform: uppercase;
+  }
+
+  th:first-child { padding-left: 20px; width: 40px; }
+  td:first-child { padding-left: 20px; }
+  th:last-child { text-align: center; }
+  td:last-child { text-align: center; }
+
+  .th-sort {
+    cursor: pointer;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .th-sort:hover { color: var(--text-primary); }
+
+  .sort-icon { font-size: 10px; color: var(--text-muted); }
+
+  td {
+    padding: 13px 14px;
+    font-size: 13px;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-light);
+    vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tr:hover td { background: #F8F9FB; }
+
+  tr.selected td { background: #EEF1FD; }
+
+  /* Column widths */
+  .col-check { width: 40px; }
+  .col-status { width: 80px; }
+  .col-type { width: 75px; }
+  .col-name { width: 90px; }
+  .col-org { width: 130px; }
+  .col-class { width: 75px; }
+  .col-guardian { width: 90px; }
+  .col-phone { width: 120px; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .col-joindate { width: 100px; }
+  .col-lastlogin { width: 100px; }
+  .col-changed { width: 100px; }
+  .col-manage { width: 100px; }
+
+  /* ── STATUS BADGE ── */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .status-normal { background: var(--status-normal-bg); color: var(--status-normal-text); }
+  .status-normal .status-dot { background: var(--status-normal-dot); }
+
+  .status-pending { background: var(--status-pending-bg); color: var(--status-pending-text); }
+  .status-pending .status-dot { background: var(--status-pending-dot); }
+
+  .status-dormant { background: var(--status-dormant-bg); color: var(--status-dormant-text); }
+  .status-dormant .status-dot { background: var(--status-dormant-dot); }
+
+  .status-withdraw { background: var(--status-withdraw-bg); color: var(--status-withdraw-text); }
+  .status-withdraw .status-dot { background: var(--status-withdraw-dot); }
+
+  .status-graduate { background: var(--status-graduate-bg); color: var(--status-graduate-text); }
+  .status-graduate .status-dot { background: var(--status-graduate-dot); }
+
+  /* ── USER TYPE BADGE ── */
+  .type-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .type-teacher { background: #DBEAFE; color: #1E40AF; }
+  .type-parent { background: #FCE7F3; color: #9D174D; }
+  .type-director { background: #FEF3C7; color: #92400E; }
+
+  /* ── MANAGE DROPDOWN ── */
+  .manage-wrap { position: relative; display: inline-block; }
+
+  .manage-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 10px;
+    background: var(--bg-base);
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .manage-btn:hover { background: var(--accent-primary-light); border-color: #b0bfee; color: var(--accent-primary); }
+
+  .dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 4px);
+    background: #fff;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    z-index: 200;
+    min-width: 150px;
+    overflow: hidden;
+    animation: fadeIn 0.15s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .dropdown-menu.show { display: block; }
+
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    font-size: 13px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .dropdown-item:hover { background: var(--bg-base); }
+  .dropdown-item.danger { color: #DC2626; }
+  .dropdown-item.danger:hover { background: #FEF2F2; }
+
+  .dropdown-divider {
+    height: 1px;
+    background: var(--border-light);
+    margin: 4px 0;
+  }
+
+  .dropdown-icon { width: 14px; height: 14px; opacity: 0.7; flex-shrink: 0; }
+
+  /* ── PAGINATION ── */
+  .pagination-area {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-top: 1px solid var(--border-light);
+  }
+
+  .pagination-info {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+  }
+
+  .pagination {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .page-btn {
+    width: 30px; height: 30px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
+    font-size: 12.5px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    background: var(--bg-surface);
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .page-btn:hover { background: var(--bg-base); color: var(--text-primary); }
+  .page-btn.active { background: var(--accent-primary); color: #fff; border-color: var(--accent-primary); font-weight: 600; }
+  .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .per-page-select {
+    height: 30px;
+    padding: 0 24px 0 8px;
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-sm);
+    font-size: 12.5px;
+    background: var(--bg-base);
+    appearance: none;
+    font-family: inherit;
+    cursor: pointer;
+    color: var(--text-primary);
+  }
+
+  /* ── CHECKBOX ── */
+  .checkbox {
+    width: 16px; height: 16px;
+    border: 1.5px solid var(--border-medium);
+    border-radius: 4px;
+    appearance: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .checkbox:checked {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+  }
+  .checkbox:checked::after {
+    content: '';
+    position: absolute;
+    left: 4px; top: 1.5px;
+    width: 5px; height: 9px;
+    border: 2px solid #fff;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg);
+  }
+
+  /* ── USER CELL ── */
+  .user-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mini-avatar {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #fff;
+    flex-shrink: 0;
+  }
+
+  .mini-name { font-size: 13px; font-weight: 500; }
+
+  .text-muted { color: var(--text-muted); font-size: 12px; }
+  .text-secondary { color: var(--text-secondary); }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,12,28,0.45);
+    backdrop-filter: blur(3px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.show { display: flex; }
+
+  .modal {
+    background: var(--bg-surface);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-modal);
+    width: 460px;
+    max-width: 95vw;
+    animation: modalIn 0.2s cubic-bezier(0.34, 1.3, 0.64, 1);
+  }
+
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.92) translateY(12px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .modal-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.3px;
+  }
+
+  .modal-subtitle {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+
+  .modal-close {
+    width: 30px; height: 30px;
+    border: none;
+    background: var(--bg-base);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-secondary);
+    font-size: 16px;
+    transition: all 0.15s;
+  }
+  .modal-close:hover { background: #fee2e2; color: #dc2626; }
+
+  .modal-body { padding: 20px 24px; }
+
+  .member-preview {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--bg-base);
+    border-radius: var(--radius-md);
+    margin-bottom: 20px;
+    border: 1px solid var(--border-light);
+  }
+
+  .preview-avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4361EE, #7C3AED);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: #fff;
+  }
+
+  .preview-name { font-size: 14px; font-weight: 600; }
+  .preview-meta { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+
+  .current-status { margin-left: auto; }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    letter-spacing: 0.1px;
+  }
+
+  .form-label span {
+    color: #EF4444;
+    margin-left: 2px;
+  }
+
+  .status-option-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .status-option {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 12px;
+    border: 1.5px solid var(--border-medium);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--bg-base);
+  }
+
+  .status-option:hover { background: var(--bg-surface); border-color: var(--border-medium); }
+
+  .status-option input[type="radio"] { display: none; }
+
+  .status-option.selected-normal { border-color: var(--status-normal-dot); background: var(--status-normal-bg); }
+  .status-option.selected-dormant { border-color: var(--status-dormant-dot); background: var(--status-dormant-bg); }
+  .status-option.selected-withdraw { border-color: var(--status-withdraw-dot); background: var(--status-withdraw-bg); }
+  .status-option.selected-graduate { border-color: var(--status-graduate-dot); background: var(--status-graduate-bg); }
+
+  .option-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .option-label { font-size: 13px; font-weight: 500; }
+  .option-desc { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+
+  .form-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--text-primary);
+    background: var(--bg-base);
+    resize: vertical;
+    min-height: 80px;
+    transition: all 0.15s;
+    line-height: 1.5;
+  }
+
+  .form-textarea:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(67,97,238,0.1);
+  }
+
+  .char-count {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: right;
+    margin-top: 4px;
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 14px 24px 20px;
+    border-top: 1px solid var(--border-light);
+  }
+
+  .warning-box {
+    display: flex;
+    gap: 9px;
+    padding: 10px 12px;
+    background: #FFFBEB;
+    border: 1px solid #FDE68A;
+    border-radius: var(--radius-md);
+    margin-bottom: 16px;
+    font-size: 12.5px;
+    color: #92400E;
+    line-height: 1.5;
+  }
+
+  /* ── DETAIL MODAL ── */
+  .detail-section {
+    margin-bottom: 16px;
+  }
+  .detail-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .detail-item {}
+  .detail-key { font-size: 11.5px; color: var(--text-muted); margin-bottom: 2px; }
+  .detail-val { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+
+  /* ── TOAST ── */
+  .toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .toast {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: #1A1D2E;
+    color: #fff;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: var(--shadow-lg);
+    animation: toastIn 0.3s cubic-bezier(0.34, 1.3, 0.64, 1);
+    min-width: 260px;
+  }
+
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .toast-icon { width: 18px; height: 18px; flex-shrink: 0; }
+  .toast.success .toast-icon { color: #10B981; }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+  }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.4; }
+  .empty-title { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+  .empty-desc { font-size: 13px; }
+
+  /* ── MISC ── */
+  .divider { height: 1px; background: var(--border-light); margin: 4px 0; }
+  svg { display: block; }
+
+  /* ── nav-sub ── */
+  .nav-sub { overflow:hidden; }
+  .nav-sub .nav-item { padding-left:44px; font-size:13px; }
+  .nav-sub .nav-item.active { background:rgba(67,97,238,0.22); color:#fff; font-weight:600; }
+  .nav-sub .nav-item.active::before { display:none; }
+
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════
+     SIDEBAR
+═══════════════════════════════════ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🏫</div>
+    <div class="logo-text">알림장 Admin</div>
+    <div class="logo-badge">v2.4</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-title">메인</div>
+    <div class="nav-item " onclick="location.href='dashboard.html'" style="cursor:pointer">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1" stroke-width="2"/></svg>
+      Home (대시보드)
+    </div>
+
+    <div class="nav-section-title">관리</div>
+
+    <div class="nav-item active" onclick="toggleSubNav(this,'sub-member')" style="cursor:pointer">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>
+      회원/승인관리
+      <span class="nav-badge" style="margin-left:auto;background:#4361EE;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px">3</span>
+      <svg class="nav-chevron" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-left:4px;opacity:0.5;transition:transform 0.2s;flex-shrink:0"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+    </div>
+    <div class="nav-sub" id="sub-member" style="block">
+      <div class="nav-item " onclick="location.href='member-list-admin.html'" style="cursor:pointer">통합회원 조회</div>
+      <div class="nav-item " onclick="location.href='member-approval.html'" style="cursor:pointer">가입 승인 관리 <span class="nav-badge">3</span></div>
+      <div class="nav-item " onclick="location.href='invitation-admin.html'" style="cursor:pointer">초대 관리</div>
+      <div class="nav-item active" onclick="location.href='member-status-admin.html'" style="cursor:pointer">회원 상태 관리</div>
+    </div>
+
+    <div class="nav-item " onclick="toggleSubNav(this,'sub-org')" style="cursor:pointer">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+      기관관리
+      <span class="nav-badge" style="margin-left:auto;background:#4361EE;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px">5</span>
+      <svg class="nav-chevron" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-left:4px;opacity:0.5;transition:transform 0.2s;flex-shrink:0"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+    </div>
+    <div class="nav-sub" id="sub-org" style="none">
+      <div class="nav-item " onclick="location.href='org-admin.html'" style="cursor:pointer">기관 조회</div>
+      <div class="nav-item " onclick="location.href='org-admin.html#approval'" style="cursor:pointer">기관 승인 관리 <span class="nav-badge">5</span></div>
+      <div class="nav-item " onclick="location.href='org-admin.html#status'" style="cursor:pointer">기관 상태 관리</div>
+    </div>
+
+    <div class="nav-item" style="cursor:default;opacity:0.5">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      운영관리 <span style="font-size:10px;color:#9CA3AF;margin-left:auto">준비중</span>
+    </div>
+    <div class="nav-item" style="cursor:default;opacity:0.5">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      통계관리 <span style="font-size:10px;color:#9CA3AF;margin-left:auto">준비중</span>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sidebar-user" onclick="showToast('프로필 설정 화면으로 이동합니다.')" style="cursor:pointer">
+      <div class="user-avatar">관</div>
+      <div class="user-info" style="flex:1;min-width:0">
+        <div class="user-name">슈퍼 관리자</div>
+        <div class="user-role">admin@kidkids.kr</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════════════════════════════════
+     MAIN
+═══════════════════════════════════ -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="breadcrumb">
+      <span>회원/승인관리</span>
+      <span class="breadcrumb-sep">›</span>
+      <span class="breadcrumb-current">회원 상태관리</span>
+    </div>
+
+    <div class="topbar-actions">
+      <button class="icon-btn" title="새로고침">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+      </button>
+      <button class="icon-btn" title="알림">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span class="notif-dot"></span>
+      </button>
+      <div class="topbar-divider"></div>
+      <div class="topbar-profile">
+        <div class="profile-avatar">관</div>
+        <span class="profile-name">슈퍼 관리자</span>
+        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--text-muted)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div>
+        <div class="page-title">회원 상태관리</div>
+        <div class="page-subtitle">회원 계정의 상태를 조회하고 변경합니다. 총 2,847명의 회원이 등록되어 있습니다.</div>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-secondary" onclick="void(0)">
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          엑셀 다운로드
+        </button>
+      </div>
+    </div>
+
+    <!-- Status Tabs -->
+    <div class="status-tabs">
+      <button class="status-tab" onclick="setTab(this)">
+        전체 <span class="tab-count">2,847</span>
+      </button>
+      <button class="status-tab active" onclick="setTab(this)">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--status-normal-dot);display:inline-block"></span>
+        정상 <span class="tab-count">2,104</span>
+      </button>
+      <button class="status-tab" onclick="setTab(this)">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--status-pending-dot);display:inline-block"></span>
+        대기 <span class="tab-count">312</span>
+      </button>
+      <button class="status-tab" onclick="setTab(this)">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--status-dormant-dot);display:inline-block"></span>
+        휴면 <span class="tab-count">198</span>
+      </button>
+      <button class="status-tab" onclick="setTab(this)">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--status-withdraw-dot);display:inline-block"></span>
+        탈퇴/퇴소 <span class="tab-count">173</span>
+      </button>
+      <button class="status-tab" onclick="setTab(this)">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--status-graduate-dot);display:inline-block"></span>
+        졸업 <span class="tab-count">60</span>
+      </button>
+    </div>
+
+    <!-- Filter Card -->
+    <div class="filter-card">
+      <div class="filter-header">
+        <div class="filter-title">
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+          검색 / 필터
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="resetFilters()">
+          <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          초기화
+        </button>
+      </div>
+
+      <div class="filter-grid">
+        <div class="filter-group">
+          <label class="filter-label">상태</label>
+          <div class="filter-select-wrap">
+            <select class="filter-select">
+              <option value="">전체</option>
+              <option value="normal" selected>정상</option>
+              <option value="pending">대기</option>
+              <option value="dormant">휴면</option>
+              <option value="withdraw">탈퇴/퇴소</option>
+              <option value="graduate">졸업</option>
+              <option value="service-withdraw">서비스탈퇴</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">사용자 유형</label>
+          <div class="filter-select-wrap">
+            <select class="filter-select">
+              <option value="">전체</option>
+              <option value="teacher">교사</option>
+              <option value="parent">학부모</option>
+              <option value="director">기관장</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">기관명</label>
+          <input type="text" class="filter-input" placeholder="기관명 검색">
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">반</label>
+          <input type="text" class="filter-input" placeholder="반 이름">
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">가입경로</label>
+          <div class="filter-select-wrap">
+            <select class="filter-select">
+              <option value="">전체</option>
+              <option value="invite">초대</option>
+              <option value="sns">SNS</option>
+              <option value="integrated">통합회원</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">상태 변경일</label>
+          <div class="filter-select-wrap">
+            <select class="filter-select">
+              <option value="">전체 기간</option>
+              <option value="7d">최근 7일</option>
+              <option value="30d">최근 30일</option>
+              <option value="90d">최근 90일</option>
+              <option value="custom">직접 입력</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="search-row">
+        <div class="filter-select-wrap" style="position:relative">
+          <select class="search-type-select">
+            <option>이름</option>
+            <option>휴대폰</option>
+            <option>이메일</option>
+          </select>
+          <span style="position:absolute;right:8px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--text-muted)">
+            <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </span>
+        </div>
+        <div class="search-input-wrap">
+          <span class="search-icon">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/></svg>
+          </span>
+          <input type="text" class="search-input" placeholder="이름으로 검색...">
+        </div>
+        <div class="filter-actions">
+          <button class="btn btn-primary" onclick="doSearch()">
+            <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/></svg>
+            검색
+          </button>
+        </div>
+      </div>
+
+      <!-- Active Filters -->
+      <div class="active-filters">
+        <div class="filter-chip">
+          상태: 정상
+          <button class="filter-chip-remove" onclick="removeFilter(this)">✕</button>
+        </div>
+        <div class="filter-chip">
+          기간: 최근 30일
+          <button class="filter-chip-remove" onclick="removeFilter(this)">✕</button>
+        </div>
+        <div class="filter-chip">
+          유형: 교사
+          <button class="filter-chip-remove" onclick="removeFilter(this)">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-meta">
+          <div class="result-count">총 <strong>2,104</strong>건</div>
+          <div id="bulkCount" style="display:none;font-size:13px;color:var(--accent-primary);font-weight:600">
+            <span id="selectedCount">0</span>건 선택됨
+          </div>
+        </div>
+        <div class="table-tools">
+          <div id="bulkActions" style="display:none;gap:6px;align-items:center" class="table-tools">
+            <button class="btn btn-secondary btn-sm" onclick="openBulkChange()">선택 상태 변경</button>
+            <button class="btn btn-danger btn-sm">선택 탈퇴 처리</button>
+          </div>
+          <div class="filter-select-wrap" style="position:relative">
+            <select class="per-page-select">
+              <option>20개씩</option>
+              <option>50개씩</option>
+              <option>100개씩</option>
+            </select>
+            <span style="position:absolute;right:6px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--text-muted)">
+              <svg width="9" height="9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </span>
+          </div>
+          <button class="btn btn-secondary btn-sm">
+            <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            내보내기
+          </button>
+        </div>
+      </div>
+
+      <table>
+        <colgroup>
+          <col class="col-check">
+          <col class="col-status">
+          <col class="col-type">
+          <col class="col-name">
+          <col class="col-org">
+          <col class="col-class">
+          <col class="col-guardian">
+          <col class="col-phone">
+          <col class="col-joindate">
+          <col class="col-lastlogin">
+          <col class="col-changed">
+          <col class="col-manage">
+        </colgroup>
+        <thead>
+          <tr>
+            <th><input type="checkbox" class="checkbox" onchange="toggleAll(this)"></th>
+            <th>상태</th>
+            <th>유형</th>
+            <th><span class="th-sort">이름 <span class="sort-icon">↕</span></span></th>
+            <th><span class="th-sort">기관명 <span class="sort-icon">↕</span></span></th>
+            <th>반</th>
+            <th>보호자</th>
+            <th>휴대폰</th>
+            <th><span class="th-sort">가입일 <span class="sort-icon">↓</span></span></th>
+            <th>최근 로그인</th>
+            <th>상태 변경일</th>
+            <th>관리</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <!-- Row 1 -->
+          <tr>
+            <td><input type="checkbox" class="checkbox" onchange="toggleRow(this)"></td>
+            <td><span class="status-badge status-normal"><span class="status-dot"></span>정상</span></td>
+            <td><span class="type-badge type-teacher">교사</span></td>
+            <td>
+              <div class="user-cell">
+                <div class="mini-avatar" style="background:linear-gradient(135deg,#4361EE,#7C3AED)">김</div>
+                <span class="mini-name">김민지</span>
+              </div>
+            </td>
+            <td>햇살어린이집</td>
+            <td>사과반</td>
+            <td class="text-muted">—</td>
+            <td>010-2345-6789</td>
+            <td>2024.03.15</td>
+            <td>2025.03.08</td>
+            <td>2024.03.15</td>
+            <td>
+              <div class="manage-wrap">
+                <button class="manage-btn" onclick="toggleDropdown(this)">관리 <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:inline"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button>
+                <div class="dropdown-menu">
+                  <div class="dropdown-item" onclick="openDetail(); closeAllDropdowns()">
+                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    상세보기
+                  </div>
+                  <div class="dropdown-item" onclick="openStatusModal(); closeAllDropdowns()">
+                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    상태 변경
+                  </div>
+                  <div class="dropdown-divider"></div>
+                  <div class="dropdown-item" onclick="closeAllDropdowns(); showToast('휴면 해제 처리가 완료되었습니다.')">
+                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    휴면 해제
+                  </div>
+                  <div class="dropdown-item" onclick="closeAllDropdowns(); showToast('계정이 재활성화되었습니다.')">
+                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    재활성화
+                  </div>
+                  <div class="dropdown-divider"></div>
+                  <div class="dropdown-item danger" onclick="closeAllDropdowns()">
+                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    탈퇴 처리
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <!-- Row 2 -->
+          <tr>
+            <td><input type="checkbox" class="checkbox" onchange="toggleRow(this)"></td>
+            <td><span class="status-badge status-normal"><span class="status-dot"></span>정상</span></td>
+            <td><span class="type-badge type-parent">학부모</span></td>
+            <td>
+              <div class="user-cell">
+                <div class="mini-avatar" style="background:linear-gradient(135deg,#F59E0B,#EF4444)">이</div>
+                <span class="mini-name">이수빈</span>
+              </div>
+            </td>
+            <td>무지개유치원</td>
+            <td>달님반</td>
+            <td style="font-size:12px;color:var(--text-secondary)">이정호</td>
+            <td>010-9876-5432</td>
+            <td>2024.06.20</td>
+            <td>2025.03.07</td>
+            <td>2024.06.20</td>
+            <td>
+              <div class="manage-wrap">
+                <button class="manage-btn" onclick="toggleDropdown(this)">관리 <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:inline"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button>
+                <div class="dropdown-menu">
+                  <div class="dropdown-item" onclick="openDetail(); closeAllDropdowns()">
+                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    상세보기
+                  </div>
+                  <div class="dropdown-item" onclick="openStatusModal(); closeAllDropdowns()">
+                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    상태 변경
+                  </div>
+                  <div class="dropdown-divider"></div>
+                  <div class="dropdown-item" onclick="closeAllDropdowns()">
+                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    휴면 해제
+                  </div>
+                  <div class="dropdown-item" onclick="closeAllDropdowns()">
+                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    재활성화
+                  </div>
+                  <div class="dropdown-divider"></div>
+                  <div class="dropdown-item danger" onclick="closeAllDropdowns()">
+                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    탈퇴 처리
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <!-- Row 3 -->
+          <tr>
+            <td><input type="checkbox" class="checkbox" onchange="toggleRow(this)"></td>
+            <td><span class="status-badge status-dormant"><span class="status-dot"></span>휴면</span></td>
+            <td><span class="type-badge type-teacher">교사</span></td>
+            <td>
+              <div class="user-cell">
+                <div class="mini-avatar" style="background:linear-gradient(135deg,#6B7280,#9CA3AF)">박</div>
+                <span class="mini-name" style="color:var(--text-secondary)">박서연</span>
+              </div>
+            </td>
+            <td style="color:var(--text-secondary)">꿈나무어린이집</td>
+            <td style="color:var(--text-secondary)">별빛반</td>
+            <td class="text-muted">—</td>
+            <td style="color:var(--text-secondary)">010-1111-2222</td>
+            <td style="color:var(--text-secondary)">2023.09.01</td>
+            <td style="color:#EF4444;font-size:12px">90일 이상</td>
+            <td style="color:var(--text-secondary)">2024.12.03</td>
+            <td>
+              <div class="manage-wrap">
+                <button class="manage-btn" onclick="toggleDropdown(this)">관리 <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:inline"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button>
+                <div class="dropdown-menu">
+                  <div class="dropdown-item" onclick="openDetail(); closeAllDropdowns()">
+                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    상세보기
+                  </div>
+                  <div class="dropdown-item" onclick="openStatusModal(); closeAllDropdowns()">
+                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    상태 변경
+                  </div>
+                  <div class="dropdown-divider"></div>
+                  <div class="dropdown-item" style="color:var(--accent-primary);font-weight:600" onclick="closeAllDropdowns(); showToast('휴면 해제 처리가 완료되었습니다.')">
+                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--accent-primary)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    휴면 해제 ←
+                  </div>
+                  <div class="dropdown-item" onclick="closeAllDropdowns()">
+                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    재활성화
+                  </div>
+                  <div class="dropdown-divider"></div>
+                  <div class="dropdown-item danger" onclick="closeAllDropdowns()">
+                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    탈퇴 처리
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <!-- Row 4 -->
+          <tr>
+            <td><input type="checkbox" class="checkbox" onchange="toggleRow(this)"></td>
+            <td><span class="status-badge status-withdraw"><span class="status-dot"></span>탈퇴</span></td>
+            <td><span class="type-badge type-parent">학부모</span></td>
+            <td>
+              <div class="user-cell">
+                <div class="mini-avatar" style="background:linear-gradient(135deg,#EF4444,#DC2626)">최</div>
+                <span class="mini-name" style="color:var(--text-secondary);text-decoration:line-through">최지훈</span>
+              </div>
+            </td>
+            <td style="color:var(--text-muted)">—</td>
+            <td class="text-muted">—</td>
+            <td class="text-muted">—</td>
+            <td style="color:var(--text-muted)">010-3333-****</td>
+            <td style="color:var(--text-muted)">2022.11.10</td>
+            <td class="text-muted">—</td>
+            <td style="color:#EF4444">2025.01.14</td>
+            <td>
+              <div class="manage-wrap">
+                <button class="manage-btn" onclick="toggleDropdown(this)">관리 <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:inline"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button>
+                <div class="dropdown-menu">
+                  <div class="dropdown-item" onclick="openDetail(); closeAllDropdowns()">
+                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    상세보기
+                  </div>
+                  <div class="dropdown-item" style="color:var(--accent-primary);font-weight:600" onclick="closeAllDropdowns(); showToast('계정이 재활성화되었습니다.')">
+                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--accent-primary)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    재활성화 ←
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <!-- Row 5 -->
+          <tr>
+            <td><input type="checkbox" class="checkbox" onchange="toggleRow(this)"></td>
+            <td><span class="status-badge status-graduate"><span class="status-dot"></span>졸업</span></td>
+            <td><span class="type-badge type-director">기관장</span></td>
+            <td>
+              <div class="user-cell">
+                <div class="mini-avatar" style="background:linear-gradient(135deg,#8B5CF6,#A78BFA)">정</div>
+                <span class="mini-name" style="color:var(--text-secondary)">정소율</span>
+              </div>
+            </td>
+            <td style="color:var(--text-secondary)">하늘유치원</td>
+            <td class="text-muted">—</td>
+            <td class="text-muted">—</td>
+            <td style="color:var(--text-secondary)">010-5555-6666</td>
+            <td style="color:var(--text-secondary)">2021.04.05</td>
+            <td class="text-muted">—</td>
+            <td style="color:var(--status-graduate-text)">2025.02.28</td>
+            <td>
+              <div class="manage-wrap">
+                <button class="manage-btn" onclick="toggleDropdown(this)">관리 <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:inline"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button>
+                <div class="dropdown-menu">
+                  <div class="dropdown-item" onclick="openDetail(); closeAllDropdowns()">
+                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    상세보기
+                  </div>
+                  <div class="dropdown-item" onclick="openStatusModal(); closeAllDropdowns()">
+                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    상태 변경
+                  </div>
+                  <div class="dropdown-item" onclick="closeAllDropdowns(); showToast('계정이 재활성화되었습니다.')">
+                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    재활성화
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      <div class="pagination-area">
+        <div class="pagination-info">1 - 20 / 총 2,104건</div>
+        <div class="pagination">
+          <button class="page-btn" disabled>‹‹</button>
+          <button class="page-btn" disabled>‹</button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">3</button>
+          <button class="page-btn">4</button>
+          <button class="page-btn">5</button>
+          <span style="padding:0 4px;color:var(--text-muted);font-size:12px">…</span>
+          <button class="page-btn">106</button>
+          <button class="page-btn">›</button>
+          <button class="page-btn">››</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+
+<!-- ═══════════════════════════════════
+     MODAL: 상태 변경
+═══════════════════════════════════ -->
+<div class="modal-overlay" id="statusModal" onclick="closeModalOnBg(event, 'statusModal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">회원 상태 변경</div>
+        <div class="modal-subtitle">변경 내용은 즉시 적용되며 이력에 기록됩니다.</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('statusModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Member Preview -->
+      <div class="member-preview">
+        <div class="preview-avatar">김</div>
+        <div>
+          <div class="preview-name">김민지</div>
+          <div class="preview-meta">교사 · 햇살어린이집 · 사과반</div>
+        </div>
+        <div class="current-status">
+          <span class="status-badge status-normal"><span class="status-dot"></span>현재: 정상</span>
+        </div>
+      </div>
+
+      <!-- Status Select -->
+      <div class="form-group">
+        <label class="form-label">변경할 상태 선택 <span>*</span></label>
+        <div class="status-option-grid">
+          <label class="status-option" id="opt-normal" onclick="selectOption('normal')">
+            <input type="radio" name="status" value="normal">
+            <span class="option-dot" style="background:var(--status-normal-dot)"></span>
+            <div>
+              <div class="option-label">정상</div>
+              <div class="option-desc">정상 이용 가능 상태</div>
+            </div>
+          </label>
+          <label class="status-option" id="opt-dormant" onclick="selectOption('dormant')">
+            <input type="radio" name="status" value="dormant">
+            <span class="option-dot" style="background:var(--status-dormant-dot)"></span>
+            <div>
+              <div class="option-label">휴면</div>
+              <div class="option-desc">장기 미접속 비활성 상태</div>
+            </div>
+          </label>
+          <label class="status-option" id="opt-withdraw" onclick="selectOption('withdraw')">
+            <input type="radio" name="status" value="withdraw">
+            <span class="option-dot" style="background:var(--status-withdraw-dot)"></span>
+            <div>
+              <div class="option-label">탈퇴</div>
+              <div class="option-desc">서비스 이용 중단 처리</div>
+            </div>
+          </label>
+          <label class="status-option" id="opt-graduate" onclick="selectOption('graduate')">
+            <input type="radio" name="status" value="graduate">
+            <span class="option-dot" style="background:var(--status-graduate-dot)"></span>
+            <div>
+              <div class="option-label">졸업</div>
+              <div class="option-desc">교육 과정 완료</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Warning -->
+      <div class="warning-box" id="withdrawWarning" style="display:none">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;color:#D97706;margin-top:1px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <span><strong>탈퇴 처리 주의:</strong> 탈퇴 처리 시 해당 회원의 모든 데이터 접근이 즉시 차단됩니다. 개인정보는 법령에 따라 일정 기간 보존 후 자동 삭제됩니다.</span>
+      </div>
+
+      <!-- Reason -->
+      <div class="form-group">
+        <label class="form-label">변경 사유 <span>*</span></label>
+        <textarea class="form-textarea" id="reasonText" placeholder="상태 변경 사유를 입력해 주세요. (최소 10자)" maxlength="300" oninput="updateCharCount(this)"></textarea>
+        <div class="char-count"><span id="charCount">0</span> / 300</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('statusModal')">취소</button>
+      <button class="btn btn-primary" onclick="submitStatusChange()">상태 변경</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════
+     MODAL: 상세보기
+═══════════════════════════════════ -->
+<div class="modal-overlay" id="detailModal" onclick="closeModalOnBg(event, 'detailModal')">
+  <div class="modal" style="width:520px" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">회원 상세정보</div>
+        <div class="modal-subtitle">김민지 · 교사</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('detailModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;padding:14px;background:var(--bg-base);border-radius:var(--radius-md)">
+        <div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#4361EE,#7C3AED);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;flex-shrink:0">김</div>
+        <div>
+          <div style="font-size:16px;font-weight:700">김민지</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-top:2px">교사 · 햇살어린이집 · 사과반</div>
+        </div>
+        <span class="status-badge status-normal" style="margin-left:auto"><span class="status-dot"></span>정상</span>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-section-title">기본 정보</div>
+        <div class="detail-grid">
+          <div class="detail-item"><div class="detail-key">이름</div><div class="detail-val">김민지</div></div>
+          <div class="detail-item"><div class="detail-key">휴대폰</div><div class="detail-val" style="font-family:'JetBrains Mono',monospace;font-size:12px">010-2345-6789</div></div>
+          <div class="detail-item"><div class="detail-key">이메일</div><div class="detail-val" style="font-size:12px"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="82efebece8ebc2e7fae3eff2eee7ace1edef">[email&#160;protected]</a></div></div>
+          <div class="detail-item"><div class="detail-key">가입경로</div><div class="detail-val">초대</div></div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-section-title">소속 정보</div>
+        <div class="detail-grid">
+          <div class="detail-item"><div class="detail-key">기관명</div><div class="detail-val">햇살어린이집</div></div>
+          <div class="detail-item"><div class="detail-key">반</div><div class="detail-val">사과반</div></div>
+          <div class="detail-item"><div class="detail-key">역할</div><div class="detail-val"><span class="type-badge type-teacher">교사</span></div></div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-section-title">활동 이력</div>
+        <div class="detail-grid">
+          <div class="detail-item"><div class="detail-key">가입일</div><div class="detail-val">2024.03.15</div></div>
+          <div class="detail-item"><div class="detail-key">최근 로그인</div><div class="detail-val">2025.03.08</div></div>
+          <div class="detail-item"><div class="detail-key">상태 변경일</div><div class="detail-val">2024.03.15</div></div>
+          <div class="detail-item"><div class="detail-key">총 로그인 수</div><div class="detail-val">247회</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('detailModal')">닫기</button>
+      <button class="btn btn-primary" onclick="closeModal('detailModal'); openStatusModal()">상태 변경</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  // ── Dropdown ──
+  function toggleDropdown(btn) {
+    closeAllDropdowns();
+    const menu = btn.nextElementSibling;
+    menu.classList.toggle('show');
+    document.addEventListener('click', function handler(e) {
+      if (!btn.contains(e.target)) {
+        menu.classList.remove('show');
+        document.removeEventListener('click', handler);
+      }
+    });
+    event.stopPropagation();
+  }
+
+  function closeAllDropdowns() {
+    document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show'));
+  }
+
+  // ── Modal ──
+  function openStatusModal() {
+    document.getElementById('statusModal').classList.add('show');
+  }
+
+  function openDetail() {
+    document.getElementById('detailModal').classList.add('show');
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('show');
+  }
+
+  function closeModalOnBg(e, id) {
+    if (e.target.id === id) closeModal(id);
+  }
+
+  // ── Status Option ──
+  function selectOption(type) {
+    document.querySelectorAll('.status-option').forEach(el => {
+      el.className = 'status-option';
+    });
+    const el = document.getElementById('opt-' + type);
+    if (el) el.classList.add('selected-' + type);
+    document.getElementById('withdrawWarning').style.display = (type === 'withdraw') ? 'flex' : 'none';
+  }
+
+  // ── Char Count ──
+  function updateCharCount(ta) {
+    document.getElementById('charCount').textContent = ta.value.length;
+  }
+
+  // ── Status Tabs ──
+  function setTab(btn) {
+    document.querySelectorAll('.status-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  // ── Checkbox ──
+  function toggleAll(cb) {
+    document.querySelectorAll('#tableBody .checkbox').forEach(c => {
+      c.checked = cb.checked;
+      c.closest('tr').classList.toggle('selected', cb.checked);
+    });
+    updateBulkBar();
+  }
+
+  function toggleRow(cb) {
+    cb.closest('tr').classList.toggle('selected', cb.checked);
+    updateBulkBar();
+  }
+
+  function updateBulkBar() {
+    const checked = document.querySelectorAll('#tableBody .checkbox:checked').length;
+    const bulkCount = document.getElementById('bulkCount');
+    const bulkActions = document.getElementById('bulkActions');
+    if (checked > 0) {
+      bulkCount.style.display = 'block';
+      bulkActions.style.display = 'flex';
+      document.getElementById('selectedCount').textContent = checked;
+    } else {
+      bulkCount.style.display = 'none';
+      bulkActions.style.display = 'none';
+    }
+  }
+
+  function openBulkChange() {
+    openStatusModal();
+  }
+
+  // ── Filter ──
+  function resetFilters() {
+    document.querySelectorAll('.filter-select, .filter-input').forEach(el => el.value = '');
+    document.querySelectorAll('.filter-chip').forEach(el => el.remove());
+    showToast('필터가 초기화되었습니다.');
+  }
+
+  function removeFilter(btn) {
+    btn.closest('.filter-chip').remove();
+  }
+
+  function doSearch() {
+    showToast('검색이 완료되었습니다.');
+  }
+
+  // ── Submit ──
+  function submitStatusChange() {
+    const selected = document.querySelector('.status-option[class*="selected-"]');
+    const reason = document.getElementById('reasonText').value;
+    if (!selected) { showToast('변경할 상태를 선택해 주세요.', 'error'); return; }
+    if (reason.length < 10) { showToast('사유를 최소 10자 이상 입력해 주세요.', 'error'); return; }
+    closeModal('statusModal');
+    showToast('회원 상태가 성공적으로 변경되었습니다.');
+  }
+
+  // ── Toast ──
+  function showToast(msg, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'toast ' + type;
+    toast.innerHTML = `
+      <svg class="toast-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      \${msg}`;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transition = 'opacity 0.3s';
+      setTimeout(() => toast.remove(), 300);
+    }, 2800);
+  }
+
+  // Close dropdown on outside click
+  document.addEventListener('click', () => closeAllDropdowns());
+</script>
+
+<script>
+/* ── nav sub-menu toggle ── */
+function toggleSubNav(el, subId) {
+  var sub = document.getElementById(subId);
+  if (!sub) return;
+  var isOpen = sub.style.display === 'block';
+  sub.style.display = isOpen ? 'none' : 'block';
+  var chev = el.querySelector('.nav-chevron');
+  if (chev) chev.style.transform = isOpen ? '' : 'rotate(90deg)';
+}
+</script>
+</body>
+</html>

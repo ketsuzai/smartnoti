@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>원아관리 — 키드키즈</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="operation-sidebar.js" defer></script>
+<style>
+:root {
+  --sidebar-bg:     #0C2D48;
+  --sidebar-hover:  #1A4A6B;
+  --sidebar-active: #1E5580;
+  --sidebar-text:   #B8D9F0;
+  --sidebar-width:  240px;
+  --header-height:  60px;
+  --accent:         #0EA5E9;
+  --accent-light:   #E0F2FE;
+  --accent-dark:    #0284C7;
+  --bg-base:        #F0F7FF;
+  --bg-surface:     #FFFFFF;
+  --text-primary:   #0C2D48;
+  --text-secondary: #4B7FA3;
+  --text-muted:     #94B8D0;
+  --border-light:   #DBEAFE;
+  --border-medium:  #BAD9F7;
+  --green:  #10B981; --green-bg:  #D1FAE5; --green-text:  #065F46;
+  --blue:   #3B82F6; --blue-bg:   #DBEAFE; --blue-text:   #1E40AF;
+  --amber:  #F59E0B; --amber-bg:  #FEF3C7; --amber-text:  #92400E;
+  --red:    #EF4444; --red-bg:    #FEE2E2; --red-text:    #991B1B;
+  --purple: #8B5CF6; --purple-bg: #EDE9FE; --purple-text: #5B21B6;
+  --shadow-sm: 0 1px 3px rgba(12,45,72,0.06);
+  --shadow-md: 0 4px 12px rgba(12,45,72,0.09);
+  --shadow-lg: 0 8px 28px rgba(12,45,72,0.11);
+  --radius-sm:6px; --radius-md:10px; --radius-lg:14px; --radius-xl:18px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'Pretendard',sans-serif; background:var(--bg-base); color:var(--text-primary); display:flex; height:100vh; overflow:hidden; }
+
+/* 사이드바 CSS → operation-sidebar.js 에서 주입 */
+
+/* ━━━ MAIN ━━━ */
+.main-wrap { margin-left:var(--sidebar-width); flex:1; display:flex; flex-direction:column; overflow:hidden; }
+
+/* ━━━ TOPBAR ━━━ */
+.topbar {
+  height:var(--header-height); background:var(--bg-surface);
+  border-bottom:1px solid var(--border-light);
+  display:flex; align-items:center; padding:0 24px; gap:12px;
+  box-shadow:var(--shadow-sm); flex-shrink:0; z-index:50;
+}
+.breadcrumb { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--text-secondary); flex:1; }
+.breadcrumb .cur { color:var(--text-primary); font-weight:600; }
+.bc-sep { color:var(--text-muted); font-size:11px; }
+
+.class-filter-wrap {
+  display:flex; align-items:center; gap:8px;
+  background:var(--bg-base); border:1.5px solid var(--border-light);
+  border-radius:var(--radius-md); padding:5px 12px; transition:0.18s;
+}
+.class-filter-wrap:focus-within { border-color:var(--accent); background:#fff; }
+.class-filter-label   { font-size:11px; color:var(--text-secondary); font-weight:600; white-space:nowrap; }
+.class-filter-divider { width:1px; height:14px; background:var(--border-medium); }
+.class-select-wrap    { position:relative; }
+.class-select {
+  appearance:none; -webkit-appearance:none;
+  border:none; background:transparent;
+  font-size:13px; font-weight:700; color:var(--text-primary);
+  cursor:pointer; font-family:'Pretendard',sans-serif;
+  outline:none; padding-right:20px; min-width:120px;
+}
+.class-select-arrow { position:absolute; right:0; top:50%; transform:translateY(-50%); pointer-events:none; color:var(--text-muted); font-size:11px; }
+.class-select option.disabled-opt { color:#C0C0C0; background:#F9FAFB; }
+
+.topbar-right { display:flex; align-items:center; gap:10px; }
+.topbar-date  { font-size:12px; color:var(--text-muted); font-family:'JetBrains Mono',monospace; }
+.icon-btn {
+  width:36px; height:36px; border-radius:var(--radius-md);
+  display:flex; align-items:center; justify-content:center;
+  background:var(--bg-base); border:1px solid var(--border-light);
+  cursor:pointer; transition:0.18s; font-size:16px; position:relative;
+}
+.icon-btn:hover { background:var(--accent-light); border-color:var(--accent); }
+.notif-dot::after { content:''; position:absolute; top:6px; right:6px; width:6px; height:6px; border-radius:50%; background:var(--red); border:1.5px solid var(--bg-surface); }
+
+/* ━━━ CONTENT ━━━ */
+.content { flex:1; overflow-y:auto; padding:22px 24px; }
+.content::-webkit-scrollbar { width:5px; }
+.content::-webkit-scrollbar-thumb { background:var(--border-medium); border-radius:3px; }
+
+/* 페이지 헤더 */
+.page-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:18px; }
+.page-title  { font-size:21px; font-weight:800; letter-spacing:-0.5px; }
+.page-sub    { font-size:13px; color:var(--text-secondary); margin-top:3px; }
+
+/* ━━━ KPI ━━━ */
+.kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:18px; }
+.kpi-card {
+  background:var(--bg-surface); border-radius:var(--radius-lg);
+  padding:16px 18px; box-shadow:var(--shadow-sm); border:1px solid var(--border-light);
+  display:flex; align-items:center; gap:12px; transition:box-shadow 0.2s; cursor:default;
+}
+.kpi-card:hover { box-shadow:var(--shadow-md); }
+.kpi-ico { width:46px; height:46px; border-radius:var(--radius-md); display:flex;align-items:center;justify-content:center; font-size:21px; flex-shrink:0; }
+.kpi-ico.sky    { background:#E0F2FE; }
+.kpi-ico.green  { background:var(--green-bg); }
+.kpi-ico.amber  { background:var(--amber-bg); }
+.kpi-ico.red    { background:var(--red-bg); }
+.kpi-ico.purple { background:var(--purple-bg); }
+.kpi-label { font-size:11px; color:var(--text-secondary); font-weight:500; margin-bottom:2px; }
+.kpi-value { font-size:24px; font-weight:800; color:var(--text-primary); letter-spacing:-0.8px; line-height:1; }
+.kpi-sub   { font-size:11px; color:var(--text-muted); margin-top:2px; }
+
+/* ━━━ 필터 바 ━━━ */
+.filter-bar {
+  background:var(--bg-surface); border:1px solid var(--border-light);
+  border-radius:var(--radius-lg); padding:14px 18px; margin-bottom:14px;
+  display:flex; flex-wrap:wrap; align-items:center; gap:10px;
+  box-shadow:var(--shadow-sm);
+}
+.filter-group { display:flex; align-items:center; gap:6px; }
+.filter-label { font-size:11px; font-weight:600; color:var(--text-secondary); white-space:nowrap; }
+.filter-select, .filter-input {
+  height:34px; padding:0 10px; border:1.5px solid var(--border-light);
+  border-radius:var(--radius-md); font-size:12px; font-weight:500;
+  color:var(--text-primary); background:#fff; font-family:'Pretendard',sans-serif;
+  transition:border-color 0.18s; outline:none;
+}
+.filter-select:focus, .filter-input:focus { border-color:var(--accent); }
+.filter-select { cursor:pointer; }
+.filter-input  { width:170px; }
+.filter-divider { width:1px; height:22px; background:var(--border-light); }
+
+/* 보호자 검색 자동완성 */
+.parent-search-wrap { position:relative; }
+.parent-dropdown {
+  position:absolute; top:calc(100% + 4px); left:0; min-width:240px;
+  background:#fff; border:1.5px solid var(--border-light); border-radius:var(--radius-md);
+  box-shadow:var(--shadow-md); z-index:200; display:none; max-height:200px; overflow-y:auto;
+}
+.parent-dropdown.show { display:block; }
+.parent-dropdown-item {
+  padding:9px 12px; font-size:12px; cursor:pointer; transition:background 0.15s;
+  display:flex; flex-direction:column; gap:2px;
+}
+.parent-dropdown-item:hover { background:var(--accent-light); }
+.parent-dropdown-item .pd-name  { font-weight:700; color:var(--text-primary); }
+.parent-dropdown-item .pd-phone { font-size:11px; color:var(--text-secondary); }
+.parent-clear-btn {
+  position:absolute; right:8px; top:50%; transform:translateY(-50%);
+  background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:13px;
+  display:none; padding:2px;
+}
+.parent-clear-btn.show { display:block; }
+
+/* ━━━ 액션 바 ━━━ */
+.action-bar {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:14px; flex-wrap:wrap; gap:8px;
+}
+.action-left  { display:flex; align-items:center; gap:8px; }
+.action-right { display:flex; align-items:center; gap:8px; }
+.btn {
+  display:inline-flex; align-items:center; gap:6px;
+  height:36px; padding:0 16px; border-radius:var(--radius-md);
+  font-size:13px; font-weight:600; font-family:'Pretendard',sans-serif;
+  cursor:pointer; border:none; transition:0.18s; white-space:nowrap;
+}
+.btn-primary  { background:var(--accent); color:#fff; }
+.btn-primary:hover  { background:var(--accent-dark); }
+.btn-outline  { background:#fff; color:var(--text-primary); border:1.5px solid var(--border-medium); }
+.btn-outline:hover  { border-color:var(--accent); color:var(--accent-dark); background:var(--accent-light); }
+.btn-danger   { background:var(--red-bg); color:var(--red-text); border:1.5px solid #FECACA; }
+.btn-danger:hover   { background:var(--red); color:#fff; }
+.btn-sm { height:30px; padding:0 12px; font-size:12px; }
+
+.selected-info { font-size:12px; font-weight:600; color:var(--text-secondary); }
+.selected-info span { color:var(--accent-dark); font-size:14px; font-weight:800; }
+
+/* ━━━ 테이블 카드 ━━━ */
+.table-card {
+  background:var(--bg-surface); border-radius:var(--radius-lg);
+  border:1px solid var(--border-light); box-shadow:var(--shadow-sm); overflow:hidden;
+}
+.table-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 18px; border-bottom:1px solid var(--border-light);
+}
+.table-title { font-size:14px; font-weight:700; display:flex; align-items:center; gap:6px; }
+.table-count { font-size:12px; color:var(--text-muted); font-weight:500; margin-left:4px; }
+
+.data-table { width:100%; border-collapse:collapse; }
+.data-table th {
+  font-size:11px; font-weight:700; color:var(--text-secondary);
+  text-align:left; padding:10px 12px;
+  border-bottom:1.5px solid var(--border-light); background:var(--bg-base);
+  white-space:nowrap;
+}
+.data-table td {
+  font-size:12.5px; padding:11px 12px;
+  border-bottom:1px solid var(--border-light); vertical-align:middle;
+}
+.data-table tr:last-child td { border-bottom:none; }
+.data-table tbody tr { cursor:pointer; transition:background 0.15s; }
+.data-table tbody tr:hover td { background:#F8FCFF; }
+.data-table input[type="checkbox"] { width:14px; height:14px; cursor:pointer; accent-color:var(--accent); }
+
+/* 아바타 */
+.child-avatar {
+  width:32px; height:32px; border-radius:50%;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:12px; font-weight:800; color:#fff; flex-shrink:0;
+}
+.child-name-wrap { display:flex; align-items:center; gap:8px; }
+.child-name      { font-size:13px; font-weight:700; color:var(--text-primary); }
+.child-birth-sub { font-size:11px; color:var(--text-muted); }
+
+/* 상태 뱃지 */
+.status-badge {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:3px 9px; border-radius:12px; font-size:11px; font-weight:700;
+}
+.status-dot { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
+.s-enrolled  { background:var(--green-bg);  color:var(--green-text); }
+.s-graduated { background:#F3F4F6; color:#6B7280; }
+.s-withdrawn { background:var(--red-bg);    color:var(--red-text); }
+.s-on_leave  { background:var(--amber-bg);  color:var(--amber-text); }
+.s-pending   { background:var(--purple-bg); color:var(--purple-text); }
+
+/* 반 뱃지 */
+.class-badge {
+  display:inline-flex; align-items:center; gap:3px;
+  padding:3px 9px; border-radius:10px; font-size:11px; font-weight:600;
+  background:var(--accent-light); color:var(--accent-dark); white-space:nowrap;
+}
+
+/* 앱 연결 */
+.app-connected     { color:var(--green); font-size:13px; }
+.app-not-connected { color:#D1D5DB;      font-size:13px; }
+
+/* 보호자 링크 */
+.parent-link { color:var(--accent-dark); font-weight:600; text-decoration:none; cursor:pointer; font-size:12px; }
+.parent-link:hover { text-decoration:underline; }
+
+/* 성별 뱃지 */
+.gender-m { color:#3B82F6; font-weight:700; font-size:12px; }
+.gender-f { color:#EC4899; font-weight:700; font-size:12px; }
+
+/* 빈 상태 */
+.empty-state { text-align:center; padding:48px 24px; color:var(--text-muted); }
+.empty-state-icon { font-size:40px; margin-bottom:10px; }
+.empty-state-text { font-size:14px; font-weight:600; color:var(--text-secondary); }
+.empty-state-sub  { font-size:12px; margin-top:4px; }
+
+/* 페이지네이션 */
+.pagination {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 18px; border-top:1px solid var(--border-light); flex-shrink:0;
+}
+.page-info  { font-size:12px; color:var(--text-muted); }
+.page-btns  { display:flex; gap:4px; }
+.page-btn {
+  width:30px; height:30px; border-radius:var(--radius-sm);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px; font-weight:600; cursor:pointer; border:1px solid var(--border-light);
+  background:#fff; color:var(--text-secondary); transition:0.18s;
+}
+.page-btn:hover  { border-color:var(--accent); color:var(--accent-dark); }
+.page-btn.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+.page-btn.disabled { opacity:0.35; cursor:not-allowed; pointer-events:none; }
+
+/* ━━━ 슬라이드 패널 ━━━ */
+.panel-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,0.35);
+  z-index:300; opacity:0; pointer-events:none; transition:opacity 0.25s;
+}
+.panel-overlay.show { opacity:1; pointer-events:all; }
+
+.side-panel {
+  position:fixed; right:0; top:0; height:100vh; width:480px;
+  background:#fff; z-index:400; box-shadow:-8px 0 32px rgba(12,45,72,0.12);
+  display:flex; flex-direction:column; transform:translateX(100%); transition:transform 0.3s cubic-bezier(.4,0,.2,1);
+}
+.side-panel.show { transform:translateX(0); }
+
+.panel-header {
+  height:60px; padding:0 20px; display:flex; align-items:center; justify-content:space-between;
+  border-bottom:1px solid var(--border-light); flex-shrink:0;
+}
+.panel-title { font-size:16px; font-weight:800; display:flex; align-items:center; gap:8px; }
+.panel-close {
+  width:32px; height:32px; border-radius:var(--radius-md);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer; background:var(--bg-base); border:1px solid var(--border-light);
+  font-size:16px; transition:0.18s; color:var(--text-secondary);
+}
+.panel-close:hover { background:var(--red-bg); border-color:#FECACA; color:var(--red); }
+
+/* 패널 탭 */
+.panel-tabs { display:flex; border-bottom:1px solid var(--border-light); flex-shrink:0; background:#FAFCFF; }
+.panel-tab {
+  flex:1; padding:12px 8px; text-align:center; font-size:12px; font-weight:600;
+  color:var(--text-secondary); cursor:pointer; border-bottom:2.5px solid transparent;
+  transition:0.18s; white-space:nowrap;
+}
+.panel-tab:hover  { color:var(--accent-dark); }
+.panel-tab.active { color:var(--accent-dark); border-bottom-color:var(--accent); background:#fff; }
+
+.panel-body { flex:1; overflow-y:auto; padding:20px; }
+.panel-body::-webkit-scrollbar { width:4px; }
+.panel-body::-webkit-scrollbar-thumb { background:var(--border-medium); border-radius:2px; }
+
+/* 패널 내 섹션 */
+.panel-section { margin-bottom:20px; }
+.panel-section-title {
+  font-size:11px; font-weight:800; color:var(--text-muted); letter-spacing:1px;
+  text-transform:uppercase; margin-bottom:10px; display:flex; align-items:center; gap:6px;
+}
+.panel-section-title::after { content:''; flex:1; height:1px; background:var(--border-light); }
+
+.info-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.info-item { padding:10px 12px; background:var(--bg-base); border-radius:var(--radius-md); border:1px solid var(--border-light); }
+.info-item.full { grid-column:1/-1; }
+.info-label { font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; }
+.info-value { font-size:13px; font-weight:600; color:var(--text-primary); }
+.info-value.muted { color:var(--text-muted); font-weight:400; }
+
+/* 보호자 카드 */
+.parent-card {
+  border:1.5px solid var(--border-light); border-radius:var(--radius-md);
+  padding:12px 14px; margin-bottom:10px; display:flex; align-items:flex-start; gap:12px;
+}
+.parent-card.primary { border-left:3px solid var(--accent); }
+.parent-card.family  { border-left:3px solid var(--green); }
+.parent-card-avatar  { width:38px; height:38px; border-radius:50%; display:flex;align-items:center;justify-content:center; font-size:14px; font-weight:800; color:#fff; flex-shrink:0; }
+.parent-card-name    { font-size:13px; font-weight:700; color:var(--text-primary); }
+.parent-card-meta    { font-size:11px; color:var(--text-secondary); display:flex; gap:10px; margin-top:3px; flex-wrap:wrap; }
+.parent-card-type    { font-size:10px; font-weight:700; padding:1px 7px; border-radius:10px; }
+.parent-card-type.primary { background:var(--blue-bg);  color:var(--blue-text); }
+.parent-card-type.family  { background:var(--green-bg); color:var(--green-text); }
+.parent-card-app     { font-size:11px; display:flex; align-items:center; gap:4px; }
+
+/* 알레르기 태그 */
+.allergy-tags { display:flex; flex-wrap:wrap; gap:6px; }
+.allergy-tag  { padding:3px 10px; border-radius:10px; font-size:11px; font-weight:600; background:var(--red-bg); color:var(--red-text); border:1px solid #FECACA; }
+.allergy-none { font-size:12px; color:var(--text-muted); }
+
+/* 이력 아이템 */
+.history-item { display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-bottom:1px solid var(--border-light); }
+.history-item:last-child { border-bottom:none; }
+.history-dot  { width:8px; height:8px; border-radius:50%; background:var(--accent); flex-shrink:0; margin-top:4px; }
+.history-text { font-size:12px; color:var(--text-primary); line-height:1.5; flex:1; }
+.history-date { font-size:10px; color:var(--text-muted); font-family:'JetBrains Mono',monospace; flex-shrink:0; margin-top:2px; }
+
+/* 패널 액션 바 */
+.panel-footer {
+  padding:14px 20px; border-top:1px solid var(--border-light); flex-shrink:0;
+  display:flex; gap:8px; justify-content:flex-end; background:#FAFCFF;
+}
+
+/* ━━━ 모달 (등록/상태변경) ━━━ */
+.modal-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:500;
+  display:none; align-items:center; justify-content:center;
+}
+.modal-overlay.show { display:flex; }
+
+.modal-box {
+  background:#fff; border-radius:var(--radius-xl); width:540px; max-width:94vw;
+  max-height:88vh; overflow-y:auto; box-shadow:var(--shadow-lg);
+  animation:modalIn 0.22s ease;
+}
+@keyframes modalIn { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
+
+.modal-header {
+  padding:20px 24px 16px; border-bottom:1px solid var(--border-light);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.modal-title { font-size:17px; font-weight:800; }
+.modal-close { width:30px; height:30px; border-radius:var(--radius-sm); border:1px solid var(--border-light); background:var(--bg-base); display:flex;align-items:center;justify-content:center; cursor:pointer; font-size:16px; color:var(--text-secondary); }
+.modal-close:hover { background:var(--red-bg); color:var(--red); border-color:#FECACA; }
+
+.modal-body   { padding:20px 24px; }
+.modal-footer { padding:14px 24px; border-top:1px solid var(--border-light); display:flex; gap:8px; justify-content:flex-end; }
+
+/* 폼 */
+.form-row   { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+.form-row.full { grid-template-columns:1fr; }
+.form-group { display:flex; flex-direction:column; gap:5px; }
+.form-label {
+  font-size:12px; font-weight:700; color:var(--text-secondary);
+  display:flex; align-items:center; gap:4px;
+}
+.form-label .req { color:var(--red); font-size:10px; }
+.form-input, .form-select, .form-textarea {
+  height:38px; padding:0 12px; border:1.5px solid var(--border-light);
+  border-radius:var(--radius-md); font-size:13px; font-family:'Pretendard',sans-serif;
+  color:var(--text-primary); transition:border-color 0.18s; outline:none; background:#fff;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color:var(--accent); }
+.form-textarea { height:80px; padding:10px 12px; resize:vertical; }
+.form-hint { font-size:11px; color:var(--text-muted); margin-top:3px; }
+
+/* 라디오 그룹 */
+.radio-group { display:flex; gap:10px; padding-top:4px; }
+.radio-label { display:flex; align-items:center; gap:5px; cursor:pointer; font-size:13px; font-weight:500; color:var(--text-primary); }
+.radio-label input { accent-color:var(--accent); width:15px; height:15px; cursor:pointer; }
+
+/* 보호자 연결 검색 */
+.parent-search-result { margin-top:6px; border:1.5px solid var(--border-light); border-radius:var(--radius-md); max-height:140px; overflow-y:auto; display:none; }
+.parent-search-result.show { display:block; }
+.psr-item { padding:9px 12px; font-size:12px; cursor:pointer; border-bottom:1px solid var(--border-light); display:flex; align-items:center; gap:10px; transition:background 0.15s; }
+.psr-item:last-child { border-bottom:none; }
+.psr-item:hover { background:var(--accent-light); }
+.psr-avatar { width:28px; height:28px; border-radius:50%; display:flex;align-items:center;justify-content:center; font-size:11px; font-weight:800; color:#fff; flex-shrink:0; }
+.psr-name  { font-weight:700; color:var(--text-primary); }
+.psr-phone { font-size:11px; color:var(--text-secondary); }
+
+/* 선택된 보호자 칩 */
+.selected-parents-wrap { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; min-height:34px; padding:6px 8px; border:1.5px dashed var(--border-medium); border-radius:var(--radius-md); background:var(--bg-base); }
+.parent-chip { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:10px; background:var(--accent-light); color:var(--accent-dark); font-size:12px; font-weight:600; border:1px solid var(--border-medium); }
+.parent-chip .remove-chip { cursor:pointer; font-size:13px; color:var(--text-muted); transition:color 0.15s; }
+.parent-chip .remove-chip:hover { color:var(--red); }
+
+/* 상태변경 모달 */
+.status-options { display:flex; flex-direction:column; gap:8px; }
+.status-option {
+  padding:12px 16px; border-radius:var(--radius-md); border:2px solid var(--border-light);
+  cursor:pointer; transition:0.18s; display:flex; align-items:center; gap:12px;
+}
+.status-option:hover  { border-color:var(--accent); background:var(--accent-light); }
+.status-option.active { border-color:var(--accent); background:var(--accent-light); }
+.status-option-badge  { flex-shrink:0; }
+.status-option-desc   { font-size:11px; color:var(--text-secondary); margin-top:2px; }
+
+/* ━━━ 토스트 ━━━ */
+.toast-wrap { position:fixed; bottom:24px; right:24px; z-index:600; display:flex; flex-direction:column; gap:8px; }
+.toast { background:#1A1D2E; color:#fff; padding:10px 16px; border-radius:var(--radius-md); font-size:13px; box-shadow:var(--shadow-lg); animation:toastIn 0.25s ease; display:flex; align-items:center; gap:8px; }
+.toast.success { background:var(--green); }
+.toast.error   { background:var(--red); }
+@keyframes toastIn { from{opacity:0;transform:translateX(12px)} to{opacity:1;transform:translateX(0)} }
+</style>
+</head>
+<body>
+
+<!-- ━━━ SIDEBAR ━━━ -->
+<aside id="appSidebar"></aside>
+
+<!-- ━━━ MAIN ━━━ -->
+<div class="main-wrap">
+  <header class="topbar">
+    <div class="breadcrumb">
+      <span>🏠</span><span class="bc-sep">›</span>
+      <span id="breadcrumbOrg">운영관리</span><span class="bc-sep">›</span>
+      <span class="cur">원아관리</span>
+    </div>
+    <!-- 반 필터 -->
+    <div class="class-filter-wrap">
+      <span class="class-filter-label">📌 반 선택</span>
+      <div class="class-filter-divider"></div>
+      <div class="class-select-wrap">
+        <select class="class-select" id="classFilterSelect" onchange="onClassFilterChange(this)">
+        </select>
+        <span class="class-select-arrow">▼</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-date" id="topDate"></span>
+      <div class="icon-btn notif-dot" title="알림">🔔</div>
+      <div class="icon-btn" title="설정">⚙️</div>
+    </div>
+  </header>
+
+  <div class="content">
+    <!-- 페이지 헤더 -->
+    <div class="page-header">
+      <div>
+        <div class="page-title">👶 원아관리</div>
+        <div class="page-sub" id="pageSubText">기관에 등록된 원아 정보를 조회·관리합니다.</div>
+      </div>
+    </div>
+
+    <!-- KPI 카드 -->
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <!-- 필터 바 -->
+    <div class="filter-bar">
+      <div class="filter-group">
+        <span class="filter-label">상태</span>
+        <select class="filter-select" id="filterStatus" onchange="applyFilters()">
+          <option value="">전체</option>
+          <option value="enrolled">재원중</option>
+          <option value="on_leave">휴원중</option>
+          <option value="graduated">졸업</option>
+          <option value="withdrawn">퇴소</option>
+          <option value="pending">등록대기</option>
+        </select>
+      </div>
+      <div class="filter-divider"></div>
+      <div class="filter-group">
+        <span class="filter-label">성별</span>
+        <select class="filter-select" id="filterGender" onchange="applyFilters()">
+          <option value="">전체</option>
+          <option value="남">남아</option>
+          <option value="여">여아</option>
+        </select>
+      </div>
+      <div class="filter-divider"></div>
+      <div class="filter-group">
+        <span class="filter-label">연령</span>
+        <select class="filter-select" id="filterAge" onchange="applyFilters()">
+          <option value="">전체</option>
+          <option value="만0세">만 0세</option>
+          <option value="만1세">만 1세</option>
+          <option value="만2세">만 2세</option>
+          <option value="만3세">만 3세</option>
+          <option value="만4세">만 4세</option>
+          <option value="만5세">만 5세</option>
+          <option value="만6세">만 6세</option>
+          <option value="만7세">만 7세</option>
+        </select>
+      </div>
+      <div class="filter-divider"></div>
+      <div class="filter-group">
+        <span class="filter-label">원아 검색</span>
+        <input class="filter-input" id="filterChildName" placeholder="원아 이름 입력" oninput="applyFilters()" style="width:140px">
+      </div>
+      <div class="filter-divider"></div>
+      <div class="filter-group">
+        <span class="filter-label">보호자</span>
+        <div class="parent-search-wrap" style="position:relative">
+          <input class="filter-input" id="filterParentInput" placeholder="보호자 이름·전화번호"
+                 oninput="onParentSearch(this.value)" autocomplete="off" style="width:160px; padding-right:26px;">
+          <button class="parent-clear-btn" id="parentClearBtn" onclick="clearParentFilter()">✕</button>
+          <div class="parent-dropdown" id="parentDropdown"></div>
+        </div>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="resetFilters()" style="margin-left:auto">초기화</button>
+    </div>
+
+    <!-- 액션 바 -->
+    <div class="action-bar">
+      <div class="action-left">
+        <div class="selected-info">선택된 원아 <span id="selectedCount">0</span>명</div>
+        <button class="btn btn-danger btn-sm" id="bulkStatusBtn" onclick="openBulkStatus()" style="display:none">상태 일괄변경</button>
+        <button class="btn btn-outline btn-sm" id="bulkDeleteBtn" style="display:none" onclick="showToast('삭제 기능은 권한 확인 후 처리됩니다.','error')">삭제</button>
+      </div>
+      <div class="action-right">
+        <button class="btn btn-outline" onclick="exportExcel()">📊 엑셀 내보내기</button>
+        <button class="btn btn-primary" id="registerBtn" onclick="openRegisterModal()">+ 원아 등록</button>
+      </div>
+    </div>
+
+    <!-- 테이블 -->
+    <div class="table-card">
+      <div class="table-header">
+        <span class="table-title">원아 목록 <span class="table-count" id="tableCount"></span></span>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="font-size:11px;color:var(--text-muted)">정렬:</span>
+          <select class="filter-select" style="height:28px;font-size:11px;padding:0 8px" id="sortSelect" onchange="applyFilters()">
+            <option value="name">이름순</option>
+            <option value="enroll">입원일순</option>
+            <option value="birth">생년월일순</option>
+            <option value="class">반순</option>
+          </select>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="data-table" id="childTable">
+          <thead>
+            <tr>
+              <th style="width:40px"><input type="checkbox" id="checkAll" onchange="toggleCheckAll(this)"></th>
+              <th style="width:80px">상태</th>
+              <th style="width:160px">아동명</th>
+              <th style="width:50px">성별</th>
+              <th style="width:70px">만 나이</th>
+              <th style="width:100px">반</th>
+              <th style="width:120px">주보호자</th>
+              <th style="width:80px">보호자 수</th>
+              <th style="width:80px">앱 연결</th>
+              <th style="width:100px">입원일</th>
+              <th style="width:80px">관리</th>
+            </tr>
+          </thead>
+          <tbody id="childTableBody"></tbody>
+        </table>
+      </div>
+      <div class="empty-state" id="emptyState" style="display:none">
+        <div class="empty-state-icon">👶</div>
+        <div class="empty-state-text">조건에 맞는 원아가 없습니다</div>
+        <div class="empty-state-sub">검색 조건을 변경하거나 새로운 원아를 등록해 보세요.</div>
+      </div>
+      <div class="pagination">
+        <span class="page-info" id="pageInfo">1-10 / 0명</span>
+        <div class="page-btns" id="pageBtns"></div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main-wrap -->
+
+<!-- ━━━ 슬라이드 패널 (원아 상세) ━━━ -->
+<div class="panel-overlay" id="panelOverlay" onclick="closePanel()"></div>
+<div class="side-panel" id="sidePanel">
+  <div class="panel-header">
+    <div class="panel-title" id="panelTitle">👶 원아 상세정보</div>
+    <div class="panel-close" onclick="closePanel()">✕</div>
+  </div>
+  <div class="panel-tabs">
+    <div class="panel-tab active" data-tab="info"     onclick="switchPanelTab(this,'info')">기본정보</div>
+    <div class="panel-tab"        data-tab="parents"  onclick="switchPanelTab(this,'parents')">보호자</div>
+    <div class="panel-tab"        data-tab="health"   onclick="switchPanelTab(this,'health')">건강·특이사항</div>
+    <div class="panel-tab"        data-tab="history"  onclick="switchPanelTab(this,'history')">활동이력</div>
+  </div>
+  <div class="panel-body" id="panelBody"></div>
+  <div class="panel-footer" id="panelFooter"></div>
+</div>
+
+<!-- ━━━ 원아 등록 모달 ━━━ -->
+<div class="modal-overlay" id="registerModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">👶 원아 등록</div>
+      <div class="modal-close" onclick="closeRegisterModal()">✕</div>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">아동 이름 <span class="req">*</span></label>
+          <input class="form-input" id="regName" placeholder="홍길동">
+        </div>
+        <div class="form-group">
+          <label class="form-label">생년월일 <span class="req">*</span></label>
+          <input class="form-input" id="regBirth" type="date">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">성별 <span class="req">*</span></label>
+          <div class="radio-group">
+            <label class="radio-label"><input type="radio" name="regGender" value="남"> 남아</label>
+            <label class="radio-label"><input type="radio" name="regGender" value="여"> 여아</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">반 배정 <span class="req">*</span></label>
+          <select class="form-select" id="regClass">
+            <option value="">반 선택</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">입원일 <span class="req">*</span></label>
+          <input class="form-input" id="regEnrollDate" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">예상 졸업년도</label>
+          <input class="form-input" id="regGradYear" placeholder="예: 2028">
+        </div>
+      </div>
+
+      <div style="border-top:1px solid var(--border-light);padding-top:16px;margin-top:4px;margin-bottom:14px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--text-primary)">👨‍👩‍👧 주보호자 연결 <span class="req" style="color:var(--red);font-size:11px">*</span></div>
+        <div class="form-group">
+          <label class="form-label">보호자 검색</label>
+          <input class="form-input" id="regParentSearch" placeholder="이름 또는 전화번호로 검색" oninput="searchParentForReg(this.value)" autocomplete="off">
+          <div class="parent-search-result" id="regParentResults"></div>
+        </div>
+        <div class="selected-parents-wrap" id="selectedParentsWrap">
+          <span style="font-size:11px;color:var(--text-muted);margin:auto">검색하여 보호자를 선택하세요</span>
+        </div>
+        <div class="form-hint">⚠️ 주계정 학부모가 없는 경우, 먼저 보호자를 등록 후 원아를 연결하거나 미연결로 등록할 수 있습니다.</div>
+      </div>
+
+      <div class="form-row full">
+        <div class="form-group">
+          <label class="form-label">알레르기 정보</label>
+          <input class="form-input" id="regAllergy" placeholder="예: 땅콩, 갑각류 (쉼표로 구분)">
+          <div class="form-hint">여러 항목은 쉼표(,)로 구분하여 입력하세요</div>
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label class="form-label">특이사항</label>
+          <textarea class="form-textarea" id="regMemo" placeholder="특이사항, 메모 등을 입력하세요"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeRegisterModal()">취소</button>
+      <button class="btn btn-primary" onclick="submitRegister()">등록하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ━━━ 상태 변경 모달 ━━━ -->
+<div class="modal-overlay" id="statusModal">
+  <div class="modal-box" style="width:420px">
+    <div class="modal-header">
+      <div class="modal-title">📋 재원 상태 변경</div>
+      <div class="modal-close" onclick="closeStatusModal()">✕</div>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:13px;color:var(--text-secondary);margin-bottom:14px" id="statusModalDesc">
+        변경할 상태를 선택하세요.
+      </div>
+      <div class="status-options" id="statusOptions"></div>
+      <div class="form-row full" style="margin-top:14px;margin-bottom:0">
+        <div class="form-group">
+          <label class="form-label">변경 사유 (선택)</label>
+          <textarea class="form-textarea" id="statusReason" placeholder="상태 변경 사유를 입력하세요 (선택)"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeStatusModal()">취소</button>
+      <button class="btn btn-primary" onclick="submitStatusChange()">변경 적용</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// 세션 & 역할 초기화
+// ═══════════════════════════════════════════════
+const userRole    = sessionStorage.getItem('userRole')    || 'org_admin';
+const opContext   = JSON.parse(sessionStorage.getItem('operationContext') || 'null');
+const currentOrgId = opContext?.orgId ?? sessionStorage.getItem('orgId') ?? 'ORG001';
+const currentOrgName = opContext?.orgName ?? sessionStorage.getItem('orgName') ?? '해맑은 어린이집';
+
+// 담당 반 (교사용)
+const assignedClasses = userRole === 'teacher'
+  ? JSON.parse(sessionStorage.getItem('assignedClasses') || '[{"id":"CLS001","name":"햇님반"},{"id":"CLS003","name":"별빛반"}]')
+  : null;
+
+// ═══════════════════════════════════════════════
+// 목업 데이터
+// ═══════════════════════════════════════════════
+const ALL_CLASSES = [
+  { id:'CLS001', name:'🌸 햇님반',   age:'만3세', teacher:'이하늘' },
+  { id:'CLS002', name:'🌿 새싹반',   age:'만4세', teacher:'박민지' },
+  { id:'CLS003', name:'⭐ 별빛반',   age:'만5세', teacher:'최서연' },
+  { id:'CLS004', name:'🌈 무지개반', age:'만2세', teacher:'김보라' },
+  { id:'CLS005', name:'🦋 나비반',   age:'만1세', teacher:'정다온' },
+];
+
+const MOCK_PARENTS = [
+  { member_id:'MBR010', name:'김민지',  phone:'010-1234-5678', relation:'엄마', avatarColor:'#4361EE' },
+  { member_id:'MBR011', name:'이준혁',  phone:'010-9876-5432', relation:'아빠', avatarColor:'#10B981' },
+  { member_id:'MBR012', name:'박지영',  phone:'010-2222-3333', relation:'엄마', avatarColor:'#F59E0B' },
+  { member_id:'MBR013', name:'이수진',  phone:'010-4444-5555', relation:'엄마', avatarColor:'#EC4899' },
+  { member_id:'MBR014', name:'이정훈',  phone:'010-6666-7777', relation:'아빠', avatarColor:'#8B5CF6' },
+  { member_id:'MBR015', name:'최영희',  phone:'010-8888-9999', relation:'엄마', avatarColor:'#EF4444' },
+  { member_id:'MBR016', name:'최재호',  phone:'010-1111-2222', relation:'아빠', avatarColor:'#0EA5E9' },
+  { member_id:'MBR017', name:'김순자',  phone:'010-3333-4444', relation:'할머니', avatarColor:'#D97706' },
+  { member_id:'MBR018', name:'정미영',  phone:'010-5555-6666', relation:'엄마', avatarColor:'#6366F1' },
+  { member_id:'MBR019', name:'강동현',  phone:'010-7777-8888', relation:'아빠', avatarColor:'#14B8A6' },
+  { member_id:'MBR020', name:'오세영',  phone:'010-2468-1357', relation:'엄마', avatarColor:'#FB923C' },
+];
+
+const MOCK_CHILDREN = [
+  {
+    id:'CHD001', org_id:'ORG001', class_id:'CLS001', class_name:'햇님반',
+    name:'김도현', birth:'2021-03-15', age:'만5세', gender:'남',
+    profile_color:'#4361EE',
+    status:'enrolled', status_label:'재원중',
+    enroll_date:'2024-03-02', expected_graduate:'2027', graduate_date:null,
+    primary_parent_id:'MBR010', primary_parent_name:'김민지', primary_parent_phone:'010-1234-5678', primary_parent_relation:'엄마',
+    parent_count:2,
+    parents:[
+      { member_id:'MBR010', name:'김민지', phone:'010-1234-5678', relation:'엄마', account_type:'primary', app_connected:true, last_access:'2026-03-17', avatarColor:'#4361EE' },
+      { member_id:'MBR011', name:'이준혁', phone:'010-9876-5432', relation:'아빠', account_type:'family',  app_connected:true, last_access:'2026-03-10', avatarColor:'#10B981' }
+    ],
+    reg_route:'학부모직접', allergy:['땅콩','갑각류'], memo:'활발하고 에너지 넘침. 낮잠 30분 필수.',
+    created_at:'2024-03-02T09:00:00', updated_at:'2026-03-15T14:30:00', updated_by:'이하늘 교사'
+  },
+  {
+    id:'CHD002', org_id:'ORG001', class_id:'CLS001', class_name:'햇님반',
+    name:'박서연', birth:'2021-07-20', age:'만4세', gender:'여',
+    profile_color:'#EC4899',
+    status:'enrolled', status_label:'재원중',
+    enroll_date:'2024-03-02', expected_graduate:'2027', graduate_date:null,
+    primary_parent_id:'MBR012', primary_parent_name:'박지영', primary_parent_phone:'010-2222-3333', primary_parent_relation:'엄마',
+    parent_count:1,
+    parents:[
+      { member_id:'MBR012', name:'박지영', phone:'010-2222-3333', relation:'엄마', account_type:'primary', app_connected:false, last_access:null, avatarColor:'#F59E0B' }
+    ],
+    reg_route:'교사등록', allergy:[], memo:'',
+    created_at:'2024-03-02T09:10:00', updated_at:'2024-03-02T09:10:00', updated_by:'이하늘 교사'
+  },
+  {
+    id:'CHD003', org_id:'ORG001', class_id:'CLS002', class_name:'새싹반',
+    name:'이채원', birth:'2020-11-05', age:'만5세', gender:'여',
+    profile_color:'#F59E0B',
+    status:'enrolled', status_label:'재원중',
+    enroll_date:'2023-03-03', expected_graduate:'2026', graduate_date:null,
+    primary_parent_id:'MBR013', primary_parent_name:'이수진', primary_parent_phone:'010-4444-5555', primary_parent_relation:'엄마',
+    parent_count:2,
+    parents:[
+      { member_id:'MBR013', name:'이수진', phone:'010-4444-5555', relation:'엄마', account_type:'primary', app_connected:true,  last_access:'2026-03-18', avatarColor:'#EC4899' },
+      { member_id:'MBR014', name:'이정훈', phone:'010-6666-7777', relation:'아빠', account_type:'family',  app_connected:false, last_access:null,          avatarColor:'#8B5CF6' }
+    ],
+    reg_route:'학부모직접', allergy:['유제품'], memo:'',
+    created_at:'2023-03-03T10:00:00', updated_at:'2026-01-10T11:00:00', updated_by:'기관관리자'
+  },
+  {
+    id:'CHD004', org_id:'ORG001', class_id:'CLS003', class_name:'별빛반',
+    name:'최민준', birth:'2019-05-12', age:'만6세', gender:'남',
+    profile_color:'#10B981',
+    status:'enrolled', status_label:'재원중',
+    enroll_date:'2022-03-04', expected_graduate:'2026', graduate_date:null,
+    primary_parent_id:'MBR015', primary_parent_name:'최영희', primary_parent_phone:'010-8888-9999', primary_parent_relation:'엄마',
+    parent_count:3,
+    parents:[
+      { member_id:'MBR015', name:'최영희', phone:'010-8888-9999', relation:'엄마',    account_type:'primary', app_connected:true,  last_access:'2026-03-16', avatarColor:'#EF4444' },
+      { member_id:'MBR016', name:'최재호', phone:'010-1111-2222', relation:'아빠',    account_type:'family',  app_connected:true,  last_access:'2026-03-12', avatarColor:'#0EA5E9' },
+      { member_id:'MBR017', name:'김순자', phone:'010-3333-4444', relation:'할머니', account_type:'family',  app_connected:false, last_access:null,          avatarColor:'#D97706' }
+    ],
+    reg_route:'학부모직접', allergy:[], memo:'형제: 최민서(CHD005)',
+    created_at:'2022-03-04T09:00:00', updated_at:'2026-02-20T16:00:00', updated_by:'최서연 교사'
+  },
+  {
+    id:'CHD005', org_id:'ORG001', class_id:'CLS001', class_name:'햇님반',
+    name:'최민서', birth:'2021-09-01', age:'만4세', gender:'여',
+    profile_color:'#8B5CF6',
+    status:'enrolled', status_label:'재원중',
+    enroll_date:'2024-09-02', expected_graduate:'2027', graduate_date:null,
+    primary_parent_id:'MBR015', primary_parent_name:'최영희', primary_parent_phone:'010-8888-9999', primary_parent_relation:'엄마',
+    parent_count:2,
+    parents:[
+      { member_id:'MBR015', name:'최영희', phone:'010-8888-9999', relation:'엄마', account_type:'primary', app_connected:true,  last_access:'2026-03-16', avatarColor:'#EF4444' },
+      { member_id:'MBR016', name:'최재호', phone:'010-1111-2222', relation:'아빠', account_type:'family',  app_connected:true,  last_access:'2026-03-12', avatarColor:'#0EA5E9' }
+    ],
+    reg_route:'학부모직접', allergy:[], memo:'형제: 최민준(CHD004) - 같은 보호자',
+    created_at:'2024-09-02T09:00:00', updated_at:'2026-03-01T10:00:00', updated_by:'이하늘 교사'
+  },
+  {
+    id:'CHD006', org_id:'ORG001', class_id:'CLS002', class_name:'새싹반',
+    name:'정하은', birth:'2020-02-14', age:'만6세', gender:'여',
+    profile_color:'#EF4444',
+    status:'withdrawn', status_label:'퇴소',
+    enroll_date:'2023-03-03', expected_graduate:null, graduate_date:'2026-02-28',
+    primary_parent_id:'MBR018', primary_parent_name:'정미영', primary_parent_phone:'010-5555-6666', primary_parent_relation:'엄마',
+    parent_count:1,
+    parents:[
+      { member_id:'MBR018', name:'정미영', phone:'010-5555-6666', relation:'엄마', account_type:'primary', app_connected:false, last_access:'2026-02-20', avatarColor:'#6366F1' }
+    ],
+    reg_route:'학부모직접', allergy:[], memo:'이사로 인한 퇴소',
+    created_at:'2023-03-03T09:30:00', updated_at:'2026-02-28T17:00:00', updated_by:'기관관리자'
+  },
+  {
+    id:'CHD007', org_id:'ORG001', class_id:'CLS004', class_name:'무지개반',
+    name:'강지우', birth:'2022-08-10', age:'만3세', gender:'남',
+    profile_color:'#14B8A6',
+    status:'enrolled', status_label:'재원중',
+    enroll_date:'2025-03-03', expected_graduate:'2028', graduate_date:null,
+    primary_parent_id:'MBR019', primary_parent_name:'강동현', primary_parent_phone:'010-7777-8888', primary_parent_relation:'아빠',
+    parent_count:1,
+    parents:[
+      { member_id:'MBR019', name:'강동현', phone:'010-7777-8888', relation:'아빠', account_type:'primary', app_connected:true, last_access:'2026-03-18', avatarColor:'#14B8A6' }
+    ],
+    reg_route:'교사등록', allergy:[], memo:'',
+    created_at:'2025-03-03T09:00:00', updated_at:'2026-03-03T09:00:00', updated_by:'김보라 교사'
+  },
+  {
+    id:'CHD008', org_id:'ORG001', class_id:'CLS003', class_name:'별빛반',
+    name:'오하린', birth:'2019-12-22', age:'만6세', gender:'여',
+    profile_color:'#FB923C',
+    status:'on_leave', status_label:'휴원중',
+    enroll_date:'2022-03-04', expected_graduate:'2026', graduate_date:null,
+    primary_parent_id:'MBR020', primary_parent_name:'오세영', primary_parent_phone:'010-2468-1357', primary_parent_relation:'엄마',
+    parent_count:1,
+    parents:[
+      { member_id:'MBR020', name:'오세영', phone:'010-2468-1357', relation:'엄마', account_type:'primary', app_connected:true, last_access:'2026-01-30', avatarColor:'#FB923C' }
+    ],
+    reg_route:'학부모직접', allergy:['달걀'], memo:'해외 장기 체류로 인한 휴원. 6월 복원 예정.',
+    created_at:'2022-03-04T09:00:00', updated_at:'2026-02-01T10:00:00', updated_by:'기관관리자'
+  },
+];
+
+// ═══════════════════════════════════════════════
+// 상태 설정
+// ═══════════════════════════════════════════════
+let filteredChildren = [...MOCK_CHILDREN];
+let selectedIds = new Set();
+let currentPage = 1;
+const PAGE_SIZE = 10;
+let currentChild = null;
+let selectedParentFilter = null;
+let selectedParentsForReg = [];
+let statusChangeTarget = null; // 'single' | 'bulk'
+
+const STATUS_MAP = {
+  enrolled:  { label:'재원중',  cls:'s-enrolled',  dot:'#10B981' },
+  graduated: { label:'졸업',    cls:'s-graduated', dot:'#6B7280' },
+  withdrawn: { label:'퇴소',    cls:'s-withdrawn', dot:'#EF4444' },
+  on_leave:  { label:'휴원중',  cls:'s-on_leave',  dot:'#F59E0B' },
+  pending:   { label:'등록대기',cls:'s-pending',   dot:'#8B5CF6' },
+};
+
+// ═══════════════════════════════════════════════
+// 초기화
+// ═══════════════════════════════════════════════
+function init() {
+  document.getElementById('topDate').textContent = new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',weekday:'short'});
+
+  initClassFilter();
+  renderKPI();
+  applyFilters();
+  initRegisterClassOptions();
+}
+
+// 사이드바 → operation-sidebar.js 에서 처리
+
+// ━━━ 반 필터 (상단) ━━━
+function initClassFilter() {
+  const sel = document.getElementById('classFilterSelect');
+  sel.innerHTML = '';
+
+  if (userRole !== 'teacher') {
+    const allOpt = document.createElement('option');
+    allOpt.value = ''; allOpt.textContent = '전체 반';
+    sel.appendChild(allOpt);
+  }
+
+  ALL_CLASSES.forEach(cls => {
+    const opt = document.createElement('option');
+    opt.value = cls.id;
+    opt.textContent = cls.name + ' (' + cls.age + ')';
+
+    if (userRole === 'teacher') {
+      const isAssigned = assignedClasses.some(a => a.id === cls.id);
+      if (!isAssigned) {
+        opt.disabled = true;
+        opt.className = 'disabled-opt';
+        opt.textContent += ' — 비담당';
+      }
+    }
+    sel.appendChild(opt);
+  });
+
+  // 교사: 첫 번째 담당 반 자동 선택
+  if (userRole === 'teacher' && assignedClasses.length > 0) {
+    sel.value = assignedClasses[0].id;
+  }
+}
+
+function onClassFilterChange(sel) {
+  applyFilters();
+}
+
+// ━━━ 등록 모달용 반 옵션 ━━━
+function initRegisterClassOptions() {
+  const sel = document.getElementById('regClass');
+  ALL_CLASSES.forEach(cls => {
+    const opt = document.createElement('option');
+    opt.value = cls.id; opt.textContent = cls.name;
+    if (userRole === 'teacher') {
+      if (!assignedClasses.some(a => a.id === cls.id)) {
+        opt.disabled = true;
+      }
+    }
+    sel.appendChild(opt);
+  });
+}
+
+// ━━━ KPI ━━━
+function renderKPI() {
+  const total     = MOCK_CHILDREN.length;
+  const enrolled  = MOCK_CHILDREN.filter(c => c.status === 'enrolled').length;
+  const inactive  = MOCK_CHILDREN.filter(c => ['graduated','withdrawn'].includes(c.status)).length;
+  const noApp     = MOCK_CHILDREN.filter(c => c.parents.some(p => !p.app_connected)).length;
+
+  document.getElementById('kpiGrid').innerHTML = `
+    <div class="kpi-card">
+      <div class="kpi-ico sky">👶</div>
+      <div><div class="kpi-label">전체 원아</div><div class="kpi-value">${total}</div><div class="kpi-sub">등록된 총 원아 수</div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-ico green">✅</div>
+      <div><div class="kpi-label">재원중</div><div class="kpi-value">${enrolled}</div><div class="kpi-sub">현재 재원 중인 원아</div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-ico amber">📦</div>
+      <div><div class="kpi-label">졸업·퇴소</div><div class="kpi-value">${inactive}</div><div class="kpi-sub">졸업 또는 퇴소 처리</div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-ico red">📵</div>
+      <div><div class="kpi-label">앱 미연결</div><div class="kpi-value">${noApp}</div><div class="kpi-sub">보호자 앱 미연결 원아</div></div>
+    </div>
+  `;
+}
+
+// ━━━ 필터 적용 ━━━
+function applyFilters() {
+  const classVal  = document.getElementById('classFilterSelect').value;
+  const status    = document.getElementById('filterStatus').value;
+  const gender    = document.getElementById('filterGender').value;
+  const age       = document.getElementById('filterAge').value;
+  const childName = document.getElementById('filterChildName').value.trim();
+  const sort      = document.getElementById('sortSelect').value;
+
+  let data = [...MOCK_CHILDREN];
+
+  // 교사: 담당 반 데이터만
+  if (userRole === 'teacher') {
+    const ids = assignedClasses.map(a => a.id);
+    data = data.filter(c => ids.includes(c.class_id));
+  }
+
+  if (classVal)   data = data.filter(c => c.class_id === classVal);
+  if (status)     data = data.filter(c => c.status === status);
+  if (gender)     data = data.filter(c => c.gender === gender);
+  if (age)        data = data.filter(c => c.age === age);
+  if (childName)  data = data.filter(c => c.name.includes(childName));
+  if (selectedParentFilter) {
+    data = data.filter(c => c.parents.some(p => p.member_id === selectedParentFilter.member_id));
+  }
+
+  // 정렬
+  if (sort === 'name')   data.sort((a,b) => a.name.localeCompare(b.name));
+  if (sort === 'enroll') data.sort((a,b) => a.enroll_date.localeCompare(b.enroll_date));
+  if (sort === 'birth')  data.sort((a,b) => a.birth.localeCompare(b.birth));
+  if (sort === 'class')  data.sort((a,b) => a.class_name.localeCompare(b.class_name));
+
+  filteredChildren = data;
+  currentPage = 1;
+  selectedIds.clear();
+  document.getElementById('checkAll').checked = false;
+  updateSelectedUI();
+  renderTable();
+}
+
+function resetFilters() {
+  document.getElementById('filterStatus').value    = '';
+  document.getElementById('filterGender').value    = '';
+  document.getElementById('filterAge').value       = '';
+  document.getElementById('filterChildName').value = '';
+  document.getElementById('filterParentInput').value = '';
+  document.getElementById('parentClearBtn').classList.remove('show');
+  document.getElementById('parentDropdown').classList.remove('show');
+  selectedParentFilter = null;
+
+  // 교사 반 필터: 첫 담당 반으로 리셋
+  if (userRole === 'teacher' && assignedClasses.length > 0) {
+    document.getElementById('classFilterSelect').value = assignedClasses[0].id;
+  } else {
+    document.getElementById('classFilterSelect').value = '';
+  }
+  applyFilters();
+}
+
+// ━━━ 보호자 검색 (필터) ━━━
+function onParentSearch(val) {
+  const dd  = document.getElementById('parentDropdown');
+  const clr = document.getElementById('parentClearBtn');
+  if (!val.trim()) { dd.classList.remove('show'); clr.classList.remove('show'); return; }
+  clr.classList.add('show');
+
+  const results = MOCK_PARENTS.filter(p =>
+    p.name.includes(val) || p.phone.includes(val)
+  );
+  if (!results.length) {
+    dd.innerHTML = '<div style="padding:10px 12px;font-size:12px;color:var(--text-muted)">검색 결과가 없습니다</div>';
+    dd.classList.add('show'); return;
+  }
+  dd.innerHTML = results.map(p => `
+    <div class="parent-dropdown-item" onclick="selectParentFilter(${JSON.stringify(p).replace(/"/g,'&quot;')})">
+      <span class="pd-name">${p.name} (${p.relation})</span>
+      <span class="pd-phone">${p.phone}</span>
+    </div>
+  `).join('');
+  dd.classList.add('show');
+}
+
+function selectParentFilter(p) {
+  selectedParentFilter = p;
+  document.getElementById('filterParentInput').value = `${p.name} (${p.phone})`;
+  document.getElementById('parentDropdown').classList.remove('show');
+  document.getElementById('parentClearBtn').classList.add('show');
+  applyFilters();
+}
+
+function clearParentFilter() {
+  selectedParentFilter = null;
+  document.getElementById('filterParentInput').value = '';
+  document.getElementById('parentClearBtn').classList.remove('show');
+  document.getElementById('parentDropdown').classList.remove('show');
+  applyFilters();
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.parent-search-wrap')) {
+    document.getElementById('parentDropdown').classList.remove('show');
+  }
+});
+
+// ━━━ 테이블 렌더 ━━━
+function renderTable() {
+  const tbody = document.getElementById('childTableBody');
+  const empty = document.getElementById('emptyState');
+  const total = filteredChildren.length;
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const end   = Math.min(start + PAGE_SIZE, total);
+  const page  = filteredChildren.slice(start, end);
+
+  document.getElementById('tableCount').textContent = `(${total}명)`;
+  document.getElementById('pageInfo').textContent = total
+    ? `${start+1}–${end} / 전체 ${total}명`
+    : '0명';
+
+  if (!total) {
+    tbody.innerHTML = '';
+    empty.style.display = '';
+    renderPagination(0);
+    return;
+  }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = page.map(c => {
+    const s   = STATUS_MAP[c.status] || STATUS_MAP.pending;
+    const allConnected = c.parents.every(p => p.app_connected);
+    const someConnected = c.parents.some(p => p.app_connected);
+    const appIcon = allConnected ? '✅' : someConnected ? '⚠️' : '❌';
+    const checked = selectedIds.has(c.id) ? 'checked' : '';
+    const genderCls = c.gender === '남' ? 'gender-m' : 'gender-f';
+    const genderIcon = c.gender === '남' ? '♂' : '♀';
+    return `
+      <tr onclick="handleRowClick(event,'${c.id}')">
+        <td onclick="event.stopPropagation()">
+          <input type="checkbox" ${checked} onchange="toggleCheck('${c.id}',this)">
+        </td>
+        <td><span class="status-badge ${s.cls}"><span class="status-dot" style="background:${s.dot}"></span>${s.label}</span></td>
+        <td>
+          <div class="child-name-wrap">
+            <div class="child-avatar" style="background:${c.profile_color}">${c.name[0]}</div>
+            <div>
+              <div class="child-name">${c.name}</div>
+              <div class="child-birth-sub">${c.birth}</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="${genderCls}">${genderIcon} ${c.gender}</span></td>
+        <td style="font-weight:600;color:var(--text-primary)">${c.age}</td>
+        <td><span class="class-badge">${c.class_name}</span></td>
+        <td>
+          <span class="parent-link" onclick="event.stopPropagation();filterByParent('${c.primary_parent_id}','${c.primary_parent_name}','${c.primary_parent_phone}')">${c.primary_parent_name}</span>
+          <div style="font-size:10px;color:var(--text-muted)">${c.primary_parent_relation}</div>
+        </td>
+        <td>
+          <span class="parent-link" onclick="event.stopPropagation();openParentTab('${c.id}')">${c.parent_count}명</span>
+        </td>
+        <td style="font-size:16px;text-align:center" title="${allConnected?'전원 연결':someConnected?'일부 미연결':'미연결'}">${appIcon}</td>
+        <td style="font-size:12px;color:var(--text-secondary);font-family:'JetBrains Mono',monospace">${c.enroll_date}</td>
+        <td onclick="event.stopPropagation()">
+          <div style="display:flex;gap:4px">
+            <button class="btn btn-outline btn-sm" style="padding:0 8px;height:26px;font-size:11px" onclick="openChildPanel('${c.id}','info')">상세</button>
+            <button class="btn btn-outline btn-sm" style="padding:0 8px;height:26px;font-size:11px" onclick="openStatusModal('${c.id}')">상태</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  renderPagination(total);
+}
+
+function handleRowClick(e, id) {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT') return;
+  openChildPanel(id, 'info');
+}
+
+function filterByParent(memberId, name, phone) {
+  const parent = MOCK_PARENTS.find(p => p.member_id === memberId) || { member_id: memberId, name, phone };
+  document.getElementById('filterParentInput').value = `${name} (${phone})`;
+  document.getElementById('parentClearBtn').classList.add('show');
+  selectedParentFilter = parent;
+  applyFilters();
+}
+
+function openParentTab(childId) {
+  openChildPanel(childId, 'parents');
+}
+
+// ━━━ 페이지네이션 ━━━
+function renderPagination(total) {
+  const totalPages = Math.ceil(total / PAGE_SIZE) || 1;
+  const wrap = document.getElementById('pageBtns');
+  let btns = `<div class="page-btn ${currentPage===1?'disabled':''}" onclick="goPage(${currentPage-1})">‹</div>`;
+  for (let i=1; i<=totalPages; i++) {
+    btns += `<div class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</div>`;
+  }
+  btns += `<div class="page-btn ${currentPage===totalPages?'disabled':''}" onclick="goPage(${currentPage+1})">›</div>`;
+  wrap.innerHTML = btns;
+}
+
+function goPage(p) {
+  const totalPages = Math.ceil(filteredChildren.length / PAGE_SIZE) || 1;
+  if (p < 1 || p > totalPages) return;
+  currentPage = p;
+  renderTable();
+}
+
+// ━━━ 체크박스 ━━━
+function toggleCheck(id, el) {
+  if (el.checked) selectedIds.add(id); else selectedIds.delete(id);
+  updateSelectedUI();
+}
+function toggleCheckAll(el) {
+  const start = (currentPage-1) * PAGE_SIZE;
+  const page  = filteredChildren.slice(start, start+PAGE_SIZE);
+  page.forEach(c => el.checked ? selectedIds.add(c.id) : selectedIds.delete(c.id));
+  renderTable();
+  document.getElementById('checkAll').checked = el.checked;
+  updateSelectedUI();
+}
+function updateSelectedUI() {
+  const cnt = selectedIds.size;
+  document.getElementById('selectedCount').textContent = cnt;
+  document.getElementById('bulkStatusBtn').style.display = cnt > 0 ? '' : 'none';
+  // 삭제 버튼: super 또는 org_admin만
+  if (userRole !== 'teacher')
+    document.getElementById('bulkDeleteBtn').style.display = cnt > 0 ? '' : 'none';
+}
+
+// ━━━ 슬라이드 패널 ━━━
+function openChildPanel(id, tab='info') {
+  currentChild = MOCK_CHILDREN.find(c => c.id === id);
+  if (!currentChild) return;
+  document.getElementById('panelTitle').textContent = `👶 ${currentChild.name}`;
+  document.getElementById('panelOverlay').classList.add('show');
+  document.getElementById('sidePanel').classList.add('show');
+  // 탭 초기화
+  document.querySelectorAll('.panel-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === tab);
+  });
+  renderPanelContent(tab);
+  renderPanelFooter();
+}
+
+function closePanel() {
+  document.getElementById('panelOverlay').classList.remove('show');
+  document.getElementById('sidePanel').classList.remove('show');
+  currentChild = null;
+}
+
+function switchPanelTab(el, tab) {
+  document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderPanelContent(tab);
+}
+
+function renderPanelContent(tab) {
+  const c = currentChild;
+  const body = document.getElementById('panelBody');
+
+  if (tab === 'info') {
+    const s = STATUS_MAP[c.status] || STATUS_MAP.pending;
+    body.innerHTML = `
+      <div class="panel-section">
+        <div class="panel-section-title">아동 기본정보</div>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+          <div class="child-avatar" style="background:${c.profile_color};width:52px;height:52px;font-size:20px;border-radius:50%">${c.name[0]}</div>
+          <div>
+            <div style="font-size:18px;font-weight:800">${c.name}</div>
+            <div style="margin-top:4px"><span class="status-badge ${s.cls}"><span class="status-dot" style="background:${s.dot}"></span>${s.label}</span></div>
+          </div>
+        </div>
+        <div class="info-grid">
+          <div class="info-item"><div class="info-label">생년월일</div><div class="info-value">${c.birth}</div></div>
+          <div class="info-item"><div class="info-label">만 나이 / 성별</div><div class="info-value">${c.age} / ${c.gender === '남' ? '♂ 남아' : '♀ 여아'}</div></div>
+          <div class="info-item"><div class="info-label">소속 반</div><div class="info-value"><span class="class-badge">${c.class_name}</span></div></div>
+          <div class="info-item"><div class="info-label">등록 경로</div><div class="info-value">${c.reg_route}</div></div>
+          <div class="info-item"><div class="info-label">입원일</div><div class="info-value">${c.enroll_date}</div></div>
+          <div class="info-item"><div class="info-label">예상 졸업</div><div class="info-value ${!c.expected_graduate?'muted':''}">${c.expected_graduate || '미입력'}</div></div>
+          ${c.graduate_date ? `<div class="info-item full"><div class="info-label">졸업·퇴소일</div><div class="info-value">${c.graduate_date}</div></div>` : ''}
+        </div>
+      </div>
+      <div class="panel-section">
+        <div class="panel-section-title">관리 정보</div>
+        <div class="info-grid">
+          <div class="info-item full"><div class="info-label">원아 ID</div><div class="info-value" style="font-family:'JetBrains Mono',monospace;font-size:12px">${c.id}</div></div>
+          <div class="info-item"><div class="info-label">최종 수정일</div><div class="info-value" style="font-size:12px">${c.updated_at.slice(0,10)}</div></div>
+          <div class="info-item"><div class="info-label">수정자</div><div class="info-value" style="font-size:12px">${c.updated_by}</div></div>
+        </div>
+      </div>
+    `;
+  } else if (tab === 'parents') {
+    body.innerHTML = `
+      <div class="panel-section">
+        <div class="panel-section-title">연결된 보호자 (${c.parents.length}명)</div>
+        ${c.parents.map(p => `
+          <div class="parent-card ${p.account_type}">
+            <div class="parent-card-avatar" style="background:${p.avatarColor}">${p.name[0]}</div>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+                <span class="parent-card-name">${p.name}</span>
+                <span class="parent-card-type ${p.account_type}">${p.account_type === 'primary' ? '주계정' : '가족계정'}</span>
+              </div>
+              <div class="parent-card-meta">
+                <span>👤 ${p.relation}</span>
+                <span>📞 ${p.phone}</span>
+              </div>
+              <div class="parent-card-app" style="margin-top:5px">
+                ${p.app_connected
+                  ? `<span style="color:var(--green);font-size:12px">✅ 앱 연결됨</span><span style="font-size:11px;color:var(--text-muted);margin-left:6px">최근 접속: ${p.last_access}</span>`
+                  : `<span style="color:var(--red);font-size:12px">❌ 앱 미연결</span><span style="font-size:11px;color:var(--text-muted);margin-left:6px">초대 필요</span>`
+                }
+              </div>
+            </div>
+            ${userRole !== 'teacher' ? `<button class="btn btn-outline btn-sm" style="height:28px;font-size:11px;flex-shrink:0" onclick="showToast('보호자 정보 수정 기능은 준비 중입니다.')">수정</button>` : ''}
+          </div>
+        `).join('')}
+      </div>
+      ${userRole !== 'teacher' ? `
+        <div class="panel-section">
+          <div class="panel-section-title">보호자 추가 연결</div>
+          <button class="btn btn-outline" style="width:100%" onclick="showToast('보호자 추가 연결 기능은 준비 중입니다.')">
+            + 보호자 연결하기
+          </button>
+        </div>
+      ` : ''}
+    `;
+  } else if (tab === 'health') {
+    body.innerHTML = `
+      <div class="panel-section">
+        <div class="panel-section-title">알레르기 정보</div>
+        <div class="allergy-tags">
+          ${c.allergy.length
+            ? c.allergy.map(a => `<span class="allergy-tag">🚫 ${a}</span>`).join('')
+            : '<span class="allergy-none">등록된 알레르기 정보가 없습니다.</span>'
+          }
+        </div>
+      </div>
+      <div class="panel-section">
+        <div class="panel-section-title">특이사항 메모</div>
+        <div style="padding:12px;background:var(--bg-base);border-radius:var(--radius-md);border:1px solid var(--border-light);font-size:13px;color:var(--text-primary);line-height:1.7;min-height:80px">
+          ${c.memo || '<span style="color:var(--text-muted)">등록된 특이사항이 없습니다.</span>'}
+        </div>
+        ${`<button class="btn btn-outline" style="width:100%;margin-top:8px" onclick="showToast('메모 수정 기능은 준비 중입니다.')">✏️ 메모 수정</button>`}
+      </div>
+    `;
+  } else if (tab === 'history') {
+    body.innerHTML = `
+      <div class="panel-section">
+        <div class="panel-section-title">활동 이력</div>
+        <div class="history-item">
+          <div class="history-dot" style="background:var(--green)"></div>
+          <div class="history-text">반 배정: <strong>${c.class_name}</strong> 으로 배정됨</div>
+          <div class="history-date">${c.enroll_date}</div>
+        </div>
+        <div class="history-item">
+          <div class="history-dot" style="background:var(--accent)"></div>
+          <div class="history-text">원아 등록 완료 (경로: ${c.reg_route})</div>
+          <div class="history-date">${c.created_at.slice(0,10)}</div>
+        </div>
+        ${c.updated_at !== c.created_at ? `
+        <div class="history-item">
+          <div class="history-dot" style="background:var(--amber)"></div>
+          <div class="history-text">정보 수정 (수정자: ${c.updated_by})</div>
+          <div class="history-date">${c.updated_at.slice(0,10)}</div>
+        </div>` : ''}
+        ${c.graduate_date ? `
+        <div class="history-item">
+          <div class="history-dot" style="background:var(--red)"></div>
+          <div class="history-text">상태 변경: <strong>${STATUS_MAP[c.status]?.label}</strong></div>
+          <div class="history-date">${c.graduate_date}</div>
+        </div>` : ''}
+      </div>
+    `;
+  }
+}
+
+function renderPanelFooter() {
+  const c = currentChild;
+  const f = document.getElementById('panelFooter');
+  if (userRole === 'teacher') {
+    f.innerHTML = `
+      <button class="btn btn-outline" onclick="showToast('정보 수정 기능은 준비 중입니다.')">✏️ 수정</button>
+      <button class="btn btn-primary" onclick="openStatusModal('${c.id}')">상태 변경</button>
+    `;
+  } else {
+    f.innerHTML = `
+      <button class="btn btn-danger" onclick="showToast('삭제 기능은 권한 확인 후 처리됩니다.','error')">🗑️ 삭제</button>
+      <button class="btn btn-outline" onclick="showToast('정보 수정 기능은 준비 중입니다.')">✏️ 수정</button>
+      <button class="btn btn-primary" onclick="openStatusModal('${c.id}')">상태 변경</button>
+    `;
+  }
+}
+
+// ━━━ 원아 등록 모달 ━━━
+function openRegisterModal() {
+  selectedParentsForReg = [];
+  document.getElementById('regName').value = '';
+  document.getElementById('regBirth').value = '';
+  document.getElementById('regEnrollDate').value = new Date().toISOString().slice(0,10);
+  document.getElementById('regGradYear').value = '';
+  document.getElementById('regAllergy').value = '';
+  document.getElementById('regMemo').value = '';
+  document.getElementById('regParentSearch').value = '';
+  document.getElementById('regParentResults').classList.remove('show');
+  renderSelectedParents();
+  document.querySelector('input[name="regGender"][value="남"]').checked = true;
+  document.getElementById('registerModal').classList.add('show');
+}
+function closeRegisterModal() { document.getElementById('registerModal').classList.remove('show'); }
+
+function searchParentForReg(val) {
+  const box = document.getElementById('regParentResults');
+  if (!val.trim()) { box.classList.remove('show'); return; }
+  const results = MOCK_PARENTS.filter(p => p.name.includes(val) || p.phone.includes(val));
+  if (!results.length) {
+    box.innerHTML = '<div style="padding:10px 12px;font-size:12px;color:var(--text-muted)">검색 결과 없음</div>';
+    box.classList.add('show'); return;
+  }
+  box.innerHTML = results.map(p => `
+    <div class="psr-item" onclick="addParentToReg(${JSON.stringify(p).replace(/"/g,"'")})">
+      <div class="psr-avatar" style="background:${p.avatarColor}">${p.name[0]}</div>
+      <div>
+        <div class="psr-name">${p.name} (${p.relation})</div>
+        <div class="psr-phone">${p.phone}</div>
+      </div>
+    </div>
+  `).join('');
+  box.classList.add('show');
+}
+
+function addParentToReg(p) {
+  if (selectedParentsForReg.find(s => s.member_id === p.member_id)) {
+    showToast('이미 추가된 보호자입니다.'); return;
+  }
+  selectedParentsForReg.push(p);
+  document.getElementById('regParentSearch').value = '';
+  document.getElementById('regParentResults').classList.remove('show');
+  renderSelectedParents();
+}
+
+function renderSelectedParents() {
+  const wrap = document.getElementById('selectedParentsWrap');
+  if (!selectedParentsForReg.length) {
+    wrap.innerHTML = '<span style="font-size:11px;color:var(--text-muted);margin:auto">검색하여 보호자를 선택하세요</span>';
+    return;
+  }
+  wrap.innerHTML = selectedParentsForReg.map((p, i) => `
+    <span class="parent-chip">
+      ${i === 0 ? '👑 주계정 · ' : ''}${p.name} (${p.relation})
+      <span class="remove-chip" onclick="removeParentFromReg(${i})">✕</span>
+    </span>
+  `).join('');
+}
+
+function removeParentFromReg(idx) {
+  selectedParentsForReg.splice(idx, 1);
+  renderSelectedParents();
+}
+
+function submitRegister() {
+  const name = document.getElementById('regName').value.trim();
+  const birth = document.getElementById('regBirth').value;
+  const gender = document.querySelector('input[name="regGender"]:checked')?.value;
+  const classId = document.getElementById('regClass').value;
+  const enrollDate = document.getElementById('regEnrollDate').value;
+  if (!name || !birth || !gender || !classId || !enrollDate) {
+    showToast('필수 항목을 모두 입력해 주세요.', 'error'); return;
+  }
+  closeRegisterModal();
+  showToast(`✅ ${name} 원아가 등록되었습니다.`, 'success');
+}
+
+// ━━━ 상태 변경 모달 ━━━
+const STATUS_OPTIONS = [
+  { value:'enrolled',  label:'재원중',  cls:'s-enrolled',  desc:'현재 정상 재원 중인 상태',          dot:'#10B981' },
+  { value:'on_leave',  label:'휴원중',  cls:'s-on_leave',  desc:'일시적으로 원을 쉬는 상태',          dot:'#F59E0B' },
+  { value:'graduated', label:'졸업',    cls:'s-graduated', desc:'원을 수료·졸업한 상태',              dot:'#6B7280' },
+  { value:'withdrawn', label:'퇴소',    cls:'s-withdrawn', desc:'중도 퇴소 또는 전원한 상태',         dot:'#EF4444' },
+  { value:'pending',   label:'등록대기',cls:'s-pending',   desc:'아직 반 배정 등 절차가 완료되지 않음',dot:'#8B5CF6' },
+];
+
+function openStatusModal(childId) {
+  statusChangeTarget = childId;
+  const c = MOCK_CHILDREN.find(x => x.id === childId);
+  document.getElementById('statusModalDesc').textContent =
+    c ? `"${c.name}"의 재원 상태를 변경합니다.` : '선택된 원아의 상태를 변경합니다.';
+  document.getElementById('statusReason').value = '';
+
+  document.getElementById('statusOptions').innerHTML = STATUS_OPTIONS.map(s => `
+    <div class="status-option ${c && c.status === s.value ? 'active' : ''}" onclick="selectStatusOpt(this,'${s.value}')">
+      <div class="status-option-badge"><span class="status-badge ${s.cls}"><span class="status-dot" style="background:${s.dot}"></span>${s.label}</span></div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:var(--text-primary)">${s.label}</div>
+        <div class="status-option-desc">${s.desc}</div>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('statusModal').classList.add('show');
+  closePanel();
+}
+
+function openBulkStatus() {
+  statusChangeTarget = 'bulk';
+  document.getElementById('statusModalDesc').textContent = `선택된 ${selectedIds.size}명의 상태를 일괄 변경합니다.`;
+  document.getElementById('statusReason').value = '';
+  document.getElementById('statusOptions').innerHTML = STATUS_OPTIONS.map(s => `
+    <div class="status-option" onclick="selectStatusOpt(this,'${s.value}')">
+      <div class="status-option-badge"><span class="status-badge ${s.cls}"><span class="status-dot" style="background:${s.dot}"></span>${s.label}</span></div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:var(--text-primary)">${s.label}</div>
+        <div class="status-option-desc">${s.desc}</div>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('statusModal').classList.add('show');
+}
+
+function selectStatusOpt(el, val) {
+  document.querySelectorAll('.status-option').forEach(o => {
+    o.classList.remove('active');
+    delete o.dataset.selectedStatus;
+  });
+  el.classList.add('active');
+  el.dataset.selectedStatus = val;
+}
+
+function closeStatusModal() { document.getElementById('statusModal').classList.remove('show'); }
+
+function submitStatusChange() {
+  const active = document.querySelector('.status-option.active');
+  if (!active) { showToast('변경할 상태를 선택해 주세요.', 'error'); return; }
+  const newStatus = active.dataset.selectedStatus || active.querySelector('[data-status]')?.dataset.status;
+  // 실제로는 여기서 API 호출 or 목업 데이터 업데이트
+  closeStatusModal();
+  if (statusChangeTarget === 'bulk') {
+    showToast(`✅ ${selectedIds.size}명의 상태가 변경되었습니다.`, 'success');
+    selectedIds.clear(); updateSelectedUI();
+  } else {
+    const c = MOCK_CHILDREN.find(x => x.id === statusChangeTarget);
+    if (c) showToast(`✅ ${c.name} 상태가 변경되었습니다.`, 'success');
+  }
+  applyFilters();
+}
+
+// ━━━ 기타 기능 ━━━
+function exportExcel() { showToast('엑셀 내보내기 기능은 준비 중입니다.'); }
+
+// changeOrg / exitContext / logout → operation-sidebar.js 에서 전역 노출
+
+// ━━━ 토스트 ━━━
+function showToast(msg, type='') {
+  const wrap = document.getElementById('toastWrap');
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+}
+
+// ━━━ 실행 ━━━
+init();
+</script>
+</body>
+</html>

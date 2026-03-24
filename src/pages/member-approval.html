@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>알림장 관리자 — 가입/승인 관리</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg-base:#F4F5F7; --bg-surface:#FFFFFF;
+  --bg-sidebar:#1A1D2E; --bg-sidebar-hover:#252840; --bg-sidebar-active:#2E3250;
+  --accent-primary:#4361EE; --accent-primary-light:#EEF1FD;
+  --text-primary:#1A1D2E; --text-secondary:#6B7280; --text-muted:#9CA3AF; --text-sidebar:#C5C9D6;
+  --border-light:#E5E7EB; --border-medium:#D1D5DB;
+  --shadow-sm:0 1px 2px rgba(0,0,0,0.05); --shadow-md:0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg:0 8px 32px rgba(0,0,0,0.12); --shadow-modal:0 20px 60px rgba(0,0,0,0.18);
+  --radius-sm:6px; --radius-md:8px; --radius-lg:12px; --radius-xl:16px;
+  --sidebar-width:240px; --header-height:60px;
+}
+body { font-family:'Pretendard',-apple-system,sans-serif; background:var(--bg-base); color:var(--text-primary); font-size:14px; line-height:1.5; min-height:100vh; display:flex; }
+
+/* SIDEBAR */
+.sidebar { width:var(--sidebar-width); min-height:100vh; background:var(--bg-sidebar); display:flex; flex-direction:column; position:fixed; top:0; left:0; bottom:0; z-index:100; }
+.sidebar-logo { height:var(--header-height); display:flex; align-items:center; padding:0 20px; gap:10px; border-bottom:1px solid rgba(255,255,255,0.06); flex-shrink:0; }
+.logo-icon { width:32px; height:32px; background:var(--accent-primary); border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; font-size:16px; }
+.logo-text { font-size:14px; font-weight:700; color:#fff; letter-spacing:-0.3px; }
+.logo-badge { font-size:10px; font-weight:500; color:var(--accent-primary); background:rgba(67,97,238,0.15); padding:2px 6px; border-radius:4px; margin-left:auto; }
+.sidebar-nav { flex:1; padding:12px 0; overflow-y:auto; }
+.nav-section-title { font-size:10px; font-weight:600; color:rgba(197,201,214,0.4); letter-spacing:1px; text-transform:uppercase; padding:12px 20px 6px; }
+.nav-item { display:flex; align-items:center; gap:10px; padding:9px 20px; color:var(--text-sidebar); cursor:pointer; font-size:13.5px; font-weight:400; transition:all 0.15s; position:relative; }
+.nav-item:hover { background:var(--bg-sidebar-hover); color:#fff; }
+.nav-item.active { background:var(--bg-sidebar-active); color:#fff; font-weight:500; }
+.nav-item.active::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent-primary); border-radius:0 2px 2px 0; }
+.nav-icon { width:18px; height:18px; opacity:.75; flex-shrink:0; }
+.nav-item.active .nav-icon { opacity:1; }
+.nav-badge { margin-left:auto; background:var(--accent-primary); color:#fff; font-size:10px; font-weight:600; padding:1px 6px; border-radius:10px; }
+.nav-sub { background:rgba(0,0,0,0.15); overflow:hidden; }
+.nav-sub .nav-item { padding-left:44px; font-size:13px; }
+.nav-sub .nav-item.active { background:rgba(67,97,238,0.22); color:#fff; font-weight:600; }
+.nav-sub .nav-item.active::before { display:none; }
+.sidebar-footer { padding:16px 20px; border-top:1px solid rgba(255,255,255,0.06); }
+.sidebar-user { display:flex; align-items:center; gap:10px; padding:8px; border-radius:var(--radius-md); cursor:pointer; transition:background 0.15s; }
+.sidebar-user:hover { background:var(--bg-sidebar-hover); }
+.user-avatar { width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,#4361EE,#7C3AED); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#fff; }
+.user-name { font-size:13px; font-weight:600; color:#fff; }
+.user-role { font-size:11px; color:rgba(197,201,214,0.6); }
+
+/* MAIN */
+.main { margin-left:var(--sidebar-width); flex:1; display:flex; flex-direction:column; min-width:0; }
+.topbar { height:var(--header-height); background:var(--bg-surface); border-bottom:1px solid var(--border-light); display:flex; align-items:center; padding:0 24px; position:sticky; top:0; z-index:50; box-shadow:var(--shadow-sm); gap:8px; }
+.breadcrumb { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--text-secondary); }
+.breadcrumb-sep { color:var(--text-muted); }
+.breadcrumb-current { color:var(--text-primary); font-weight:600; }
+.topbar-actions { margin-left:auto; display:flex; align-items:center; gap:8px; }
+.icon-btn { width:34px; height:34px; border:1px solid var(--border-light); border-radius:var(--radius-md); background:var(--bg-surface); cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text-secondary); transition:all 0.15s; position:relative; }
+.icon-btn:hover { background:var(--bg-base); }
+.notif-dot { position:absolute; top:6px; right:6px; width:6px; height:6px; background:#EF4444; border-radius:50%; border:1.5px solid #fff; }
+.topbar-divider { width:1px; height:20px; background:var(--border-light); margin:0 4px; }
+.topbar-profile { display:flex; align-items:center; gap:8px; padding:4px 10px; border-radius:var(--radius-md); cursor:pointer; transition:background 0.15s; }
+.topbar-profile:hover { background:var(--bg-base); }
+.profile-avatar { width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,#4361EE,#7C3AED); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#fff; }
+.profile-name { font-size:13px; font-weight:600; color:var(--text-primary); }
+
+/* CONTENT */
+.content { padding:24px; flex:1; }
+
+/* KPI */
+.kpi-grid { display:grid; grid-template-columns:repeat(3,minmax(0,280px)); gap:16px; margin-bottom:24px; justify-content:center; }
+.kpi-card { background:var(--bg-surface); border:1.5px solid var(--border-light); border-radius:var(--radius-xl); padding:22px 24px; box-shadow:var(--shadow-sm); position:relative; overflow:hidden; transition:all 0.18s; }
+.kpi-card:hover { box-shadow:var(--shadow-md); transform:translateY(-2px); }
+.kpi-top-bar { position:absolute; top:0; left:0; right:0; height:3px; border-radius:var(--radius-xl) var(--radius-xl) 0 0; }
+.kpi-label { font-size:12.5px; font-weight:600; color:var(--text-secondary); margin-bottom:10px; }
+.kpi-num { font-size:34px; font-weight:800; letter-spacing:-1.5px; line-height:1; margin-bottom:10px; color:var(--text-primary); }
+.kpi-trend { display:flex; align-items:center; gap:5px; font-size:12px; font-weight:600; color:#10B981; }
+
+/* SECTION HEADER */
+.sec-head { display:flex; align-items:center; gap:8px; margin-bottom:16px; }
+.sec-bar { width:4px; height:18px; background:var(--accent-primary); border-radius:2px; flex-shrink:0; }
+.sec-title { font-size:15px; font-weight:800; letter-spacing:-0.2px; }
+
+/* FILTER */
+.filter-bar { display:flex; align-items:center; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+.fsel-wrap { position:relative; }
+.fsel-wrap::after { content:''; position:absolute; right:10px; top:50%; transform:translateY(-50%); pointer-events:none; border-left:4px solid transparent; border-right:4px solid transparent; border-top:5px solid var(--text-muted); }
+.fsel { height:36px; padding:0 30px 0 12px; border:1.5px solid var(--border-medium); border-radius:var(--radius-md); font-size:13px; background:var(--bg-surface); appearance:none; font-family:inherit; cursor:pointer; color:var(--text-primary); min-width:116px; transition:border 0.15s; }
+.fsel:focus { outline:none; border-color:var(--accent-primary); }
+.search-wrap { display:flex; align-items:center; border:1.5px solid var(--border-medium); border-radius:var(--radius-md); background:var(--bg-surface); height:36px; flex:1; max-width:320px; overflow:hidden; transition:border 0.15s; }
+.search-wrap:focus-within { border-color:var(--accent-primary); }
+.search-inp { flex:1; border:none; padding:0 12px; font-size:13px; outline:none; font-family:inherit; color:var(--text-primary); }
+.search-btn { width:38px; height:36px; background:var(--accent-primary); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:background 0.15s; }
+.search-btn:hover { background:#3251D5; }
+.bulk-wrap { margin-left:auto; display:flex; gap:6px; }
+.bulk-btn { height:34px; padding:0 15px; border-radius:var(--radius-md); font-size:12.5px; font-weight:700; cursor:pointer; border:none; font-family:inherit; transition:all 0.15s; }
+.b-approve { background:#1A1D2E; color:#fff; }
+.b-approve:hover { background:#2E3250; }
+.b-reject { background:var(--border-medium); color:var(--text-primary); }
+.b-reject:hover { background:#bcc1ce; }
+.b-cancel { background:#FEE2E2; color:#991B1B; }
+.b-cancel:hover { background:#fca5a5; }
+
+/* TABLE */
+.table-card { background:var(--bg-surface); border:1px solid var(--border-light); border-radius:var(--radius-xl); overflow:hidden; box-shadow:var(--shadow-sm); }
+.table-wrap { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; }
+thead th { padding:10px 12px; font-size:11.5px; font-weight:700; color:var(--text-muted); text-align:left; border-bottom:1.5px solid var(--border-light); white-space:nowrap; background:#FAFAFA; letter-spacing:0.3px; }
+thead th:first-child { padding-left:16px; width:36px; }
+tbody td { padding:11px 12px; font-size:13px; border-bottom:1px solid var(--border-light); vertical-align:middle; white-space:nowrap; }
+tbody td:first-child { padding-left:16px; }
+tbody tr:last-child td { border-bottom:none; }
+tbody tr:hover { background:#FBFCFF; }
+tbody tr.row-sel { background:#F0F4FF; }
+.tbl-note { padding:12px 18px; font-size:11.5px; color:var(--text-muted); border-top:1px solid var(--border-light); line-height:1.9; }
+
+/* BADGES */
+.sbadge { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; white-space:nowrap; }
+.sdot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.s-pending  { background:#FEF3C7; color:#92400E; } .s-pending  .sdot { background:#F59E0B; }
+.s-approved { background:#D1FAE5; color:#065F46; } .s-approved .sdot { background:#10B981; }
+.s-rejected { background:#FEE2E2; color:#991B1B; } .s-rejected .sdot { background:#EF4444; }
+.tbadge { padding:2px 9px; border-radius:5px; font-size:11.5px; font-weight:700; }
+.t-teacher  { background:#DBEAFE; color:#1E40AF; }
+.t-parent   { background:#EDE9FE; color:#5B21B6; }
+.t-director { background:#FEF3C7; color:#92400E; }
+.rtag { font-size:11.5px; font-weight:600; padding:2px 8px; border-radius:5px; }
+.r-legacy { background:#E0F2FE; color:#0369A1; }
+.r-invite { background:#D1FAE5; color:#065F46; }
+.r-direct { background:#F3E8FF; color:#6B21A8; }
+.inv-o { display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; background:#D1FAE5; color:#065F46; font-size:12px; font-weight:800; }
+.inv-x { display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; background:#FEE2E2; color:#991B1B; font-size:12px; font-weight:800; }
+.name-link { font-weight:600; color:var(--text-primary); cursor:pointer; border-bottom:1px dotted transparent; transition:all 0.15s; }
+.name-link:hover { color:var(--accent-primary); border-bottom-color:var(--accent-primary); }
+.act-sel { height:28px; padding:0 8px; border:1px solid var(--border-medium); border-radius:var(--radius-sm); font-size:12px; font-family:inherit; background:var(--bg-base); cursor:pointer; color:var(--text-primary); min-width:64px; }
+.act-cancel-btn { font-size:12px; font-weight:700; padding:3px 10px; border-radius:5px; cursor:pointer; border:none; font-family:inherit; background:#FEE2E2; color:#991B1B; transition:background 0.15s; }
+.act-cancel-btn:hover { background:#fca5a5; }
+.act-none { font-size:12px; color:var(--text-muted); }
+
+/* DETAIL PANEL */
+.dp-overlay { display:none; position:fixed; inset:0; background:rgba(10,12,28,0.32); backdrop-filter:blur(2px); z-index:1000; align-items:flex-start; justify-content:flex-end; }
+.dp-overlay.show { display:flex; }
+.dp-panel { width:380px; height:100vh; background:#fff; box-shadow:-4px 0 24px rgba(0,0,0,0.10); display:flex; flex-direction:column; animation:slideIn 0.24s cubic-bezier(0.34,1.08,0.64,1); overflow:hidden; border-left:1px solid var(--border-light); }
+@keyframes slideIn { from { transform:translateX(40px); opacity:0; } to { transform:translateX(0); opacity:1; } }
+.dp-hd { display:flex; align-items:center; justify-content:space-between; padding:16px 20px 14px; border-bottom:1px solid var(--border-light); flex-shrink:0; }
+.dp-title { font-size:15px; font-weight:700; color:var(--text-primary); }
+.dp-x { width:28px; height:28px; border:none; background:transparent; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:18px; color:var(--text-muted); transition:all 0.15s; line-height:1; }
+.dp-x:hover { background:#F3F4F6; color:var(--text-primary); }
+/* profile row */
+.dp-profile { display:flex; align-items:center; gap:12px; padding:16px 20px 14px; border-bottom:1px solid var(--border-light); flex-shrink:0; }
+.dp-av { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:800; color:#fff; flex-shrink:0; }
+.dp-pname { font-size:15px; font-weight:700; color:var(--text-primary); }
+.dp-pmeta { font-size:12px; color:var(--text-secondary); margin-top:2px; }
+/* scrollable body */
+.dp-scroll { flex:1; overflow-y:auto; padding:0; }
+.dp-scroll::-webkit-scrollbar { width:3px; }
+.dp-scroll::-webkit-scrollbar-thumb { background:#E5E7EB; border-radius:4px; }
+/* flat section */
+.dp-section { padding:16px 20px 4px; }
+.dp-section-title { font-size:12px; font-weight:700; color:var(--text-secondary); letter-spacing:0.3px; margin-bottom:12px; padding-bottom:6px; border-bottom:1px solid var(--border-light); }
+.dp-divider { height:8px; background:#F4F5F7; border-top:1px solid var(--border-light); border-bottom:1px solid var(--border-light); }
+/* 2-col flat grid */
+.dp-grid { display:grid; grid-template-columns:1fr 1fr; gap:0; }
+.dp-field { display:flex; flex-direction:column; gap:4px; padding:8px 0 12px; }
+.dp-field.full { grid-column:1/-1; }
+.dp-label { font-size:11px; color:var(--text-muted); font-weight:500; }
+.dp-val { font-size:13px; font-weight:600; color:var(--text-primary); display:flex; align-items:center; gap:6px; }
+/* footer */
+.dp-foot { padding:12px 20px; border-top:1px solid var(--border-light); display:flex; gap:8px; justify-content:flex-end; flex-shrink:0; background:#fff; }
+.dp-btn { height:36px; padding:0 20px; border-radius:var(--radius-md); font-size:13px; font-weight:700; cursor:pointer; border:none; font-family:inherit; transition:all 0.15s; }
+.dp-ghost   { background:#F3F4F6; color:#374151; } .dp-ghost:hover   { background:#E5E7EB; }
+.dp-approve { background:var(--accent-primary); color:#fff; } .dp-approve:hover { background:#3251D5; }
+.dp-reject  { background:#EF4444; color:#fff; }   .dp-reject:hover  { background:#dc2626; }
+
+/* CONFIRM MODAL */
+.cm-overlay { display:none; position:fixed; inset:0; background:rgba(10,12,28,0.5); backdrop-filter:blur(4px); z-index:2000; align-items:center; justify-content:center; }
+.cm-overlay.show { display:flex; }
+.cm-box { background:var(--bg-surface); border-radius:var(--radius-xl); width:420px; padding:28px 28px 24px; box-shadow:var(--shadow-modal); animation:popIn 0.22s cubic-bezier(0.34,1.1,0.64,1); }
+@keyframes popIn { from { transform:scale(0.92) translateY(12px); opacity:0; } to { transform:scale(1) translateY(0); opacity:1; } }
+.cm-icon { width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:16px; }
+.cm-title { font-size:17px; font-weight:800; letter-spacing:-0.3px; margin-bottom:8px; }
+.cm-desc  { font-size:13.5px; color:var(--text-secondary); line-height:1.65; margin-bottom:22px; }
+.cm-btns  { display:flex; gap:8px; justify-content:flex-end; }
+.cm-btn   { height:40px; padding:0 20px; border-radius:var(--radius-md); font-size:13.5px; font-weight:700; cursor:pointer; border:none; font-family:inherit; transition:all 0.15s; }
+.cm-cancel-btn  { background:#F3F4F6; color:#374151; }   .cm-cancel-btn:hover  { background:#E5E7EB; }
+.cm-ok-approve  { background:var(--accent-primary); color:#fff; } .cm-ok-approve:hover  { background:#3251D5; }
+.cm-ok-reject   { background:#EF4444; color:#fff; }       .cm-ok-reject:hover   { background:#dc2626; }
+
+/* TOAST */
+.toast-wrap { position:fixed; bottom:24px; right:24px; z-index:3000; display:flex; flex-direction:column; gap:8px; }
+.toast { display:flex; align-items:center; gap:10px; padding:12px 18px; background:#1A1D2E; color:#fff; border-radius:var(--radius-lg); font-size:13px; font-weight:500; box-shadow:var(--shadow-lg); min-width:250px; animation:toastIn 0.22s ease; }
+@keyframes toastIn { from { opacity:0; transform:translateX(16px); } to { opacity:1; transform:translateX(0); } }
+
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🏫</div>
+    <div class="logo-text">알림장 Admin</div>
+    <div class="logo-badge">v2.4</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-title">메인</div>
+    <div class="nav-item " onclick="location.href='dashboard.html'" style="cursor:pointer">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1" stroke-width="2"/></svg>
+      Home (대시보드)
+    </div>
+
+    <div class="nav-section-title">관리</div>
+
+    <div class="nav-item active" onclick="toggleSubNav(this,'sub-member')" style="cursor:pointer">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>
+      회원/승인관리
+      <span class="nav-badge" style="margin-left:auto;background:#4361EE;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px">3</span>
+      <svg class="nav-chevron" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-left:4px;opacity:0.5;transition:transform 0.2s;flex-shrink:0"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+    </div>
+    <div class="nav-sub" id="sub-member" style="block">
+      <div class="nav-item " onclick="location.href='member-list-admin.html'" style="cursor:pointer">통합회원 조회</div>
+      <div class="nav-item active" onclick="location.href='member-approval.html'" style="cursor:pointer">가입 승인 관리 <span class="nav-badge">3</span></div>
+      <div class="nav-item " onclick="location.href='invitation-admin.html'" style="cursor:pointer">초대 관리</div>
+      <div class="nav-item " onclick="location.href='member-status-admin.html'" style="cursor:pointer">회원 상태 관리</div>
+    </div>
+
+    <div class="nav-item " onclick="toggleSubNav(this,'sub-org')" style="cursor:pointer">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+      기관관리
+      <span class="nav-badge" style="margin-left:auto;background:#4361EE;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px">5</span>
+      <svg class="nav-chevron" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-left:4px;opacity:0.5;transition:transform 0.2s;flex-shrink:0"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+    </div>
+    <div class="nav-sub" id="sub-org" style="none">
+      <div class="nav-item " onclick="location.href='org-admin.html'" style="cursor:pointer">기관 조회</div>
+      <div class="nav-item " onclick="location.href='org-admin.html#approval'" style="cursor:pointer">기관 승인 관리 <span class="nav-badge">5</span></div>
+      <div class="nav-item " onclick="location.href='org-admin.html#status'" style="cursor:pointer">기관 상태 관리</div>
+    </div>
+
+    <div class="nav-item" style="cursor:default;opacity:0.5">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      운영관리 <span style="font-size:10px;color:#9CA3AF;margin-left:auto">준비중</span>
+    </div>
+    <div class="nav-item" style="cursor:default;opacity:0.5">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      통계관리 <span style="font-size:10px;color:#9CA3AF;margin-left:auto">준비중</span>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sidebar-user" onclick="showToast('프로필 설정 화면으로 이동합니다.')" style="cursor:pointer">
+      <div class="user-avatar">관</div>
+      <div class="user-info" style="flex:1;min-width:0">
+        <div class="user-name">슈퍼 관리자</div>
+        <div class="user-role">admin@kidkids.kr</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <header class="topbar">
+    <div class="breadcrumb">
+      <span>회원/권한관리</span>
+      <span class="breadcrumb-sep">›</span>
+      <span class="breadcrumb-current">가입/승인관리</span>
+    </div>
+    <div class="topbar-actions">
+      <button class="icon-btn">
+        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+      </button>
+      <button class="icon-btn">
+        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span class="notif-dot"></span>
+      </button>
+      <div class="topbar-divider"></div>
+      <div class="topbar-profile">
+        <div class="profile-avatar">관</div>
+        <span class="profile-name">슈퍼 관리자</span>
+        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--text-muted)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+      </div>
+    </div>
+  </header>
+
+  <div class="content">
+    <!-- KPI -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-top-bar" style="background:#4361EE"></div>
+        <div class="kpi-label">승인 신청 수</div>
+        <div class="kpi-num">36</div>
+        <div class="kpi-trend">
+          <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7 7 7"/></svg>12
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-top-bar" style="background:#EF4444"></div>
+        <div class="kpi-label">승인 대기 수</div>
+        <div class="kpi-num" style="color:#EF4444">12</div>
+        <div class="kpi-trend">
+          <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7 7 7"/></svg>12
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-top-bar" style="background:#10B981"></div>
+        <div class="kpi-label">초대장 PASS</div>
+        <div class="kpi-num" style="color:#10B981">24</div>
+        <div class="kpi-trend">
+          <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7 7 7"/></svg>12
+        </div>
+      </div>
+    </div>
+
+    <!-- 섹션 헤더 -->
+    <div class="sec-head">
+      <div class="sec-bar"></div>
+      <div class="sec-title">가입/승인 신청 목록</div>
+    </div>
+
+    <!-- 필터 -->
+    <div class="filter-bar">
+      <div class="fsel-wrap">
+        <select class="fsel" id="fStatus" onchange="applyFilter()">
+          <option value="">승인상태</option>
+          <option value="pending" selected>승인대기</option>
+          <option value="approved">승인완료</option>
+          <option value="rejected">승인거절</option>
+        </select>
+      </div>
+      <div class="fsel-wrap">
+        <select class="fsel" id="fType" onchange="applyFilter()">
+          <option value="">사용자 유형</option>
+          <option value="teacher">교사</option>
+          <option value="parent">학부모</option>
+          <option value="director">기관장</option>
+        </select>
+      </div>
+      <div class="fsel-wrap">
+        <select class="fsel" id="fRoute" onchange="applyFilter()">
+          <option value="">가입경로</option>
+          <option value="기존통합회원">기존통합회원</option>
+          <option value="초대장">초대장</option>
+          <option value="직접가입">직접가입</option>
+        </select>
+      </div>
+      <div class="search-wrap">
+        <input class="search-inp" id="fSearch" placeholder="검색어" onkeydown="if(event.key==='Enter')applyFilter()">
+        <button class="search-btn" onclick="applyFilter()">
+          <svg width="14" height="14" fill="none" stroke="#fff" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke-width="2.2"/><path stroke-linecap="round" stroke-width="2.2" d="M21 21l-4.35-4.35"/></svg>
+        </button>
+      </div>
+      <div class="bulk-wrap">
+        <button class="bulk-btn b-approve" onclick="bulkAction('approve')">선택승인</button>
+        <button class="bulk-btn b-reject"  onclick="bulkAction('reject')">선택거절</button>
+        <button class="bulk-btn b-cancel"  onclick="bulkAction('cancel')">선택취소</button>
+      </div>
+    </div>
+
+    <!-- 테이블 -->
+    <div class="table-card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th><input type="checkbox" id="chkAll" onchange="toggleAll(this)" style="cursor:pointer"></th>
+              <th>승인상태</th><th>사용자 유형</th><th>성명</th><th>기관명</th><th>기관유형</th>
+              <th>소속반명</th><th>역할</th><th>가입경로</th><th>로그인 수단</th>
+              <th style="text-align:center">초대장</th><th>가입승인 요청일</th><th>승인일</th><th>관리</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="tbl-note">
+        · 승인/거절은 "승인대기" 상태에서만 노출되며, "승인취소" 버튼은 승인을 완료한 건을 승인상태=승인완료로 필터했을 때만 노출됨.<br>
+        · 거절/승인취소 처리된 건은 이 화면에서 수정 불가. 상태/이력 관리 화면에서 처리 로그인 확인 가능.
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- DETAIL PANEL -->
+<div class="dp-overlay" id="dpOverlay" onclick="if(event.target===this)closeDetail()">
+  <div class="dp-panel">
+    <div class="dp-hd">
+      <div class="dp-title">회원 상세정보</div>
+      <button class="dp-x" onclick="closeDetail()">✕</button>
+    </div>
+    <div class="dp-scroll" id="dpBody"></div>
+    <div class="dp-foot"   id="dpFoot"></div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="cm-overlay" id="cmOverlay" onclick="if(event.target===this)closeCm()">
+  <div class="cm-box">
+    <div class="cm-icon" id="cmIcon"></div>
+    <div class="cm-title" id="cmTitle"></div>
+    <div class="cm-desc"  id="cmDesc"></div>
+    <div class="cm-btns">
+      <button class="cm-btn cm-cancel-btn" onclick="closeCm()">취소</button>
+      <button class="cm-btn" id="cmOk" onclick="execAction()">확인</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+const ROWS = [
+  { status:'pending',  type:'teacher', name:'김김김', org:'키드키즈',         orgType:'유치원',   cls:'꽃잎반(2세)',                    role:'담임교사', route:'기존통합회원', login:'통합ID',     inv:false, reqDate:'2025-11-30 11:00', approvedDate:'',                canCancel:false, av:'#4361EE,#7C3AED', vc:'김', phone:'010-1234-5678', email:'kimkim@gmail.com',  gender:'여자', birth:'1990.03.14', guardian:'—',    conn:1 },
+  { status:'approved', type:'parent',  name:'나에리', org:'새마을',           orgType:'어린이집', cls:'김하윤(200101)·새빛반(2세)',      role:'엄마',     route:'초대장',       login:'SNS-카카오', inv:true,  reqDate:'2025-12-01 15:32', approvedDate:'2025-12-01 15:32', canCancel:true,  av:'#F59E0B,#EF4444', vc:'나', phone:'010-2345-6789', email:'naeri@kakao.com',   gender:'여자', birth:'1988.06.20', guardian:'주계정', conn:2 },
+  { status:'approved', type:'parent',  name:'나에리', org:'한울우리집세바탕', orgType:'어린이집', cls:'김하윤(200101)·새빛반(2세)',      role:'엄마',     route:'직접가입',     login:'SNS-네이버', inv:false, reqDate:'2025-12-01 15:32', approvedDate:'2025-12-01 15:32', canCancel:true,  av:'#10B981,#3B82F6', vc:'나', phone:'010-3456-7890', email:'naeri2@naver.com',  gender:'여자', birth:'1988.06.20', guardian:'주계정', conn:2 },
+  { status:'approved', type:'teacher', name:'차온우', org:'사랑이꽃피는우리마을', orgType:'어린이집', cls:'나무반(2세)',                role:'보조교사', route:'초대장',       login:'통합ID',     inv:true,  reqDate:'2025-12-01 15:32', approvedDate:'2025-12-01 15:32', canCancel:false, av:'#06B6D4,#0EA5E9', vc:'차', phone:'010-4567-8901', email:'cha@gmail.com',     gender:'남자', birth:'1992.11.08', guardian:'—',    conn:1 },
+  { status:'approved', type:'parent',  name:'나에리', org:'새마을',           orgType:'어린이집', cls:'김지윤(190304)·사랑반(3세)',      role:'엄마',     route:'초대장',       login:'SNS-구글',  inv:true,  reqDate:'2025-12-01 15:32', approvedDate:'2025-12-01 15:32', canCancel:true,  av:'#EC4899,#F43F5E', vc:'나', phone:'010-5678-9012', email:'naeri3@google.com', gender:'여자', birth:'1985.04.12', guardian:'주계정', conn:1 },
+  { status:'rejected', type:'parent',  name:'이하린', org:'행복',             orgType:'유치원',   cls:'구름반(4세)',                    role:'엄마',     route:'초대장',       login:'SNS-카카오', inv:true,  reqDate:'2025-12-01 15:32', approvedDate:'2025-12-01 15:32', canCancel:false, av:'#8B5CF6,#A78BFA', vc:'이', phone:'010-6789-0123', email:'lee@kakao.com',     gender:'여자', birth:'1989.09.30', guardian:'주계정', conn:2 },
+];
+
+let pendingAction=null, pendingIdx=null, curRows=[...ROWS];
+
+const stBadge = {
+  pending: '<span class="sbadge s-pending"><span class="sdot"></span>승인대기</span>',
+  approved:'<span class="sbadge s-approved"><span class="sdot"></span>승인완료</span>',
+  rejected:'<span class="sbadge s-rejected"><span class="sdot"></span>승인거절</span>',
+};
+const tBadge = {
+  teacher: '<span class="tbadge t-teacher">교사</span>',
+  parent:  '<span class="tbadge t-parent">학부모</span>',
+  director:'<span class="tbadge t-director">기관장</span>',
+};
+const rClass = { '기존통합회원':'r-legacy','초대장':'r-invite','직접가입':'r-direct' };
+
+function buildRow(r,i){
+  let mgmt='';
+  if(r.status==='pending'){
+    mgmt=`<select class="act-sel" onchange="handleSel(this,${i})"><option value="">선택</option><option value="approve">승인</option><option value="reject">거절</option></select>`;
+  } else if(r.status==='approved' && r.canCancel){
+    mgmt=`<button class="act-cancel-btn" onclick="openCm('cancel',${i})">승인취소</button>`;
+  } else if(r.status==='approved'){
+    mgmt=`<span class="act-none">승인취소불가</span>`;
+  } else {
+    mgmt=`<span class="act-none">—</span>`;
+  }
+  return `<tr id="row-${i}" class="${r._sel?'row-sel':''}">
+    <td><input type="checkbox" class="row-chk" ${r._sel?'checked':''} onchange="toggleRow(this,${i})" style="cursor:pointer"></td>
+    <td>${stBadge[r.status]||''}</td>
+    <td>${tBadge[r.type]||r.type}</td>
+    <td><a class="name-link" onclick="openDetail(${i})">${r.name}</a></td>
+    <td>${r.org}</td><td>${r.orgType}</td>
+    <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis">${r.cls}</td>
+    <td>${r.role}</td>
+    <td><span class="rtag ${rClass[r.route]||''}">${r.route}</span></td>
+    <td style="font-size:12.5px">${r.login}</td>
+    <td style="text-align:center">${r.inv?'<span class="inv-o">O</span>':'<span class="inv-x">X</span>'}</td>
+    <td style="font-family:'JetBrains Mono',monospace;font-size:12px">${r.reqDate}</td>
+    <td style="font-family:'JetBrains Mono',monospace;font-size:12px">${r.approvedDate||'—'}</td>
+    <td>${mgmt}</td>
+  </tr>`;
+}
+
+function renderTable(data){ document.getElementById('tbody').innerHTML = data.length ? data.map(r=>buildRow(r,ROWS.indexOf(r))).join('') : '<tr><td colspan="14" style="text-align:center;padding:36px;color:var(--text-muted)">검색 결과가 없습니다.</td></tr>'; }
+
+function applyFilter(){
+  const st=document.getElementById('fStatus').value, tp=document.getElementById('fType').value,
+        rt=document.getElementById('fRoute').value,  q=document.getElementById('fSearch').value.trim().toLowerCase();
+  curRows=ROWS.filter(r=>(!st||r.status===st)&&(!tp||r.type===tp)&&(!rt||r.route===rt)&&(!q||r.name.toLowerCase().includes(q)||r.org.toLowerCase().includes(q)));
+  renderTable(curRows);
+}
+
+function toggleAll(cb){ ROWS.forEach(r=>r._sel=cb.checked); renderTable(curRows); }
+function toggleRow(cb,i){ ROWS[i]._sel=cb.checked; document.getElementById('row-'+i).classList.toggle('row-sel',cb.checked); }
+function handleSel(sel,i){ const v=sel.value; if(!v)return; openCm(v,i); sel.value=''; }
+
+function openDetail(i){
+  const r=ROWS[i];
+  const sc={
+    pending: {bg:'#FEF3C7',txt:'#92400E',dot:'#F59E0B',lb:'승인대기'},
+    approved:{bg:'#D1FAE5',txt:'#065F46',dot:'#10B981',lb:'승인완료'},
+    rejected:{bg:'#FEE2E2',txt:'#991B1B',dot:'#EF4444',lb:'승인거절'}
+  };
+  const s=sc[r.status]||sc.pending;
+  const stBadgeInline=`<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;background:${s.bg};color:${s.txt};font-size:11px;font-weight:700"><span style="width:5px;height:5px;border-radius:50%;background:${s.dot};flex-shrink:0"></span>${s.lb}</span>`;
+
+  document.getElementById('dpBody').innerHTML=`
+    <div class="dp-profile">
+      <div class="dp-av" style="background:linear-gradient(135deg,${r.av})">${r.vc}</div>
+      <div style="flex:1;min-width:0">
+        <div class="dp-pname">${r.name}</div>
+        <div class="dp-pmeta">${r.type==='teacher'?'교사':r.type==='parent'?'학부모':'기관장'} · ${r.org}</div>
+      </div>
+      <div style="flex-shrink:0">${stBadgeInline}</div>
+    </div>
+
+    <div class="dp-section">
+      <div class="dp-section-title">기본 정보</div>
+      <div class="dp-grid">
+        <div class="dp-field">
+          <div class="dp-label">이름</div>
+          <div class="dp-val">${r.name}</div>
+        </div>
+        <div class="dp-field">
+          <div class="dp-label">사용자 유형</div>
+          <div class="dp-val">${tBadge[r.type]||r.type}</div>
+        </div>
+        <div class="dp-field">
+          <div class="dp-label">휴대폰</div>
+          <div class="dp-val" style="font-family:'JetBrains Mono',monospace;font-size:12px">${r.phone}</div>
+        </div>
+        <div class="dp-field">
+          <div class="dp-label">보호자 유형</div>
+          <div class="dp-val">${r.guardian}</div>
+        </div>
+        <div class="dp-field">
+          <div class="dp-label">성별</div>
+          <div class="dp-val">${r.gender}</div>
+        </div>
+        <div class="dp-field">
+          <div class="dp-label">생년월일</div>
+          <div class="dp-val" style="font-family:'JetBrains Mono',monospace;font-size:12px">${r.birth}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dp-divider"></div>
+
+    <div class="dp-section">
+      <div class="dp-section-title">소속 정보</div>
+      <div class="dp-grid">
+        <div class="dp-field full">
+          <div class="dp-label">대표 소속</div>
+          <div class="dp-val">${r.org} / ${r.cls}</div>
+        </div>
+        <div class="dp-field">
+          <div class="dp-label">역할</div>
+          <div class="dp-val">${r.role}</div>
+        </div>
+        <div class="dp-field">
+          <div class="dp-label">연결 수</div>
+          <div class="dp-val">${r.conn}건</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dp-divider"></div>
+
+    <div class="dp-section">
+      <div class="dp-section-title">가입 &amp; 이용 정보</div>
+      <div class="dp-grid">
+        <div class="dp-field">
+          <div class="dp-label">가입경로</div>
+          <div class="dp-val"><span class="rtag ${rClass[r.route]||''}">${r.route}</span></div>
+        </div>
+        <div class="dp-field">
+          <div class="dp-label">로그인 수단</div>
+          <div class="dp-val">${r.login}</div>
+        </div>
+        <div class="dp-field">
+          <div class="dp-label">신청일</div>
+          <div class="dp-val" style="font-family:'JetBrains Mono',monospace;font-size:12px">${r.reqDate}</div>
+        </div>
+        <div class="dp-field">
+          <div class="dp-label">승인일</div>
+          <div class="dp-val" style="font-family:'JetBrains Mono',monospace;font-size:12px">${r.approvedDate||'—'}</div>
+        </div>
+        <div class="dp-field">
+          <div class="dp-label">초대장</div>
+          <div class="dp-val">${r.inv?'<span class="inv-o">O</span>':'<span class="inv-x">X</span>'}</div>
+        </div>
+        <div class="dp-field">
+          <div class="dp-label">이메일</div>
+          <div class="dp-val" style="font-size:12px;word-break:break-all">${r.email}</div>
+        </div>
+      </div>
+    </div>`;
+
+  const foot=document.getElementById('dpFoot');
+  if(r.status==='pending'){
+    foot.innerHTML=`<button class="dp-btn dp-ghost" onclick="closeDetail()">닫기</button><button class="dp-btn dp-reject" onclick="closeDetail();openCm('reject',${i})">거절</button><button class="dp-btn dp-approve" onclick="closeDetail();openCm('approve',${i})">승인</button>`;
+  } else if(r.status==='approved' && r.canCancel){
+    foot.innerHTML=`<button class="dp-btn dp-ghost" onclick="closeDetail()">닫기</button><button class="dp-btn dp-reject" onclick="closeDetail();openCm('cancel',${i})">승인취소</button>`;
+  } else {
+    foot.innerHTML=`<button class="dp-btn dp-approve" onclick="closeDetail()">닫기</button>`;
+  }
+  document.getElementById('dpOverlay').classList.add('show');
+}
+function closeDetail(){ document.getElementById('dpOverlay').classList.remove('show'); }
+
+function openCm(action,i){
+  pendingAction=action; pendingIdx=i;
+  const r=ROWS[i];
+  const cfg={
+    approve:{iconBg:'#D1FAE5',icon:'✅',title:`"${r.name}" 님을 승인하시겠습니까?`,desc:`승인 처리 후 해당 회원은 서비스를 정상 이용할 수 있습니다.<br>상태가 <b>승인완료</b>로 변경되며 승인일이 기록됩니다.`,okCls:'cm-ok-approve',okTxt:'승인 처리'},
+    reject: {iconBg:'#FEE2E2',icon:'❌',title:`"${r.name}" 님의 신청을 거절하시겠습니까?`,desc:`거절 처리 후 해당 신청건은 <b>승인거절</b> 상태로 변경됩니다.<br>거절 후 재신청은 가능합니다.`,okCls:'cm-ok-reject',okTxt:'거절 처리'},
+    cancel: {iconBg:'#FEF3C7',icon:'⚠️',title:`"${r.name}" 님의 승인을 취소하시겠습니까?`,desc:`승인 취소 시 해당 회원은 서비스 이용이 제한됩니다.<br>재이용을 위해서는 재신청이 필요합니다.`,okCls:'cm-ok-reject',okTxt:'승인 취소'},
+  };
+  const c=cfg[action];
+  document.getElementById('cmIcon').textContent=c.icon;
+  document.getElementById('cmIcon').style.background=c.iconBg;
+  document.getElementById('cmTitle').textContent=c.title;
+  document.getElementById('cmDesc').innerHTML=c.desc;
+  const ok=document.getElementById('cmOk'); ok.className='cm-btn '+c.okCls; ok.textContent=c.okTxt;
+  document.getElementById('cmOverlay').classList.add('show');
+}
+function closeCm(){ document.getElementById('cmOverlay').classList.remove('show'); }
+
+function execAction(){
+  const r=ROWS[pendingIdx];
+  const now=new Date().toLocaleString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).replace(/\. /g,'-').replace('.','');
+  if(pendingAction==='approve'){ r.status='approved'; r.approvedDate=now; r.canCancel=true; showToast(r.name+' 님 승인 완료'); }
+  else if(pendingAction==='reject'){ r.status='rejected'; r.approvedDate=now; r.canCancel=false; showToast(r.name+' 님 거절 처리 완료'); }
+  else if(pendingAction==='cancel'){ r.status='rejected'; r.canCancel=false; showToast(r.name+' 님 승인 취소 완료'); }
+  closeCm(); applyFilter();
+}
+
+function bulkAction(action){
+  const sel=ROWS.filter(r=>r._sel);
+  if(!sel.length){ showToast('선택된 항목이 없습니다.',false); return; }
+  sel.forEach(r=>{
+    if(action==='approve'&&r.status==='pending'){ r.status='approved'; r.canCancel=true; r.approvedDate='2025-12-10 09:00'; }
+    else if(action==='reject'&&r.status==='pending'){ r.status='rejected'; r.approvedDate='2025-12-10 09:00'; }
+    else if(action==='cancel'&&r.status==='approved'&&r.canCancel){ r.status='rejected'; r.canCancel=false; }
+    r._sel=false;
+  });
+  const lb={approve:'승인',reject:'거절',cancel:'승인취소'};
+  showToast(sel.length+'건 '+lb[action]+' 처리 완료');
+  applyFilter();
+}
+
+function showToast(msg,ok=true){
+  const w=document.getElementById('toastWrap'), t=document.createElement('div');
+  t.className='toast';
+  t.innerHTML=`<svg width="16" height="16" fill="none" stroke="${ok?'#10B981':'#F59E0B'}" viewBox="0 0 24 24" style="flex-shrink:0"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>${msg}`;
+  w.appendChild(t);
+  setTimeout(()=>{ t.style.transition='opacity 0.3s'; t.style.opacity='0'; setTimeout(()=>t.remove(),350); },3500); }
+
+window.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('fStatus').value='pending';
+  applyFilter();
+});
+</script>
+</body>
+</html>

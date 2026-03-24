@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>반 관리 — 키드키즈</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="operation-sidebar.js" defer></script>
+<style>
+:root {
+  --sidebar-bg:     #0C2D48;
+  --sidebar-hover:  #1A4A6B;
+  --sidebar-active: #1E5580;
+  --sidebar-text:   #B8D9F0;
+  --sidebar-width:  240px;
+  --header-height:  60px;
+  --accent:         #0EA5E9;
+  --accent-light:   #E0F2FE;
+  --accent-dark:    #0284C7;
+  --bg-base:        #F0F7FF;
+  --bg-surface:     #FFFFFF;
+  --text-primary:   #0C2D48;
+  --text-secondary: #4B7FA3;
+  --text-muted:     #94B8D0;
+  --border-light:   #DBEAFE;
+  --border-medium:  #BAD9F7;
+  --green:  #10B981; --green-bg:  #D1FAE5; --green-text:  #065F46;
+  --blue:   #3B82F6; --blue-bg:   #DBEAFE; --blue-text:   #1E40AF;
+  --amber:  #F59E0B; --amber-bg:  #FEF3C7; --amber-text:  #92400E;
+  --red:    #EF4444; --red-bg:    #FEE2E2; --red-text:    #991B1B;
+  --purple: #8B5CF6; --purple-bg: #EDE9FE; --purple-text: #5B21B6;
+  --shadow-sm: 0 1px 3px rgba(12,45,72,0.06);
+  --shadow-md: 0 4px 12px rgba(12,45,72,0.09);
+  --shadow-lg: 0 8px 28px rgba(12,45,72,0.14);
+  --radius-sm:6px; --radius-md:10px; --radius-lg:14px; --radius-xl:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--text-primary);display:flex;height:100vh;overflow:hidden;}
+
+/* ━━━ LAYOUT ━━━ */
+.main-wrap{margin-left:var(--sidebar-width);flex:1;display:flex;flex-direction:column;overflow:hidden;}
+
+/* ━━━ TOPBAR ━━━ */
+.topbar{height:var(--header-height);background:var(--bg-surface);border-bottom:1px solid var(--border-light);display:flex;align-items:center;padding:0 24px;gap:12px;box-shadow:var(--shadow-sm);flex-shrink:0;z-index:50;}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary);flex:1;}
+.breadcrumb .cur{color:var(--text-primary);font-weight:700;}
+.bc-sep{color:var(--text-muted);font-size:11px;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.topbar-date{font-size:12px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;}
+.icon-btn{width:36px;height:36px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;background:var(--bg-base);border:1px solid var(--border-light);cursor:pointer;transition:.18s;font-size:16px;}
+.icon-btn:hover{background:var(--accent-light);border-color:var(--accent);}
+
+/* ━━━ CONTENT ━━━ */
+.content{flex:1;overflow-y:auto;padding:24px;}
+.content::-webkit-scrollbar{width:5px;}
+.content::-webkit-scrollbar-thumb{background:var(--border-medium);border-radius:3px;}
+.content-inner{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:20px;}
+
+/* ━━━ KPI CARDS ━━━ */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.kpi-card{background:var(--bg-surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);padding:18px 20px;border:1px solid var(--border-light);display:flex;align-items:center;gap:14px;}
+.kpi-icon{width:46px;height:46px;border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.kpi-info{flex:1;}
+.kpi-val{font-size:26px;font-weight:800;line-height:1;color:var(--text-primary);}
+.kpi-label{font-size:11px;font-weight:600;color:var(--text-secondary);margin-top:4px;}
+.kpi-sub{font-size:11px;color:var(--text-muted);margin-top:2px;}
+
+/* ━━━ FILTER / ACTION BAR ━━━ */
+.action-bar{background:var(--bg-surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);padding:14px 18px;border:1px solid var(--border-light);display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.filter-group{display:flex;align-items:center;gap:6px;flex:1;}
+.fsel-wrap{position:relative;}
+.fsel-wrap::after{content:'▾';position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--text-muted);pointer-events:none;}
+.fsel{height:34px;padding:0 28px 0 10px;border:1.5px solid var(--border-light);border-radius:var(--radius-md);font-size:12px;font-family:'Pretendard',sans-serif;color:var(--text-primary);background:var(--bg-surface);appearance:none;cursor:pointer;outline:none;transition:.18s;}
+.fsel:focus{border-color:var(--accent);}
+.search-wrap{display:flex;align-items:center;border:1.5px solid var(--border-light);border-radius:var(--radius-md);overflow:hidden;background:var(--bg-surface);transition:.18s;}
+.search-wrap:focus-within{border-color:var(--accent);}
+.search-inp{height:34px;padding:0 10px;border:none;outline:none;font-size:13px;font-family:'Pretendard',sans-serif;color:var(--text-primary);background:transparent;width:200px;}
+.search-btn{height:34px;padding:0 12px;background:var(--accent-light);border:none;border-left:1.5px solid var(--border-light);cursor:pointer;font-size:13px;color:var(--accent-dark);transition:.18s;}
+.search-btn:hover{background:var(--accent);color:#fff;}
+.action-right{display:flex;align-items:center;gap:8px;margin-left:auto;}
+.results-count{font-size:12px;color:var(--text-muted);white-space:nowrap;}
+
+/* ━━━ BUTTONS ━━━ */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-md);font-size:13px;font-weight:700;font-family:'Pretendard',sans-serif;cursor:pointer;border:none;transition:.18s;white-space:nowrap;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{background:var(--accent-dark);}
+.btn-outline{background:var(--bg-surface);color:var(--text-secondary);border:1.5px solid var(--border-medium);}
+.btn-outline:hover{background:var(--bg-base);border-color:var(--accent);color:var(--accent);}
+.btn-danger{background:var(--red);color:#fff;}
+.btn-danger:hover{background:#DC2626;}
+.btn-danger-outline{background:var(--bg-surface);color:var(--red-text);border:1.5px solid var(--red-bg);}
+.btn-danger-outline:hover{background:var(--red-bg);}
+.btn-sm{padding:5px 10px;font-size:11px;border-radius:var(--radius-sm);}
+.btn-xs{padding:3px 8px;font-size:10px;border-radius:var(--radius-sm);}
+
+/* ━━━ CLASS GRID ━━━ */
+.class-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+@media(max-width:900px){.class-grid{grid-template-columns:repeat(2,1fr);}}
+
+/* ━━━ CLASS CARD ━━━ */
+.class-card{background:var(--bg-surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);border:1.5px solid var(--border-light);overflow:hidden;cursor:pointer;transition:.2s;position:relative;}
+.class-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);border-color:var(--border-medium);}
+.class-card.active-card{border-color:var(--accent);box-shadow:0 0 0 3px rgba(14,165,233,0.12);}
+.class-card.teacher-assigned{border-left:4px solid var(--accent);}
+.cc-header{padding:16px 16px 12px;border-bottom:1px solid var(--border-light);}
+.cc-color-bar{position:absolute;top:0;left:0;right:0;height:4px;border-radius:var(--radius-xl) var(--radius-xl) 0 0;}
+.cc-top-row{display:flex;align-items:flex-start;justify-content:space-between;margin-top:8px;}
+.cc-name{font-size:17px;font-weight:800;color:var(--text-primary);}
+.cc-status-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;}
+.cc-age{font-size:12px;color:var(--text-secondary);margin-top:3px;font-weight:600;}
+.cc-year-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;background:var(--bg-base);border-radius:var(--radius-sm);font-size:10px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;margin-top:3px;}
+.cc-body{padding:12px 16px;}
+.cc-teacher-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.cc-teacher-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;}
+.cc-teacher-info{flex:1;}
+.cc-teacher-name{font-size:12px;font-weight:700;color:var(--text-primary);}
+.cc-teacher-role{font-size:10px;color:var(--text-muted);}
+.cc-capacity-section{margin-top:2px;}
+.cc-capacity-row{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--text-secondary);margin-bottom:5px;}
+.cc-capacity-count{font-weight:700;color:var(--text-primary);}
+.progress-bar{height:6px;background:var(--border-light);border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:3px;transition:.3s;}
+.cc-footer{padding:8px 16px 12px;display:flex;align-items:center;justify-content:space-between;}
+.cc-footer-meta{font-size:10px;color:var(--text-muted);}
+.cc-actions{display:flex;align-items:center;gap:5px;}
+
+/* ━━━ ASSIGNED BADGE (교사용) ━━━ */
+.assigned-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;background:var(--accent-light);border-radius:20px;font-size:10px;font-weight:700;color:var(--accent-dark);}
+
+/* ━━━ EMPTY STATE ━━━ */
+.empty-state{text-align:center;padding:60px 20px;color:var(--text-muted);}
+.empty-state-icon{font-size:40px;margin-bottom:12px;}
+.empty-state-title{font-size:14px;font-weight:700;margin-bottom:6px;color:var(--text-secondary);}
+
+/* ━━━ BADGE ━━━ */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;}
+.badge-green{background:var(--green-bg);color:var(--green-text);}
+.badge-blue{background:var(--blue-bg);color:var(--blue-text);}
+.badge-amber{background:var(--amber-bg);color:var(--amber-text);}
+.badge-red{background:var(--red-bg);color:var(--red-text);}
+.badge-gray{background:#F3F4F6;color:#6B7280;}
+.badge-dot{width:5px;height:5px;border-radius:50%;background:currentColor;}
+
+/* ━━━ DRAWER ━━━ */
+.drawer{position:fixed;inset:0;z-index:200;pointer-events:none;}
+.drawer.open{pointer-events:all;}
+.drawer-overlay{position:absolute;inset:0;background:rgba(12,45,72,0.25);opacity:0;transition:.25s;}
+.drawer.open .drawer-overlay{opacity:1;}
+.drawer-panel{position:absolute;top:0;right:0;width:400px;height:100%;background:var(--bg-surface);box-shadow:-8px 0 32px rgba(12,45,72,0.15);display:flex;flex-direction:column;transform:translateX(100%);transition:.28s cubic-bezier(.4,0,.2,1);}
+.drawer.open .drawer-panel{transform:translateX(0);}
+.drawer-header{padding:18px 20px 14px;border-bottom:1px solid var(--border-light);flex-shrink:0;}
+.drawer-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+.drawer-close{width:30px;height:30px;border-radius:var(--radius-md);border:1.5px solid var(--border-light);background:var(--bg-base);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--text-secondary);transition:.15s;flex-shrink:0;}
+.drawer-close:hover{background:var(--red-bg);border-color:var(--red-bg);color:var(--red-text);}
+.drawer-body{flex:1;overflow-y:auto;padding:18px 20px;}
+.drawer-body::-webkit-scrollbar{width:4px;}
+.drawer-body::-webkit-scrollbar-thumb{background:var(--border-medium);border-radius:2px;}
+.drawer-footer{padding:14px 20px;border-top:1px solid var(--border-light);display:flex;gap:8px;flex-shrink:0;}
+.drawer-section{margin-bottom:20px;}
+.drawer-section-title{font-size:10px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;}
+.drawer-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;}
+.di-field{display:flex;flex-direction:column;gap:3px;}
+.di-label{font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;}
+.di-value{font-size:13px;font-weight:600;color:var(--text-primary);}
+.drawer-teacher-card{background:var(--bg-base);border-radius:var(--radius-md);padding:10px 12px;display:flex;align-items:center;gap:10px;border:1px solid var(--border-light);}
+.dt-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;}
+.dt-info{flex:1;}
+.dt-name{font-size:13px;font-weight:700;color:var(--text-primary);}
+.dt-role-badge{font-size:10px;color:var(--text-muted);}
+.child-list{display:flex;flex-direction:column;gap:6px;}
+.child-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg-base);border-radius:var(--radius-md);border:1px solid var(--border-light);}
+.child-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;}
+.child-name{font-size:12px;font-weight:700;color:var(--text-primary);}
+.child-meta{font-size:10px;color:var(--text-muted);margin-left:auto;}
+.view-all-link{display:flex;align-items:center;justify-content:center;padding:8px;border:1.5px dashed var(--border-medium);border-radius:var(--radius-md);font-size:12px;font-weight:600;color:var(--accent);cursor:pointer;transition:.18s;gap:5px;margin-top:6px;background:transparent;}
+.view-all-link:hover{background:var(--accent-light);border-color:var(--accent);}
+.capacity-display{background:var(--bg-base);border-radius:var(--radius-md);padding:12px 14px;border:1px solid var(--border-light);}
+.cap-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.cap-numbers{font-size:20px;font-weight:800;color:var(--text-primary);}
+.cap-sub{font-size:11px;color:var(--text-muted);}
+.cap-pct{font-size:13px;font-weight:700;}
+
+/* ━━━ MODAL ━━━ */
+.modal-overlay{position:fixed;inset:0;background:rgba(12,45,72,0.35);z-index:400;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:.2s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal-box{background:var(--bg-surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-lg);width:500px;max-width:95vw;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;transform:scale(.96);transition:.2s;}
+.modal-overlay.open .modal-box{transform:scale(1);}
+.modal-header{padding:20px 24px 16px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.modal-title{font-size:15px;font-weight:800;color:var(--text-primary);}
+.modal-close{width:28px;height:28px;border-radius:var(--radius-sm);background:var(--bg-base);border:1.5px solid var(--border-light);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--text-secondary);transition:.15s;}
+.modal-close:hover{background:var(--red-bg);border-color:var(--red-bg);color:var(--red-text);}
+.modal-body{padding:20px 24px;overflow-y:auto;flex:1;}
+.modal-footer{padding:14px 24px;border-top:1px solid var(--border-light);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px;}
+.form-grid .full{grid-column:1/-1;}
+.form-field{display:flex;flex-direction:column;gap:6px;}
+.form-label{font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.4px;}
+.form-label .req{color:var(--red);margin-left:2px;}
+.form-input{border:1.5px solid var(--border-light);border-radius:var(--radius-md);height:38px;padding:0 12px;font-size:14px;font-family:'Pretendard',sans-serif;color:var(--text-primary);background:var(--bg-surface);outline:none;transition:.18s;width:100%;}
+.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(14,165,233,0.10);}
+.form-select{border:1.5px solid var(--border-light);border-radius:var(--radius-md);height:38px;padding:0 12px;font-size:14px;font-family:'Pretendard',sans-serif;color:var(--text-primary);background:var(--bg-surface);outline:none;transition:.18s;width:100%;appearance:none;cursor:pointer;}
+.form-select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(14,165,233,0.10);}
+.status-toggle-row{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg-base);border-radius:var(--radius-md);border:1.5px solid var(--border-light);}
+.toggle-label{font-size:13px;font-weight:600;color:var(--text-primary);flex:1;}
+.toggle-switch{position:relative;width:40px;height:22px;cursor:pointer;flex-shrink:0;}
+.toggle-switch input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-track{position:absolute;inset:0;background:#D1D5DB;border-radius:11px;transition:.25s;}
+.toggle-thumb{position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;border-radius:50%;transition:.25s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.toggle-switch input:checked + .toggle-track{background:var(--green);}
+.toggle-switch input:checked ~ .toggle-thumb{left:20px;}
+
+/* ━━━ DELETE MODAL ━━━ */
+.delete-modal-box{width:400px;}
+.delete-warning{display:flex;align-items:flex-start;gap:12px;padding:14px;background:var(--red-bg);border-radius:var(--radius-md);margin-bottom:16px;}
+.delete-warning-icon{font-size:20px;flex-shrink:0;}
+.delete-warning-text{font-size:13px;color:var(--red-text);font-weight:600;line-height:1.5;}
+.delete-info-card{background:var(--bg-base);border-radius:var(--radius-md);padding:12px 14px;border:1.5px solid var(--border-light);}
+.delete-info-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;}
+.delete-info-row+.delete-info-row{border-top:1px solid var(--border-light);}
+.delete-info-key{font-size:12px;color:var(--text-secondary);}
+.delete-info-val{font-size:12px;font-weight:700;color:var(--text-primary);}
+
+/* ━━━ TOAST ━━━ */
+#toast-container{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:9999;}
+.toast{display:flex;align-items:center;gap:10px;padding:12px 18px;border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);font-size:13px;font-weight:600;color:#fff;min-width:240px;animation:toastIn .25s ease;pointer-events:none;}
+.toast-success{background:#10B981;}
+.toast-info{background:var(--accent);}
+.toast-warning{background:var(--amber);}
+@keyframes toastIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+</style>
+</head>
+<body>
+
+<aside id="appSidebar"></aside>
+
+<div class="main-wrap">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="breadcrumb">
+      <span>🏠</span>
+      <span class="bc-sep">›</span>
+      <span>운영관리</span>
+      <span class="bc-sep">›</span>
+      <span class="cur">반 관리</span>
+    </div>
+    <div class="topbar-right" id="topbarRight"></div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <div class="content-inner">
+
+      <!-- KPI -->
+      <div class="kpi-row" id="kpiRow"></div>
+
+      <!-- FILTER BAR -->
+      <div class="action-bar">
+        <div class="filter-group">
+          <div class="fsel-wrap">
+            <select class="fsel" id="filterStatus" onchange="applyFilter()">
+              <option value="">전체 상태</option>
+              <option value="active">운영중</option>
+              <option value="inactive">비운영</option>
+            </select>
+          </div>
+          <div class="fsel-wrap">
+            <select class="fsel" id="filterYear" onchange="applyFilter()">
+              <option value="">전체 학년도</option>
+              <option value="2026">2026년도</option>
+              <option value="2025">2025년도</option>
+            </select>
+          </div>
+          <div class="search-wrap">
+            <input class="search-inp" id="searchInput" placeholder="반 이름, 교사명 검색" oninput="applyFilter()">
+            <button class="search-btn">🔍</button>
+          </div>
+        </div>
+        <div class="action-right">
+          <span class="results-count" id="resultsCount"></span>
+          <button class="btn btn-outline btn-sm" onclick="resetFilter()">초기화</button>
+          <button class="btn btn-primary btn-sm" id="addClassBtn" onclick="openAddModal()" style="display:none">
+            ＋ 반 추가
+          </button>
+        </div>
+      </div>
+
+      <!-- CLASS GRID -->
+      <div class="class-grid" id="classGrid"></div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ━━━ DRAWER ━━━ -->
+<div class="drawer" id="classDrawer">
+  <div class="drawer-overlay" onclick="closeDrawer()"></div>
+  <div class="drawer-panel">
+    <div class="drawer-header" id="drawerHeader"></div>
+    <div class="drawer-body" id="drawerBody"></div>
+    <div class="drawer-footer" id="drawerFooter"></div>
+  </div>
+</div>
+
+<!-- ━━━ ADD/EDIT MODAL ━━━ -->
+<div class="modal-overlay" id="classModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">반 추가</span>
+      <button class="modal-close" onclick="closeModal('classModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-field full">
+          <label class="form-label">반 이름 <span class="req">*</span></label>
+          <input class="form-input" id="f_name" placeholder="예: 햇님반" maxlength="20">
+        </div>
+        <div class="form-field">
+          <label class="form-label">연령 그룹 <span class="req">*</span></label>
+          <select class="form-select" id="f_age">
+            <option value="">선택</option>
+            <option value="만 0세">만 0세</option>
+            <option value="만 1세">만 1세</option>
+            <option value="만 2세">만 2세</option>
+            <option value="만 3세">만 3세</option>
+            <option value="만 4세">만 4세</option>
+            <option value="만 5세">만 5세</option>
+            <option value="만 6세">만 6세</option>
+            <option value="만 7세">만 7세</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label class="form-label">학년도 <span class="req">*</span></label>
+          <select class="form-select" id="f_year">
+            <option value="2026">2026년도</option>
+            <option value="2025">2025년도</option>
+            <option value="2024">2024년도</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label class="form-label">정원 <span class="req">*</span></label>
+          <input class="form-input" id="f_capacity" type="number" min="1" max="50" placeholder="20">
+        </div>
+        <div class="form-field">
+          <label class="form-label">담임 교사</label>
+          <select class="form-select" id="f_teacher">
+            <option value="">미배정</option>
+            <option value="이지현">이지현</option>
+            <option value="박수진">박수진</option>
+            <option value="최민준">최민준</option>
+            <option value="김예진">김예진</option>
+            <option value="정아름">정아름</option>
+            <option value="한소미">한소미</option>
+            <option value="박민아">박민아</option>
+            <option value="김다영">김다영</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label class="form-label">보조 교사</label>
+          <select class="form-select" id="f_coTeacher">
+            <option value="">없음</option>
+            <option value="박민아">박민아</option>
+            <option value="김다영">김다영</option>
+            <option value="한소미">한소미</option>
+            <option value="이서준">이서준</option>
+            <option value="오지영">오지영</option>
+          </select>
+        </div>
+        <div class="form-field full">
+          <label class="form-label">운영 상태</label>
+          <div class="status-toggle-row">
+            <span class="toggle-label" id="statusToggleLabel">운영중</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="f_status" checked onchange="updateStatusLabel()">
+              <div class="toggle-track"></div>
+              <div class="toggle-thumb"></div>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('classModal')">취소</button>
+      <button class="btn btn-primary" id="modalSaveBtn" onclick="saveClass()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ━━━ DELETE CONFIRM MODAL ━━━ -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box delete-modal-box">
+    <div class="modal-header">
+      <span class="modal-title">반 삭제</span>
+      <button class="modal-close" onclick="closeModal('deleteModal')">✕</button>
+    </div>
+    <div class="modal-body" id="deleteModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('deleteModal')">취소</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">삭제</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   MOCK DATA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const MOCK_CLASSES = [
+  { id:'CLS001', name:'햇님반', ageGroup:'만 5세', year:2026, capacity:22, childCount:20, teacher:'이지현', coTeacher:'박민아', status:'active', color:'#F59E0B', createdAt:'2026-03-01' },
+  { id:'CLS002', name:'달님반', ageGroup:'만 4세', year:2026, capacity:20, childCount:18, teacher:'박수진', coTeacher:'', status:'active', color:'#10B981', createdAt:'2026-03-01' },
+  { id:'CLS003', name:'별빛반', ageGroup:'만 3세', year:2026, capacity:18, childCount:15, teacher:'최민준', coTeacher:'김다영', status:'active', color:'#8B5CF6', createdAt:'2026-03-01' },
+  { id:'CLS004', name:'새싹반', ageGroup:'만 2세', year:2026, capacity:15, childCount:12, teacher:'김예진', coTeacher:'', status:'active', color:'#0EA5E9', createdAt:'2026-03-01' },
+  { id:'CLS005', name:'꽃잎반', ageGroup:'만 1세', year:2026, capacity:10, childCount:8, teacher:'정아름', coTeacher:'한소미', status:'inactive', color:'#6B7280', createdAt:'2026-09-01' },
+];
+
+const MOCK_CHILDREN = {
+  'CLS001': [
+    { id:'C001', name:'김민준', gender:'남', color:'#F59E0B' },
+    { id:'C002', name:'이서연', gender:'여', color:'#EC4899' },
+    { id:'C003', name:'박지호', gender:'남', color:'#3B82F6' },
+    { id:'C004', name:'최유리', gender:'여', color:'#10B981' },
+    { id:'C005', name:'정도윤', gender:'남', color:'#8B5CF6' },
+    { id:'C006', name:'한지민', gender:'여', color:'#F97316' },
+  ],
+  'CLS002': [
+    { id:'C007', name:'오서준', gender:'남', color:'#14B8A6' },
+    { id:'C008', name:'신예원', gender:'여', color:'#F43F5E' },
+    { id:'C009', name:'조현우', gender:'남', color:'#6366F1' },
+    { id:'C010', name:'윤지아', gender:'여', color:'#EAB308' },
+  ],
+  'CLS003': [
+    { id:'C011', name:'강민서', gender:'남', color:'#8B5CF6' },
+    { id:'C012', name:'임하은', gender:'여', color:'#F59E0B' },
+    { id:'C013', name:'서태양', gender:'남', color:'#10B981' },
+  ],
+  'CLS004': [
+    { id:'C014', name:'문예린', gender:'여', color:'#0EA5E9' },
+    { id:'C015', name:'권시온', gender:'남', color:'#F97316' },
+    { id:'C016', name:'노아진', gender:'남', color:'#EC4899' },
+  ],
+  'CLS005': [
+    { id:'C017', name:'배소율', gender:'여', color:'#6B7280' },
+    { id:'C018', name:'심준서', gender:'남', color:'#84CC16' },
+  ],
+};
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   STATE & ROLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const userRole = sessionStorage.getItem('userRole') || 'org_admin';
+const assignedClasses = JSON.parse(sessionStorage.getItem('assignedClasses') || '[{"id":"CLS001","name":"햇님반"},{"id":"CLS002","name":"달님반"}]');
+
+const canCreate = userRole !== 'teacher';
+const canDeleteClass = userRole !== 'teacher';
+
+function canEditClass(clsId) {
+  if (userRole !== 'teacher') return true;
+  return assignedClasses.some(c => c.id === clsId);
+}
+
+function isAssigned(clsId) {
+  return assignedClasses.some(c => c.id === clsId);
+}
+
+let CLASSES = [...MOCK_CLASSES];
+let filteredClasses = [...CLASSES];
+let activeCardId = null;
+let deletingId = null;
+let editingId = null;
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   INIT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+document.addEventListener('DOMContentLoaded', () => {
+  renderTopbar();
+  if (canCreate) document.getElementById('addClassBtn').style.display = 'inline-flex';
+  renderKPI();
+  applyFilter();
+});
+
+function renderTopbar() {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric', weekday:'short' });
+  document.getElementById('topbarRight').innerHTML = `
+    <span class="topbar-date">${dateStr}</span>
+    <button class="icon-btn" title="새로고침" onclick="applyFilter()">🔄</button>
+  `;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   KPI
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function renderKPI() {
+  const total = CLASSES.length;
+  const active = CLASSES.filter(c => c.status === 'active').length;
+  const totalChildren = CLASSES.reduce((s, c) => s + c.childCount, 0);
+  const totalCap = CLASSES.reduce((s, c) => s + c.capacity, 0);
+  const fillRate = totalCap ? Math.round(totalChildren / totalCap * 100) : 0;
+  const teachers = new Set(CLASSES.flatMap(c => [c.teacher, c.coTeacher].filter(Boolean))).size;
+
+  document.getElementById('kpiRow').innerHTML = `
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:#E0F2FE">🏫</div>
+      <div class="kpi-info">
+        <div class="kpi-val">${total}</div>
+        <div class="kpi-label">전체 반</div>
+        <div class="kpi-sub">비운영 ${total - active}개 포함</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:#D1FAE5">✅</div>
+      <div class="kpi-info">
+        <div class="kpi-val" style="color:var(--green)">${active}</div>
+        <div class="kpi-label">운영중 반</div>
+        <div class="kpi-sub">현재 활성 반</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:#EDE9FE">👶</div>
+      <div class="kpi-info">
+        <div class="kpi-val" style="color:#8B5CF6">${totalChildren}</div>
+        <div class="kpi-label">총 원아 수</div>
+        <div class="kpi-sub">정원 ${totalCap}명 중</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:#FEF3C7">📊</div>
+      <div class="kpi-info">
+        <div class="kpi-val" style="color:var(--amber)">${fillRate}%</div>
+        <div class="kpi-label">평균 충원율</div>
+        <div class="kpi-sub">담당 교사 ${teachers}명</div>
+      </div>
+    </div>
+  `;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   FILTER & RENDER GRID
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function applyFilter() {
+  const status = document.getElementById('filterStatus').value;
+  const year = document.getElementById('filterYear').value;
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+
+  filteredClasses = CLASSES.filter(c => {
+    if (status && c.status !== status) return false;
+    if (year && String(c.year) !== year) return false;
+    if (q && !c.name.includes(q) && !c.teacher.toLowerCase().includes(q) && !c.coTeacher.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  document.getElementById('resultsCount').textContent = `${filteredClasses.length}개 반`;
+  renderGrid();
+}
+
+function resetFilter() {
+  document.getElementById('filterStatus').value = '';
+  document.getElementById('filterYear').value = '';
+  document.getElementById('searchInput').value = '';
+  applyFilter();
+}
+
+function renderGrid() {
+  const grid = document.getElementById('classGrid');
+  if (!filteredClasses.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <div class="empty-state-icon">🔍</div>
+      <div class="empty-state-title">검색 결과가 없습니다</div>
+      <p style="font-size:12px;color:var(--text-muted)">검색 조건을 변경해 보세요</p>
+    </div>`;
+    return;
+  }
+  grid.innerHTML = filteredClasses.map(c => renderClassCard(c)).join('');
+}
+
+function renderClassCard(c) {
+  const pct = Math.round(c.childCount / c.capacity * 100);
+  const fillColor = pct >= 90 ? 'var(--red)' : pct >= 70 ? 'var(--amber)' : 'var(--green)';
+  const isActive = c.status === 'active';
+  const statusBadge = isActive
+    ? `<span class="cc-status-badge badge-green"><span class="badge-dot"></span>운영중</span>`
+    : `<span class="cc-status-badge badge-gray"><span class="badge-dot"></span>비운영</span>`;
+
+  const assigned = userRole === 'teacher' && isAssigned(c.id);
+  const editBtn = canEditClass(c.id)
+    ? `<button class="btn btn-outline btn-xs" onclick="event.stopPropagation();openEditModal('${c.id}')">수정</button>`
+    : '';
+  const delBtn = canDeleteClass
+    ? `<button class="btn btn-danger-outline btn-xs" onclick="event.stopPropagation();openDeleteModal('${c.id}')">삭제</button>`
+    : '';
+
+  const coTeacherLine = c.coTeacher
+    ? `<div class="cc-teacher-row" style="margin-top:5px">
+        <div class="cc-teacher-avatar" style="background:#94A3B8;font-size:10px">${c.coTeacher[0]}</div>
+        <div class="cc-teacher-info">
+          <div class="cc-teacher-name">${c.coTeacher}</div>
+          <div class="cc-teacher-role">보조교사</div>
+        </div>
+      </div>` : '';
+
+  return `
+    <div class="class-card${activeCardId===c.id?' active-card':''}${assigned?' teacher-assigned':''}" id="card_${c.id}" onclick="openDrawer('${c.id}')">
+      <div class="cc-color-bar" style="background:${c.color}"></div>
+      <div class="cc-header">
+        <div class="cc-top-row">
+          <div>
+            <div class="cc-name">${c.name}</div>
+            <div class="cc-age">${c.ageGroup}</div>
+            <div class="cc-year-badge">📅 ${c.year}년도</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+            ${statusBadge}
+            ${assigned ? '<span class="assigned-badge">✓ 담당 반</span>' : ''}
+          </div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="cc-teacher-row">
+          <div class="cc-teacher-avatar" style="background:${c.color}">${c.teacher ? c.teacher[0] : '?'}</div>
+          <div class="cc-teacher-info">
+            <div class="cc-teacher-name">${c.teacher || '미배정'}</div>
+            <div class="cc-teacher-role">담임교사</div>
+          </div>
+        </div>
+        ${coTeacherLine}
+        <div class="cc-capacity-section">
+          <div class="cc-capacity-row">
+            <span>원아 현황</span>
+            <span><span class="cc-capacity-count">${c.childCount}</span> / ${c.capacity}명</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width:${pct}%;background:${fillColor}"></div>
+          </div>
+        </div>
+      </div>
+      <div class="cc-footer">
+        <span class="cc-footer-meta">생성 ${c.createdAt}</span>
+        <div class="cc-actions">
+          ${editBtn}
+          ${delBtn}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   DRAWER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function openDrawer(id) {
+  // active card highlight
+  if (activeCardId) {
+    const prev = document.getElementById('card_' + activeCardId);
+    if (prev) prev.classList.remove('active-card');
+  }
+  activeCardId = id;
+  const card = document.getElementById('card_' + id);
+  if (card) card.classList.add('active-card');
+
+  const c = CLASSES.find(x => x.id === id);
+  if (!c) return;
+
+  const pct = Math.round(c.childCount / c.capacity * 100);
+  const fillColor = pct >= 90 ? 'var(--red)' : pct >= 70 ? 'var(--amber)' : 'var(--green)';
+  const children = MOCK_CHILDREN[id] || [];
+  const preview = children.slice(0, 5);
+
+  // Header
+  document.getElementById('drawerHeader').innerHTML = `
+    <div class="drawer-title-row">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <div style="width:10px;height:10px;border-radius:50%;background:${c.color};flex-shrink:0"></div>
+          <span style="font-size:18px;font-weight:800;color:var(--text-primary)">${c.name}</span>
+          ${c.status==='active'
+            ? '<span class="badge badge-green"><span class="badge-dot"></span>운영중</span>'
+            : '<span class="badge badge-gray"><span class="badge-dot"></span>비운영</span>'}
+        </div>
+        <div style="font-size:12px;color:var(--text-secondary)">${c.ageGroup} · ${c.year}년도</div>
+      </div>
+      <button class="drawer-close" onclick="closeDrawer()">✕</button>
+    </div>
+  `;
+
+  // Body
+  document.getElementById('drawerBody').innerHTML = `
+    <!-- 기본 정보 -->
+    <div class="drawer-section">
+      <div class="drawer-section-title">기본 정보</div>
+      <div class="drawer-info-grid">
+        <div class="di-field">
+          <div class="di-label">반 이름</div>
+          <div class="di-value">${c.name}</div>
+        </div>
+        <div class="di-field">
+          <div class="di-label">연령 그룹</div>
+          <div class="di-value">${c.ageGroup}</div>
+        </div>
+        <div class="di-field">
+          <div class="di-label">학년도</div>
+          <div class="di-value">${c.year}년도</div>
+        </div>
+        <div class="di-field">
+          <div class="di-label">생성일</div>
+          <div class="di-value">${c.createdAt}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 정원 현황 -->
+    <div class="drawer-section">
+      <div class="drawer-section-title">정원 현황</div>
+      <div class="capacity-display">
+        <div class="cap-row">
+          <div>
+            <span class="cap-numbers">${c.childCount}</span>
+            <span style="font-size:13px;color:var(--text-muted)"> / ${c.capacity}명</span>
+          </div>
+          <span class="cap-pct" style="color:${fillColor}">${pct}% 충원</span>
+        </div>
+        <div class="progress-bar" style="height:8px">
+          <div class="progress-fill" style="width:${pct}%;background:${fillColor}"></div>
+        </div>
+        <div class="cap-sub" style="margin-top:6px">잔여 정원: ${c.capacity - c.childCount}명</div>
+      </div>
+    </div>
+
+    <!-- 담당 교사 -->
+    <div class="drawer-section">
+      <div class="drawer-section-title">담당 교사</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div class="drawer-teacher-card">
+          <div class="dt-avatar" style="background:${c.color}">${c.teacher ? c.teacher[0] : '?'}</div>
+          <div class="dt-info">
+            <div class="dt-name">${c.teacher || '미배정'}</div>
+            <div class="dt-role-badge">담임교사</div>
+          </div>
+          <span class="badge badge-accent">담임</span>
+        </div>
+        ${c.coTeacher ? `
+        <div class="drawer-teacher-card">
+          <div class="dt-avatar" style="background:#94A3B8">${c.coTeacher[0]}</div>
+          <div class="dt-info">
+            <div class="dt-name">${c.coTeacher}</div>
+            <div class="dt-role-badge">보조교사</div>
+          </div>
+          <span class="badge badge-gray">보조</span>
+        </div>` : `
+        <div style="padding:8px 12px;font-size:12px;color:var(--text-muted);background:var(--bg-base);border-radius:var(--radius-md);border:1px dashed var(--border-medium)">
+          보조교사 미배정
+        </div>`}
+      </div>
+    </div>
+
+    <!-- 소속 원아 -->
+    <div class="drawer-section">
+      <div class="drawer-section-title">소속 원아 (${children.length}명)</div>
+      ${children.length === 0
+        ? `<div style="padding:12px;text-align:center;color:var(--text-muted);font-size:12px;background:var(--bg-base);border-radius:var(--radius-md)">등록된 원아가 없습니다</div>`
+        : `<div class="child-list">
+          ${preview.map(ch => `
+            <div class="child-item">
+              <div class="child-av" style="background:${ch.color}">${ch.name[0]}</div>
+              <span class="child-name">${ch.name}</span>
+              <span class="badge ${ch.gender==='남' ? 'badge-blue' : 'badge-red'}" style="font-size:10px;padding:2px 6px">${ch.gender}</span>
+              <span class="child-meta"></span>
+            </div>`).join('')}
+          </div>
+          ${children.length > 5 ? `
+          <div class="view-all-link" onclick="goToChildren('${id}')">
+            + ${children.length - 5}명 더 보기 · 원아관리로 이동 →
+          </div>` : `
+          <div class="view-all-link" onclick="goToChildren('${id}')">
+            원아관리에서 전체 보기 →
+          </div>`}`}
+    </div>
+  `;
+
+  // Footer buttons
+  const editBtn = canEditClass(id)
+    ? `<button class="btn btn-primary" style="flex:1" onclick="openEditModal('${id}')">✏️ 수정</button>` : '';
+  const delBtn = canDeleteClass
+    ? `<button class="btn btn-danger-outline" style="flex:1" onclick="openDeleteModal('${id}')">🗑️ 삭제</button>` : '';
+
+  document.getElementById('drawerFooter').innerHTML = editBtn + delBtn
+    || `<div style="font-size:12px;color:var(--text-muted);text-align:center;width:100%">조회 전용 — 수정 권한 없음</div>`;
+
+  document.getElementById('classDrawer').classList.add('open');
+}
+
+function closeDrawer() {
+  document.getElementById('classDrawer').classList.remove('open');
+  if (activeCardId) {
+    const card = document.getElementById('card_' + activeCardId);
+    if (card) card.classList.remove('active-card');
+    activeCardId = null;
+  }
+}
+
+function goToChildren(clsId) {
+  // 원아관리 페이지로 이동 (반 필터 적용)
+  sessionStorage.setItem('currentClass', clsId);
+  window.location.href = 'operation-child.html';
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ADD / EDIT MODAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modalTitle').textContent = '반 추가';
+  document.getElementById('modalSaveBtn').textContent = '추가';
+  document.getElementById('f_name').value = '';
+  document.getElementById('f_age').value = '';
+  document.getElementById('f_year').value = '2026';
+  document.getElementById('f_capacity').value = '';
+  document.getElementById('f_teacher').value = '';
+  document.getElementById('f_coTeacher').value = '';
+  document.getElementById('f_status').checked = true;
+  updateStatusLabel();
+  openModal('classModal');
+}
+
+function openEditModal(id) {
+  const c = CLASSES.find(x => x.id === id);
+  if (!c) return;
+  editingId = id;
+  document.getElementById('modalTitle').textContent = `'${c.name}' 수정`;
+  document.getElementById('modalSaveBtn').textContent = '저장';
+  document.getElementById('f_name').value = c.name;
+  document.getElementById('f_age').value = c.ageGroup;
+  document.getElementById('f_year').value = String(c.year);
+  document.getElementById('f_capacity').value = c.capacity;
+  document.getElementById('f_teacher').value = c.teacher;
+  document.getElementById('f_coTeacher').value = c.coTeacher;
+  document.getElementById('f_status').checked = c.status === 'active';
+  updateStatusLabel();
+  closeDrawer();
+  openModal('classModal');
+}
+
+function updateStatusLabel() {
+  const on = document.getElementById('f_status').checked;
+  document.getElementById('statusToggleLabel').textContent = on ? '운영중' : '비운영';
+}
+
+function saveClass() {
+  const name = document.getElementById('f_name').value.trim();
+  const ageGroup = document.getElementById('f_age').value;
+  const year = parseInt(document.getElementById('f_year').value);
+  const capacity = parseInt(document.getElementById('f_capacity').value);
+  const teacher = document.getElementById('f_teacher').value;
+  const coTeacher = document.getElementById('f_coTeacher').value;
+  const status = document.getElementById('f_status').checked ? 'active' : 'inactive';
+
+  if (!name) { showToast('반 이름을 입력해주세요', 'warning'); return; }
+  if (!ageGroup) { showToast('연령 그룹을 선택해주세요', 'warning'); return; }
+  if (!capacity || capacity < 1) { showToast('정원을 입력해주세요', 'warning'); return; }
+
+  const classColors = ['#F59E0B','#10B981','#8B5CF6','#0EA5E9','#EF4444','#EC4899','#F97316','#14B8A6','#6366F1'];
+
+  if (editingId) {
+    const idx = CLASSES.findIndex(c => c.id === editingId);
+    if (idx !== -1) {
+      CLASSES[idx] = { ...CLASSES[idx], name, ageGroup, year, capacity, teacher, coTeacher, status };
+      showToast(`'${name}' 정보가 수정되었습니다`, 'success');
+    }
+  } else {
+    const newId = 'CLS' + String(CLASSES.length + 1).padStart(3, '0');
+    const color = classColors[CLASSES.length % classColors.length];
+    CLASSES.push({ id:newId, name, ageGroup, year, capacity, childCount:0, teacher, coTeacher, status, color, createdAt: new Date().toISOString().slice(0,10) });
+    showToast(`'${name}' 반이 추가되었습니다`, 'success');
+  }
+
+  closeModal('classModal');
+  renderKPI();
+  applyFilter();
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   DELETE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function openDeleteModal(id) {
+  const c = CLASSES.find(x => x.id === id);
+  if (!c) return;
+  deletingId = id;
+
+  const hasChildren = (MOCK_CHILDREN[id] || []).length > 0;
+
+  document.getElementById('deleteModalBody').innerHTML = `
+    <div class="delete-warning">
+      <span class="delete-warning-icon">⚠️</span>
+      <div class="delete-warning-text">
+        ${hasChildren
+          ? `이 반에 원아 ${(MOCK_CHILDREN[id]||[]).length}명이 소속되어 있습니다.<br>삭제 시 원아의 반 배정이 해제됩니다.`
+          : '삭제된 반 정보는 복구할 수 없습니다.'}
+      </div>
+    </div>
+    <div class="delete-info-card">
+      <div class="delete-info-row">
+        <span class="delete-info-key">반 이름</span>
+        <span class="delete-info-val">${c.name}</span>
+      </div>
+      <div class="delete-info-row">
+        <span class="delete-info-key">연령 그룹</span>
+        <span class="delete-info-val">${c.ageGroup}</span>
+      </div>
+      <div class="delete-info-row">
+        <span class="delete-info-key">담임 교사</span>
+        <span class="delete-info-val">${c.teacher || '미배정'}</span>
+      </div>
+      <div class="delete-info-row">
+        <span class="delete-info-key">소속 원아</span>
+        <span class="delete-info-val">${(MOCK_CHILDREN[id]||[]).length}명</span>
+      </div>
+    </div>
+  `;
+
+  closeDrawer();
+  openModal('deleteModal');
+}
+
+function confirmDelete() {
+  const c = CLASSES.find(x => x.id === deletingId);
+  if (!c) return;
+  CLASSES = CLASSES.filter(x => x.id !== deletingId);
+  showToast(`'${c.name}' 반이 삭제되었습니다`, 'info');
+  closeModal('deleteModal');
+  renderKPI();
+  applyFilter();
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   MODAL HELPERS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   TOAST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function showToast(msg, type='info') {
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  const icons = { success:'✅', info:'ℹ️', warning:'⚠️' };
+  t.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  document.getElementById('toast-container').appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+</script>
+</body>
+</html>

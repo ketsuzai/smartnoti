@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>알림장 — 키드키즈</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="operation-sidebar.js" defer></script>
+<style>
+:root {
+  --sidebar-bg:#0C2D48; --sidebar-hover:#1A4A6B; --sidebar-active:#1E5580;
+  --sidebar-text:#B8D9F0; --sidebar-width:240px; --header-height:60px;
+  --accent:#0EA5E9; --accent-light:#E0F2FE; --accent-dark:#0284C7;
+  --bg-base:#F0F7FF; --bg-surface:#FFFFFF;
+  --text-primary:#0C2D48; --text-secondary:#4B7FA3; --text-muted:#94B8D0;
+  --border-light:#DBEAFE; --border-medium:#BAD9F7;
+  --green:#10B981; --green-bg:#D1FAE5; --green-text:#065F46;
+  --blue:#3B82F6; --blue-bg:#DBEAFE; --blue-text:#1E40AF;
+  --amber:#F59E0B; --amber-bg:#FEF3C7; --amber-text:#92400E;
+  --red:#EF4444; --red-bg:#FEE2E2; --red-text:#991B1B;
+  --purple:#8B5CF6; --purple-bg:#EDE9FE; --purple-text:#5B21B6;
+  --shadow-sm:0 1px 3px rgba(12,45,72,0.06);
+  --shadow-md:0 4px 12px rgba(12,45,72,0.09);
+  --shadow-lg:0 8px 28px rgba(12,45,72,0.13);
+  --r-sm:6px; --r-md:10px; --r-lg:14px; --r-xl:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--text-primary);display:flex;height:100vh;overflow:hidden;}
+
+/* 사이드바 CSS → operation-sidebar.js 에서 주입 */
+
+/* MAIN */
+.main-wrap{margin-left:var(--sidebar-width);flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.topbar{height:var(--header-height);background:var(--bg-surface);border-bottom:1px solid var(--border-light);display:flex;align-items:center;padding:0 24px;gap:12px;box-shadow:var(--shadow-sm);flex-shrink:0;z-index:50;}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary);flex:1;}
+.breadcrumb .cur{color:var(--text-primary);font-weight:600;}
+.bc-sep{color:var(--text-muted);font-size:11px;}
+.class-filter-wrap{display:flex;align-items:center;gap:8px;background:var(--bg-base);border:1.5px solid var(--border-light);border-radius:var(--r-md);padding:5px 12px;transition:0.18s;}
+.class-filter-wrap:focus-within{border-color:var(--accent);background:#fff;}
+.class-filter-label{font-size:11px;color:var(--text-secondary);font-weight:600;white-space:nowrap;}
+.class-filter-divider{width:1px;height:14px;background:var(--border-medium);}
+.class-select-wrap{position:relative;}
+.class-select{appearance:none;border:none;background:transparent;font-size:13px;font-weight:700;color:var(--text-primary);cursor:pointer;font-family:'Pretendard',sans-serif;outline:none;padding-right:20px;min-width:120px;}
+.class-select-arrow{position:absolute;right:0;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--text-muted);font-size:11px;}
+.class-select option.disabled-opt{color:#C0C0C0;background:#F9FAFB;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.topbar-date{font-size:12px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;}
+.icon-btn{width:36px;height:36px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;background:var(--bg-base);border:1px solid var(--border-light);cursor:pointer;transition:0.18s;font-size:16px;position:relative;}
+.icon-btn:hover{background:var(--accent-light);border-color:var(--accent);}
+.notif-dot::after{content:'';position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--red);border:1.5px solid var(--bg-surface);}
+
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:22px 24px;}
+.content::-webkit-scrollbar{width:5px;}
+.content::-webkit-scrollbar-thumb{background:var(--border-medium);border-radius:3px;}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;}
+.page-title{font-size:21px;font-weight:800;letter-spacing:-0.5px;}
+.page-sub{font-size:13px;color:var(--text-secondary);margin-top:3px;}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;}
+.kpi-card{background:var(--bg-surface);border-radius:var(--r-lg);padding:16px 18px;box-shadow:var(--shadow-sm);border:1px solid var(--border-light);display:flex;align-items:center;gap:12px;transition:box-shadow 0.2s;}
+.kpi-card:hover{box-shadow:var(--shadow-md);}
+.kpi-ico{width:46px;height:46px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0;}
+.kpi-ico.sky{background:#E0F2FE;} .kpi-ico.green{background:var(--green-bg);}
+.kpi-ico.amber{background:var(--amber-bg);} .kpi-ico.red{background:var(--red-bg);}
+.kpi-label{font-size:11px;color:var(--text-secondary);font-weight:500;margin-bottom:2px;}
+.kpi-value{font-size:24px;font-weight:800;color:var(--text-primary);letter-spacing:-0.8px;line-height:1;}
+.kpi-sub{font-size:11px;color:var(--text-muted);margin-top:2px;}
+
+/* FILTER BAR */
+.filter-bar{background:var(--bg-surface);border:1px solid var(--border-light);border-radius:var(--r-lg);padding:12px 18px;margin-bottom:14px;display:flex;flex-wrap:wrap;align-items:center;gap:10px;box-shadow:var(--shadow-sm);}
+.filter-group{display:flex;align-items:center;gap:6px;}
+.filter-label{font-size:11px;font-weight:600;color:var(--text-secondary);white-space:nowrap;}
+.filter-select,.filter-input{height:34px;padding:0 10px;border:1.5px solid var(--border-light);border-radius:var(--r-md);font-size:12px;font-weight:500;color:var(--text-primary);background:#fff;font-family:'Pretendard',sans-serif;transition:border-color 0.18s;outline:none;}
+.filter-select:focus,.filter-input:focus{border-color:var(--accent);}
+.filter-select{cursor:pointer;}
+.filter-divider{width:1px;height:22px;background:var(--border-light);}
+.btn{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 16px;border-radius:var(--r-md);font-size:13px;font-weight:600;font-family:'Pretendard',sans-serif;cursor:pointer;border:none;transition:0.18s;white-space:nowrap;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{background:var(--accent-dark);}
+.btn-outline{background:#fff;color:var(--text-primary);border:1.5px solid var(--border-medium);}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent-dark);background:var(--accent-light);}
+.btn-sm{height:30px;padding:0 12px;font-size:12px;}
+.btn-danger{background:var(--red-bg);color:var(--red-text);border:1.5px solid #FECACA;}
+.btn-danger:hover{background:var(--red);color:#fff;}
+
+/* ACTION BAR */
+.action-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+
+/* 날짜별 그룹 목록 */
+.date-group{margin-bottom:16px;}
+.date-group-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:0 2px;}
+.date-group-label{font-size:14px;font-weight:800;color:var(--text-primary);}
+.date-group-meta{font-size:12px;color:var(--text-muted);}
+.date-group-line{flex:1;height:1px;background:var(--border-light);}
+
+/* 알림장 카드 */
+.nb-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;}
+.nb-card{background:var(--bg-surface);border:1px solid var(--border-light);border-radius:var(--r-lg);padding:16px;cursor:pointer;transition:all 0.2s;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;}
+.nb-card:hover{box-shadow:var(--shadow-md);border-color:var(--accent);transform:translateY(-1px);}
+.nb-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;}
+.nb-card-teacher{display:flex;align-items:center;gap:8px;}
+.teacher-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0;}
+.teacher-name{font-size:13px;font-weight:700;color:var(--text-primary);}
+.teacher-class{font-size:11px;color:var(--text-secondary);}
+.nb-status-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:10px;font-size:11px;font-weight:700;}
+.nb-status-badge.published{background:var(--green-bg);color:var(--green-text);}
+.nb-status-badge.draft{background:var(--amber-bg);color:var(--amber-text);}
+.nb-status-badge.recalled{background:#F3F4F6;color:#6B7280;}
+.nb-status-badge.scheduled{background:var(--purple-bg);color:var(--purple-text);}
+.nb-card-content{font-size:13px;color:var(--text-primary);line-height:1.6;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.nb-card-weather{font-size:12px;color:var(--text-secondary);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+/* 원아 아바타 행 */
+.nb-children-row{display:flex;align-items:center;gap:-4px;margin-bottom:10px;flex-wrap:wrap;gap:4px;}
+.child-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:10px;background:var(--bg-base);border:1px solid var(--border-light);font-size:11px;font-weight:600;color:var(--text-primary);}
+.child-chip-dot{width:7px;height:7px;border-radius:50%;}
+.child-chip.read{border-color:#A7F3D0;background:#F0FDF4;}
+.child-chip.unread{border-color:#FED7AA;background:#FFF7ED;}
+.nb-card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border-light);}
+.nb-meta-item{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);}
+.nb-card-actions{display:flex;gap:4px;}
+.nb-act-btn{width:28px;height:28px;border-radius:var(--r-sm);border:1px solid var(--border-light);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:0.18s;}
+.nb-act-btn:hover{background:var(--accent-light);border-color:var(--accent);}
+.nb-card-accent{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:var(--r-lg) 0 0 var(--r-lg);}
+.nb-card-accent.published{background:var(--green);}
+.nb-card-accent.draft{background:var(--amber);}
+.nb-card-accent.recalled{background:#9CA3AF;}
+.nb-card-accent.scheduled{background:var(--purple);}
+
+/* 빈 상태 */
+.empty-state{text-align:center;padding:60px 24px;color:var(--text-muted);background:var(--bg-surface);border-radius:var(--r-lg);border:1px solid var(--border-light);}
+.empty-state-icon{font-size:44px;margin-bottom:12px;}
+.empty-state-text{font-size:15px;font-weight:700;color:var(--text-secondary);}
+.empty-state-sub{font-size:13px;margin-top:6px;}
+
+/* ── OVERLAY ── */
+.panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:300;opacity:0;pointer-events:none;transition:opacity 0.25s;}
+.panel-overlay.show{opacity:1;pointer-events:all;}
+
+/* ── 상세 뷰어 패널 (600px) ── */
+.view-panel{position:fixed;right:0;top:0;height:100vh;width:600px;background:#fff;z-index:400;box-shadow:-8px 0 32px rgba(12,45,72,0.12);display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.3s cubic-bezier(.4,0,.2,1);}
+.view-panel.show{transform:translateX(0);}
+
+/* ── 작성 패널 (860px) ── */
+.write-panel{position:fixed;right:0;top:0;height:100vh;width:860px;background:#fff;z-index:400;box-shadow:-8px 0 32px rgba(12,45,72,0.12);display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.3s cubic-bezier(.4,0,.2,1);}
+.write-panel.show{transform:translateX(0);}
+
+/* 공통 패널 헤더 */
+.panel-header{height:60px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border-light);flex-shrink:0;}
+.panel-title{font-size:16px;font-weight:800;display:flex;align-items:center;gap:8px;}
+.panel-title-sub{font-size:12px;color:var(--text-secondary);font-weight:500;margin-left:4px;}
+.panel-header-actions{display:flex;align-items:center;gap:8px;}
+.panel-close{width:32px;height:32px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--bg-base);border:1px solid var(--border-light);font-size:16px;transition:0.18s;color:var(--text-secondary);}
+.panel-close:hover{background:var(--red-bg);border-color:#FECACA;color:var(--red);}
+
+/* 뷰어 내부 */
+.panel-body{flex:1;overflow-y:auto;padding:0;}
+.panel-body::-webkit-scrollbar{width:4px;}
+.panel-body::-webkit-scrollbar-thumb{background:var(--border-medium);border-radius:2px;}
+.panel-footer{padding:14px 20px;border-top:1px solid var(--border-light);flex-shrink:0;display:flex;gap:8px;justify-content:flex-end;background:#FAFCFF;}
+
+/* 뷰어 — 날짜·날씨 헤더 */
+.view-date-bar{padding:16px 20px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#F0F7FF,#E0F2FE);}
+.view-date-big{font-size:18px;font-weight:800;color:var(--text-primary);}
+.view-meta-row{display:flex;align-items:center;gap:12px;margin-top:4px;font-size:12px;color:var(--text-secondary);}
+.view-weather-icon{font-size:22px;}
+.view-teacher-chip{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.8);padding:4px 10px;border-radius:10px;border:1px solid var(--border-light);}
+
+/* 뷰어 — 공통 본문 */
+.view-section{padding:16px 20px;border-bottom:1px solid var(--border-light);}
+.view-section-title{font-size:11px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.view-section-title::after{content:'';flex:1;height:1px;background:var(--border-light);}
+.view-content-text{font-size:13.5px;line-height:1.8;color:var(--text-primary);}
+
+/* 뷰어 — 원아 탭 */
+.child-tabs{display:flex;overflow-x:auto;border-bottom:1px solid var(--border-light);flex-shrink:0;padding:0 20px;gap:2px;}
+.child-tabs::-webkit-scrollbar{height:3px;}
+.child-tabs::-webkit-scrollbar-thumb{background:var(--border-medium);border-radius:2px;}
+.child-tab{display:flex;align-items:center;gap:6px;padding:10px 14px;font-size:12px;font-weight:600;color:var(--text-secondary);cursor:pointer;border-bottom:2.5px solid transparent;white-space:nowrap;transition:0.18s;flex-shrink:0;}
+.child-tab:hover{color:var(--accent-dark);}
+.child-tab.active{color:var(--accent-dark);border-bottom-color:var(--accent);}
+.child-tab-dot{width:8px;height:8px;border-radius:50%;}
+.child-tab-unread{width:7px;height:7px;border-radius:50%;background:var(--red);flex-shrink:0;}
+
+/* 뷰어 — 체크필드 그리드 */
+.check-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.check-item{background:var(--bg-base);border:1px solid var(--border-light);border-radius:var(--r-md);padding:10px 12px;display:flex;flex-direction:column;gap:3px;}
+.check-item-label{font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;}
+.check-item-value{font-size:13px;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:5px;}
+
+/* 식사 행 */
+.meal-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px;}
+.meal-cell{background:var(--bg-base);border:1px solid var(--border-light);border-radius:var(--r-md);padding:8px 10px;text-align:center;}
+.meal-cell-label{font-size:10px;color:var(--text-muted);font-weight:600;margin-bottom:4px;}
+.meal-cell-value{font-size:12px;font-weight:700;color:var(--text-primary);}
+
+/* 활동 태그 */
+.activity-tags{display:flex;flex-wrap:wrap;gap:5px;}
+.act-tag{padding:3px 9px;border-radius:10px;font-size:11px;font-weight:600;background:var(--accent-light);color:var(--accent-dark);border:1px solid var(--border-medium);}
+.act-tag.outdoor{background:var(--green-bg);color:var(--green-text);border-color:#A7F3D0;}
+
+/* 사진 그리드 */
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.photo-thumb{aspect-ratio:1;border-radius:var(--r-md);overflow:hidden;cursor:pointer;background:var(--bg-base);border:1px solid var(--border-light);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--text-muted);}
+.photo-thumb img{width:100%;height:100%;object-fit:cover;}
+
+/* 댓글 */
+.comment-area{padding:16px 20px;}
+.comment-list{display:flex;flex-direction:column;gap:12px;margin-bottom:14px;}
+.comment-item{display:flex;align-items:flex-start;gap:10px;}
+.comment-item.reply{margin-left:36px;}
+.comment-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0;}
+.comment-bubble{flex:1;background:var(--bg-base);border:1px solid var(--border-light);border-radius:0 var(--r-md) var(--r-md) var(--r-md);padding:9px 12px;}
+.comment-bubble.teacher{background:#EFF6FF;border-color:#BFDBFE;}
+.comment-meta{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.comment-author{font-size:12px;font-weight:700;color:var(--text-primary);}
+.comment-role{font-size:10px;font-weight:700;padding:1px 6px;border-radius:6px;}
+.comment-role.teacher{background:var(--blue-bg);color:var(--blue-text);}
+.comment-role.parent{background:var(--green-bg);color:var(--green-text);}
+.comment-time{font-size:10px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;margin-left:auto;}
+.comment-text{font-size:13px;color:var(--text-primary);line-height:1.6;}
+.comment-actions{display:flex;gap:8px;margin-top:4px;}
+.comment-act{font-size:11px;color:var(--text-muted);cursor:pointer;background:none;border:none;font-family:'Pretendard',sans-serif;padding:0;}
+.comment-act:hover{color:var(--accent-dark);}
+.comment-reply-btn{font-size:11px;color:var(--accent-dark);cursor:pointer;font-weight:600;background:none;border:none;font-family:'Pretendard',sans-serif;padding:0;margin-top:4px;}
+.comment-input-wrap{display:flex;gap:8px;align-items:flex-end;}
+.comment-input{flex:1;border:1.5px solid var(--border-light);border-radius:var(--r-md);padding:9px 12px;font-size:13px;font-family:'Pretendard',sans-serif;resize:none;outline:none;transition:border-color 0.18s;min-height:40px;max-height:100px;}
+.comment-input:focus{border-color:var(--accent);}
+.comment-send-btn{height:40px;padding:0 14px;background:var(--accent);color:#fff;border:none;border-radius:var(--r-md);font-size:13px;font-weight:700;font-family:'Pretendard',sans-serif;cursor:pointer;flex-shrink:0;transition:0.18s;}
+.comment-send-btn:hover{background:var(--accent-dark);}
+
+/* ── 작성 패널 내부 ── */
+.write-body{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
+.write-body::-webkit-scrollbar{width:4px;}
+.write-body::-webkit-scrollbar-thumb{background:var(--border-medium);border-radius:2px;}
+
+/* 작성 — 기본설정 섹션 */
+.write-section{padding:18px 24px;border-bottom:1px solid var(--border-light);}
+.write-section-title{font-size:12px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.write-section-title .ws-icon{font-size:15px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px;}
+.form-row.col3{grid-template-columns:1fr 1fr 1fr;}
+.form-row.full{grid-template-columns:1fr;margin-bottom:0;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-label{font-size:12px;font-weight:700;color:var(--text-secondary);display:flex;align-items:center;gap:4px;}
+.form-label .req{color:var(--red);font-size:10px;}
+.form-input,.form-select{height:38px;padding:0 12px;border:1.5px solid var(--border-light);border-radius:var(--r-md);font-size:13px;font-family:'Pretendard',sans-serif;color:var(--text-primary);transition:border-color 0.18s;outline:none;background:#fff;}
+.form-input:focus,.form-select:focus{border-color:var(--accent);}
+.form-textarea{padding:10px 12px;border:1.5px solid var(--border-light);border-radius:var(--r-md);font-size:13px;font-family:'Pretendard',sans-serif;color:var(--text-primary);transition:border-color 0.18s;outline:none;resize:vertical;min-height:100px;background:#fff;line-height:1.7;}
+.form-textarea:focus{border-color:var(--accent);}
+
+/* AI 버튼 */
+.ai-toolbar{display:flex;gap:6px;margin-top:6px;}
+.ai-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:var(--r-md);font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:'Pretendard',sans-serif;transition:0.18s;}
+.ai-btn.generate{background:linear-gradient(135deg,#6366F1,#8B5CF6);color:#fff;}
+.ai-btn.generate:hover{background:linear-gradient(135deg,#4F46E5,#7C3AED);}
+.ai-btn.polish{background:linear-gradient(135deg,#0EA5E9,#38BDF8);color:#fff;}
+.ai-btn.polish:hover{background:linear-gradient(135deg,#0284C7,#0EA5E9);}
+.ai-btn.template{background:#fff;color:var(--text-primary);border:1.5px solid var(--border-medium);}
+.ai-btn.template:hover{border-color:var(--accent);color:var(--accent-dark);}
+
+/* 원아 선택 체크 */
+.child-select-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.child-select-card{border:2px solid var(--border-light);border-radius:var(--r-md);padding:10px;cursor:pointer;transition:0.18s;text-align:center;}
+.child-select-card:hover{border-color:var(--accent);background:var(--accent-light);}
+.child-select-card.selected{border-color:var(--accent);background:var(--accent-light);}
+.child-select-card.selected .csc-name{color:var(--accent-dark);}
+.csc-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;margin:0 auto 6px;}
+.csc-name{font-size:12px;font-weight:700;color:var(--text-primary);}
+.csc-check{width:16px;height:16px;border-radius:50%;border:2px solid var(--border-medium);margin:4px auto 0;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;}
+.child-select-card.selected .csc-check{background:var(--accent);border-color:var(--accent);}
+
+/* 원아별 카드 입력 그리드 */
+.write-child-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px;padding:18px 24px;}
+.write-child-card{border:1.5px solid var(--border-light);border-radius:var(--r-lg);overflow:hidden;}
+.wcc-header{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--bg-base);border-bottom:1px solid var(--border-light);}
+.wcc-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;}
+.wcc-name{font-size:14px;font-weight:800;color:var(--text-primary);}
+.wcc-body{padding:12px 14px;display:flex;flex-direction:column;gap:10px;}
+
+/* 체크 버튼 그룹 */
+.check-btn-group{display:flex;flex-wrap:wrap;gap:5px;}
+.check-btn{padding:4px 10px;border-radius:8px;border:1.5px solid var(--border-light);background:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif;transition:0.18s;color:var(--text-secondary);}
+.check-btn:hover{border-color:var(--accent);color:var(--accent-dark);}
+.check-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.check-btn.active.green{background:var(--green);border-color:var(--green);}
+.check-btn.active.red{background:var(--red);border-color:var(--red);}
+.check-btn.active.amber{background:var(--amber);border-color:var(--amber);}
+.wcc-field-label{font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:4px;}
+
+/* 낮잠 시간 입력 */
+.nap-time-row{display:flex;align-items:center;gap:6px;margin-top:6px;}
+.nap-time-input{width:80px;height:30px;padding:0 8px;border:1.5px solid var(--border-light);border-radius:var(--r-sm);font-size:12px;font-family:'Pretendard',sans-serif;outline:none;}
+.nap-time-input:focus{border-color:var(--accent);}
+.nap-time-sep{font-size:12px;color:var(--text-muted);}
+
+/* 활동 태그 선택 */
+.tag-select-wrap{display:flex;flex-wrap:wrap;gap:4px;}
+.tag-btn{padding:3px 9px;border-radius:8px;border:1.5px solid var(--border-light);background:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif;transition:0.18s;color:var(--text-secondary);}
+.tag-btn:hover{border-color:var(--accent);}
+.tag-btn.active{background:var(--accent-light);color:var(--accent-dark);border-color:var(--accent);}
+.tag-btn.active.outdoor{background:var(--green-bg);color:var(--green-text);border-color:#A7F3D0;}
+
+/* 날씨 선택 버튼 */
+.weather-btn-group{display:flex;gap:6px;flex-wrap:wrap;}
+.weather-btn{padding:5px 12px;border-radius:var(--r-md);border:1.5px solid var(--border-light);background:#fff;font-size:12px;cursor:pointer;font-family:'Pretendard',sans-serif;transition:0.18s;display:flex;align-items:center;gap:4px;}
+.weather-btn:hover{border-color:var(--accent);}
+.weather-btn.active{border-color:var(--accent);background:var(--accent-light);}
+
+/* AI 예문 모달 */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:600;display:none;align-items:center;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal-box{background:#fff;border-radius:var(--r-xl);width:580px;max-width:94vw;max-height:80vh;display:flex;flex-direction:column;box-shadow:var(--shadow-lg);animation:modalIn 0.22s ease;}
+@keyframes modalIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
+.modal-header{padding:18px 22px 14px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.modal-title{font-size:16px;font-weight:800;}
+.modal-close{width:30px;height:30px;border-radius:var(--r-sm);border:1px solid var(--border-light);background:var(--bg-base);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--text-secondary);}
+.modal-close:hover{background:var(--red-bg);color:var(--red);border-color:#FECACA;}
+.modal-body{flex:1;overflow-y:auto;padding:18px 22px;}
+.modal-footer{padding:12px 22px;border-top:1px solid var(--border-light);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0;}
+
+/* 예문 카드 */
+.template-list{display:flex;flex-direction:column;gap:8px;}
+.template-card{border:1.5px solid var(--border-light);border-radius:var(--r-md);padding:12px 14px;cursor:pointer;transition:0.18s;}
+.template-card:hover{border-color:var(--accent);background:var(--accent-light);}
+.template-card-title{font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:4px;display:flex;align-items:center;gap:6px;}
+.template-card-preview{font-size:12px;color:var(--text-secondary);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.template-card-meta{display:flex;align-items:center;gap:8px;margin-top:6px;}
+.template-tag{font-size:10px;font-weight:700;padding:1px 7px;border-radius:8px;background:var(--bg-base);border:1px solid var(--border-light);color:var(--text-secondary);}
+.template-tag.ai{background:var(--purple-bg);color:var(--purple-text);border-color:#C4B5FD;}
+.template-use-cnt{font-size:10px;color:var(--text-muted);margin-left:auto;}
+
+/* AI 로딩 */
+.ai-loading{display:none;align-items:center;justify-content:center;gap:10px;padding:20px;font-size:13px;color:var(--text-secondary);}
+.ai-loading.show{display:flex;}
+.ai-spinner{width:20px;height:20px;border:2.5px solid var(--border-light);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── 보기 모드 토글 ── */
+.view-toggle{display:flex;gap:3px;background:var(--bg-base);border:1.5px solid var(--border-light);border-radius:var(--r-md);padding:3px;}
+.view-toggle-btn{height:30px;padding:0 14px;border-radius:7px;border:none;font-size:12px;font-weight:600;font-family:'Pretendard',sans-serif;cursor:pointer;transition:0.18s;color:var(--text-secondary);background:transparent;white-space:nowrap;}
+.view-toggle-btn.active{background:#fff;color:var(--accent-dark);box-shadow:var(--shadow-sm);}
+.view-toggle-btn:not(.active):hover{color:var(--accent-dark);}
+
+/* ── 원아별 보기 카드 그리드 ── */
+.cv-child-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+.cv-child-card{border-radius:var(--r-lg);padding:14px 12px 12px;cursor:pointer;transition:all 0.2s;text-align:center;position:relative;}
+.cv-child-card.written{background:var(--bg-surface);border:1.5px solid var(--border-light);box-shadow:var(--shadow-sm);}
+.cv-child-card.written:hover{border-color:var(--accent);box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.cv-child-card.written.has-draft{border-color:var(--amber);background:#FFFBEB;}
+.cv-child-card.not-written{background:var(--bg-base);border:2px dashed var(--border-medium);}
+.cv-child-card.not-written:hover{border-color:var(--accent);background:var(--accent-light);}
+.cv-child-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;margin:0 auto 8px;flex-shrink:0;}
+.cv-child-name{font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:5px;}
+.cv-status-chip{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;}
+.cv-status-chip.done{background:var(--green-bg);color:var(--green-text);}
+.cv-status-chip.draft{background:var(--amber-bg);color:var(--amber-text);}
+.cv-status-chip.none{background:#F3F4F6;color:#6B7280;}
+.cv-unread-badge{position:absolute;top:8px;right:8px;min-width:20px;height:20px;border-radius:10px;background:var(--red);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 5px;animation:badgePulse 1.8s ease-in-out infinite;}
+.cv-comment-count{font-size:10px;color:var(--text-muted);margin-top:4px;}
+.cv-unread-row{font-size:10px;color:var(--red-text);background:var(--red-bg);padding:2px 7px;border-radius:6px;margin-top:4px;display:inline-block;}
+@keyframes badgePulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.35)}60%{box-shadow:0 0 0 5px rgba(239,68,68,0)}}
+
+/* ── 댓글 뱃지 버튼 (카드 footer) ── */
+.comment-badge-btn{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;border:none;font-family:'Pretendard',sans-serif;transition:0.18s;line-height:1;}
+.comment-badge-btn.has-unread{background:var(--red-bg);color:var(--red-text);border:1px solid #FECACA;}
+.comment-badge-btn.has-unread:hover{background:var(--red);color:#fff;}
+.comment-badge-btn.read-only{background:var(--bg-base);color:var(--text-muted);border:1px solid var(--border-light);}
+.comment-badge-btn.read-only:hover{background:var(--accent-light);color:var(--accent-dark);border-color:var(--accent);}
+.comment-badge-btn.no-comment{background:transparent;color:var(--text-muted);border:1px solid var(--border-light);cursor:default;opacity:0.6;}
+.unread-pip{width:6px;height:6px;border-radius:50%;background:var(--red);flex-shrink:0;}
+
+/* ── 원아 칩 (알림장 카드) ── */
+.child-chip-unread-cnt{background:var(--red);color:#fff;font-size:9px;font-weight:800;padding:1px 5px;border-radius:6px;line-height:1.4;}
+
+/* TOAST */
+.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:700;display:flex;flex-direction:column;gap:8px;}
+.toast{background:#1A1D2E;color:#fff;padding:10px 16px;border-radius:var(--r-md);font-size:13px;box-shadow:var(--shadow-lg);animation:toastIn 0.25s ease;display:flex;align-items:center;gap:8px;}
+.toast.success{background:var(--green);}
+.toast.error{background:var(--red);}
+.toast.ai{background:linear-gradient(135deg,#6366F1,#8B5CF6);}
+@keyframes toastIn{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:translateX(0)}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside id="appSidebar"></aside>
+
+<!-- MAIN -->
+<div class="main-wrap">
+  <header class="topbar">
+    <div class="breadcrumb">
+      <span>🏠</span><span class="bc-sep">›</span>
+      <span id="breadcrumbOrg">운영관리</span><span class="bc-sep">›</span>
+      <span class="cur">알림장</span>
+    </div>
+    <div class="class-filter-wrap">
+      <span class="class-filter-label">📌 반 선택</span>
+      <div class="class-filter-divider"></div>
+      <div class="class-select-wrap">
+        <select class="class-select" id="classFilterSelect" onchange="applyFilters()"></select>
+        <span class="class-select-arrow">▼</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-date" id="topDate"></span>
+      <div class="icon-btn notif-dot" title="알림">🔔</div>
+      <div class="icon-btn" title="설정">⚙️</div>
+    </div>
+  </header>
+
+  <div class="content">
+    <div class="page-header">
+      <div>
+        <div class="page-title">📋 알림장</div>
+        <div class="page-sub" id="pageSubText">원아의 하루 생활을 기록하고 학부모에게 전달합니다.</div>
+      </div>
+    </div>
+
+    <!-- KPI -->
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <!-- 필터 바 -->
+    <div class="filter-bar">
+      <div class="filter-group">
+        <span class="filter-label">기간</span>
+        <input class="filter-input" type="date" id="filterDateFrom" style="width:130px" onchange="applyFilters()">
+        <span style="font-size:12px;color:var(--text-muted)">~</span>
+        <input class="filter-input" type="date" id="filterDateTo" style="width:130px" onchange="applyFilters()">
+      </div>
+      <div class="filter-divider"></div>
+      <div class="filter-group">
+        <span class="filter-label">상태</span>
+        <select class="filter-select" id="filterStatus" onchange="applyFilters()">
+          <option value="">전체</option>
+          <option value="published">발행됨</option>
+          <option value="draft">임시저장</option>
+          <option value="scheduled">예약발행</option>
+          <option value="recalled">회수됨</option>
+        </select>
+      </div>
+      <div class="filter-divider"></div>
+      <div class="filter-group">
+        <span class="filter-label">원아</span>
+        <input class="filter-input" id="filterChild" placeholder="원아 이름" oninput="applyFilters()" style="width:120px">
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="resetFilters()" style="margin-left:auto">초기화</button>
+    </div>
+
+    <!-- 액션 바 -->
+    <div class="action-bar">
+      <div style="font-size:13px;color:var(--text-secondary)">총 <strong id="totalCount">0</strong>건</div>
+      <div class="view-toggle" id="viewToggle">
+        <button class="view-toggle-btn active" id="vtBtn-notice" onclick="setViewMode('notice')">📋 알림장 기준</button>
+        <button class="view-toggle-btn" id="vtBtn-child" onclick="setViewMode('child')">🧒 원아별 보기</button>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline" onclick="showToast('엑셀 내보내기 기능은 준비 중입니다.')">📊 내보내기</button>
+        <button class="btn btn-primary" onclick="openWritePanel()">✏️ 알림장 작성</button>
+      </div>
+    </div>
+
+    <!-- 목록 -->
+    <div id="nbList"></div>
+  </div>
+</div>
+
+<!-- ── 상세 뷰어 패널 ── -->
+<div class="panel-overlay" id="panelOverlay" onclick="closePanels()"></div>
+
+<div class="view-panel" id="viewPanel">
+  <div class="panel-header">
+    <div class="panel-title">📋 알림장 상세<span class="panel-title-sub" id="viewPanelSub"></span></div>
+    <div class="panel-header-actions">
+      <button class="btn btn-outline btn-sm" id="viewEditBtn" onclick="openWritePanelFromView()">✏️ 수정</button>
+      <div class="panel-close" onclick="closeViewPanel()">✕</div>
+    </div>
+  </div>
+  <div class="panel-body" id="viewPanelBody"></div>
+</div>
+
+<!-- ── 작성 패널 ── -->
+<div class="write-panel" id="writePanel">
+  <div class="panel-header">
+    <div class="panel-title" id="writePanelTitle">✏️ 알림장 작성</div>
+    <div class="panel-header-actions">
+      <button class="btn btn-outline btn-sm" onclick="saveDraft()">임시저장</button>
+      <div class="panel-close" onclick="closeWritePanel()">✕</div>
+    </div>
+  </div>
+  <div class="write-body" id="writePanelBody"></div>
+  <div class="panel-footer">
+    <button class="btn btn-outline" onclick="closeWritePanel()">취소</button>
+    <button class="btn btn-outline" onclick="openScheduleModal()">🕐 예약 발행</button>
+    <button class="btn btn-primary" onclick="submitPublish()">📤 발행하기</button>
+  </div>
+</div>
+
+<!-- ── 예문 라이브러리 모달 ── -->
+<div class="modal-overlay" id="templateModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">📚 예문 라이브러리</div>
+      <div class="modal-close" onclick="closeTemplateModal()">✕</div>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+        <select class="filter-select" id="tmplCategoryFilter" style="height:32px;font-size:12px" onchange="renderTemplateList()">
+          <option value="">전체 카테고리</option>
+          <option value="본문">본문</option>
+          <option value="활동">활동</option>
+          <option value="식사">식사</option>
+          <option value="낮잠">낮잠</option>
+          <option value="건강">건강</option>
+          <option value="기타">기타</option>
+        </select>
+        <input class="filter-input" id="tmplSearch" placeholder="예문 검색" oninput="renderTemplateList()" style="height:32px;font-size:12px;flex:1;min-width:120px">
+        <button class="btn btn-primary btn-sm" onclick="openNewTemplateForm()">+ 예문 추가</button>
+      </div>
+      <div class="ai-loading" id="tmplAiLoading"><div class="ai-spinner"></div>AI가 예문을 생성하고 있습니다...</div>
+      <div class="template-list" id="templateList"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeTemplateModal()">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 예약 발행 모달 ── -->
+<div class="modal-overlay" id="scheduleModal">
+  <div class="modal-box" style="width:420px">
+    <div class="modal-header">
+      <div class="modal-title">🕐 발행 예약 설정</div>
+      <div class="modal-close" onclick="closeScheduleModal()">✕</div>
+    </div>
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">예약 날짜 <span class="req" style="color:var(--red)">*</span></label>
+        <input class="form-input" type="date" id="scheduleDate">
+      </div>
+      <div class="form-group">
+        <label class="form-label">예약 시간 <span class="req" style="color:var(--red)">*</span></label>
+        <input class="form-input" type="time" id="scheduleTime">
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px">※ 예약 발행 목록은 추후 별도 메뉴에서 관리할 수 있습니다.</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeScheduleModal()">취소</button>
+      <button class="btn btn-primary" onclick="submitSchedule()">예약 저장</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// 세션 & 역할 초기화
+// ═══════════════════════════════════════════════
+const userRole       = sessionStorage.getItem('userRole')    || 'org_admin';
+const opContext      = JSON.parse(sessionStorage.getItem('operationContext') || 'null');
+const currentOrgName = opContext?.orgName ?? sessionStorage.getItem('orgName') ?? '해맑은 어린이집';
+
+const assignedClasses = userRole === 'teacher'
+  ? JSON.parse(sessionStorage.getItem('assignedClasses') || '[{"id":"CLS001","name":"햇님반"},{"id":"CLS003","name":"별빛반"}]')
+  : null;
+
+// ═══════════════════════════════════════════════
+// 목업 데이터
+// ═══════════════════════════════════════════════
+const ALL_CLASSES = [
+  { id:'CLS001', name:'🌸 햇님반',   age:'만3세', teacher:'이하늘',  teacherColor:'#4361EE' },
+  { id:'CLS002', name:'🌿 새싹반',   age:'만4세', teacher:'박민지',  teacherColor:'#10B981' },
+  { id:'CLS003', name:'⭐ 별빛반',   age:'만5세', teacher:'최서연',  teacherColor:'#F59E0B' },
+  { id:'CLS004', name:'🌈 무지개반', age:'만2세', teacher:'김보라',  teacherColor:'#EC4899' },
+  { id:'CLS005', name:'🦋 나비반',   age:'만1세', teacher:'정다온',  teacherColor:'#8B5CF6' },
+];
+
+const MOCK_CHILDREN_MAP = {
+  CLS001: [
+    { id:'CHD001', name:'김도현', color:'#4361EE', gender:'남' },
+    { id:'CHD002', name:'박서연', color:'#EC4899', gender:'여' },
+    { id:'CHD005', name:'최민서', color:'#8B5CF6', gender:'여' },
+  ],
+  CLS002: [
+    { id:'CHD003', name:'이채원', color:'#F59E0B', gender:'여' },
+    { id:'CHD006', name:'정하은', color:'#EF4444', gender:'여' },
+  ],
+  CLS003: [
+    { id:'CHD004', name:'최민준', color:'#10B981', gender:'남' },
+    { id:'CHD008', name:'오하린', color:'#FB923C', gender:'여' },
+  ],
+  CLS004: [
+    { id:'CHD007', name:'강지우', color:'#14B8A6', gender:'남' },
+  ],
+  CLS005: [
+    { id:'CHD009', name:'윤서아', color:'#6366F1', gender:'여' },
+    { id:'CHD010', name:'장민호', color:'#D97706', gender:'남' },
+  ],
+};
+
+const MOCK_NOTICES = [
+  {
+    id:'NB001', class_id:'CLS001', class_name:'햇님반',
+    teacher_id:'T001', teacher_name:'이하늘', teacher_color:'#4361EE',
+    date:'2026-03-20', status:'published', status_label:'발행됨',
+    title:null, content:'오늘은 따뜻한 봄 날씨 속에 아이들과 텃밭 관찰 활동을 즐겼습니다. 상추와 방울토마토가 잘 자라고 있어요.',
+    weather:'맑음', temperature:'16°C / 8°C',
+    child_count:3, read_count:2, comment_count:4, photo_count:3,
+    has_ai:true, published_at:'2026-03-20T16:30:00', is_scheduled:false,
+    children:[
+      { id:'CHD001', name:'김도현', color:'#4361EE', is_read:true,  comment_count:2, unread_comment_count:1 },
+      { id:'CHD002', name:'박서연', color:'#EC4899', is_read:true,  comment_count:1, unread_comment_count:0 },
+      { id:'CHD005', name:'최민서', color:'#8B5CF6', is_read:false, comment_count:1, unread_comment_count:1 },
+    ]
+  },
+  {
+    id:'NB002', class_id:'CLS002', class_name:'새싹반',
+    teacher_id:'T002', teacher_name:'박민지', teacher_color:'#10B981',
+    date:'2026-03-20', status:'published', status_label:'발행됨',
+    title:null, content:'오늘은 봄 주제로 꽃 만들기 미술 활동을 했습니다. 아이들이 색종이를 접어 예쁜 꽃을 완성했어요.',
+    weather:'맑음', temperature:'16°C / 8°C',
+    child_count:2, read_count:1, comment_count:1, photo_count:2,
+    has_ai:false, published_at:'2026-03-20T17:00:00', is_scheduled:false,
+    children:[
+      { id:'CHD003', name:'이채원', color:'#F59E0B', is_read:true,  comment_count:1, unread_comment_count:0 },
+      { id:'CHD006', name:'정하은', color:'#EF4444', is_read:false, comment_count:0, unread_comment_count:0 },
+    ]
+  },
+  {
+    id:'NB003', class_id:'CLS001', class_name:'햇님반',
+    teacher_id:'T001', teacher_name:'이하늘', teacher_color:'#4361EE',
+    date:'2026-03-19', status:'published', status_label:'발행됨',
+    title:null, content:'오늘은 체육 수업으로 공굴리기와 훌라후프 활동을 했습니다. 아이들이 매우 활발하게 참여해 즐거운 시간이었어요.',
+    weather:'구름조금', temperature:'14°C / 6°C',
+    child_count:3, read_count:3, comment_count:2, photo_count:1,
+    has_ai:false, published_at:'2026-03-19T16:00:00', is_scheduled:false,
+    children:[
+      { id:'CHD001', name:'김도현', color:'#4361EE', is_read:true, comment_count:1, unread_comment_count:0 },
+      { id:'CHD002', name:'박서연', color:'#EC4899', is_read:true, comment_count:1, unread_comment_count:0 },
+      { id:'CHD005', name:'최민서', color:'#8B5CF6', is_read:true, comment_count:0, unread_comment_count:0 },
+    ]
+  },
+  {
+    id:'NB004', class_id:'CLS003', class_name:'별빛반',
+    teacher_id:'T003', teacher_name:'최서연', teacher_color:'#F59E0B',
+    date:'2026-03-19', status:'draft', status_label:'임시저장',
+    title:'3월 19일 별빛반 알림장', content:'오늘 활동 내용을 작성 중입니다...',
+    weather:'흐림', temperature:'13°C / 5°C',
+    child_count:2, read_count:0, comment_count:0, photo_count:0,
+    has_ai:false, published_at:null, is_scheduled:false,
+    children:[
+      { id:'CHD004', name:'최민준', color:'#10B981', is_read:false, comment_count:0, unread_comment_count:0 },
+      { id:'CHD008', name:'오하린', color:'#FB923C', is_read:false, comment_count:0, unread_comment_count:0 },
+    ]
+  },
+  {
+    id:'NB005', class_id:'CLS002', class_name:'새싹반',
+    teacher_id:'T002', teacher_name:'박민지', teacher_color:'#10B981',
+    date:'2026-03-18', status:'published', status_label:'발행됨',
+    title:null, content:'오늘은 영어 수업이 있었고, 동물 이름을 배웠습니다. 아이들이 카드 게임으로 단어를 익혔어요.',
+    weather:'맑음', temperature:'15°C / 7°C',
+    child_count:2, read_count:2, comment_count:0, photo_count:0,
+    has_ai:false, published_at:'2026-03-18T16:30:00', is_scheduled:false,
+    children:[
+      { id:'CHD003', name:'이채원', color:'#F59E0B', is_read:true, comment_count:0, unread_comment_count:0 },
+      { id:'CHD006', name:'정하은', color:'#EF4444', is_read:true, comment_count:0, unread_comment_count:0 },
+    ]
+  },
+  {
+    id:'NB006', class_id:'CLS001', class_name:'햇님반',
+    teacher_id:'T001', teacher_name:'이하늘', teacher_color:'#4361EE',
+    date:'2026-03-21', status:'scheduled', status_label:'예약발행',
+    title:null, content:'내일 있을 봄 소풍에 대한 안내와 함께 준비물을 안내드립니다.',
+    weather:'맑음', temperature:'18°C / 9°C',
+    child_count:3, read_count:0, comment_count:0, photo_count:0,
+    has_ai:false, published_at:null, scheduled_at:'2026-03-21T08:00:00', is_scheduled:true,
+    children:[
+      { id:'CHD001', name:'김도현', color:'#4361EE', is_read:false, comment_count:0, unread_comment_count:0 },
+      { id:'CHD002', name:'박서연', color:'#EC4899', is_read:false, comment_count:0, unread_comment_count:0 },
+      { id:'CHD005', name:'최민서', color:'#8B5CF6', is_read:false, comment_count:0, unread_comment_count:0 },
+    ]
+  },
+];
+
+const MOCK_TEMPLATES = [
+  { id:'T01', category:'본문', title:'날씨 좋은 날 야외활동', content:'맑고 화창한 날씨 덕분에 아이들과 즐거운 야외활동을 즐겼습니다. 따뜻한 햇살 아래 아이들의 웃음소리가 가득했습니다.', tags:['봄','야외','활동'], is_ai_generated:false, use_count:24 },
+  { id:'T02', category:'활동', title:'블록 놀이 활동', content:'오늘은 다양한 블록을 활용하여 창의적인 구조물을 만들었습니다. 친구들과 협력하며 탑도 쌓고 집도 만들었어요.', tags:['실내','블록','협동'], is_ai_generated:false, use_count:18 },
+  { id:'T03', category:'식사', title:'점심 잘 먹었어요', content:'오늘 점심 식사는 잘 먹었습니다. 특히 좋아하는 반찬이 나와서 맛있게 먹었어요.', tags:['식사','점심'], is_ai_generated:false, use_count:31 },
+  { id:'T04', category:'낮잠', title:'낮잠 잘 잠', content:'점심 식사 후 낮잠 시간에 편안하게 잘 잤습니다. 기분 좋게 일어나 오후 활동에 활발하게 참여했어요.', tags:['낮잠','수면'], is_ai_generated:false, use_count:15 },
+  { id:'T05', category:'건강', title:'건강 양호', content:'오늘 건강 상태는 양호했습니다. 활발하게 활동하며 즐거운 하루를 보냈어요.', tags:['건강','양호'], is_ai_generated:false, use_count:42 },
+  { id:'T06', category:'본문', title:'AI 생성 - 봄 나들이', content:'따뜻한 봄바람을 맞으며 아이들과 함께 텃밭 관찰 활동을 즐겼습니다. 새싹들이 돋아나는 모습을 보며 자연의 신비로움을 느꼈고, 아이들의 호기심 가득한 눈빛이 참 예뻤습니다.', tags:['봄','나들이','자연'], is_ai_generated:true, use_count:8 },
+];
+
+const WEATHER_MAP = { '맑음':'☀️', '구름조금':'🌤️', '흐림':'☁️', '비':'🌧️', '눈':'❄️', '바람':'💨' };
+
+// ═══════════════════════════════════════════════
+// 상태
+// ═══════════════════════════════════════════════
+let filteredNotices = [...MOCK_NOTICES];
+let currentNotice   = null;
+let currentChildTab = 0;
+let writingNotice   = null; // 작성 중인 알림장 데이터
+let viewMode        = 'notice'; // 'notice' | 'child'
+
+// ═══════════════════════════════════════════════
+// 초기화
+// ═══════════════════════════════════════════════
+function init() {
+  document.getElementById('topDate').textContent =
+    new Date().toLocaleDateString('ko-KR',{ year:'numeric', month:'2-digit', day:'2-digit', weekday:'short' });
+
+  // 기간 필터 기본값: 최근 7일
+  const today = new Date();
+  const week  = new Date(today); week.setDate(today.getDate() - 6);
+  document.getElementById('filterDateTo').value   = fmtDate(today);
+  document.getElementById('filterDateFrom').value = fmtDate(week);
+
+  initClassFilter();
+  renderKPI();
+  applyFilters();
+}
+
+function fmtDate(d) {
+  return d.toISOString().slice(0,10);
+}
+
+// 사이드바 → operation-sidebar.js 에서 처리
+
+// ━━━ 반 필터 ━━━
+function initClassFilter() {
+  const sel = document.getElementById('classFilterSelect');
+  sel.innerHTML = '';
+
+  if (userRole !== 'teacher') {
+    const opt = document.createElement('option');
+    opt.value = ''; opt.textContent = '전체 반';
+    sel.appendChild(opt);
+  }
+
+  ALL_CLASSES.forEach(cls => {
+    const opt = document.createElement('option');
+    opt.value = cls.id;
+    opt.textContent = cls.name + ' (' + cls.age + ')';
+    if (userRole === 'teacher') {
+      const isAssigned = assignedClasses.some(a => a.id === cls.id);
+      if (!isAssigned) { opt.disabled = true; opt.className = 'disabled-opt'; opt.textContent += ' — 비담당'; }
+    }
+    sel.appendChild(opt);
+  });
+
+  if (userRole === 'teacher' && assignedClasses.length > 0) {
+    sel.value = assignedClasses[0].id;
+  }
+}
+
+// ━━━ KPI ━━━
+function renderKPI() {
+  const today = fmtDate(new Date());
+  const enrolledCount = Object.values(MOCK_CHILDREN_MAP).flat().length;
+  const todayPublished = MOCK_NOTICES.filter(n => n.date === today && n.status === 'published')
+    .reduce((sum, n) => sum + n.child_count, 0);
+  const notWritten = Math.max(0, enrolledCount - todayPublished);
+  const unreadComments = MOCK_NOTICES.reduce((sum, n) => sum + n.comment_count, 0);
+  const allPublished = MOCK_NOTICES.filter(n => n.status === 'published');
+  const totalChildren = allPublished.reduce((s, n) => s + n.child_count, 0);
+  const totalRead     = allPublished.reduce((s, n) => s + n.read_count, 0);
+  const readRate = totalChildren > 0 ? Math.round(totalRead / totalChildren * 100) : 0;
+
+  document.getElementById('kpiGrid').innerHTML = `
+    <div class="kpi-card">
+      <div class="kpi-ico sky">📝</div>
+      <div><div class="kpi-label">오늘 작성 완료</div><div class="kpi-value">${todayPublished}명</div><div class="kpi-sub">오늘 발행된 알림장 원아 수</div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-ico red">⚠️</div>
+      <div><div class="kpi-label">미작성</div><div class="kpi-value">${notWritten}명</div><div class="kpi-sub">오늘 알림장 미발행 원아</div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-ico amber">💬</div>
+      <div><div class="kpi-label">전체 댓글</div><div class="kpi-value">${unreadComments}건</div><div class="kpi-sub">전체 기간 댓글 수</div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-ico green">👁️</div>
+      <div><div class="kpi-label">평균 읽음률</div><div class="kpi-value">${readRate}%</div><div class="kpi-sub">발행 알림장 전체 기준</div></div>
+    </div>
+  `;
+}
+
+// ━━━ 필터 적용 ━━━
+function applyFilters() {
+  const classVal   = document.getElementById('classFilterSelect').value;
+  const dateFrom   = document.getElementById('filterDateFrom').value;
+  const dateTo     = document.getElementById('filterDateTo').value;
+  const status     = document.getElementById('filterStatus').value;
+  const childName  = document.getElementById('filterChild').value.trim();
+
+  let data = [...MOCK_NOTICES];
+
+  if (userRole === 'teacher') {
+    const ids = assignedClasses.map(a => a.id);
+    data = data.filter(n => ids.includes(n.class_id));
+  }
+  if (classVal)  data = data.filter(n => n.class_id === classVal);
+  if (dateFrom)  data = data.filter(n => n.date >= dateFrom);
+  if (dateTo)    data = data.filter(n => n.date <= dateTo);
+  if (status)    data = data.filter(n => n.status === status);
+  if (childName) data = data.filter(n => n.children.some(c => c.name.includes(childName)));
+
+  // 날짜 내림차순
+  data.sort((a, b) => b.date.localeCompare(a.date));
+
+  filteredNotices = data;
+  document.getElementById('totalCount').textContent = data.length;
+  renderList();
+}
+
+function resetFilters() {
+  const today = new Date();
+  const week  = new Date(today); week.setDate(today.getDate() - 6);
+  document.getElementById('filterDateFrom').value = fmtDate(week);
+  document.getElementById('filterDateTo').value   = fmtDate(today);
+  document.getElementById('filterStatus').value   = '';
+  document.getElementById('filterChild').value    = '';
+  applyFilters();
+}
+
+// ━━━ 보기 모드 전환 ━━━
+function setViewMode(mode) {
+  viewMode = mode;
+  document.getElementById('vtBtn-notice').classList.toggle('active', mode === 'notice');
+  document.getElementById('vtBtn-child').classList.toggle('active', mode === 'child');
+  renderList();
+}
+
+// ━━━ 목록 렌더링 ━━━
+function renderList() {
+  const container = document.getElementById('nbList');
+  if (filteredNotices.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">📋</div>
+        <div class="empty-state-text">알림장이 없습니다</div>
+        <div class="empty-state-sub">필터 조건을 변경하거나 새 알림장을 작성해보세요.</div>
+      </div>`;
+    return;
+  }
+
+  if (viewMode === 'child') {
+    renderChildView(container);
+    return;
+  }
+
+  // 알림장 기준 보기 — 날짜별 그룹핑
+  const groups = {};
+  filteredNotices.forEach(n => {
+    if (!groups[n.date]) groups[n.date] = [];
+    groups[n.date].push(n);
+  });
+
+  const days = ['일','월','화','수','목','금','토'];
+  let html = '';
+  Object.keys(groups).sort((a,b) => b.localeCompare(a)).forEach(date => {
+    const d = new Date(date + 'T00:00:00');
+    const dayLabel = `${date} (${days[d.getDay()]})`;
+    const items = groups[date];
+    const cardHtml = items.map(n => renderNBCard(n)).join('');
+    html += `
+      <div class="date-group">
+        <div class="date-group-header">
+          <div class="date-group-label">📅 ${dayLabel}</div>
+          <div class="date-group-meta">${items.length}건</div>
+          <div class="date-group-line"></div>
+        </div>
+        <div class="nb-cards">${cardHtml}</div>
+      </div>`;
+  });
+  container.innerHTML = html;
+}
+
+// ━━━ 원아별 보기 렌더링 ━━━
+function renderChildView(container) {
+  const groups = {};
+  filteredNotices.forEach(n => {
+    if (!groups[n.date]) groups[n.date] = [];
+    groups[n.date].push(n);
+  });
+
+  const days = ['일','월','화','수','목','금','토'];
+  let html = '';
+  Object.keys(groups).sort((a,b) => b.localeCompare(a)).forEach(date => {
+    const notices = groups[date];
+    const d = new Date(date + 'T00:00:00');
+    const dayLabel = `${date} (${days[d.getDay()]})`;
+    const totalChildren = notices.reduce((s, n) => s + (MOCK_CHILDREN_MAP[n.class_id] || []).length, 0);
+    const writtenChildren = notices.reduce((s, n) => s + n.children.length, 0);
+
+    let classHtml = '';
+    notices.forEach(notice => {
+      const allChildren = MOCK_CHILDREN_MAP[notice.class_id] || [];
+      const cards = allChildren.map(child => renderChildViewCard(child, notice, date)).join('');
+      classHtml += `
+        <div style="margin-bottom:16px">
+          <div style="font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;display:flex;align-items:center;gap:6px">
+            <span style="width:8px;height:8px;border-radius:50%;background:${notice.teacher_color};display:inline-block;flex-shrink:0"></span>
+            ${notice.class_name} · ${notice.teacher_name} 교사
+            <span style="margin-left:auto;font-size:11px;color:var(--text-muted);font-weight:500">${notice.children.length}/${allChildren.length}명 작성</span>
+          </div>
+          <div class="cv-child-cards">${cards}</div>
+        </div>`;
+    });
+
+    html += `
+      <div class="date-group">
+        <div class="date-group-header">
+          <div class="date-group-label">📅 ${dayLabel}</div>
+          <div class="date-group-meta">${writtenChildren}/${totalChildren}명 작성</div>
+          <div class="date-group-line"></div>
+        </div>
+        ${classHtml}
+      </div>`;
+  });
+  container.innerHTML = html;
+}
+
+function renderChildViewCard(child, notice, date) {
+  const childNotice = notice.children.find(c => c.id === child.id);
+
+  if (childNotice) {
+    const isDraft = notice.status === 'draft';
+    const statusClass = isDraft ? 'draft' : 'done';
+    const statusLabel = isDraft ? '임시저장' : '작성완료';
+    const unreadCnt = childNotice.unread_comment_count || 0;
+    const totalComments = childNotice.comment_count || 0;
+
+    let commentBtn = '';
+    if (totalComments > 0) {
+      const btnClass = unreadCnt > 0 ? 'has-unread' : 'read-only';
+      const btnLabel = unreadCnt > 0 ? `${unreadCnt}개 미읽음` : `${totalComments}개`;
+      commentBtn = `<button class="comment-badge-btn ${btnClass}" onclick="event.stopPropagation();openViewPanelAtComments('${notice.id}','${child.id}')">💬 ${btnLabel}</button>`;
+    }
+
+    return `
+      <div class="cv-child-card written${isDraft ? ' has-draft' : ''}" onclick="openViewPanel('${notice.id}','${child.id}')">
+        ${unreadCnt > 0 ? `<div class="cv-unread-badge">${unreadCnt}</div>` : ''}
+        <div class="cv-child-avatar" style="background:${child.color}">${child.name[0]}</div>
+        <div class="cv-child-name">${child.name}</div>
+        <span class="cv-status-chip ${statusClass}">${statusClass === 'done' ? '✓' : '✎'} ${statusLabel}</span>
+        <div style="margin-top:6px;min-height:22px">${commentBtn}</div>
+      </div>`;
+  } else {
+    return `
+      <div class="cv-child-card not-written" onclick="openWritePanelForChild('${child.id}','${notice.class_id}','${date}')">
+        <div class="cv-child-avatar" style="background:${child.color};opacity:0.5">${child.name[0]}</div>
+        <div class="cv-child-name">${child.name}</div>
+        <span class="cv-status-chip none">미작성</span>
+        <div style="margin-top:6px;min-height:22px;font-size:11px;color:var(--text-muted)">+ 작성하기</div>
+      </div>`;
+  }
+}
+
+function renderNBCard(n) {
+  const weatherIcon = WEATHER_MAP[n.weather] || '🌤️';
+
+  const totalUnread = n.children.reduce((sum, c) => sum + (c.unread_comment_count || 0), 0);
+  const childChips = n.children.map(c => {
+    const unreadCnt = c.unread_comment_count || 0;
+    return `<span class="child-chip ${c.is_read ? 'read' : 'unread'}" style="cursor:pointer" onclick="event.stopPropagation();openViewPanel('${n.id}','${c.id}')">
+      <span class="child-chip-dot" style="background:${c.color}"></span>${c.name}
+      ${unreadCnt > 0 ? `<span class="child-chip-unread-cnt">${unreadCnt}</span>` : c.comment_count > 0 ? `<span style="color:var(--accent-dark);font-weight:800;font-size:10px">💬${c.comment_count}</span>` : ''}
+    </span>`;
+  }).join('');
+
+  let commentBtn;
+  if (n.comment_count > 0) {
+    const btnClass = totalUnread > 0 ? 'has-unread' : 'read-only';
+    const btnLabel = totalUnread > 0 ? `<span class="unread-pip"></span>💬 ${totalUnread}개 미읽음` : `💬 ${n.comment_count}개`;
+    commentBtn = `<button class="comment-badge-btn ${btnClass}" onclick="event.stopPropagation();openViewPanelAtComments('${n.id}',null)">${btnLabel}</button>`;
+  } else {
+    commentBtn = `<span class="comment-badge-btn no-comment">💬 0</span>`;
+  }
+
+  const scheduledBadge = n.is_scheduled
+    ? `<span style="font-size:11px;color:var(--purple-text);background:var(--purple-bg);padding:1px 7px;border-radius:8px;font-weight:700">🕐 ${n.scheduled_at?.slice(11,16)} 예약</span>`
+    : '';
+
+  return `
+    <div class="nb-card" onclick="openViewPanel('${n.id}')">
+      <div class="nb-card-accent ${n.status}"></div>
+      <div class="nb-card-top">
+        <div class="nb-card-teacher">
+          <div class="teacher-avatar" style="background:${n.teacher_color}">${n.teacher_name[0]}</div>
+          <div>
+            <div class="teacher-name">${n.teacher_name} 교사</div>
+            <div class="teacher-class">${n.class_name}</div>
+          </div>
+        </div>
+        <span class="nb-status-badge ${n.status}">${n.status_label}</span>
+      </div>
+      ${scheduledBadge}
+      <div class="nb-card-weather">${weatherIcon} ${n.weather} · ${n.temperature}</div>
+      <div class="nb-card-content">${n.content}</div>
+      <div class="nb-children-row">${childChips}</div>
+      <div class="nb-card-footer">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span class="nb-meta-item">🧒 ${n.child_count}명</span>
+          <span class="nb-meta-item">👁️ ${n.read_count}/${n.child_count}</span>
+          ${commentBtn}
+          ${n.photo_count > 0 ? `<span class="nb-meta-item">🖼️ ${n.photo_count}</span>` : ''}
+          ${n.has_ai ? '<span class="nb-meta-item" style="color:var(--purple-text)">✨ AI</span>' : ''}
+        </div>
+        <div class="nb-card-actions">
+          <div class="nb-act-btn" onclick="event.stopPropagation();openWritePanelEdit('${n.id}')" title="수정">✏️</div>
+          <div class="nb-act-btn" onclick="event.stopPropagation();showToast('알림장이 회수되었습니다.')" title="회수">↩️</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ━━━ 상세 뷰어 패널 ━━━
+function openViewPanel(id, targetChildId) {
+  currentNotice = MOCK_NOTICES.find(n => n.id === id);
+  if (!currentNotice) return;
+  if (targetChildId) {
+    const idx = currentNotice.children.findIndex(c => c.id === targetChildId);
+    currentChildTab = idx >= 0 ? idx : 0;
+  } else {
+    currentChildTab = 0;
+  }
+  document.getElementById('viewPanelSub').textContent = ` · ${currentNotice.date} · ${currentNotice.class_name}`;
+  renderViewPanel();
+  document.getElementById('panelOverlay').classList.add('show');
+  document.getElementById('viewPanel').classList.add('show');
+}
+
+function openViewPanelAtComments(noticeId, childId) {
+  openViewPanel(noticeId, childId);
+  setTimeout(() => {
+    const body = document.getElementById('viewPanelBody');
+    const commentArea = body?.querySelector('.comment-area');
+    if (commentArea) commentArea.scrollIntoView({ behavior: 'smooth' });
+  }, 120);
+}
+
+function renderViewPanel() {
+  const n = currentNotice;
+  const weatherIcon = WEATHER_MAP[n.weather] || '🌤️';
+  const days = ['일','월','화','수','목','금','토'];
+  const d = new Date(n.date + 'T00:00:00');
+  const dateFull = `${n.date} (${days[d.getDay()]})`;
+
+  // 원아 탭
+  const childTabsHtml = n.children.map((c, i) =>
+    `<div class="child-tab ${i === currentChildTab ? 'active' : ''}" onclick="switchChildTab(${i})">
+      <span class="child-tab-dot" style="background:${c.color}"></span>
+      ${c.name}
+      ${!c.is_read ? '<span class="child-tab-unread"></span>' : ''}
+    </div>`
+  ).join('');
+
+  const child = n.children[currentChildTab];
+
+  // 모킹 체크필드 데이터
+  const mockChild = {
+    attendance:'출석', mood:'좋음', health:'양호',
+    meal_breakfast:'잘먹음', meal_lunch:'잘먹음', meal_snack_am:'잘먹음', meal_snack_pm:'조금먹음',
+    nap_status:'잘잠', nap_start:'13:00', nap_end:'14:30',
+    toilet_count:1, toilet_status:'정상',
+    activity_indoor:['블록놀이','그림그리기'], activity_outdoor:['산책'],
+    individual_memo: child.name === '김도현' ? '오늘 특히 친구들과 사이좋게 놀았어요! 칭찬해주세요.' : '',
+  };
+
+  const moodEmoji = { '매우좋음':'😄', '좋음':'😊', '보통':'😐', '나쁨':'😞', '매우나쁨':'😢' };
+  const mealIcon  = { '잘먹음':'😋', '조금먹음':'🍽️', '안먹음':'🙅', '해당없음':'—' };
+
+  const commentsHtml = child.comment_count > 0 ? `
+    <div class="comment-item">
+      <div class="comment-avatar" style="background:#4361EE">이</div>
+      <div class="comment-bubble teacher">
+        <div class="comment-meta">
+          <span class="comment-author">이하늘 교사</span>
+          <span class="comment-role teacher">교사</span>
+          <span class="comment-time">14:30</span>
+        </div>
+        <div class="comment-text">오늘 정말 즐겁게 지냈어요! 👍</div>
+      </div>
+    </div>
+    <div class="comment-item">
+      <div class="comment-avatar" style="background:#10B981">김</div>
+      <div class="comment-bubble">
+        <div class="comment-meta">
+          <span class="comment-author">김민지</span>
+          <span class="comment-role parent">엄마</span>
+          <span class="comment-time">18:22</span>
+        </div>
+        <div class="comment-text">감사합니다 선생님 😊 집에서도 오늘 이야기 잔뜩 해줬어요~</div>
+        <div class="comment-actions">
+          <button class="comment-reply-btn" onclick="showToast('답글 기능은 준비 중입니다.')">↩ 답글</button>
+        </div>
+      </div>
+    </div>` : '<div style="text-align:center;padding:16px 0;font-size:13px;color:var(--text-muted)">아직 댓글이 없습니다.</div>';
+
+  document.getElementById('viewPanelBody').innerHTML = `
+    <div class="view-date-bar">
+      <div>
+        <div class="view-date-big">${dateFull}</div>
+        <div class="view-meta-row">
+          <div class="view-teacher-chip">
+            <div class="teacher-avatar" style="background:${n.teacher_color};width:22px;height:22px;font-size:10px">${n.teacher_name[0]}</div>
+            <span>${n.teacher_name} 교사 · ${n.class_name}</span>
+          </div>
+        </div>
+      </div>
+      <div class="view-weather-icon">${weatherIcon}</div>
+    </div>
+
+    <div class="view-section">
+      <div class="view-section-title">📝 공통 본문</div>
+      <div class="view-content-text">${n.content}</div>
+    </div>
+
+    <div class="child-tabs">${childTabsHtml}</div>
+
+    <div class="view-section">
+      <div class="view-section-title">📊 원아 상태 — ${child.name}</div>
+      <div class="check-grid">
+        <div class="check-item"><div class="check-item-label">출결</div><div class="check-item-value">✅ ${mockChild.attendance}</div></div>
+        <div class="check-item"><div class="check-item-label">기분</div><div class="check-item-value">${moodEmoji[mockChild.mood]} ${mockChild.mood}</div></div>
+        <div class="check-item"><div class="check-item-label">건강</div><div class="check-item-value">💚 ${mockChild.health}</div></div>
+        <div class="check-item"><div class="check-item-label">낮잠</div><div class="check-item-value">😴 ${mockChild.nap_status} (${mockChild.nap_start}~${mockChild.nap_end})</div></div>
+        <div class="check-item"><div class="check-item-label">배변</div><div class="check-item-value">🚽 ${mockChild.toilet_status} ${mockChild.toilet_count}회</div></div>
+        <div class="check-item"><div class="check-item-label">읽음</div><div class="check-item-value">${child.is_read ? '✅ 읽음' : '⏳ 미읽음'}</div></div>
+      </div>
+      <div class="view-section-title" style="margin-top:12px">🍽️ 식사</div>
+      <div class="meal-row">
+        <div class="meal-cell"><div class="meal-cell-label">아침</div><div class="meal-cell-value">${mealIcon[mockChild.meal_breakfast]} ${mockChild.meal_breakfast}</div></div>
+        <div class="meal-cell"><div class="meal-cell-label">점심</div><div class="meal-cell-value">${mealIcon[mockChild.meal_lunch]} ${mockChild.meal_lunch}</div></div>
+        <div class="meal-cell"><div class="meal-cell-label">오전간식</div><div class="meal-cell-value">${mealIcon[mockChild.meal_snack_am]} ${mockChild.meal_snack_am}</div></div>
+        <div class="meal-cell"><div class="meal-cell-label">오후간식</div><div class="meal-cell-value">${mealIcon[mockChild.meal_snack_pm]} ${mockChild.meal_snack_pm}</div></div>
+      </div>
+      <div class="view-section-title" style="margin-top:12px">🎯 활동</div>
+      <div class="activity-tags">
+        ${mockChild.activity_indoor.map(t => `<span class="act-tag">${t}</span>`).join('')}
+        ${mockChild.activity_outdoor.map(t => `<span class="act-tag outdoor">${t}</span>`).join('')}
+      </div>
+      ${mockChild.individual_memo ? `<div style="margin-top:12px;padding:10px 12px;background:var(--amber-bg);border-radius:var(--r-md);font-size:13px;color:var(--amber-text)">📌 ${mockChild.individual_memo}</div>` : ''}
+    </div>
+
+    ${n.photo_count > 0 ? `
+    <div class="view-section">
+      <div class="view-section-title">🖼️ 사진 (${n.photo_count}장)</div>
+      <div class="photo-grid">
+        ${Array.from({length:n.photo_count}, (_,i) => `<div class="photo-thumb">📷</div>`).join('')}
+      </div>
+    </div>` : ''}
+
+    <div class="comment-area">
+      <div class="view-section-title" style="padding:0 0 10px">💬 댓글 (${child.comment_count})</div>
+      <div class="comment-list">${commentsHtml}</div>
+      <div class="comment-input-wrap">
+        <textarea class="comment-input" placeholder="댓글을 입력하세요..." rows="1"></textarea>
+        <button class="comment-send-btn" onclick="showToast('댓글이 등록되었습니다.')">전송</button>
+      </div>
+    </div>
+  `;
+}
+
+function switchChildTab(idx) {
+  currentChildTab = idx;
+  renderViewPanel();
+}
+
+function closeViewPanel() {
+  document.getElementById('viewPanel').classList.remove('show');
+  document.getElementById('panelOverlay').classList.remove('show');
+}
+
+function openWritePanelFromView() {
+  closeViewPanel();
+  if (currentNotice) openWritePanelEdit(currentNotice.id);
+}
+
+// ━━━ 작성 패널 ━━━
+function openWritePanel(preClassId, preDate, preChildId) {
+  writingNotice = null;
+  document.getElementById('writePanelTitle').textContent = '✏️ 알림장 작성';
+  renderWritePanel(null, preClassId, preDate, preChildId);
+  document.getElementById('panelOverlay').classList.add('show');
+  document.getElementById('writePanel').classList.add('show');
+}
+
+function openWritePanelForChild(childId, classId, date) {
+  const existing = MOCK_NOTICES.find(n => n.class_id === classId && n.date === date && n.status === 'draft');
+  if (existing) {
+    openWritePanelEdit(existing.id);
+  } else {
+    openWritePanel(classId, date, childId);
+  }
+}
+
+function openWritePanelEdit(id) {
+  writingNotice = MOCK_NOTICES.find(n => n.id === id) || null;
+  document.getElementById('writePanelTitle').textContent = '✏️ 알림장 수정';
+  renderWritePanel(writingNotice);
+  document.getElementById('panelOverlay').classList.add('show');
+  document.getElementById('writePanel').classList.add('show');
+}
+
+function renderWritePanel(notice, preClassId, preDate, preChildId) {
+  const activeClassId = notice?.class_id || preClassId;
+  const classOpts = ALL_CLASSES.map(c =>
+    `<option value="${c.id}" ${activeClassId === c.id ? 'selected' : ''}>${c.name}</option>`
+  ).join('');
+
+  const selectedClass = notice
+    ? ALL_CLASSES.find(c => c.id === notice.class_id)
+    : (preClassId ? ALL_CLASSES.find(c => c.id === preClassId) : ALL_CLASSES[0]);
+  const children = MOCK_CHILDREN_MAP[selectedClass?.id || 'CLS001'] || [];
+
+  const childCards = children.map(c => {
+    const ATTENDANCE = ['출석','결석','조퇴','지각','외출'];
+    const MOODS      = ['매우좋음','좋음','보통','나쁨','매우나쁨'];
+    const MEALS      = ['잘먹음','조금먹음','안먹음','해당없음'];
+    const NAPS       = ['잘잠','조금잠','못잠','안잠'];
+    const INDOOR_TAGS = ['블록놀이','그림그리기','색칠하기','독서','퍼즐','역할놀이','율동','점토놀이'];
+    const OUTDOOR_TAGS = ['모래놀이','산책','자전거','공놀이','줄넘기','텃밭가꾸기'];
+
+    return `
+    <div class="write-child-card">
+      <div class="wcc-header">
+        <div class="wcc-avatar" style="background:${c.color}">${c.name[0]}</div>
+        <div class="wcc-name">${c.name}</div>
+      </div>
+      <div class="wcc-body">
+        <div>
+          <div class="wcc-field-label">출결 *</div>
+          <div class="check-btn-group">
+            ${ATTENDANCE.map((a,i) => `<button class="check-btn ${i===0?'active green':''}" onclick="toggleCheckBtn(this,'att-${c.id}')">${a}</button>`).join('')}
+          </div>
+        </div>
+        <div>
+          <div class="wcc-field-label">기분</div>
+          <div class="check-btn-group">
+            ${MOODS.map((m,i) => `<button class="check-btn ${i===1?'active':''}" onclick="toggleCheckBtn(this,'mood-${c.id}')">${m}</button>`).join('')}
+          </div>
+        </div>
+        <div>
+          <div class="wcc-field-label">점심</div>
+          <div class="check-btn-group">
+            ${MEALS.map((m,i) => `<button class="check-btn ${i===0?'active':''}" onclick="toggleCheckBtn(this,'meal-${c.id}')">${m}</button>`).join('')}
+          </div>
+        </div>
+        <div>
+          <div class="wcc-field-label">낮잠</div>
+          <div class="check-btn-group">
+            ${NAPS.map((n,i) => `<button class="check-btn ${i===0?'active':''}" onclick="toggleCheckBtn(this,'nap-${c.id}')">${n}</button>`).join('')}
+          </div>
+          <div class="nap-time-row">
+            <input class="nap-time-input" type="time" value="13:00">
+            <span class="nap-time-sep">~</span>
+            <input class="nap-time-input" type="time" value="14:30">
+          </div>
+        </div>
+        <div>
+          <div class="wcc-field-label">실내활동</div>
+          <div class="tag-select-wrap">
+            ${INDOOR_TAGS.map(t => `<button class="tag-btn" onclick="this.classList.toggle('active')">${t}</button>`).join('')}
+          </div>
+        </div>
+        <div>
+          <div class="wcc-field-label">실외활동</div>
+          <div class="tag-select-wrap">
+            ${OUTDOOR_TAGS.map(t => `<button class="tag-btn outdoor" onclick="this.classList.toggle('active outdoor')">${t}</button>`).join('')}
+          </div>
+        </div>
+        <div>
+          <div class="wcc-field-label">개별 메모</div>
+          <textarea class="form-textarea" style="min-height:60px" placeholder="${c.name}에게 전달할 개별 내용을 입력하세요..."></textarea>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const WEATHER_LIST = ['맑음','구름조금','흐림','비','눈','바람'];
+
+  document.getElementById('writePanelBody').innerHTML = `
+    <!-- 기본설정 -->
+    <div class="write-section">
+      <div class="write-section-title"><span class="ws-icon">⚙️</span> 기본 설정</div>
+      <div class="form-row col3">
+        <div class="form-group">
+          <div class="form-label">날짜 <span class="req">*</span></div>
+          <input class="form-input" type="date" id="writeDate" value="${notice?.date || preDate || fmtDate(new Date())}">
+        </div>
+        <div class="form-group">
+          <div class="form-label">반 선택 <span class="req">*</span></div>
+          <select class="form-select" id="writeClass">${classOpts}</select>
+        </div>
+        <div class="form-group">
+          <div class="form-label">기온</div>
+          <input class="form-input" type="text" id="writeTemp" placeholder="예: 16°C / 8°C" value="${notice?.temperature || ''}">
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:4px">
+        <div class="form-label">날씨</div>
+        <div class="weather-btn-group" id="weatherBtnGroup">
+          ${WEATHER_LIST.map(w => `<button class="weather-btn ${notice?.weather === w ? 'active' : ''}" onclick="selectWeather(this,'${w}')">${WEATHER_MAP[w]} ${w}</button>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- 공통 본문 -->
+    <div class="write-section">
+      <div class="write-section-title"><span class="ws-icon">📝</span> 공통 본문</div>
+      <div class="form-row full">
+        <textarea class="form-textarea" id="writeContent" style="min-height:120px" placeholder="오늘 반 전체에 전달할 내용을 입력하세요...">${notice?.content || ''}</textarea>
+      </div>
+      <div class="ai-toolbar">
+        <button class="ai-btn generate" onclick="simulateAI()">✨ AI 자동생성</button>
+        <button class="ai-btn polish" onclick="simulatePolish()">🪄 문장 다듬기</button>
+        <button class="ai-btn template" onclick="openTemplateModal()">📚 예문 불러오기</button>
+      </div>
+    </div>
+
+    <!-- 대상 원아 -->
+    <div class="write-section">
+      <div class="write-section-title"><span class="ws-icon">🧒</span> 대상 원아 선택</div>
+      <div class="child-select-grid" id="childSelectGrid">
+        ${children.map((c,i) => {
+          const isSelected = preChildId ? (c.id === preChildId) : true;
+          return `<div class="child-select-card ${isSelected ? 'selected' : ''}" onclick="this.classList.toggle('selected')">
+            <div class="csc-avatar" style="background:${c.color}">${c.name[0]}</div>
+            <div class="csc-name">${c.name}</div>
+            <div class="csc-check">✓</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <!-- 원아별 체크필드 -->
+    <div class="write-section">
+      <div class="write-section-title"><span class="ws-icon">📊</span> 원아별 상태 입력</div>
+    </div>
+    <div class="write-child-grid">${childCards}</div>
+  `;
+}
+
+function toggleCheckBtn(btn, group) {
+  btn.closest('.check-btn-group').querySelectorAll('.check-btn').forEach(b => {
+    b.classList.remove('active','green','red','amber');
+  });
+  btn.classList.add('active');
+}
+
+function selectWeather(btn) {
+  document.getElementById('weatherBtnGroup').querySelectorAll('.weather-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function closeWritePanel() {
+  document.getElementById('writePanel').classList.remove('show');
+  document.getElementById('panelOverlay').classList.remove('show');
+}
+
+function saveDraft() {
+  showToast('임시저장되었습니다.', 'success');
+}
+
+function submitPublish() {
+  showToast('알림장이 발행되었습니다! 📤', 'success');
+  closeWritePanel();
+  applyFilters();
+}
+
+// ━━━ AI 모의 기능 ━━━
+function simulateAI() {
+  const ta = document.getElementById('writeContent');
+  ta.value = '';
+  const text = '오늘은 맑고 따뜻한 날씨 속에 아이들과 즐거운 하루를 보냈습니다. 오전에는 블록 놀이와 그림 그리기 활동을 하며 창의력을 키웠고, 오후에는 텃밭 관찰 활동으로 봄을 느꼈습니다. 점심도 맛있게 먹고 낮잠도 잘 잤어요.';
+  let i = 0;
+  showToast('✨ AI가 본문을 생성하고 있습니다...', 'ai');
+  const interval = setInterval(() => {
+    ta.value += text[i++];
+    if (i >= text.length) clearInterval(interval);
+  }, 25);
+}
+
+function simulatePolish() {
+  showToast('🪄 문장이 다듬어졌습니다.', 'ai');
+}
+
+// ━━━ 예문 라이브러리 모달 ━━━
+function openTemplateModal() {
+  renderTemplateList();
+  document.getElementById('templateModal').classList.add('show');
+}
+
+function closeTemplateModal() {
+  document.getElementById('templateModal').classList.remove('show');
+}
+
+function renderTemplateList() {
+  const cat    = document.getElementById('tmplCategoryFilter').value;
+  const search = document.getElementById('tmplSearch').value.trim().toLowerCase();
+  let list = [...MOCK_TEMPLATES];
+  if (cat)    list = list.filter(t => t.category === cat);
+  if (search) list = list.filter(t => t.title.toLowerCase().includes(search) || t.content.toLowerCase().includes(search));
+  list.sort((a,b) => b.use_count - a.use_count);
+
+  if (list.length === 0) {
+    document.getElementById('templateList').innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px">검색 결과가 없습니다.</div>';
+    return;
+  }
+  document.getElementById('templateList').innerHTML = list.map(t => `
+    <div class="template-card" onclick="useTemplate('${t.id}')">
+      <div class="template-card-title">
+        ${t.title}
+        <span class="template-tag">${t.category}</span>
+        ${t.is_ai_generated ? '<span class="template-tag ai">✨ AI</span>' : ''}
+      </div>
+      <div class="template-card-preview">${t.content}</div>
+      <div class="template-card-meta">
+        <span class="template-use-cnt">사용 ${t.use_count}회</span>
+      </div>
+    </div>`).join('');
+}
+
+function useTemplate(id) {
+  const t = MOCK_TEMPLATES.find(t => t.id === id);
+  if (!t) return;
+  const ta = document.getElementById('writeContent');
+  if (ta) ta.value = t.content;
+  closeTemplateModal();
+  showToast(`"${t.title}" 예문을 불러왔습니다.`, 'success');
+}
+
+function openNewTemplateForm() {
+  showToast('예문 직접 추가 기능은 준비 중입니다.');
+  closeTemplateModal();
+}
+
+// ━━━ 예약 발행 모달 ━━━
+function openScheduleModal() {
+  document.getElementById('scheduleDate').value = '';
+  document.getElementById('scheduleTime').value = '';
+  document.getElementById('scheduleModal').classList.add('show');
+}
+
+function closeScheduleModal() {
+  document.getElementById('scheduleModal').classList.remove('show');
+}
+
+function submitSchedule() {
+  const date = document.getElementById('scheduleDate').value;
+  const time = document.getElementById('scheduleTime').value;
+  if (!date || !time) { showToast('날짜와 시간을 모두 입력해주세요.', 'error'); return; }
+  closeScheduleModal();
+  showToast(`${date} ${time} 예약 발행이 설정되었습니다.`, 'success');
+  closeWritePanel();
+}
+
+// ━━━ 공통 ━━━
+function closePanels() {
+  document.getElementById('viewPanel').classList.remove('show');
+  document.getElementById('writePanel').classList.remove('show');
+  document.getElementById('panelOverlay').classList.remove('show');
+}
+
+// changeOrg / exitContext / logout → operation-sidebar.js 에서 전역 노출
+
+function showToast(msg, type = '') {
+  const wrap = document.getElementById('toastWrap');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+// ━━━ 실행 ━━━
+init();
+</script>
+</body>
+</html>

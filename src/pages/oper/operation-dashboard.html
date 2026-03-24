@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>대시보드 — 키드키즈</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="operation-sidebar.js" defer></script>
+<style>
+:root {
+  --sidebar-bg:      #0C2D48;
+  --sidebar-hover:   #1A4A6B;
+  --sidebar-active:  #1E5580;
+  --sidebar-text:    #B8D9F0;
+  --sidebar-width:   240px;
+  --header-height:   60px;
+  --accent:          #0EA5E9;
+  --accent-light:    #E0F2FE;
+  --accent-dark:     #0284C7;
+  --bg-base:         #F0F7FF;
+  --bg-surface:      #FFFFFF;
+  --text-primary:    #0C2D48;
+  --text-secondary:  #4B7FA3;
+  --text-muted:      #94B8D0;
+  --border-light:    #DBEAFE;
+  --border-medium:   #BAD9F7;
+  --green:  #10B981; --green-bg:  #D1FAE5; --green-text:  #065F46;
+  --blue:   #3B82F6; --blue-bg:   #DBEAFE; --blue-text:   #1E40AF;
+  --amber:  #F59E0B; --amber-bg:  #FEF3C7; --amber-text:  #92400E;
+  --red:    #EF4444; --red-bg:    #FEE2E2; --red-text:    #991B1B;
+  --purple: #8B5CF6; --purple-bg: #EDE9FE; --purple-text: #5B21B6;
+  --shadow-sm: 0 1px 3px rgba(12,45,72,0.06);
+  --shadow-md: 0 4px 12px rgba(12,45,72,0.09);
+  --shadow-lg: 0 8px 28px rgba(12,45,72,0.11);
+  --radius-sm: 6px; --radius-md: 10px; --radius-lg: 14px; --radius-xl: 18px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Pretendard', sans-serif; background: var(--bg-base); color: var(--text-primary); display: flex; height: 100vh; overflow: hidden; }
+
+/* 사이드바 CSS → operation-sidebar.js 에서 주입 */
+
+/* ━━━ MAIN ━━━ */
+.main-wrap { margin-left: var(--sidebar-width); flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* ━━━ TOPBAR ━━━ */
+.topbar {
+  height: var(--header-height); background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-light);
+  display: flex; align-items: center; padding: 0 24px; gap: 12px;
+  box-shadow: var(--shadow-sm); flex-shrink: 0; z-index: 50;
+}
+.breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary); flex: 1; }
+.breadcrumb .cur { color: var(--text-primary); font-weight: 600; }
+.bc-sep { color: var(--text-muted); font-size: 11px; }
+
+/* ━━━━━━━━━━ 반 필터 셀렉터 ━━━━━━━━━━ */
+.class-filter-wrap {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg-base); border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-md); padding: 5px 12px; transition: 0.18s;
+}
+.class-filter-wrap:focus-within { border-color: var(--accent); background: #fff; }
+.class-filter-label { font-size: 11px; color: var(--text-secondary); font-weight: 600; white-space: nowrap; }
+.class-filter-divider { width: 1px; height: 14px; background: var(--border-medium); }
+
+/* 커스텀 셀렉트 래퍼 */
+.class-select-wrap { position: relative; }
+.class-select {
+  appearance: none; -webkit-appearance: none;
+  border: none; background: transparent;
+  font-size: 13px; font-weight: 700; color: var(--text-primary);
+  cursor: pointer; font-family: 'Pretendard', sans-serif;
+  outline: none; padding-right: 20px; min-width: 120px;
+}
+.class-select-arrow {
+  position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+  pointer-events: none; color: var(--text-muted); font-size: 11px;
+}
+
+/* 비활성(교사 비담당) 옵션 스타일 */
+.class-select option.disabled-opt {
+  color: #C0C0C0;
+  background: #F9FAFB;
+}
+
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.topbar-date  { font-size: 12px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+.icon-btn {
+  width: 36px; height: 36px; border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg-base); border: 1px solid var(--border-light);
+  cursor: pointer; transition: 0.18s; font-size: 16px; position: relative;
+}
+.icon-btn:hover { background: var(--accent-light); border-color: var(--accent); }
+.notif-dot::after {
+  content: ''; position: absolute; top: 6px; right: 6px;
+  width: 6px; height: 6px; border-radius: 50%; background: var(--red);
+  border: 1.5px solid var(--bg-surface);
+}
+
+/* ━━━ CONTENT ━━━ */
+.content { flex: 1; overflow-y: auto; padding: 22px 24px; }
+.content::-webkit-scrollbar { width: 5px; }
+.content::-webkit-scrollbar-thumb { background: var(--border-medium); border-radius: 3px; }
+
+/* 페이지 헤더 */
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 18px; }
+.page-title  { font-size: 21px; font-weight: 800; letter-spacing: -0.5px; }
+.page-sub    { font-size: 13px; color: var(--text-secondary); margin-top: 3px; }
+.date-chip   { display: flex; align-items: center; gap: 6px; background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 6px 14px; font-size: 12px; color: var(--text-secondary); flex-shrink: 0; }
+
+/* ━━━ 교사 담당 반 히어로 (교사 전용, 단일 반 고정일 때) ━━━ */
+.class-hero {
+  background: linear-gradient(135deg, #0C2D48 0%, #1E5580 100%);
+  border-radius: var(--radius-xl); padding: 18px 22px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 18px; color: #fff; box-shadow: var(--shadow-md);
+  display: none; /* JS로 조건 표시 */
+}
+.class-hero.show { display: flex; }
+.hero-left { display: flex; align-items: center; gap: 14px; }
+.hero-icon { width: 52px; height: 52px; border-radius: var(--radius-lg); background: rgba(255,255,255,0.12); display:flex;align-items:center;justify-content:center; font-size: 26px; }
+.hero-class-name { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; margin-bottom: 3px; }
+.hero-class-info { font-size: 12px; color: rgba(255,255,255,0.65); display: flex; gap: 12px; }
+.hero-stats { display: flex; gap: 20px; }
+.hero-stat { text-align: center; }
+.hero-stat-num { font-size: 26px; font-weight: 800; letter-spacing: -1px; line-height: 1; }
+.hero-stat-lbl { font-size: 10px; color: rgba(255,255,255,0.6); margin-top: 3px; }
+
+/* ━━━ KPI GRID ━━━ */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+.kpi-card {
+  background: var(--bg-surface); border-radius: var(--radius-lg);
+  padding: 16px 18px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-light);
+  display: flex; align-items: center; gap: 12px; transition: box-shadow 0.2s;
+}
+.kpi-card:hover { box-shadow: var(--shadow-md); }
+.kpi-ico { width: 46px; height: 46px; border-radius: var(--radius-md); display:flex;align-items:center;justify-content:center; font-size: 21px; flex-shrink: 0; }
+.kpi-ico.sky    { background: #E0F2FE; }
+.kpi-ico.green  { background: var(--green-bg); }
+.kpi-ico.amber  { background: var(--amber-bg); }
+.kpi-ico.purple { background: var(--purple-bg); }
+.kpi-ico.red    { background: var(--red-bg); }
+.kpi-label { font-size: 11px; color: var(--text-secondary); font-weight: 500; margin-bottom: 2px; }
+.kpi-value { font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.8px; line-height: 1; }
+.kpi-sub   { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.kpi-trend { font-size: 11px; font-weight: 600; margin-top: 3px; }
+.kpi-trend.up   { color: var(--green); }
+.kpi-trend.down { color: var(--red); }
+
+/* ━━━ 레이아웃 ━━━ */
+.grid-3col { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+.card { background: var(--bg-surface); border-radius: var(--radius-lg); border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); overflow: hidden; }
+.card-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--border-light); }
+.card-title  { font-size: 13.5px; font-weight: 700; color: var(--text-primary); display:flex;align-items:center;gap:6px; }
+.card-action { font-size: 12px; color: var(--accent-dark); font-weight: 600; cursor: pointer; }
+.card-action:hover { text-decoration: underline; }
+.card-body   { padding: 14px 18px; }
+
+/* ━━━ 반 현황 카드 그리드 ━━━ */
+.class-cards { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
+.cls-card {
+  padding: 12px 14px; border-radius: var(--radius-md);
+  background: var(--bg-base); border: 1px solid var(--border-light);
+  cursor: pointer; transition: 0.18s;
+}
+.cls-card:hover { border-color: var(--accent); box-shadow: var(--shadow-sm); }
+/* 교사 비담당 반 스타일 */
+.cls-card.non-assigned {
+  opacity: 0.45; cursor: default; pointer-events: none;
+  background: #F9FAFB; border-color: #E5E7EB;
+}
+.cls-card.non-assigned .cls-name { color: #9CA3AF; }
+.non-assigned-mark {
+  font-size: 9px; font-weight: 700; color: #9CA3AF;
+  background: #F3F4F6; border: 1px solid #E5E7EB;
+  padding: 1px 6px; border-radius: 10px; margin-left: 4px;
+}
+.cls-name    { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; display: flex; align-items: center; }
+.cls-teacher { font-size: 11px; color: var(--text-secondary); margin-bottom: 8px; }
+.cls-stats   { display: flex; justify-content: space-between; }
+.cls-stat    { text-align: center; }
+.cls-stat-n  { font-size: 17px; font-weight: 800; color: var(--accent-dark); }
+.cls-stat-l  { font-size: 9px; color: var(--text-muted); }
+.cls-bar     { margin-top: 7px; background: var(--border-light); border-radius: 4px; height: 3px; }
+.cls-bar-fill{ height: 3px; border-radius: 4px; background: var(--accent); }
+
+/* ━━━ 할 일 ━━━ */
+.todo-list { display: flex; flex-direction: column; gap: 7px; }
+.todo-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: var(--radius-md); background: var(--bg-base); border: 1px solid var(--border-light); cursor: pointer; transition: 0.18s; }
+.todo-item:hover { border-color: var(--accent); background: var(--accent-light); }
+.todo-dot  { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.todo-text { flex: 1; font-size: 12.5px; font-weight: 500; }
+.todo-cnt  { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+
+/* ━━━ 활동 내역 ━━━ */
+.act-list { display: flex; flex-direction: column; }
+.act-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border-light); }
+.act-item:last-child { border-bottom: none; }
+.act-avatar { width: 30px; height: 30px; border-radius: 50%; display:flex;align-items:center;justify-content:center; font-size:11px;font-weight:700;color:#fff;flex-shrink:0; }
+.act-text   { font-size: 12px; color: var(--text-primary); flex: 1; line-height: 1.5; }
+.act-text strong { font-weight: 700; }
+.act-time   { font-size: 10px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; flex-shrink: 0; margin-top: 2px; }
+
+/* ━━━ 공지 ━━━ */
+.notice-list { display: flex; flex-direction: column; }
+.notice-item { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border-light); cursor: pointer; }
+.notice-item:last-child { border-bottom: none; }
+.notice-item:hover .notice-title { color: var(--accent-dark); }
+.notice-tag   { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px; flex-shrink: 0; }
+.notice-title { font-size: 12.5px; color: var(--text-primary); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.notice-date  { font-size: 10px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; flex-shrink: 0; }
+
+/* ━━━ 차트 ━━━ */
+.chart-wrap { position: relative; }
+.chart-tabs { display: flex; gap: 4px; }
+.chart-tab  { padding: 4px 12px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--border-light); color: var(--text-secondary); background: var(--bg-base); transition: 0.18s; }
+.chart-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ━━━ 교사용 원아 테이블 ━━━ */
+.child-table { width: 100%; border-collapse: collapse; }
+.child-table th { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--border-light); background: var(--bg-base); }
+.child-table td { font-size: 12px; padding: 7px 8px; border-bottom: 1px solid var(--border-light); vertical-align: middle; }
+.child-table tr:last-child td { border-bottom: none; }
+.child-table tr:hover td { background: var(--bg-base); }
+.sbadge { display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: 700; }
+.sdot   { width: 5px; height: 5px; border-radius: 50%; }
+
+/* ━━━ 출석 카드 ━━━ */
+.att-row { display: flex; gap: 7px; margin-bottom: 12px; }
+.att-card { flex: 1; padding: 10px; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--border-light); }
+.att-num  { font-size: 20px; font-weight: 800; line-height: 1; }
+.att-lbl  { font-size: 10px; color: var(--text-secondary); margin-top: 3px; }
+
+/* ━━━ 토스트 ━━━ */
+.toast-wrap { position: fixed; bottom: 24px; right: 24px; z-index: 500; display: flex; flex-direction: column; gap: 8px; }
+.toast { background: #1A1D2E; color: #fff; padding: 10px 16px; border-radius: var(--radius-md); font-size: 13px; box-shadow: var(--shadow-lg); animation: toastIn 0.25s ease; }
+@keyframes toastIn { from{opacity:0;transform:translateX(12px)} to{opacity:1;transform:translateX(0)} }
+</style>
+</head>
+<body>
+
+<!-- ━━━ SIDEBAR ━━━ -->
+<aside id="appSidebar"></aside>
+
+<!-- ━━━ MAIN ━━━ -->
+<div class="main-wrap">
+  <!-- 상단바 -->
+  <header class="topbar">
+    <div class="breadcrumb">
+      <span>🏠</span>
+      <span class="bc-sep">›</span>
+      <span class="cur">대시보드</span>
+    </div>
+
+    <!-- 반 필터 -->
+    <div class="class-filter-wrap">
+      <span class="class-filter-label">📌 반 선택</span>
+      <div class="class-filter-divider"></div>
+      <div class="class-select-wrap">
+        <select class="class-select" id="classFilterSelect" onchange="onClassChange(this)">
+          <!-- JS로 렌더링 -->
+        </select>
+        <span class="class-select-arrow">▼</span>
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <span class="topbar-date" id="topDate"></span>
+      <div class="icon-btn notif-dot" title="알림">🔔</div>
+      <div class="icon-btn" title="설정">⚙️</div>
+    </div>
+  </header>
+
+  <!-- 콘텐츠 -->
+  <div class="content">
+
+    <!-- 페이지 헤더 -->
+    <div class="page-header">
+      <div>
+        <div class="page-title" id="pageTitle">👋 안녕하세요!</div>
+        <div class="page-sub"  id="pageSub">오늘 기관 현황을 한눈에 확인하세요.</div>
+      </div>
+      <div class="date-chip">📅 <span id="headerDate"></span></div>
+    </div>
+
+    <!-- 교사 전용: 담당 반 히어로 카드 -->
+    <div class="class-hero" id="classHero">
+      <div class="hero-left">
+        <div class="hero-icon" id="heroIcon">🌸</div>
+        <div>
+          <div class="hero-class-name" id="heroClassName">햇님반 (만3세)</div>
+          <div class="hero-class-info">
+            <span>📅 <span id="heroDate"></span></span>
+            <span>🏫 <span id="heroOrgName"></span></span>
+          </div>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hero-stat-num" id="heroTotal">18</div><div class="hero-stat-lbl">전체 원아</div></div>
+        <div class="hero-stat"><div class="hero-stat-num" style="color:#6EE7B7" id="heroAttend">16</div><div class="hero-stat-lbl">오늘 출석</div></div>
+        <div class="hero-stat"><div class="hero-stat-num" style="color:#FCD34D" id="heroNotice">14</div><div class="hero-stat-lbl">알림장 완료</div></div>
+        <div class="hero-stat"><div class="hero-stat-num" style="color:#FCA5A5" id="heroMissing">4</div><div class="hero-stat-lbl">미작성</div></div>
+      </div>
+    </div>
+
+    <!-- KPI 카드 -->
+    <div class="kpi-grid" id="kpiGrid">
+      <!-- JS로 역할에 따라 렌더링 -->
+    </div>
+
+    <!-- 반 현황 / 할 일 / 도넛 차트 -->
+    <div class="grid-3col">
+
+      <!-- 반 현황 (기관관리자/통합관리자) 또는 원아 출석 (교사) -->
+      <div class="card" id="mainCard">
+        <div class="card-header">
+          <span class="card-title" id="mainCardTitle">🏫 반별 현황</span>
+          <span class="card-action">전체 보기</span>
+        </div>
+        <div class="card-body" id="mainCardBody">
+          <!-- JS 렌더 -->
+        </div>
+      </div>
+
+      <!-- 오늘의 할 일 -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">✅ 오늘의 할 일</span></div>
+        <div class="card-body" id="todoBody">
+          <!-- JS 렌더 -->
+        </div>
+      </div>
+
+      <!-- 알림장 작성률 -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">📝 알림장 작성률</span>
+        </div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px">
+            <div style="padding:8px;border-radius:8px;background:var(--bg-base);border:1px solid var(--border-light);text-align:center">
+              <div style="font-size:18px;font-weight:800;color:var(--green)" id="noticeWritten">56</div>
+              <div style="font-size:10px;color:var(--text-secondary)">완료</div>
+            </div>
+            <div style="padding:8px;border-radius:8px;background:var(--bg-base);border:1px solid var(--border-light);text-align:center">
+              <div style="font-size:18px;font-weight:800;color:var(--red)" id="noticeMissing">28</div>
+              <div style="font-size:10px;color:var(--text-secondary)">미작성</div>
+            </div>
+            <div style="padding:8px;border-radius:8px;background:var(--bg-base);border:1px solid var(--border-light);text-align:center">
+              <div style="font-size:18px;font-weight:800;color:var(--text-primary)" id="noticeRate">67%</div>
+              <div style="font-size:10px;color:var(--text-secondary)">완료율</div>
+            </div>
+          </div>
+          <div class="chart-wrap" style="height:160px">
+            <canvas id="noticeDonut"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 주간 차트 + 활동/공지 -->
+    <div class="grid-2col">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title" id="weekChartTitle">📈 주간 알림장 현황</span>
+          <div class="chart-tabs">
+            <span class="chart-tab active" onclick="switchWeekChart('week',this)">이번주</span>
+            <span class="chart-tab"        onclick="switchWeekChart('month',this)">이번달</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="chart-wrap" style="height:210px"><canvas id="weekChart"></canvas></div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">🔔 최근 활동</span>
+            <span class="card-action">더보기</span>
+          </div>
+          <div class="card-body">
+            <div class="act-list" id="actList"><!-- JS 렌더 --></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">📢 공지사항</span>
+            <span class="card-action" id="noticeAction">작성하기</span>
+          </div>
+          <div class="card-body">
+            <div class="notice-list">
+              <div class="notice-item"><span class="notice-tag" style="background:var(--blue-bg);color:var(--blue-text)">전체</span><span class="notice-title">3월 소풍 일정 안내</span><span class="notice-date">03.17</span></div>
+              <div class="notice-item"><span class="notice-tag" style="background:var(--green-bg);color:var(--green-text)">학부모</span><span class="notice-title">입소 서류 제출 안내</span><span class="notice-date">03.15</span></div>
+              <div class="notice-item"><span class="notice-tag" style="background:var(--amber-bg);color:var(--amber-text)">교사</span><span class="notice-title">4월 교사 회의 일정</span><span class="notice-date">03.12</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main-wrap -->
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 목업 데이터
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const ALL_CLASSES = [
+  { id:'CLS001', name:'🌸 햇님반',   age:'만3세', teacher:'이하늘', students:18, attend:16, notice:14, icon:'🌸' },
+  { id:'CLS002', name:'🌿 새싹반',   age:'만4세', teacher:'박민지', students:20, attend:18, notice:15, icon:'🌿' },
+  { id:'CLS003', name:'⭐ 별빛반',   age:'만5세', teacher:'최서연', students:22, attend:19, notice:17, icon:'⭐' },
+  { id:'CLS004', name:'🌈 무지개반', age:'만2세', teacher:'김보라', students:14, attend:12, notice:10, icon:'🌈' },
+  { id:'CLS005', name:'🦋 나비반',   age:'만1세', teacher:'정다온', students:10, attend: 9, notice: 7, icon:'🦋' },
+];
+
+// 교사의 담당 반 (테스트: CLS001, CLS003 담당)
+const TEACHER_ASSIGNED = ['CLS001', 'CLS003'];
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 세션 & 역할 판별
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const userRole  = sessionStorage.getItem('userRole')  || 'org_admin';
+const userName  = sessionStorage.getItem('userName')  || '관리자';
+const opCtx     = JSON.parse(sessionStorage.getItem('operationContext') || 'null');
+
+// 실제 표시 역할 결정
+// - super + opCtx → 운영관리 모드 (기관관리자처럼 동작)
+// - org_admin     → 기관관리자
+// - teacher       → 교사관리자
+const isSuper   = userRole === 'super';
+const isTeacher = userRole === 'teacher';
+const isOrgMode = isSuper && opCtx; // 통합관리자 운영관리 컨텍스트
+
+const orgName   = opCtx ? opCtx.orgName : '해맑은 어린이집';
+
+// 교사 담당 반 (세션에서 읽거나 기본값)
+const assignedRaw  = sessionStorage.getItem('assignedClasses');
+const assignedClasses = assignedRaw
+  ? JSON.parse(assignedRaw)
+  : (isTeacher ? TEACHER_ASSIGNED : null); // null = 전체 접근
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 초기화
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+(function init() {
+  if (!sessionStorage.getItem('userRole')) {
+    window.location.href = '../../index.html'; return;
+  }
+
+  // 날짜
+  const now  = new Date();
+  const dateStr = now.toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric', weekday:'short' });
+  document.getElementById('topDate').textContent   = dateStr;
+  document.getElementById('headerDate').textContent = dateStr;
+  document.getElementById('heroDate').textContent   = dateStr;
+  document.getElementById('heroOrgName').textContent = orgName;
+
+  renderClassFilter();
+  renderKPI();
+  renderMainCard();
+  renderTodo();
+  renderActivity();
+  initCharts();
+})();
+
+// 사이드바 렌더링 → operation-sidebar.js 에서 처리
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 반 필터 셀렉트 렌더링
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function renderClassFilter() {
+  const sel = document.getElementById('classFilterSelect');
+
+  if (isTeacher) {
+    // 교사: 전체 반 표시, 담당 반만 선택 가능
+    let html = '';
+    // 담당 반이 여러 개면 선택 가능, 단일이면 그냥 고정
+    const hasMultiple = assignedClasses && assignedClasses.length > 1;
+
+    ALL_CLASSES.forEach(cls => {
+      const isAssigned = assignedClasses && assignedClasses.includes(cls.id);
+      if (isAssigned) {
+        html += `<option value="${cls.id}">${cls.name} (${cls.age})</option>`;
+      } else {
+        // 비담당 반: disabled + 시각적으로 구분
+        html += `<option value="${cls.id}" disabled class="disabled-opt" style="color:#C0C0C0">
+          ${cls.name} (${cls.age}) — 비담당
+        </option>`;
+      }
+    });
+    sel.innerHTML = html;
+
+    // 첫 번째 담당 반 자동 선택
+    if (assignedClasses && assignedClasses.length > 0) {
+      sel.value = assignedClasses[0];
+    }
+    // 담당 반 1개면 변경 불가 (선택 자체를 막을 필요는 없음 - disabled 옵션만 있으니 자연스럽게 됨)
+
+  } else {
+    // 기관관리자 / 통합관리자 운영모드: 전체 반 + 전체 선택 옵션
+    let html = '<option value="all">전체 반</option>';
+    ALL_CLASSES.forEach(cls => {
+      html += `<option value="${cls.id}">${cls.name} (${cls.age})</option>`;
+    });
+    sel.innerHTML = html;
+  }
+
+  onClassChange(sel);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 반 변경 이벤트
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function onClassChange(sel) {
+  const val = sel.value;
+  sessionStorage.setItem('currentClass', val);
+
+  if (isTeacher) {
+    // 교사: 선택된 담당 반 기준으로 히어로 카드 업데이트
+    const cls = ALL_CLASSES.find(c => c.id === val);
+    if (cls) updateTeacherHero(cls);
+    document.getElementById('classHero').classList.add('show');
+    updateNoticeStats(cls ? cls.notice : 14, cls ? cls.students - cls.notice : 4);
+  } else {
+    document.getElementById('classHero').classList.remove('show');
+    if (val === 'all') {
+      updateNoticeStats(56, 28);
+    } else {
+      const cls = ALL_CLASSES.find(c => c.id === val);
+      if (cls) updateNoticeStats(cls.notice, cls.students - cls.notice);
+    }
+  }
+  renderMainCard();
+}
+
+function updateTeacherHero(cls) {
+  document.getElementById('heroIcon').textContent      = cls.icon;
+  document.getElementById('heroClassName').textContent = `${cls.name.replace(/^[^\s]+\s/,'')} (${cls.age})`;
+  document.getElementById('heroTotal').textContent     = cls.students;
+  document.getElementById('heroAttend').textContent    = cls.attend;
+  document.getElementById('heroNotice').textContent    = cls.notice;
+  document.getElementById('heroMissing').textContent   = cls.students - cls.notice;
+}
+
+function updateNoticeStats(written, missing) {
+  const total = written + missing;
+  document.getElementById('noticeWritten').textContent = written;
+  document.getElementById('noticeMissing').textContent = missing;
+  document.getElementById('noticeRate').textContent    = Math.round(written/total*100) + '%';
+  if (window._noticeChart) {
+    window._noticeChart.data.datasets[0].data = [written, missing];
+    window._noticeChart.update();
+  }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// KPI 렌더링
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function renderKPI() {
+  const grid = document.getElementById('kpiGrid');
+  if (isTeacher) {
+    grid.innerHTML = `
+      <div class="kpi-card"><div class="kpi-ico teal">📋</div><div><div class="kpi-label">오늘 알림장</div><div class="kpi-value">14<span style="font-size:13px;color:var(--text-muted)">/18</span></div><div class="kpi-sub">4건 미작성</div></div></div>
+      <div class="kpi-card"><div class="kpi-ico green">✅</div><div><div class="kpi-label">출석률</div><div class="kpi-value">89<span style="font-size:14px;font-weight:500">%</span></div><div class="kpi-sub">결석 2명</div></div></div>
+      <div class="kpi-card"><div class="kpi-ico amber">💬</div><div><div class="kpi-label">미답변 상담</div><div class="kpi-value">2</div><div class="kpi-sub">오늘 신규 1건</div></div></div>
+      <div class="kpi-card"><div class="kpi-ico red">💊</div><div><div class="kpi-label">투약의뢰서</div><div class="kpi-value">3</div><div class="kpi-sub">오늘 투약 예정</div></div></div>
+    `;
+    document.getElementById('pageTitle').textContent = `👋 안녕하세요, ${userName}님`;
+    document.getElementById('pageSub').textContent   = '담당 반 오늘 현황을 확인하세요.';
+  } else {
+    grid.innerHTML = `
+      <div class="kpi-card"><div class="kpi-ico sky">👥</div><div><div class="kpi-label">전체 원아 수</div><div class="kpi-value">84</div><div class="kpi-trend up">▲ 2명 이번달 입소</div></div></div>
+      <div class="kpi-card"><div class="kpi-ico green">👩‍🏫</div><div><div class="kpi-label">교사 수</div><div class="kpi-value">12</div><div class="kpi-sub">담임 8 · 보조 4</div></div></div>
+      <div class="kpi-card"><div class="kpi-ico amber">📋</div><div><div class="kpi-label">오늘 알림장</div><div class="kpi-value">56</div><div class="kpi-sub">전체 84건 중</div></div></div>
+      <div class="kpi-card"><div class="kpi-ico purple">📊</div><div><div class="kpi-label">학부모 접속률</div><div class="kpi-value">71<span style="font-size:14px;font-weight:500">%</span></div><div class="kpi-trend up">▲ 3% 전일 대비</div></div></div>
+    `;
+    document.getElementById('pageTitle').textContent = `👋 ${orgName}`;
+    document.getElementById('pageSub').textContent   = '오늘 기관 현황을 한눈에 확인하세요.';
+  }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 메인 카드 (반 현황 or 원아 출석)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function renderMainCard() {
+  const currentCls = sessionStorage.getItem('currentClass') || 'all';
+
+  if (isTeacher) {
+    // 교사: 원아 출석 현황 테이블
+    document.getElementById('mainCardTitle').textContent = '🧒 원아 출석 현황';
+    document.getElementById('mainCardBody').innerHTML = `
+      <div class="att-row">
+        <div class="att-card" style="background:var(--green-bg);border-color:#A7F3D0"><div class="att-num" style="color:var(--green-text)">16</div><div class="att-lbl">출석</div></div>
+        <div class="att-card" style="background:var(--red-bg);border-color:#FCA5A5"><div class="att-num" style="color:var(--red-text)">2</div><div class="att-lbl">결석</div></div>
+        <div class="att-card" style="background:var(--amber-bg);border-color:#FDE68A"><div class="att-num" style="color:var(--amber-text)">0</div><div class="att-lbl">조퇴</div></div>
+        <div class="att-card" style="background:var(--blue-bg);border-color:#BAD9F7"><div class="att-num" style="color:var(--blue-text)">0</div><div class="att-lbl">외출</div></div>
+      </div>
+      <table class="child-table">
+        <thead><tr><th>원아</th><th>출석</th><th>알림장</th><th>투약</th></tr></thead>
+        <tbody>
+          <tr><td>김지우</td><td><span class="sbadge" style="background:var(--green-bg);color:var(--green-text)"><span class="sdot" style="background:var(--green)"></span>출석</span></td><td><span class="sbadge" style="background:#CCFBF1;color:#0D9488">✓ 완료</span></td><td>—</td></tr>
+          <tr><td>이서준</td><td><span class="sbadge" style="background:var(--green-bg);color:var(--green-text)"><span class="sdot" style="background:var(--green)"></span>출석</span></td><td><span class="sbadge" style="background:var(--red-bg);color:var(--red-text)">✗ 미작성</span></td><td><span class="sbadge" style="background:var(--amber-bg);color:var(--amber-text)">💊 3회</span></td></tr>
+          <tr><td>박하은</td><td><span class="sbadge" style="background:var(--red-bg);color:var(--red-text)"><span class="sdot" style="background:var(--red)"></span>결석</span></td><td><span class="sbadge" style="background:var(--red-bg);color:var(--red-text)">✗ 미작성</span></td><td>—</td></tr>
+          <tr><td>최민서</td><td><span class="sbadge" style="background:var(--green-bg);color:var(--green-text)"><span class="sdot" style="background:var(--green)"></span>출석</span></td><td><span class="sbadge" style="background:#CCFBF1;color:#0D9488">✓ 완료</span></td><td>—</td></tr>
+          <tr><td>정수아</td><td><span class="sbadge" style="background:var(--green-bg);color:var(--green-text)"><span class="sdot" style="background:var(--green)"></span>출석</span></td><td><span class="sbadge" style="background:var(--red-bg);color:var(--red-text)">✗ 미작성</span></td><td>—</td></tr>
+        </tbody>
+      </table>
+      <div style="text-align:center;margin-top:10px;font-size:12px;color:var(--text-muted)">+ 13명 더 보기</div>
+    `;
+  } else {
+    // 기관관리자 / 통합관리자: 반별 현황 카드
+    document.getElementById('mainCardTitle').textContent = '🏫 반별 현황';
+    const displayClasses = currentCls === 'all'
+      ? ALL_CLASSES
+      : ALL_CLASSES.filter(c => c.id === currentCls);
+
+    document.getElementById('mainCardBody').innerHTML = `
+      <div class="class-cards">
+        ${displayClasses.map(cls => {
+          const pct = Math.round(cls.attend / cls.students * 100);
+          return `
+            <div class="cls-card">
+              <div class="cls-name">${cls.name} <span style="font-size:10px;color:var(--text-secondary);font-weight:400">(${cls.age})</span></div>
+              <div class="cls-teacher">👩‍🏫 ${cls.teacher} 교사</div>
+              <div class="cls-stats">
+                <div class="cls-stat"><div class="cls-stat-n">${cls.students}</div><div class="cls-stat-l">원아</div></div>
+                <div class="cls-stat"><div class="cls-stat-n">${cls.attend}</div><div class="cls-stat-l">출석</div></div>
+                <div class="cls-stat"><div class="cls-stat-n">${cls.notice}</div><div class="cls-stat-l">알림장</div></div>
+              </div>
+              <div class="cls-bar"><div class="cls-bar-fill" style="width:${pct}%"></div></div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 할 일 렌더링
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function renderTodo() {
+  const items = isTeacher ? [
+    { dot: 'var(--red)',   text: '미작성 알림장',     cnt: '4건',  bg:'var(--red-bg)',   tc:'var(--red-text)' },
+    { dot: 'var(--amber)', text: '투약의뢰서 확인',   cnt: '3건',  bg:'var(--amber-bg)', tc:'var(--amber-text)' },
+    { dot: 'var(--blue)',  text: '미답변 상담',       cnt: '2건',  bg:'var(--blue-bg)',  tc:'var(--blue-text)' },
+    { dot: '#14B8A6',      text: '학부모 초대 대기',  cnt: '1건',  bg:'#CCFBF1',        tc:'#0D9488' },
+  ] : [
+    { dot: 'var(--red)',   text: '미작성 알림장',     cnt: '28건', bg:'var(--red-bg)',    tc:'var(--red-text)' },
+    { dot: 'var(--amber)', text: '가입 승인 대기',    cnt: '3건',  bg:'var(--amber-bg)',  tc:'var(--amber-text)' },
+    { dot: 'var(--blue)',  text: '답변 대기 상담',    cnt: '2건',  bg:'var(--blue-bg)',   tc:'var(--blue-text)' },
+    { dot: 'var(--green)', text: '투약의뢰서 확인',   cnt: '4건',  bg:'var(--green-bg)',  tc:'var(--green-text)' },
+    { dot: 'var(--purple)',text: '미발송 초대장',     cnt: '2건',  bg:'var(--purple-bg)', tc:'var(--purple-text)' },
+  ];
+
+  document.getElementById('todoBody').innerHTML = `
+    <div class="todo-list">
+      ${items.map(i => `
+        <div class="todo-item">
+          <div class="todo-dot" style="background:${i.dot}"></div>
+          <span class="todo-text">${i.text}</span>
+          <span class="todo-cnt" style="background:${i.bg};color:${i.tc}">${i.cnt}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 활동 내역
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function renderActivity() {
+  const acts = [
+    { name:'이하늘', text:'이하늘 교사가 햇님반 알림장을 작성했습니다.', time:'5분 전',   bg:'linear-gradient(135deg,#0EA5E9,#38BDF8)' },
+    { name:'박민지', text:'박민지 교사가 새싹반 앨범을 업로드했습니다.',  time:'23분 전',  bg:'linear-gradient(135deg,#8B5CF6,#A78BFA)' },
+    { name:'최서연', text:'최서연 교사가 별빛반 일정을 등록했습니다.',   time:'1시간 전',  bg:'linear-gradient(135deg,#10B981,#34D399)' },
+    { name:'김보라', text:'김보라 교사가 투약의뢰서를 확인했습니다.',   time:'2시간 전',  bg:'linear-gradient(135deg,#F59E0B,#FCD34D)' },
+  ];
+  document.getElementById('actList').innerHTML = acts.map(a => `
+    <div class="act-item">
+      <div class="act-avatar" style="background:${a.bg}">${a.name.charAt(0)}</div>
+      <div class="act-text" style="flex:1">${a.text}</div>
+      <div class="act-time">${a.time}</div>
+    </div>
+  `).join('');
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 차트 초기화
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function initCharts() {
+  // 도넛
+  window._noticeChart = new Chart(
+    document.getElementById('noticeDonut').getContext('2d'), {
+      type: 'doughnut',
+      data: { labels:['완료','미작성'], datasets:[{ data:[56,28], backgroundColor:['#0EA5E9','#FEE2E2'], borderWidth:0, hoverOffset:4 }] },
+      options: { responsive:true, maintainAspectRatio:false, cutout:'72%',
+        plugins:{ legend:{ position:'bottom', labels:{ font:{family:'Pretendard',size:11}, padding:8, boxWidth:8 } } }
+      }
+    }
+  );
+
+  // 주간 바 차트
+  const weekLabels = isTeacher
+    ? ['월', '화', '수', '목', '금', '오늘']
+    : ['월(3/13)', '화(3/14)', '수(3/15)', '목(3/16)', '금(3/17)', '오늘'];
+
+  const weekDatasets = isTeacher ? [
+    { label:'완료', data:[15,16,13,16,15,14], backgroundColor:'rgba(14,165,233,0.8)', borderRadius:4 },
+    { label:'미작성', data:[3,2,5,2,3,4],   backgroundColor:'rgba(239,68,68,0.5)',  borderRadius:4 },
+  ] : [
+    { label:'햇님반', data:[14,15,13,16,14,14], backgroundColor:'rgba(14,165,233,0.8)',  borderRadius:4 },
+    { label:'새싹반', data:[18,17,19,18,16,15], backgroundColor:'rgba(56,189,248,0.6)',  borderRadius:4 },
+    { label:'별빛반', data:[20,19,21,20,18,17], backgroundColor:'rgba(2,132,199,0.5)',   borderRadius:4 },
+    { label:'무지개반',data:[10,11,10,12,11,10], backgroundColor:'rgba(125,211,252,0.5)', borderRadius:4 },
+  ];
+
+  window._weekChart = new Chart(
+    document.getElementById('weekChart').getContext('2d'), {
+      type: isTeacher ? 'line' : 'bar',
+      data: { labels: weekLabels, datasets: weekDatasets },
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ labels:{ font:{family:'Pretendard',size:11}, boxWidth:10, padding:8 } } },
+        scales:{
+          x:{ grid:{display:false}, ticks:{font:{family:'Pretendard',size:11}} },
+          y:{ grid:{color:'rgba(0,0,0,0.05)'}, ticks:{font:{family:'Pretendard',size:11}} }
+        },
+        ...(isTeacher ? { elements:{ line:{ tension:0.4 } } } : {})
+      }
+    }
+  );
+  if (isTeacher) document.getElementById('weekChartTitle').textContent = '📈 주간 알림장 추이';
+}
+
+function switchWeekChart(type, el) {
+  document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  if (type === 'month') {
+    window._weekChart.data.labels = ['1주', '2주', '3주', '4주'];
+    if (isTeacher) {
+      window._weekChart.data.datasets[0].data = [58, 62, 60, 56];
+      window._weekChart.data.datasets[1].data = [10,  8, 10, 12];
+    } else {
+      window._weekChart.data.datasets.forEach((d,i) => {
+        d.data = [[55,58,60,56],[68,72,70,56],[74,78,76,56],[42,44,46,40]][i];
+      });
+    }
+  } else {
+    window._weekChart.data.labels = isTeacher
+      ? ['월','화','수','목','금','오늘']
+      : ['월(3/13)','화(3/14)','수(3/15)','목(3/16)','금(3/17)','오늘'];
+    if (isTeacher) {
+      window._weekChart.data.datasets[0].data = [15,16,13,16,15,14];
+      window._weekChart.data.datasets[1].data = [3,2,5,2,3,4];
+    } else {
+      window._weekChart.data.datasets.forEach((d,i) => {
+        d.data = [[14,15,13,16,14,14],[18,17,19,18,16,15],[20,19,21,20,18,17],[10,11,10,12,11,10]][i];
+      });
+    }
+  }
+  window._weekChart.update();
+}
+
+// changeOrg / exitContext / logout → operation-sidebar.js 에서 전역 노출
+function showToast(msg) {
+  const wrap = document.getElementById('toastWrap');
+  const el = document.createElement('div');
+  el.className = 'toast'; el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(() => el.remove(), 2800);
+}
+</script>
+</body>
+</html>

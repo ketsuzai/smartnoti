@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEW 알림장 관리자 — Premium Login</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #4361EE;
+    --primary-glow: rgba(67, 97, 238, 0.3);
+    --bg-dark: #0B0E1A;
+    --card-bg: rgba(255, 255, 255, 0.03);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --text-main: #FFFFFF;
+    --text-dim: #94A3B8;
+    --input-bg: rgba(0, 0, 0, 0.2);
+    --error: #FF4B4B;
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-dark);
+    font-family: 'Pretendard', sans-serif;
+    color: var(--text-main);
+    overflow: hidden;
+  }
+
+  /* ── 고도화된 백그라운드 ── */
+  .bg-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(circle at 0% 0%, #161B33 0%, #0B0E1A 100%);
+  }
+
+  .orb {
+    position: absolute;
+    filter: blur(100px);
+    border-radius: 50%;
+    z-index: -1;
+    opacity: 0.4;
+    animation: move 20s infinite alternate;
+  }
+  .orb-1 { width: 500px; height: 500px; background: var(--primary); top: -10%; right: -5%; }
+  .orb-2 { width: 400px; height: 400px; background: #7C3AED; bottom: -10%; left: -5%; animation-delay: -5s; }
+
+  @keyframes move {
+    from { transform: translate(0, 0); }
+    to { transform: translate(50px, 100px); }
+  }
+
+  /* ── 로그인 카드 ── */
+  .login-container {
+    width: 100%;
+    max-width: 440px;
+    padding: 20px;
+    perspective: 1000px;
+  }
+
+  .login-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(25px) saturate(180%);
+    -webkit-backdrop-filter: blur(25px) saturate(180%);
+    border: 1px solid var(--card-border);
+    border-radius: 28px;
+    padding: 48px 40px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .login-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  }
+
+  .header { text-align: center; margin-bottom: 40px; }
+  .header .badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: rgba(67, 97, 238, 0.1);
+    border: 1px solid rgba(67, 97, 238, 0.2);
+    border-radius: 100px;
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  .header h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px; }
+  .header p { color: var(--text-dim); font-size: 14px; }
+
+  /* ── 폼 스타일 ── */
+  .form-group { margin-bottom: 20px; position: relative; }
+  .form-group label {
+    display: block;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    margin-left: 4px;
+    font-weight: 500;
+  }
+
+  .input-field {
+    width: 100%;
+    height: 54px;
+    background: var(--input-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 0 20px 0 50px;
+    color: white;
+    font-size: 15px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .input-field:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 0 4px var(--primary-glow);
+  }
+
+  .input-icon {
+    position: absolute;
+    left: 18px;
+    top: 39px;
+    color: var(--text-dim);
+    transition: color 0.3s;
+  }
+  .input-field:focus + .input-icon { color: var(--primary); }
+
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 24px 0;
+    font-size: 13px;
+  }
+
+  .checkbox-group { display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-dim); }
+  .checkbox-group input { accent-color: var(--primary); width: 16px; height: 16px; }
+
+  .forgot-pw { color: var(--text-dim); text-decoration: none; transition: 0.2s; }
+  .forgot-pw:hover { color: var(--primary); }
+
+  .btn-submit {
+    width: 100%;
+    height: 56px;
+    background: var(--primary);
+    border: none;
+    border-radius: var(--radius);
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 10px 20px -5px var(--primary-glow);
+  }
+
+  .btn-submit:hover {
+    transform: translateY(-2px);
+    background: #5371ff;
+    box-shadow: 0 15px 30px -5px var(--primary-glow);
+  }
+
+  .btn-submit:active { transform: translateY(0); }
+
+  /* ── 테스트 계정 칩 ── */
+  .test-accounts {
+    margin-top: 28px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 14px;
+    padding: 14px 16px;
+    border: 1px dashed var(--card-border);
+  }
+  .test-accounts-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-dim);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+  .test-accounts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .test-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 10px 8px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .test-chip:hover { transform: translateY(-2px); }
+  .test-chip.super {
+    background: rgba(67, 97, 238, 0.1);
+    border-color: rgba(67, 97, 238, 0.25);
+  }
+  .test-chip.super:hover { background: rgba(67, 97, 238, 0.18); border-color: rgba(67, 97, 238, 0.4); }
+  .test-chip.org {
+    background: rgba(14, 165, 233, 0.1);
+    border-color: rgba(14, 165, 233, 0.25);
+  }
+  .test-chip.org:hover { background: rgba(14, 165, 233, 0.18); border-color: rgba(14, 165, 233, 0.4); }
+  .test-chip.teacher {
+    background: rgba(20, 184, 166, 0.1);
+    border-color: rgba(20, 184, 166, 0.25);
+  }
+  .test-chip.teacher:hover { background: rgba(20, 184, 166, 0.18); border-color: rgba(20, 184, 166, 0.4); }
+  .test-chip-icon { font-size: 18px; line-height: 1; }
+  .test-chip-role {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+  .test-chip.super .test-chip-role { color: #7B9EFF; }
+  .test-chip.org .test-chip-role { color: #38BDF8; }
+  .test-chip.teacher .test-chip-role { color: #2DD4BF; }
+  .test-chip-id {
+    font-size: 10px;
+    color: var(--text-dim);
+    font-family: monospace;
+  }
+
+  .footer {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 12px;
+    color: var(--text-dim);
+    opacity: 0.6;
+  }
+
+  /* ── 알림 효과 ── */
+  .error-toast {
+    position: absolute;
+    top: -60px; left: 0; right: 0;
+    background: var(--error);
+    color: white;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    text-align: center;
+    transform: translateY(0);
+    transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    opacity: 0;
+  }
+  .error-toast.show { top: 20px; opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="bg-canvas"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<div class="login-container">
+  <div class="login-card">
+    <div id="errorToast" class="error-toast">아이디 또는 비밀번호를 확인해주세요.</div>
+    
+    <div class="header">
+      <span class="badge">SYSTEM V1.0</span>
+      <h1>키드키즈 알림장 관리자</h1>
+      <p>관리자 계정으로 로그인하세요.</p>
+    </div>
+
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label>ID</label>
+        <input type="text" id="adminId" class="input-field" placeholder="아이디를 입력하세요" required>
+        <div class="input-icon">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>PW</label>
+        <input type="password" id="adminPw" class="input-field" placeholder="••••••••" required>
+        <div class="input-icon">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        </div>
+      </div>
+
+      <div class="row">
+        <label class="checkbox-group">
+          <input type="checkbox"> 로그인 유지
+        </label>
+        <a href="#" class="forgot-pw">비밀번호 찾기</a>
+      </div>
+
+      <button type="submit" class="btn-submit" id="submitBtn">접속하기</button>
+    </form>
+
+    <div class="test-accounts">
+      <div class="test-accounts-title">
+        <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        테스트 계정
+      </div>
+      <div class="test-accounts-grid">
+        <div class="test-chip super" onclick="fillAccount('admin','1234')">
+          <span class="test-chip-icon">🔑</span>
+          <span class="test-chip-role">통합관리자</span>
+          <span class="test-chip-id">admin / 1234</span>
+        </div>
+        <div class="test-chip org" onclick="fillAccount('org_admin','1234')">
+          <span class="test-chip-icon">🏫</span>
+          <span class="test-chip-role">기관관리자</span>
+          <span class="test-chip-id">org_admin / 1234</span>
+        </div>
+        <div class="test-chip teacher" onclick="fillAccount('teacher','1234')">
+          <span class="test-chip-icon">👩‍🏫</span>
+          <span class="test-chip-role">교사관리자</span>
+          <span class="test-chip-id">teacher / 1234</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    &copy; 2026 kidkids Admin Panel. All Rights Reserved.
+  </div>
+</div>
+
+<script>
+  // ── 테스트 계정 정의 ──
+  const ACCOUNTS = {
+    'admin':     { pw: '1234', role: 'super',     name: '통합관리자',  redirect: 'src/pages/dashboard.html' },
+    'org_admin': { pw: '1234', role: 'org_admin',  name: '기관관리자',  redirect: 'src/pages/oper/operation-dashboard.html' },
+    'teacher':   { pw: '1234', role: 'teacher',    name: '교사관리자',  redirect: 'src/pages/oper/operation-dashboard.html' },
+  };
+
+  // ── 테스트 계정 클릭 시 자동 입력 ──
+  function fillAccount(id, pw) {
+    document.getElementById('adminId').value = id;
+    document.getElementById('adminPw').value = pw;
+    document.getElementById('adminId').dispatchEvent(new Event('input'));
+    document.getElementById('adminPw').dispatchEvent(new Event('input'));
+    // 칩 활성화 표시
+    document.querySelectorAll('.test-chip').forEach(c => c.style.outline = 'none');
+    event.currentTarget.style.outline = '2px solid rgba(255,255,255,0.3)';
+  }
+
+  // ── 로그인 처리 ──
+  function handleLogin(e) {
+    e.preventDefault();
+    const id  = document.getElementById('adminId').value.trim();
+    const pw  = document.getElementById('adminPw').value;
+    const btn = document.getElementById('submitBtn');
+    const toast = document.getElementById('errorToast');
+
+    btn.innerText = "인증 중...";
+    btn.style.opacity = "0.7";
+
+    setTimeout(() => {
+      const account = ACCOUNTS[id];
+      if (account && account.pw === pw) {
+        // ── sessionStorage에 역할 정보 저장 ──
+        sessionStorage.setItem('userRole',  account.role);
+        sessionStorage.setItem('userName',  account.name);
+        sessionStorage.setItem('userId',    id);
+        sessionStorage.removeItem('operationContext'); // 이전 컨텍스트 초기화
+
+        btn.innerText = `${account.name} 인증 성공 ✓`;
+        btn.style.background = "#10B981";
+        btn.style.opacity = "1";
+
+        setTimeout(() => {
+          window.location.href = account.redirect;
+        }, 600);
+      } else {
+        btn.innerText = "접속하기";
+        btn.style.opacity = "1";
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+      }
+    }, 800);
+  }
+</script>
+
+</body>
+</html>

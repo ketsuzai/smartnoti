@@ -1,0 +1,2053 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>알림장 관리자 시스템 - 통합회원 조회</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-base:        #F4F5F7;
+  --bg-surface:     #FFFFFF;
+  --bg-sidebar:     #1A1D2E;
+  --bg-sidebar-hover: #252840;
+  --bg-sidebar-active: #2E3250;
+
+  --accent-primary:       #4361EE;
+  --accent-primary-light: #EEF1FD;
+  --accent-secondary:     #3A0CA3;
+
+  --text-primary:   #1A1D2E;
+  --text-secondary: #6B7280;
+  --text-muted:     #9CA3AF;
+  --text-sidebar:   #C5C9D6;
+
+  --border-light:   #E5E7EB;
+  --border-medium:  #D1D5DB;
+
+  /* ── 상태 컬러 시스템 ── */
+  /* 재직중 */
+  --s-active-bg: #D1FAE5; --s-active-text: #065F46; --s-active-dot: #10B981;
+  /* 재원중 */
+  --s-enroll-bg: #DBEAFE; --s-enroll-text: #1E40AF; --s-enroll-dot: #3B82F6;
+  /* 졸업 */
+  --s-grad-bg: #EDE9FE; --s-grad-text: #5B21B6; --s-grad-dot: #8B5CF6;
+  /* 퇴소/퇴사 */
+  --s-leave-bg: #FEF3C7; --s-leave-text: #92400E; --s-leave-dot: #F59E0B;
+  /* 서비스탈퇴 */
+  --s-out-bg: #FEE2E2; --s-out-text: #991B1B; --s-out-dot: #EF4444;
+  /* 정지 */
+  --s-stop-bg: #F3F4F6; --s-stop-text: #374151; --s-stop-dot: #9CA3AF;
+
+  --shadow-sm:    0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md:    0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg:    0 8px 32px rgba(0,0,0,0.12);
+  --shadow-modal: 0 20px 60px rgba(0,0,0,0.18);
+
+  --radius-sm: 6px; --radius-md: 8px;
+  --radius-lg: 12px; --radius-xl: 16px;
+
+  --sidebar-width: 240px;
+  --header-height: 60px;
+}
+
+body {
+  font-family: 'Pretendard', -apple-system, sans-serif;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+}
+
+/* ════════════════════════════
+   SIDEBAR
+════════════════════════════ */
+.sidebar {
+  width: var(--sidebar-width);
+  min-height: 100vh;
+  background: var(--bg-sidebar);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+}
+.sidebar-logo {
+  height: var(--header-height);
+  display: flex; align-items: center;
+  padding: 0 20px; gap: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.logo-icon {
+  width: 32px; height: 32px;
+  background: var(--accent-primary);
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+.logo-text { font-size: 14px; font-weight: 700; color: #fff; letter-spacing: -0.3px; }
+.logo-badge {
+  font-size: 10px; font-weight: 500;
+  color: var(--accent-primary);
+  background: rgba(67,97,238,0.15);
+  padding: 2px 6px; border-radius: 4px; margin-left: auto;
+}
+.sidebar-nav { flex: 1; padding: 12px 0; overflow-y: auto; }
+.nav-section-title {
+  font-size: 10px; font-weight: 600;
+  color: rgba(197,201,214,0.4);
+  letter-spacing: 1px; text-transform: uppercase;
+  padding: 12px 20px 6px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 20px;
+  color: var(--text-sidebar);
+  cursor: pointer; font-size: 13.5px; font-weight: 400;
+  transition: all 0.15s; position: relative;
+}
+.nav-item:hover { background: var(--bg-sidebar-hover); color: #fff; }
+.nav-item.active {
+  background: var(--bg-sidebar-active);
+  color: #fff; font-weight: 500;
+}
+.nav-item.active::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px; background: var(--accent-primary);
+  border-radius: 0 2px 2px 0;
+}
+.nav-item .nav-icon { width: 18px; height: 18px; opacity: 0.75; flex-shrink: 0; }
+.nav-item.active .nav-icon { opacity: 1; }
+.nav-item .nav-badge {
+  margin-left: auto;
+  background: var(--accent-primary); color: #fff;
+  font-size: 10px; font-weight: 600;
+  padding: 1px 6px; border-radius: 10px;
+}
+.nav-sub { background: rgba(0,0,0,0.15); }
+.nav-sub .nav-item { padding-left: 44px; font-size: 13px; }
+.nav-sub .nav-item.active { background: rgba(67,97,238,0.2); color: #fff; }
+
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.sidebar-user {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px; border-radius: var(--radius-md); cursor: pointer;
+  transition: background 0.15s;
+}
+.sidebar-user:hover { background: var(--bg-sidebar-hover); }
+.user-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg,#4361EE,#7C3AED);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.user-info { flex: 1; min-width: 0; }
+.user-name { font-size: 13px; font-weight: 600; color: #fff; }
+.user-role { font-size: 11px; color: rgba(197,201,214,0.6); }
+
+/* ════════════════════════════
+   MAIN
+════════════════════════════ */
+.main { margin-left: var(--sidebar-width); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+/* ── TOPBAR ── */
+.topbar {
+  height: var(--header-height);
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-light);
+  display: flex; align-items: center;
+  padding: 0 24px; gap: 12px;
+  position: sticky; top: 0; z-index: 50;
+  box-shadow: var(--shadow-sm);
+}
+.breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary); }
+.breadcrumb-sep { color: var(--text-muted); }
+.breadcrumb-current { color: var(--text-primary); font-weight: 600; }
+.topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.icon-btn {
+  width: 34px; height: 34px; border: none; background: transparent;
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--text-secondary); transition: all 0.15s; position: relative;
+}
+.icon-btn:hover { background: var(--bg-base); color: var(--text-primary); }
+.notif-dot {
+  position: absolute; top: 7px; right: 7px;
+  width: 7px; height: 7px; background: #EF4444;
+  border-radius: 50%; border: 1.5px solid #fff;
+}
+.topbar-divider { width: 1px; height: 22px; background: var(--border-light); }
+.topbar-profile {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 10px; border-radius: var(--radius-md);
+  cursor: pointer; transition: background 0.15s;
+}
+.topbar-profile:hover { background: var(--bg-base); }
+.profile-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: linear-gradient(135deg,#4361EE,#7C3AED);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #fff;
+}
+.profile-name { font-size: 13px; font-weight: 600; }
+
+/* ── CONTENT ── */
+.content { flex: 1; padding: 24px; }
+
+.page-header {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; margin-bottom: 20px;
+}
+.page-title { font-size: 20px; font-weight: 700; letter-spacing: -0.4px; }
+.page-subtitle { font-size: 13px; color: var(--text-secondary); margin-top: 3px; }
+
+/* ════════════════════════════
+   SUMMARY CARDS
+════════════════════════════ */
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1.3fr 1fr 1fr 1fr 1.3fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.sum-card {
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px 16px;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  position: relative;
+  overflow: hidden;
+}
+.sum-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--card-accent, #E5E7EB);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+.sum-card:hover {
+  border-color: var(--card-accent, var(--border-medium));
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  transform: translateY(-2px);
+}
+.sum-card.active-filter {
+  border-color: var(--card-accent);
+  background: var(--card-bg, #fff);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+}
+
+.sum-card-label {
+  font-size: 11.5px; font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.1px; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 5px;
+}
+.sum-card-label .dot-icon {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--card-accent, #9CA3AF);
+  flex-shrink: 0;
+}
+.sum-card-num {
+  font-size: 26px; font-weight: 800;
+  color: var(--card-num, var(--text-primary));
+  letter-spacing: -1px; line-height: 1;
+  margin-bottom: 10px;
+}
+.sum-card-footer {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11.5px; color: var(--text-muted);
+}
+.sum-card-link {
+  font-size: 11.5px; font-weight: 600;
+  color: var(--accent-primary);
+  display: flex; align-items: center; gap: 3px;
+  text-decoration: none; cursor: pointer;
+}
+.sum-card-link:hover { text-decoration: underline; }
+.trend-up { color: #10B981; font-weight: 600; font-size: 11.5px; }
+.trend-num { display: flex; align-items: center; gap: 3px; }
+
+/* card color variants */
+.card-total   { --card-accent: #4361EE; --card-num: #1A1D2E; --card-bg: #EEF1FD; }
+.card-inuse   { --card-accent: #3B82F6; --card-num: #1E40AF; --card-bg: #EFF6FF; }
+.card-director{ --card-accent: #F59E0B; --card-num: #92400E; --card-bg: #FFFBEB; }
+.card-teacher { --card-accent: #10B981; --card-num: #065F46; --card-bg: #ECFDF5; }
+.card-parent  { --card-accent: #8B5CF6; --card-num: #5B21B6; --card-bg: #F5F3FF; }
+.card-ended   { --card-accent: #EF4444; --card-num: #991B1B; --card-bg: #FEF2F2; }
+
+/* ════════════════════════════
+   FILTER CARD
+════════════════════════════ */
+.filter-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+}
+.filter-row {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.filter-row + .filter-row { margin-top: 10px; }
+
+.f-label {
+  font-size: 11.5px; font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap; width: 68px; flex-shrink: 0;
+}
+
+.f-select-wrap { position: relative; }
+.f-select-wrap::after {
+  content: '';
+  position: absolute; right: 9px; top: 50%;
+  transform: translateY(-50%);
+  width: 0; height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid var(--text-muted);
+  pointer-events: none;
+}
+.f-select {
+  height: 34px; padding: 0 28px 0 10px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  font-size: 13px; font-family: inherit;
+  background: var(--bg-base); color: var(--text-primary);
+  appearance: none; cursor: pointer; transition: all 0.15s;
+  min-width: 120px;
+}
+.f-select:focus {
+  outline: none; border-color: var(--accent-primary);
+  background: #fff; box-shadow: 0 0 0 3px rgba(67,97,238,0.1);
+}
+
+.search-combo {
+  display: flex; align-items: center; gap: 0;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  overflow: hidden; background: var(--bg-base);
+  transition: all 0.15s;
+}
+.search-combo:focus-within {
+  border-color: var(--accent-primary);
+  background: #fff; box-shadow: 0 0 0 3px rgba(67,97,238,0.1);
+}
+.search-type {
+  height: 34px; padding: 0 10px;
+  border: none; border-right: 1px solid var(--border-medium);
+  background: transparent; font-size: 12.5px; font-family: inherit;
+  color: var(--text-secondary); cursor: pointer; appearance: none;
+  min-width: 80px; outline: none;
+}
+.search-input {
+  height: 34px; padding: 0 10px;
+  border: none; background: transparent;
+  font-size: 13px; font-family: inherit;
+  color: var(--text-primary); outline: none;
+  width: 220px;
+}
+.search-input::placeholder { color: var(--text-muted); }
+.search-btn {
+  height: 34px; padding: 0 12px;
+  background: var(--accent-primary); border: none;
+  color: #fff; cursor: pointer; transition: background 0.15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.search-btn:hover { background: #3251D5; }
+
+.filter-divider { width: 1px; height: 20px; background: var(--border-light); }
+
+.active-chips {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  margin-top: 12px; padding-top: 10px;
+  border-top: 1px solid var(--border-light);
+}
+.chip {
+  display: flex; align-items: center; gap: 5px;
+  padding: 3px 8px;
+  background: var(--accent-primary-light);
+  color: var(--accent-primary);
+  border-radius: 12px; font-size: 12px; font-weight: 500;
+}
+.chip-rm {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: rgba(67,97,238,0.2); border: none;
+  cursor: pointer; font-size: 10px; line-height: 1;
+  color: var(--accent-primary);
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ════════════════════════════
+   TABLE CARD
+════════════════════════════ */
+.table-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.table-toolbar {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border-light);
+}
+.result-info { font-size: 13px; color: var(--text-secondary); }
+.result-info strong { color: var(--text-primary); font-weight: 700; }
+
+.toolbar-right { display: flex; align-items: center; gap: 8px; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 13px; border-radius: var(--radius-md);
+  font-size: 12.5px; font-weight: 500;
+  cursor: pointer; border: none; transition: all 0.15s;
+  font-family: inherit; white-space: nowrap;
+}
+.btn-secondary {
+  background: var(--bg-surface); color: var(--text-primary);
+  border: 1px solid var(--border-medium);
+}
+.btn-secondary:hover { background: var(--bg-base); }
+.btn-primary { background: var(--accent-primary); color: #fff; }
+.btn-primary:hover { background: #3251D5; }
+
+.per-page-wrap { position: relative; }
+.per-page-wrap::after {
+  content: ''; position: absolute; right: 6px; top: 50%;
+  transform: translateY(-50%); pointer-events: none;
+  width: 0; height: 0;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-top: 4px solid var(--text-muted);
+}
+.per-page {
+  height: 30px; padding: 0 20px 0 8px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  font-size: 12px; background: var(--bg-base);
+  appearance: none; font-family: inherit; cursor: pointer;
+  color: var(--text-primary);
+}
+
+/* ── TABLE ── */
+.tbl-wrap { overflow-x: auto; }
+
+table {
+  width: 100%; border-collapse: collapse;
+  table-layout: fixed; min-width: 1300px;
+}
+th {
+  background: #F8F9FB;
+  padding: 9px 12px; text-align: left;
+  font-size: 11px; font-weight: 700;
+  color: var(--text-secondary);
+  letter-spacing: 0.4px; text-transform: uppercase;
+  border-bottom: 1px solid var(--border-light);
+  white-space: nowrap;
+}
+th:first-child { padding-left: 20px; }
+td:first-child { padding-left: 20px; }
+td {
+  padding: 12px 12px; font-size: 12.5px;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-light);
+  vertical-align: middle;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #FAFBFC; }
+tr.row-sel td { background: #EEF1FD; }
+
+/* col widths */
+.c-chk   { width: 38px; }
+.c-stat  { width: 82px; }
+.c-type  { width: 72px; }
+.c-gtype { width: 70px; }
+.c-name  { width: 80px; }
+.c-phone { width: 116px; }
+.c-affil { width: 220px; }
+.c-conn  { width: 64px; }
+.c-role  { width: 72px; }
+.c-pos   { width: 64px; }
+.c-route { width: 90px; }
+.c-login { width: 88px; }
+.c-join  { width: 92px; }
+.c-last  { width: 92px; }
+.c-view  { width: 56px; text-align: center; }
+
+/* ── STATUS BADGE ── */
+.sbadge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 7px; border-radius: 20px;
+  font-size: 11px; font-weight: 700; white-space: nowrap;
+}
+.sdot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+
+.s-active  { background: var(--s-active-bg);  color: var(--s-active-text);  }
+.s-active  .sdot { background: var(--s-active-dot);  }
+.s-enroll  { background: var(--s-enroll-bg);  color: var(--s-enroll-text);  }
+.s-enroll  .sdot { background: var(--s-enroll-dot);  }
+.s-grad    { background: var(--s-grad-bg);    color: var(--s-grad-text);    }
+.s-grad    .sdot { background: var(--s-grad-dot);    }
+.s-leave   { background: var(--s-leave-bg);   color: var(--s-leave-text);   }
+.s-leave   .sdot { background: var(--s-leave-dot);   }
+.s-out     { background: var(--s-out-bg);     color: var(--s-out-text);     }
+.s-out     .sdot { background: var(--s-out-dot);     }
+.s-stop    { background: var(--s-stop-bg);    color: var(--s-stop-text);    }
+.s-stop    .sdot { background: var(--s-stop-dot);    }
+
+/* ── TYPE BADGE ── */
+.tbadge {
+  display: inline-flex; align-items: center;
+  padding: 2px 6px; border-radius: 4px;
+  font-size: 11px; font-weight: 600;
+}
+.t-teacher  { background: #DBEAFE; color: #1E40AF; }
+.t-parent   { background: #F3E8FF; color: #6B21A8; }
+.t-director { background: #FEF3C7; color: #92400E; }
+
+/* ── GUARDIAN TYPE ── */
+.gt-main   { font-size: 11px; font-weight: 600; color: #1E40AF; }
+.gt-family { font-size: 11px; font-weight: 600; color: #6B7280; }
+
+/* ── NAME LINK ── */
+.name-link {
+  font-weight: 600; color: var(--text-primary);
+  cursor: pointer; text-decoration: none;
+  transition: color 0.15s;
+}
+.name-link:hover { color: var(--accent-primary); text-decoration: underline; }
+
+/* ── AFFIL CELL ── */
+.affil-main { font-size: 12.5px; font-weight: 500; }
+.affil-sub  { font-size: 11.5px; color: var(--text-secondary); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ── PHONE ── */
+.phone-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; color: var(--text-primary);
+}
+
+/* ── VIEW BTN ── */
+.view-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 4px 10px; font-size: 11.5px; font-weight: 600;
+  background: var(--bg-base); color: var(--text-secondary);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm); cursor: pointer;
+  transition: all 0.15s; font-family: inherit;
+}
+.view-btn:hover {
+  background: var(--accent-primary-light);
+  color: var(--accent-primary); border-color: #b0bfee;
+}
+
+/* ── CHECKBOX ── */
+.chk {
+  width: 15px; height: 15px;
+  border: 1.5px solid var(--border-medium);
+  border-radius: 3px; appearance: none; cursor: pointer;
+  transition: all 0.15s; position: relative;
+}
+.chk:checked { background: var(--accent-primary); border-color: var(--accent-primary); }
+.chk:checked::after {
+  content: ''; position: absolute;
+  left: 3px; top: 1px;
+  width: 5px; height: 8px;
+  border: 2px solid #fff; border-top: none; border-left: none;
+  transform: rotate(45deg);
+}
+
+/* ── ROUTE / LOGIN TAG ── */
+.tag {
+  display: inline-flex; align-items: center;
+  padding: 2px 6px; border-radius: 4px;
+  font-size: 11px; font-weight: 500;
+}
+.tag-integrated { background: #EEF1FD; color: var(--accent-primary); }
+.tag-invite  { background: #ECFDF5; color: #065F46; }
+.tag-direct  { background: #F3F4F6; color: #374151; }
+.tag-kakao   { background: #FEF9C3; color: #713F12; }
+.tag-naver   { background: #DCFCE7; color: #14532D; }
+.tag-google  { background: #FEE2E2; color: #991B1B; }
+.tag-apple   { background: #F3F4F6; color: #111827; }
+.tag-unified { background: #EEF1FD; color: var(--accent-primary); }
+
+/* ── CONN COUNT ── */
+.conn-count {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px;
+  background: var(--bg-base); border: 1px solid var(--border-medium);
+  border-radius: 50%; font-size: 11px; font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ── PAGINATION ── */
+.pagination-area {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 13px 20px;
+  border-top: 1px solid var(--border-light);
+}
+.pg-info { font-size: 12.5px; color: var(--text-secondary); }
+.pagination { display: flex; align-items: center; gap: 3px; }
+.pg-btn {
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px; cursor: pointer;
+  color: var(--text-secondary); background: var(--bg-surface);
+  transition: all 0.15s; font-family: inherit;
+}
+.pg-btn:hover { background: var(--bg-base); color: var(--text-primary); }
+.pg-btn.active { background: var(--accent-primary); color: #fff; border-color: var(--accent-primary); font-weight: 700; }
+.pg-btn:disabled { opacity: 0.38; cursor: not-allowed; }
+
+/* ── DETAIL MODAL ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(10,12,28,0.45); backdrop-filter: blur(3px);
+  z-index: 1000; align-items: flex-start; justify-content: flex-end;
+}
+.modal-overlay.show { display: flex; }
+
+.detail-panel {
+  width: 480px; height: 100vh;
+  background: var(--bg-surface);
+  box-shadow: -8px 0 40px rgba(0,0,0,0.15);
+  display: flex; flex-direction: column;
+  animation: slideLeft 0.25s cubic-bezier(0.34,1.1,0.64,1);
+  overflow-y: auto;
+}
+@keyframes slideLeft {
+  from { transform: translateX(40px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+.dp-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border-light);
+  position: sticky; top: 0; background: var(--bg-surface); z-index: 10;
+}
+.dp-title { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; }
+.dp-close {
+  width: 30px; height: 30px; border: none;
+  background: var(--bg-base); border-radius: var(--radius-sm);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  color: var(--text-secondary); font-size: 16px; transition: all 0.15s;
+}
+.dp-close:hover { background: #fee2e2; color: #dc2626; }
+
+.dp-body { padding: 20px 24px; flex: 1; }
+
+.dp-profile {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px; background: var(--bg-base);
+  border-radius: var(--radius-md); margin-bottom: 20px;
+}
+.dp-avatar {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: linear-gradient(135deg,#4361EE,#7C3AED);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 800; color: #fff; flex-shrink: 0;
+}
+.dp-pname { font-size: 16px; font-weight: 700; }
+.dp-pmeta { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+.dp-section { margin-bottom: 18px; }
+.dp-sec-title {
+  font-size: 10.5px; font-weight: 700;
+  color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px;
+  margin-bottom: 10px; padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-light);
+}
+.dp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.dp-item .dp-key { font-size: 11px; color: var(--text-muted); margin-bottom: 3px; }
+.dp-item .dp-val { font-size: 13px; font-weight: 500; }
+
+.dp-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border-light);
+  display: flex; gap: 8px; justify-content: flex-end;
+  position: sticky; bottom: 0; background: var(--bg-surface);
+}
+
+/* ── TOAST ── */
+.toast-wrap {
+  position: fixed; bottom: 24px; right: 24px; z-index: 2000;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.toast {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 16px;
+  background: #1A1D2E; color: #fff;
+  border-radius: var(--radius-md); font-size: 13px; font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  animation: toastIn 0.25s cubic-bezier(0.34,1.3,0.64,1);
+  min-width: 240px;
+}
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+  /* ── nav-sub ── */
+  .nav-sub { overflow:hidden; }
+  .nav-sub .nav-item { padding-left:44px; font-size:13px; }
+  .nav-sub .nav-item.active { background:rgba(67,97,238,0.22); color:#fff; font-weight:600; }
+  .nav-sub .nav-item.active::before { display:none; }
+
+
+/* ══════════════════════════════════════
+   FULL-PAGE DETAIL VIEW
+══════════════════════════════════════ */
+#detailPage {
+  display: none;
+  position: fixed; inset: 0; z-index: 900;
+  background: var(--bg-base);
+  overflow-y: auto;
+}
+#detailPage.show { display: block; }
+
+/* 상세페이지 탑바 */
+.dpage-topbar {
+  height: 60px; background: #fff;
+  border-bottom: 1px solid var(--border-light);
+  display: flex; align-items: center;
+  padding: 0 24px; gap: 10px;
+  position: sticky; top: 0; z-index: 50;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.dpage-breadcrumb {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--text-secondary);
+}
+.dpage-breadcrumb a { color: var(--text-secondary); cursor: pointer; text-decoration: none; }
+.dpage-breadcrumb a:hover { color: var(--accent-primary); }
+.dpage-breadcrumb .cur { color: var(--text-primary); font-weight: 600; }
+.dpage-actions { margin-left: auto; display: flex; gap: 8px; }
+
+/* 상세페이지 액션 버튼 */
+.dpa-btn {
+  height: 36px; padding: 0 18px;
+  border-radius: 8px; font-size: 13px; font-weight: 600;
+  cursor: pointer; border: none; font-family: inherit; transition: all 0.15s;
+}
+.dpa-list   { background: #F3F4F6; color: #374151; }
+.dpa-list:hover { background: #E5E7EB; }
+.dpa-stop   { background: #1A1D2E; color: #fff; }
+.dpa-stop:hover { background: #2E3250; }
+.dpa-out    { background: #EF4444; color: #fff; }
+.dpa-out:hover { background: #DC2626; }
+.dpa-edit   { background: #6B7280; color: #fff; }
+.dpa-edit:hover { background: #4B5563; }
+
+/* 상세페이지 콘텐츠 */
+.dpage-body { padding: 24px 32px; max-width: 1200px; margin: 0 auto; }
+
+/* ── 섹션 타이틀 (왼쪽 파란 바) ── */
+.dp2-sec {
+  display: flex; align-items: center;
+  font-size: 14px; font-weight: 700; color: var(--text-primary);
+  margin-bottom: 14px; margin-top: 28px;
+}
+.dp2-sec::before {
+  content: ''; width: 4px; height: 18px;
+  background: var(--accent-primary); border-radius: 2px;
+  margin-right: 10px; display: inline-block;
+}
+
+/* ── 상태정보 테이블 ── */
+.dp2-status-wrap {
+  background: #fff; border: 1px solid var(--border-light);
+  border-radius: 12px; overflow: hidden; margin-bottom: 0;
+  display: flex;
+}
+.dp2-status-inner { flex: 1; display: flex; }
+.dp2-status-cell {
+  flex: 1; padding: 14px 18px;
+  border-right: 1px solid #F3F4F6;
+}
+.dp2-status-cell:last-child { border-right: 1px solid #F3F4F6; }
+.dp2-cell-label { font-size: 11px; color: #9CA3AF; margin-bottom: 6px; }
+.dp2-cell-val { font-size: 13px; font-weight: 600; color: #1A1D2E; }
+.dp2-photo-cell {
+  width: 120px; flex-shrink: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 8px;
+  padding: 14px;
+  border-left: 1px solid #F3F4F6;
+}
+.dp2-avatar-lg {
+  width: 80px; height: 80px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; font-weight: 800; color: #fff;
+  overflow: hidden; border: 2px solid rgba(0,0,0,0.06);
+}
+.dp2-avatar-lg img { width:100%; height:100%; object-fit:cover; }
+.dp2-photo-btn {
+  font-size: 11.5px; color: #4361EE; background: #EEF1FD;
+  border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer;
+  font-family: inherit;
+}
+
+/* ── 회원정보 테이블 ── */
+.dp2-info-table {
+  background: #fff; border: 1px solid var(--border-light);
+  border-radius: 12px; overflow: hidden; width: 100%;
+  border-collapse: collapse;
+}
+.dp2-info-table td {
+  padding: 11px 18px; font-size: 13px;
+  border-bottom: 1px solid #F3F4F6;
+  border-right: 1px solid #F3F4F6;
+  vertical-align: middle;
+}
+.dp2-info-table tr:last-child td { border-bottom: none; }
+.dp2-info-table td.label {
+  color: #9CA3AF; font-size: 11.5px; font-weight: 500;
+  width: 100px; background: #FAFAFA;
+}
+.dp2-info-table td.val { font-weight: 500; color: #1A1D2E; }
+.dp2-info-table td:last-child { border-right: none; }
+.dp2-notice {
+  font-size: 12px; color: #9CA3AF; margin-top: 8px; margin-left: 2px;
+}
+
+/* ── 2열 레이아웃 ── */
+.dp2-two-col {
+  display: grid; grid-template-columns: 1fr 300px; gap: 20px;
+  align-items: start; margin-top: 0;
+}
+
+/* ── 소속정보 ── */
+.dp2-affil-card {
+  background: #fff; border: 1px solid var(--border-light);
+  border-radius: 12px; overflow: hidden;
+}
+.dp2-affil-row {
+  display: grid; grid-template-columns: 130px 1fr 130px 1fr;
+  border-bottom: 1px solid #F3F4F6;
+}
+.dp2-affil-row:last-child { border-bottom: none; }
+.dp2-affil-label {
+  padding: 11px 16px; font-size: 11.5px; color: #9CA3AF;
+  background: #FAFAFA; border-right: 1px solid #F3F4F6;
+  font-weight: 500; display: flex; align-items: center;
+}
+.dp2-affil-val {
+  padding: 11px 16px; font-size: 13px; font-weight: 500; color: #1A1D2E;
+  border-right: 1px solid #F3F4F6; display: flex; align-items: center; gap: 8px;
+}
+.dp2-affil-val:last-child { border-right: none; }
+.dp2-affil-val.full { grid-column: 2/-1; border-right: none; }
+
+/* 직책 토글 */
+.dp2-toggle {
+  width: 38px; height: 22px; background: #4361EE;
+  border-radius: 11px; position: relative; cursor: pointer; flex-shrink: 0;
+}
+.dp2-toggle::after {
+  content: ''; position: absolute;
+  width: 16px; height: 16px; background: #fff; border-radius: 50%;
+  top: 3px; right: 3px;
+}
+.dp2-select {
+  border: 1px solid #D1D5DB; border-radius: 5px;
+  padding: 5px 10px; font-size: 12.5px; font-family: inherit;
+  background: #F9FAFB; color: #374151; min-width: 120px;
+}
+
+/* ── 가족계정 사이드카드 ── */
+.dp2-family-card {
+  background: #fff; border: 1px solid var(--border-light);
+  border-radius: 12px; overflow: hidden;
+}
+.dp2-family-header {
+  padding: 12px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid #F3F4F6; background: #FAFAFA;
+}
+.dp2-family-title { font-size: 13px; font-weight: 700; }
+.dp2-account-badge {
+  font-size: 11px; font-weight: 700;
+  padding: 2px 8px; border-radius: 6px; cursor: pointer;
+  border: none; font-family: inherit;
+}
+.dp2-account-badge.main { background: #EEF1FD; color: #4361EE; }
+.dp2-family-row {
+  display: grid; grid-template-columns: 40px 1fr 1fr;
+  gap: 0; padding: 9px 14px;
+  border-bottom: 1px solid #F3F4F6;
+  align-items: center; font-size: 12.5px;
+}
+.dp2-family-row:last-child { border-bottom: none; }
+.dp2-family-label { color: #9CA3AF; font-size: 11px; }
+.dp2-family-name { font-weight: 600; color: #4361EE; cursor: pointer; }
+.dp2-family-name:hover { text-decoration: underline; }
+
+/* ── 자녀 카드 (학부모용) ── */
+.dp2-children-area { display: flex; flex-direction: column; gap: 14px; }
+.dp2-child-card {
+  background: #fff; border: 1px solid var(--border-light);
+  border-radius: 12px; overflow: hidden;
+}
+.dp2-child-inner { display: flex; gap: 0; }
+.dp2-child-photo {
+  width: 100px; flex-shrink: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 8px;
+  padding: 16px; border-right: 1px solid #F3F4F6;
+  background: #FAFAFA;
+}
+.dp2-child-img {
+  width: 72px; height: 72px; border-radius: 10px;
+  overflow: hidden; border: 2px solid #E5E7EB;
+  background: linear-gradient(135deg,#E0E7FF,#C7D2FE);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; font-weight: 800; color: #4361EE;
+}
+.dp2-child-img img { width:100%; height:100%; object-fit:cover; }
+.dp2-child-photo-btn {
+  font-size: 11px; color: #4361EE; background: #EEF1FD;
+  border: none; padding: 3px 8px; border-radius: 5px; cursor: pointer;
+  font-family: inherit;
+}
+.dp2-child-info { flex: 1; }
+.dp2-child-name-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 14px 18px 8px;
+}
+.dp2-child-name { font-size: 16px; font-weight: 700; }
+.dp2-child-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+}
+.dp2-child-cell {
+  padding: 9px 18px;
+  border-top: 1px solid #F3F4F6;
+  border-right: 1px solid #F3F4F6;
+}
+.dp2-child-cell:last-child { border-right: none; }
+.dp2-child-cell.wide { grid-column: span 2; }
+.dp2-child-label { font-size: 11px; color: #9CA3AF; margin-bottom: 3px; }
+.dp2-child-val { font-size: 12.5px; font-weight: 500; color: #1A1D2E; }
+.dp2-child-val a { color: #4361EE; text-decoration: none; }
+.dp2-child-val a:hover { text-decoration: underline; }
+
+/* ── 관리자 메모 ── */
+.dp2-memo-card {
+  background: #fff; border: 1px solid var(--border-light);
+  border-radius: 12px; padding: 18px;
+  margin-top: 0;
+}
+.dp2-memo-textarea {
+  width: 100%; min-height: 90px;
+  border: 1px solid #E5E7EB; border-radius: 8px;
+  padding: 12px; font-size: 13px; font-family: inherit;
+  color: #374151; resize: vertical; outline: none;
+  transition: border 0.15s; line-height: 1.6;
+}
+.dp2-memo-textarea:focus { border-color: #4361EE; box-shadow: 0 0 0 3px rgba(67,97,238,0.1); }
+.dp2-memo-textarea::placeholder { color: #C4C9D4; }
+.dp2-memo-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 10px;
+}
+.dp2-memo-count { font-size: 12px; color: #9CA3AF; }
+.dp2-memo-date  { font-size: 11.5px; color: #9CA3AF; }
+.dp2-memo-save {
+  height: 34px; padding: 0 18px;
+  background: #1A1D2E; color: #fff; border: none;
+  border-radius: 7px; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: background 0.15s; font-family: inherit;
+}
+.dp2-memo-save:hover { background: #2E3250; }
+
+/* 상태 뱃지 (인라인) */
+.inline-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 20px;
+  font-size: 12px; font-weight: 600;
+}
+
+</style>
+</head>
+<body>
+
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🏫</div>
+    <div class="logo-text">알림장 Admin</div>
+    <div class="logo-badge">v2.4</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-title">메인</div>
+    <div class="nav-item " onclick="location.href='dashboard.html'" style="cursor:pointer">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1" stroke-width="2"/></svg>
+      Home (대시보드)
+    </div>
+
+    <div class="nav-section-title">관리</div>
+
+    <div class="nav-item active" onclick="toggleSubNav(this,'sub-member')" style="cursor:pointer">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>
+      회원/승인관리
+      <span class="nav-badge" style="margin-left:auto;background:#4361EE;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px">3</span>
+      <svg class="nav-chevron" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-left:4px;opacity:0.5;transition:transform 0.2s;flex-shrink:0"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+    </div>
+    <div class="nav-sub" id="sub-member" style="block">
+      <div class="nav-item active" onclick="location.href='member-list-admin.html'" style="cursor:pointer">통합회원 조회</div>
+      <div class="nav-item " onclick="location.href='member-approval.html'" style="cursor:pointer">가입 승인 관리 <span class="nav-badge">3</span></div>
+      <div class="nav-item " onclick="location.href='invitation-admin.html'" style="cursor:pointer">초대 관리</div>
+      <div class="nav-item " onclick="location.href='member-status-admin.html'" style="cursor:pointer">회원 상태 관리</div>
+    </div>
+
+    <div class="nav-item " onclick="toggleSubNav(this,'sub-org')" style="cursor:pointer">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+      기관관리
+      <span class="nav-badge" style="margin-left:auto;background:#4361EE;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px">5</span>
+      <svg class="nav-chevron" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-left:4px;opacity:0.5;transition:transform 0.2s;flex-shrink:0"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+    </div>
+    <div class="nav-sub" id="sub-org" style="none">
+      <div class="nav-item " onclick="location.href='org-admin.html'" style="cursor:pointer">기관 조회</div>
+      <div class="nav-item " onclick="location.href='org-admin.html#approval'" style="cursor:pointer">기관 승인 관리 <span class="nav-badge">5</span></div>
+      <div class="nav-item " onclick="location.href='org-admin.html#status'" style="cursor:pointer">기관 상태 관리</div>
+    </div>
+
+    <div class="nav-item" style="cursor:default;opacity:0.5">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      운영관리 <span style="font-size:10px;color:#9CA3AF;margin-left:auto">준비중</span>
+    </div>
+    <div class="nav-item" style="cursor:default;opacity:0.5">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      통계관리 <span style="font-size:10px;color:#9CA3AF;margin-left:auto">준비중</span>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sidebar-user" onclick="showToast('프로필 설정 화면으로 이동합니다.')" style="cursor:pointer">
+      <div class="user-avatar">관</div>
+      <div class="user-info" style="flex:1;min-width:0">
+        <div class="user-name">슈퍼 관리자</div>
+        <div class="user-role">admin@kidkids.kr</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════════ MAIN ═══════════ -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="breadcrumb">
+      <span>회원/승인관리</span>
+      <span class="breadcrumb-sep">›</span>
+      <span class="breadcrumb-current">통합회원 조회</span>
+    </div>
+    <div class="topbar-actions">
+      <button class="icon-btn">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+      </button>
+      <button class="icon-btn">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span class="notif-dot"></span>
+      </button>
+      <div class="topbar-divider"></div>
+      <div class="topbar-profile">
+        <div class="profile-avatar">관</div>
+        <span class="profile-name">슈퍼 관리자</span>
+        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--text-muted)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div>
+        <div class="page-title">통합회원 조회</div>
+        <div class="page-subtitle">알림장 서비스와 연결된 전체 회원을 조회합니다.</div>
+      </div>
+      <button class="btn btn-secondary" onclick="showToast('엑셀 파일 다운로드를 시작합니다.')">
+        <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        엑셀 다운로드
+      </button>
+    </div>
+
+    <!-- ── SUMMARY CARDS ── -->
+    <div class="summary-grid">
+
+      <!-- 총 통합회원 수 -->
+      <div class="sum-card card-total" onclick="filterByCard('all')">
+        <div class="sum-card-label">
+          <span class="dot-icon"></span>총 통합회원 수
+        </div>
+        <div class="sum-card-num">12,345</div>
+        <div class="sum-card-footer">
+          <a class="sum-card-link" onclick="showToast('통합회원 관리 화면으로 이동합니다.')">
+            통합회원 관리 바로가기
+            <svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- 알림장 이용 회원 수 -->
+      <div class="sum-card card-inuse" onclick="filterByCard('inuse')">
+        <div class="sum-card-label">
+          <span class="dot-icon"></span>알림장 이용 회원 수
+        </div>
+        <div class="sum-card-num">8,120</div>
+        <div class="sum-card-footer">
+          <span class="trend-num trend-up">
+            <svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+            12
+          </span>
+          <span style="color:var(--text-muted)">이번 주 신규</span>
+        </div>
+      </div>
+
+      <!-- 기관장 -->
+      <div class="sum-card card-director" onclick="filterByCard('director')">
+        <div class="sum-card-label">
+          <span class="dot-icon"></span>기관장 수
+        </div>
+        <div class="sum-card-num">230</div>
+        <div class="sum-card-footer">
+          <span class="trend-num trend-up">
+            <svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+            2
+          </span>
+          <span style="color:var(--text-muted)">이번 주 신규</span>
+        </div>
+      </div>
+
+      <!-- 교사 -->
+      <div class="sum-card card-teacher" onclick="filterByCard('teacher')">
+        <div class="sum-card-label">
+          <span class="dot-icon"></span>교사 수
+        </div>
+        <div class="sum-card-num">1,000</div>
+        <div class="sum-card-footer">
+          <span class="trend-num trend-up">
+            <svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+            5
+          </span>
+          <span style="color:var(--text-muted)">이번 주 신규</span>
+        </div>
+      </div>
+
+      <!-- 학부모 -->
+      <div class="sum-card card-parent" onclick="filterByCard('parent')">
+        <div class="sum-card-label">
+          <span class="dot-icon"></span>학부모 수
+        </div>
+        <div class="sum-card-num">6,890</div>
+        <div class="sum-card-footer">
+          <span class="trend-num trend-up">
+            <svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+            8
+          </span>
+          <span style="color:var(--text-muted)">이번 주 신규</span>
+        </div>
+      </div>
+
+      <!-- 이용 종료 -->
+      <div class="sum-card card-ended" onclick="filterByCard('ended')">
+        <div class="sum-card-label">
+          <span class="dot-icon"></span>알림장 이용 종료
+        </div>
+        <div class="sum-card-num" style="font-size:22px">320</div>
+        <div class="sum-card-footer" style="font-size:11px; color:var(--text-muted); line-height:1.4">
+          졸업 · 퇴소 · 퇴사 · 서비스탈퇴 포함
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── FILTER CARD ── -->
+    <div class="filter-card">
+      <div class="filter-row">
+        <span class="f-label">상태</span>
+        <div class="f-select-wrap">
+          <select class="f-select" id="fStatus" onchange="renderChips()">
+            <option value="">전체</option>
+            <option value="active">알림장 이용중</option>
+            <option value="ended">알림장 이용 종료</option>
+            <option value="stop">알림장 정지</option>
+          </select>
+        </div>
+
+        <div style="width:16px"></div>
+        <span class="f-label">사용자 유형</span>
+        <div class="f-select-wrap">
+          <select class="f-select" id="fType" onchange="renderChips(); toggleGuardian()">
+            <option value="">전체</option>
+            <option value="teacher">교사</option>
+            <option value="parent">학부모</option>
+            <option value="director">기관장</option>
+          </select>
+        </div>
+
+        <div style="width:16px"></div>
+        <span class="f-label" id="labelGuardian" style="color:var(--text-muted)">보호자 유형</span>
+        <div class="f-select-wrap">
+          <select class="f-select" id="fGuardian" onchange="renderChips()" style="opacity:0.45;pointer-events:none">
+            <option value="">전체</option>
+            <option value="main">주계정</option>
+            <option value="family">가족계정</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="filter-row" style="margin-top:10px">
+        <span class="f-label">검색</span>
+        <div class="search-combo">
+          <select class="search-type" id="fSearchType">
+            <option>이름</option>
+            <option>통합ID</option>
+            <option>휴대폰</option>
+            <option>이메일</option>
+          </select>
+          <input type="text" class="search-input" id="fSearchVal" placeholder="검색어를 입력하세요" onkeydown="if(event.key==='Enter') doSearch()">
+          <button class="search-btn" onclick="doSearch()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/></svg>
+          </button>
+        </div>
+
+        <div style="margin-left:auto; display:flex; gap:8px">
+          <button class="btn btn-secondary" onclick="resetFilter()" style="font-size:12px; padding:6px 12px">
+            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            초기화
+          </button>
+        </div>
+      </div>
+
+      <!-- Active Chips -->
+      <div class="active-chips" id="activeChips" style="display:none"></div>
+    </div>
+
+    <!-- ── TABLE CARD ── -->
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div class="result-info">총 <strong id="resultCount">8,120</strong>건</div>
+        <div class="toolbar-right">
+          <div class="per-page-wrap">
+            <select class="per-page">
+              <option>20개씩</option>
+              <option>50개씩</option>
+              <option>100개씩</option>
+            </select>
+          </div>
+          <button class="btn btn-secondary" style="font-size:12px; padding:6px 12px" onclick="showToast('내보내기 준비 중...')">
+            <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            내보내기
+          </button>
+        </div>
+      </div>
+
+      <div class="tbl-wrap">
+        <table>
+          <colgroup>
+            <col class="c-chk"><col class="c-stat"><col class="c-type">
+            <col class="c-gtype"><col class="c-name"><col class="c-phone">
+            <col class="c-affil"><col class="c-conn"><col class="c-role">
+            <col class="c-pos"><col class="c-route"><col class="c-login">
+            <col class="c-join"><col class="c-last"><col class="c-view">
+          </colgroup>
+          <thead>
+            <tr>
+              <th><input type="checkbox" class="chk" id="chkAll" onchange="toggleAll(this)"></th>
+              <th>상태</th>
+              <th>유형</th>
+              <th>보호자</th>
+              <th>이름</th>
+              <th>휴대폰</th>
+              <th>대표 소속</th>
+              <th style="text-align:center">연결수</th>
+              <th>역할</th>
+              <th>직책</th>
+              <th>가입경로</th>
+              <th>로그인 수단</th>
+              <th>가입일</th>
+              <th>최근 이용일</th>
+              <th style="text-align:center">상세</th>
+            </tr>
+          </thead>
+          <tbody id="tbody">
+            <!-- rows injected by JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination-area">
+        <div class="pg-info">1 – 20 / 총 <span id="pgTotal">8,120</span>건</div>
+        <div class="pagination">
+          <button class="pg-btn" disabled>‹‹</button>
+          <button class="pg-btn" disabled>‹</button>
+          <button class="pg-btn active">1</button>
+          <button class="pg-btn">2</button>
+          <button class="pg-btn">3</button>
+          <button class="pg-btn">4</button>
+          <button class="pg-btn">5</button>
+          <span style="padding:0 4px;color:var(--text-muted);font-size:12px">…</span>
+          <button class="pg-btn">406</button>
+          <button class="pg-btn">›</button>
+          <button class="pg-btn">››</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<!-- ═══════════ DETAIL PANEL ═══════════ -->
+<div class="modal-overlay" id="detailOverlay" onclick="if(event.target===this) closeDetail()">
+  <div class="detail-panel">
+    <div class="dp-header">
+      <div class="dp-title">회원 상세정보</div>
+      <button class="dp-close" onclick="closeDetail()">✕</button>
+    </div>
+    <div class="dp-body" id="dpBody">
+      <!-- injected -->
+    </div>
+    <div class="dp-footer">
+      <button class="btn btn-secondary" onclick="closeDetail()">닫기</button>
+      <button class="btn btn-primary" onclick="openDetailPage()" >상태 변경</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════ FULL DETAIL PAGE ═══════════ -->
+<div id="detailPage">
+  <!-- 탑바 -->
+  <div class="dpage-topbar">
+    <div class="dpage-breadcrumb">
+      <a onclick="closeDetailPage()">← 회원/관한관리</a>
+      <span>›</span>
+      <a onclick="closeDetailPage()">통합회원 조회</a>
+      <span>›</span>
+      <span class="cur" id="dpPageLabel">상세</span>
+    </div>
+    <div class="dpage-actions" id="dpPageActions"></div>
+  </div>
+
+  <!-- 바디 -->
+  <div class="dpage-body" id="dpPageBody"></div>
+</div>
+
+<!-- Toast -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+/* ═══════════════════════════════
+   DATA
+═══════════════════════════════ */
+const ROWS = [
+  { status:'s-active', statusLabel:'재직중', type:'teacher', typeLabel:'교사',
+    guardian:'-', name:'지창욱', phone:'010-1234-5678',
+    affiliMain:'키드키즈 유치원', affiliSub:'꽃잎반 (2세·담임)',
+    conn:2, role:'담임,보조', pos:'부원장', route:'기존통합회원', login:'통합ID',
+    join:'2025-03-04', last:'2025-11-01',
+    avatar:'#4361EE,#7C3AED', avatarChar:'지'
+  },
+  { status:'s-enroll', statusLabel:'재원중', type:'parent', typeLabel:'학부모',
+    guardian:'주계정', name:'김정은', phone:'010-1562-5126',
+    affiliMain:'새마을 어린이집', affiliSub:'김하윤(꽃잎반·재원) 외 1명',
+    conn:2, role:'엄마', pos:'-', route:'초대장', login:'SNS-카카오',
+    join:'2025-03-06', last:'2025-11-01',
+    avatar:'#F59E0B,#EF4444', avatarChar:'김'
+  },
+  { status:'s-enroll', statusLabel:'재원중', type:'parent', typeLabel:'학부모',
+    guardian:'가족계정', name:'김민준', phone:'010-4541-4884',
+    affiliMain:'새마을 어린이집', affiliSub:'김하윤(꽃잎반·재원) 외 1명',
+    conn:2, role:'아빠', pos:'-', route:'직접가입', login:'SNS-네이버',
+    join:'2025-03-01', last:'2025-12-01',
+    avatar:'#10B981,#3B82F6', avatarChar:'김'
+  },
+  { status:'s-active', statusLabel:'재직중', type:'director', typeLabel:'기관장',
+    guardian:'-', name:'홍기영', phone:'010-8287-1586',
+    affiliMain:'행복 어린이집', affiliSub:'기관장',
+    conn:'-', role:'기관장', pos:'원장', route:'기존통합회원', login:'통합ID',
+    join:'2024-04-12', last:'2025-11-16',
+    avatar:'#F59E0B,#F97316', avatarChar:'홍'
+  },
+  { status:'s-out', statusLabel:'서비스탈퇴', type:'parent', typeLabel:'학부모',
+    guardian:'주계정', name:'이민우', phone:'010-1234-1885',
+    affiliMain:'새마을 어린이집', affiliSub:'이기우(꽃잎반·퇴소) 외 1명',
+    conn:2, role:'아빠', pos:'-', route:'초대장', login:'SNS-구글',
+    join:'2024-05-24', last:'2025-12-02',
+    avatar:'#EF4444,#DC2626', avatarChar:'이'
+  },
+  { status:'s-grad', statusLabel:'졸업', type:'parent', typeLabel:'학부모',
+    guardian:'가족계정', name:'송강', phone:'010-8514-5785',
+    affiliMain:'기쁨 어린이집', affiliSub:'송중기(행복반·졸업) 외 1명',
+    conn:2, role:'아빠', pos:'-', route:'초대장', login:'SNS-카카오',
+    join:'2025-10-11', last:'2025-12-01',
+    avatar:'#8B5CF6,#A78BFA', avatarChar:'송'
+  },
+  { status:'s-enroll', statusLabel:'재원중', type:'parent', typeLabel:'학부모',
+    guardian:'주계정', name:'박지수', phone:'010-3388-9921',
+    affiliMain:'하늘 어린이집', affiliSub:'박민서(별빛반·재원)',
+    conn:1, role:'엄마', pos:'-', route:'직접가입', login:'SNS-애플',
+    join:'2024-08-15', last:'2025-12-05',
+    avatar:'#EC4899,#F43F5E', avatarChar:'박'
+  },
+  { status:'s-leave', statusLabel:'퇴사', type:'teacher', typeLabel:'교사',
+    guardian:'-', name:'오세진', phone:'010-5544-3322',
+    affiliMain:'꿈터 유치원', affiliSub:'해바라기반 (4세·담임)',
+    conn:1, role:'담임', pos:'교사', route:'초대장', login:'SNS-네이버',
+    join:'2023-03-02', last:'2024-09-30',
+    avatar:'#6B7280,#9CA3AF', avatarChar:'오'
+  },
+  { status:'s-active', statusLabel:'재직중', type:'teacher', typeLabel:'교사',
+    guardian:'-', name:'윤서아', phone:'010-7711-5522',
+    affiliMain:'참사랑 어린이집', affiliSub:'사과반 (3세·보조)',
+    conn:1, role:'보조', pos:'보조교사', route:'기존통합회원', login:'통합ID',
+    join:'2024-09-01', last:'2025-03-07',
+    avatar:'#06B6D4,#0EA5E9', avatarChar:'윤'
+  },
+  { status:'s-enroll', statusLabel:'재원중', type:'parent', typeLabel:'학부모',
+    guardian:'주계정', name:'강다현', phone:'010-9900-1122',
+    affiliMain:'무지개 유치원', affiliSub:'강예린(달님반·재원)',
+    conn:1, role:'엄마', pos:'-', route:'초대장', login:'SNS-카카오',
+    join:'2025-01-20', last:'2025-03-08',
+    avatar:'#D946EF,#A855F7', avatarChar:'강'
+  },
+];
+
+const loginTagMap = {
+  '통합ID':     'tag-unified',
+  'SNS-카카오': 'tag-kakao',
+  'SNS-네이버': 'tag-naver',
+  'SNS-구글':   'tag-google',
+  'SNS-애플':   'tag-apple',
+};
+const routeTagMap = {
+  '기존통합회원': 'tag-integrated',
+  '초대장':       'tag-invite',
+  '직접가입':     'tag-direct',
+};
+
+function buildRow(r, i) {
+  const guardianHtml = r.guardian === '-'
+    ? `<span style="color:var(--text-muted)">—</span>`
+    : r.guardian === '주계정'
+      ? `<span class="gt-main">주계정</span>`
+      : `<span class="gt-family">가족계정</span>`;
+
+  const connHtml = r.conn === '-'
+    ? `<span style="color:var(--text-muted)">—</span>`
+    : `<span class="conn-count">${r.conn}</span>`;
+
+  const posHtml = r.pos === '-'
+    ? `<span style="color:var(--text-muted)">—</span>`
+    : r.pos;
+
+  const loginClass = loginTagMap[r.login] || 'tag-direct';
+  const routeClass = routeTagMap[r.route] || 'tag-direct';
+
+  return `
+  <tr id="row-${i}">
+    <td><input type="checkbox" class="chk row-chk" onchange="toggleRow(this,${i})"></td>
+    <td><span class="sbadge ${r.status}"><span class="sdot"></span>${r.statusLabel}</span></td>
+    <td>
+      <span class="tbadge ${r.type==='teacher'?'t-teacher':r.type==='parent'?'t-parent':'t-director'}">
+        ${r.typeLabel}
+      </span>
+    </td>
+    <td>${guardianHtml}</td>
+    <td>
+      <a class="name-link" onclick="openDetail(${i})">${r.name}</a>
+    </td>
+    <td><span class="phone-num">${r.phone}</span></td>
+    <td>
+      <div class="affil-main">${r.affiliMain}</div>
+      <div class="affil-sub">${r.affiliSub}</div>
+    </td>
+    <td style="text-align:center">${connHtml}</td>
+    <td style="font-size:12px; color:var(--text-secondary)">${r.role}</td>
+    <td style="font-size:12px">${posHtml}</td>
+    <td><span class="tag ${routeClass}">${r.route}</span></td>
+    <td><span class="tag ${loginClass}">${r.login}</span></td>
+    <td style="font-size:12px; color:var(--text-secondary); font-family:'JetBrains Mono',monospace">${r.join}</td>
+    <td style="font-size:12px; color:var(--text-secondary); font-family:'JetBrains Mono',monospace">${r.last}</td>
+    <td style="text-align:center">
+      <button class="view-btn" onclick="openDetail(${i})">View</button>
+    </td>
+  </tr>`;
+}
+
+function renderTable(data) {
+  document.getElementById('tbody').innerHTML = data.map((r,i) => buildRow(r,i)).join('');
+  document.getElementById('resultCount').textContent = data.length.toLocaleString();
+  document.getElementById('pgTotal').textContent = data.length.toLocaleString();
+}
+
+/* ═══════════════════════════════
+   FILTER LOGIC
+═══════════════════════════════ */
+const statusFilterMap = {
+  inuse:    row => ['s-active','s-enroll'].includes(row.status),
+  ended:    row => ['s-grad','s-leave','s-out'].includes(row.status),
+  teacher:  row => row.type === 'teacher',
+  parent:   row => row.type === 'parent',
+  director: row => row.type === 'director',
+  all:      ()  => true,
+};
+
+function filterByCard(key) {
+  document.querySelectorAll('.sum-card').forEach(c => c.classList.remove('active-filter'));
+  event.currentTarget.classList.add('active-filter');
+
+  const fn = statusFilterMap[key] || (() => true);
+  renderTable(ROWS.filter(fn));
+
+  // sync dropdowns
+  if (key === 'inuse')    { document.getElementById('fStatus').value = 'active'; }
+  else if (key === 'ended')  { document.getElementById('fStatus').value = 'ended'; }
+  else if (['teacher','parent','director'].includes(key)) {
+    document.getElementById('fType').value = key;
+    toggleGuardian();
+  } else {
+    document.getElementById('fStatus').value = '';
+    document.getElementById('fType').value = '';
+  }
+  renderChips();
+}
+
+function toggleGuardian() {
+  const type = document.getElementById('fType').value;
+  const sel = document.getElementById('fGuardian');
+  const lbl = document.getElementById('labelGuardian');
+  if (type === 'parent') {
+    sel.style.opacity = '1'; sel.style.pointerEvents = 'auto';
+    lbl.style.color = 'var(--text-secondary)';
+  } else {
+    sel.style.opacity = '0.45'; sel.style.pointerEvents = 'none';
+    sel.value = '';
+    lbl.style.color = 'var(--text-muted)';
+  }
+}
+
+function doSearch() {
+  const q = document.getElementById('fSearchVal').value.trim().toLowerCase();
+  const type = document.getElementById('fSearchType').value;
+  if (!q) { renderTable(ROWS); return; }
+
+  const fieldMap = { '이름':'name', '통합ID':'login', '휴대폰':'phone', '이메일':'login' };
+  const field = fieldMap[type] || 'name';
+  renderTable(ROWS.filter(r => (r[field]||'').toLowerCase().includes(q)));
+  renderChips();
+  showToast('검색이 완료되었습니다.');
+}
+
+function resetFilter() {
+  document.getElementById('fStatus').value = '';
+  document.getElementById('fType').value = '';
+  document.getElementById('fGuardian').value = '';
+  document.getElementById('fSearchVal').value = '';
+  toggleGuardian();
+  renderChips();
+  renderTable(ROWS);
+  document.querySelectorAll('.sum-card').forEach(c => c.classList.remove('active-filter'));
+  showToast('필터가 초기화되었습니다.');
+}
+
+function renderChips() {
+  const status = document.getElementById('fStatus');
+  const type   = document.getElementById('fType');
+  const guard  = document.getElementById('fGuardian');
+  const chips  = [];
+
+  const statusLabel = { active:'이용중', ended:'이용 종료', stop:'정지' };
+  const typeLabel   = { teacher:'교사', parent:'학부모', director:'기관장' };
+  const guardLabel  = { main:'주계정', family:'가족계정' };
+
+  if (status.value) chips.push({ label: '상태: ' + statusLabel[status.value], clear: ()=>{ status.value=''; renderChips(); }});
+  if (type.value)   chips.push({ label: '유형: ' + typeLabel[type.value],   clear: ()=>{ type.value=''; renderChips(); toggleGuardian(); }});
+  if (guard.value)  chips.push({ label: '보호자: ' + guardLabel[guard.value], clear: ()=>{ guard.value=''; renderChips(); }});
+
+  const wrap = document.getElementById('activeChips');
+  if (chips.length === 0) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'flex';
+  wrap.innerHTML = chips.map((c,i) => `
+    <div class="chip">
+      ${c.label}
+      <button class="chip-rm" onclick="chipClear(${i})">✕</button>
+    </div>`).join('');
+  window._chipFns = chips.map(c => c.clear);
+}
+
+function chipClear(i) { window._chipFns[i](); }
+
+/* ═══════════════════════════════
+   CHECKBOX
+═══════════════════════════════ */
+function toggleAll(cb) {
+  document.querySelectorAll('.row-chk').forEach(c => {
+    c.checked = cb.checked;
+    c.closest('tr').classList.toggle('row-sel', cb.checked);
+  });
+}
+function toggleRow(cb, i) {
+  document.getElementById('row-'+i).classList.toggle('row-sel', cb.checked);
+}
+
+/* ═══════════════════════════════
+   DETAIL PANEL
+═══════════════════════════════ */
+function openDetail(i) {
+  currentDetailIdx = i;
+  const r = ROWS[i];
+  const loginClass = loginTagMap[r.login] || 'tag-direct';
+  const routeClass = routeTagMap[r.route] || 'tag-direct';
+  const typeClass  = r.type==='teacher'?'t-teacher':r.type==='parent'?'t-parent':'t-director';
+
+  document.getElementById('dpBody').innerHTML = `
+    <div class="dp-profile">
+      <div class="dp-avatar" style="background:linear-gradient(135deg,${r.avatar})">${r.avatarChar}</div>
+      <div>
+        <div class="dp-pname">${r.name}</div>
+        <div class="dp-pmeta">${r.typeLabel} · ${r.affiliMain}</div>
+      </div>
+      <div style="margin-left:auto">
+        <span class="sbadge ${r.status}"><span class="sdot"></span>${r.statusLabel}</span>
+      </div>
+    </div>
+
+    <div class="dp-section">
+      <div class="dp-sec-title">기본 정보</div>
+      <div class="dp-grid">
+        <div class="dp-item"><div class="dp-key">이름</div><div class="dp-val">${r.name}</div></div>
+        <div class="dp-item"><div class="dp-key">사용자 유형</div><div class="dp-val"><span class="tbadge ${typeClass}">${r.typeLabel}</span></div></div>
+        <div class="dp-item"><div class="dp-key">휴대폰</div><div class="dp-val" style="font-family:'JetBrains Mono',monospace;font-size:12px">${r.phone}</div></div>
+        <div class="dp-item"><div class="dp-key">보호자 유형</div><div class="dp-val">${r.guardian === '-' ? '—' : r.guardian}</div></div>
+      </div>
+    </div>
+
+    <div class="dp-section">
+      <div class="dp-sec-title">소속 정보</div>
+      <div class="dp-grid">
+        <div class="dp-item" style="grid-column:1/-1"><div class="dp-key">대표 소속</div><div class="dp-val">${r.affiliMain} / ${r.affiliSub}</div></div>
+        <div class="dp-item"><div class="dp-key">역할</div><div class="dp-val">${r.role}</div></div>
+        <div class="dp-item"><div class="dp-key">직책</div><div class="dp-val">${r.pos}</div></div>
+        <div class="dp-item"><div class="dp-key">연결 수</div><div class="dp-val">${r.conn === '-' ? '—' : r.conn + '건'}</div></div>
+      </div>
+    </div>
+
+    <div class="dp-section">
+      <div class="dp-sec-title">가입 & 이용 정보</div>
+      <div class="dp-grid">
+        <div class="dp-item"><div class="dp-key">가입경로</div><div class="dp-val"><span class="tag ${routeClass}">${r.route}</span></div></div>
+        <div class="dp-item"><div class="dp-key">로그인 수단</div><div class="dp-val"><span class="tag ${loginClass}">${r.login}</span></div></div>
+        <div class="dp-item"><div class="dp-key">알림장 가입일</div><div class="dp-val" style="font-family:'JetBrains Mono',monospace;font-size:12px">${r.join}</div></div>
+        <div class="dp-item"><div class="dp-key">최근 이용일</div><div class="dp-val" style="font-family:'JetBrains Mono',monospace;font-size:12px">${r.last}</div></div>
+      </div>
+    </div>
+  `;
+  document.getElementById('detailOverlay').classList.add('show');
+}
+
+function closeDetail() {
+  document.getElementById('detailOverlay').classList.remove('show');
+}
+
+/* ═══════════════════════════════
+   TOAST
+═══════════════════════════════ */
+function showToast(msg) {
+  const wrap = document.getElementById('toastWrap');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `
+    <svg width="16" height="16" fill="none" stroke="#10B981" viewBox="0 0 24 24" style="flex-shrink:0">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+    ${msg}`;
+  wrap.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity 0.3s'; setTimeout(()=>t.remove(),300); }, 2600);
+}
+
+/* ═══════════════════════════════
+   INIT
+═══════════════════════════════ */
+
+/* ═══════════════════════════════════════
+   FULL DETAIL PAGE — 교사형 / 학부모형
+═══════════════════════════════════════ */
+let currentDetailIdx = null;
+
+function openDetailPage() {
+  const overlay = document.getElementById('detailOverlay');
+  if (overlay) overlay.classList.remove('show');
+
+  const i = currentDetailIdx;
+  if (i === null || i === undefined) return;
+  const r = ROWS[i];
+
+  // 브레드크럼
+  const typeLabel = r.type === 'teacher' ? '상세-교사' : r.type === 'parent' ? '상세-학부모' : '상세-기관장';
+  document.getElementById('dpPageLabel').textContent = typeLabel;
+
+  // 상단 버튼
+  document.getElementById('dpPageActions').innerHTML = `
+    <button class="dpa-btn dpa-list" onclick="closeDetailPage()">목록</button>
+    <button class="dpa-btn dpa-stop">정지</button>
+    <button class="dpa-btn dpa-out">서비스 탈퇴</button>
+    <button class="dpa-btn dpa-edit" onclick="showToast('수정 기능은 준비 중입니다.')">수정</button>
+  `;
+
+  // 상태 스타일
+  const stMap = {
+    's-active':  { label:'재직중',   color:'#10B981', bg:'#D1FAE5', text:'#065F46' },
+    's-enroll':  { label:'재원중',   color:'#3B82F6', bg:'#DBEAFE', text:'#1E40AF' },
+    's-pending': { label:'대기',     color:'#F59E0B', bg:'#FEF3C7', text:'#92400E' },
+    's-dormant': { label:'휴면',     color:'#9CA3AF', bg:'#F3F4F6', text:'#374151' },
+    's-out':     { label:'서비스탈퇴',color:'#EF4444', bg:'#FEE2E2', text:'#991B1B' },
+    's-grad':    { label:'졸업',     color:'#8B5CF6', bg:'#EDE9FE', text:'#5B21B6' },
+    's-leave':   { label:'퇴사',     color:'#F59E0B', bg:'#FEF3C7', text:'#92400E' },
+  };
+  const st = stMap[r.status] || { label: r.statusLabel, color:'#9CA3AF', bg:'#F3F4F6', text:'#374151' };
+  const stBadge = `<span class="inline-badge" style="background:${st.bg};color:${st.text}">
+    <span style="width:7px;height:7px;border-radius:50%;background:${st.color};flex-shrink:0"></span>
+    ${st.label}
+  </span>`;
+
+  const loginClass = loginTagMap[r.login] || 'tag-direct';
+  const routeClass = routeTagMap[r.route] || 'tag-direct';
+
+  let html = '';
+
+  /* ─── 공통: 상태정보 + 회원정보 ─── */
+  html += `
+    <!-- 상태정보 -->
+    <div class="dp2-sec" style="margin-top:8px">상태정보</div>
+    <div class="dp2-status-wrap">
+      <div class="dp2-status-inner">
+        <div class="dp2-status-cell">
+          <div class="dp2-cell-label">알림장 상태</div>
+          <div class="dp2-cell-val">${stBadge}</div>
+        </div>
+        <div class="dp2-status-cell">
+          <div class="dp2-cell-label">알림장 가입일</div>
+          <div class="dp2-cell-val" style="font-family:'JetBrains Mono',monospace;font-size:12.5px">${r.join}</div>
+        </div>
+        <div class="dp2-status-cell">
+          <div class="dp2-cell-label">최근 이용일</div>
+          <div class="dp2-cell-val" style="font-family:'JetBrains Mono',monospace;font-size:12.5px">${r.last}</div>
+        </div>
+        <div class="dp2-status-cell">
+          <div class="dp2-cell-label">가입 경로</div>
+          <div class="dp2-cell-val"><span class="tag ${routeClass}" style="font-size:11px">${r.route}</span></div>
+        </div>
+        <div class="dp2-status-cell" style="border-right:none">
+          <div class="dp2-cell-label">연결 수(당반)</div>
+          <div class="dp2-cell-val">${r.conn !== '-' ? r.conn : '—'}</div>
+        </div>
+      </div>
+      <div class="dp2-photo-cell">
+        <div class="dp2-avatar-lg" style="background:linear-gradient(135deg,${r.avatar})">
+          <span>${r.avatarChar}</span>
+        </div>
+        <button class="dp2-photo-btn" onclick="showToast('사진 등록 기능 준비 중입니다.')">사진등록</button>
+      </div>
+    </div>`;
+
+  /* ─── 교사 / 기관장 타입 ─── */
+  if (r.type === 'teacher' || r.type === 'director') {
+    html += `
+      <!-- 회원정보 -->
+      <div class="dp2-sec">회원정보</div>
+      <table class="dp2-info-table">
+        <tr>
+          <td class="label">유형</td>
+          <td class="val">${r.typeLabel}</td>
+          <td class="label">이름</td>
+          <td class="val">${r.name}</td>
+          <td class="label">성별</td>
+          <td class="val">남자</td>
+          <td class="label">생년월일</td>
+          <td class="val" style="font-family:'JetBrains Mono',monospace;font-size:12px">1988.01.01</td>
+        </tr>
+        <tr>
+          <td class="label">통합아이디</td>
+          <td class="val" style="font-family:'JetBrains Mono',monospace;font-size:12px">eunwoo945</td>
+          <td class="label">로그인 수단</td>
+          <td class="val"><span class="tag ${loginClass}">${r.login}</span></td>
+          <td class="label" colspan="2"></td>
+          <td class="label" colspan="2"></td>
+        </tr>
+        <tr>
+          <td class="label">전화번호</td>
+          <td class="val" style="font-family:'JetBrains Mono',monospace">${r.phone}</td>
+          <td class="label">이메일</td>
+          <td class="val" colspan="5">
+            <div style="display:flex;align-items:center;gap:6px">
+              <input style="border:1px solid #D1D5DB;border-radius:5px;padding:4px 8px;font-size:12.5px;width:120px" value="jalsangkim" readonly>
+              <span style="color:#9CA3AF;font-weight:600">@</span>
+              <select style="border:1px solid #D1D5DB;border-radius:5px;padding:4px 8px;font-size:12.5px;background:#F9FAFB;width:120px">
+                <option>gmail.com</option><option>naver.com</option><option>kakao.com</option>
+              </select>
+            </div>
+          </td>
+        </tr>
+      </table>
+
+      <!-- 소속정보 + 관리자 메모 -->
+      <div class="dp2-two-col">
+        <div>
+          <div class="dp2-sec">소속정보</div>
+          <div class="dp2-affil-card">
+            <div class="dp2-affil-row">
+              <div class="dp2-affil-label">기관명</div>
+              <div class="dp2-affil-val">${r.affiliMain}</div>
+              <div class="dp2-affil-label">기관유형</div>
+              <div class="dp2-affil-val">유치원</div>
+            </div>
+            <div class="dp2-affil-row">
+              <div class="dp2-affil-label">직책</div>
+              <div class="dp2-affil-val full">
+                <div class="dp2-toggle"></div>
+                <span style="font-size:13px;font-weight:600">${r.pos !== '-' ? r.pos : '부원장'}</span>
+                <svg width="14" height="14" fill="none" stroke="#9CA3AF" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </div>
+            </div>
+            <div class="dp2-affil-row">
+              <div class="dp2-affil-label">소속반1</div>
+              <div class="dp2-affil-val">꽃잎반(2세)</div>
+              <div class="dp2-affil-label">역할1</div>
+              <div class="dp2-affil-val">
+                <select class="dp2-select"><option>담임교사</option><option>보조교사</option></select>
+              </div>
+            </div>
+            <div class="dp2-affil-row">
+              <div class="dp2-affil-label">소속반2</div>
+              <div class="dp2-affil-val">방과후반(3-5세)</div>
+              <div class="dp2-affil-label">역할2</div>
+              <div class="dp2-affil-val">
+                <select class="dp2-select"><option>보조교사</option><option>담임교사</option></select>
+              </div>
+            </div>
+          </div>
+        </div>
+    <div>
+    <div class="dp2-sec">관리자 메모</div>
+    <div class="dp2-memo-card">
+        <textarea class="dp2-memo-textarea" id="dpMemo_${i}"
+            placeholder="계정 정지, 서비스탈퇴, 소속 변경 등 처리 시 참고용 메모를 입력 합니다."
+            maxlength="500"
+            oninput="document.getElementById('dpMemoCount_${i}').textContent=this.value.length"
+        >${r.memo||''}</textarea>
+        
+        <div class="dp2-memo-footer">
+            <div class="dp2-memo-count">
+                <span id="dpMemoCount_${i}">${(r.memo||'').length}</span> / 500자
+            </div>
+            
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
+                <button class="dp2-memo-save" onclick="saveDpMemo(${i})">저장</button>
+                <div class="dp2-memo-date">마지막 수정: 2025-12-02 16:10, 김관리자</div>
+            </div>
+        </div>
+    </div>
+</div>`;
+  }
+
+  /* ─── 학부모 타입 ─── */
+  else if (r.type === 'parent') {
+    const children = r.children || [
+      { name:'김하윤', status:'졸업', statusColor:'#EF4444', statusBg:'#FEE2E2',
+        gender:'여아', birth:'2019.04.25', org:'키드키즈 유치원', cls:'솔이반(5세)', state:'졸업 (2026.02)',
+        avatar:'👧', avatarBg:'#FDE68A,#FCA5A5' },
+      { name:'김하준', status:'재원중', statusColor:'#10B981', statusBg:'#D1FAE5',
+        gender:'남아', birth:'2021.04.25', org:'기쁜 어린이집', cls:'꽃잎반(4세)', state:'재원중',
+        avatar:'👦', avatarBg:'#6EE7B7,#34D399' },
+    ];
+
+    html += `
+      <!-- 회원정보 (학부모) -->
+      <div class="dp2-sec">회원정보</div>
+      <table class="dp2-info-table">
+        <tr>
+          <td class="label">유형</td>
+          <td class="val">학부모</td>
+          <td class="label">이름</td>
+          <td class="val">${r.name}</td>
+          <td class="label">성별</td>
+          <td class="val">여자</td>
+          <td class="label">생년월일</td>
+          <td class="val" style="font-family:'JetBrains Mono',monospace;font-size:12px">1988.01.01</td>
+        </tr>
+        <tr>
+          <td class="label">통합회원번호</td>
+          <td class="val" style="font-family:'JetBrains Mono',monospace;font-size:12px">M00001234</td>
+          <td class="label">로그인 수단</td>
+          <td class="val"><span class="tag ${loginClass}">${r.login}</span></td>
+          <td class="label">보호자 유형</td>
+          <td class="val">${r.guardian !== '-' ? r.guardian : '주계정'}</td>
+          <td class="label">역할</td>
+          <td class="val">${r.role}</td>
+        </tr>
+        <tr>
+          <td class="label">연락처</td>
+          <td class="val" style="font-family:'JetBrains Mono',monospace">${r.phone}</td>
+          <td class="label">이메일</td>
+          <td class="val" colspan="5">jalsangkim@gmail.com</td>
+        </tr>
+      </table>
+      <p class="dp2-notice">개인정보(이름, 생년월일, 연락처, 이메일, 로그인 수단)는 통합회원 관리 화면에서만 변경 가능합니다.</p>
+
+      <!-- 소속정보 (자녀 목록) -->
+      <div class="dp2-sec">소속정보
+        <button style="margin-left:auto;font-size:12px;color:#4361EE;background:#EEF1FD;border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:inherit" onclick="showToast('자녀 추가 기능 준비 중입니다.')">⊕ 자녀추가</button>
+      </div>
+      <div class="dp2-children-area">
+        ${children.map((c,ci) => `
+        <div class="dp2-child-card">
+          <div class="dp2-child-inner">
+            <div class="dp2-child-photo">
+              <div class="dp2-child-img" style="background:linear-gradient(135deg,${c.avatarBg})">
+                <span style="font-size:28px">${c.avatar}</span>
+              </div>
+              <button class="dp2-child-photo-btn" onclick="showToast('사진 등록 기능 준비 중입니다.')">사진등록</button>
+            </div>
+            <div class="dp2-child-info">
+              <div class="dp2-child-name-row">
+                <span class="dp2-child-name">${c.name}</span>
+                <span class="inline-badge" style="background:${c.statusBg};color:${c.statusColor};font-size:11.5px">${c.status}</span>
+              </div>
+              <div class="dp2-child-grid">
+                <div class="dp2-child-cell">
+                  <div class="dp2-child-label">성별</div>
+                  <div class="dp2-child-val">${c.gender}</div>
+                </div>
+                <div class="dp2-child-cell">
+                  <div class="dp2-child-label">생년월일</div>
+                  <div class="dp2-child-val" style="font-family:'JetBrains Mono',monospace;font-size:12px">${c.birth}</div>
+                </div>
+                <div class="dp2-child-cell wide">
+                  <div class="dp2-child-label">기관명</div>
+                  <div class="dp2-child-val">${c.org}</div>
+                </div>
+                <div class="dp2-child-cell">
+                  <div class="dp2-child-label">소속반</div>
+                  <div class="dp2-child-val"><a onclick="showToast('반 상세 준비 중')">${c.cls}</a></div>
+                </div>
+                <div class="dp2-child-cell">
+                  <div class="dp2-child-label">상태</div>
+                  <div class="dp2-child-val">${c.state}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>`).join('')}
+      </div>
+
+      <!-- 가족계정 정보 (소속정보 하단) -->
+      <div class="dp2-sec" style="margin-top:24px">가족계정 정보(${r.conn > 0 ? r.conn + 2 : 4})
+        <button style="margin-left:auto;font-size:12px;color:#fff;background:#374151;border:none;padding:5px 12px;border-radius:7px;cursor:pointer;font-family:inherit;font-weight:600" onclick="showToast('주계정 변경 기능 준비 중입니다.')">주계정 변경</button>
+      </div>
+      <div class="dp2-family-card" style="max-width:600px">
+        <!-- 본인 -->
+        <div style="padding:12px 18px 8px;border-bottom:1px solid #F3F4F6">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:10px">본인</div>
+          <div style="display:grid;grid-template-columns:80px 1fr 80px 1fr 100px;align-items:center;gap:0;background:#F9FAFB;border-radius:8px;border:1px solid #E5E7EB;overflow:hidden">
+            <div style="padding:10px 14px;font-size:12px;color:#9CA3AF;border-right:1px solid #E5E7EB">역할</div>
+            <div style="padding:10px 14px;font-size:13px;font-weight:500;border-right:1px solid #E5E7EB">${r.role}</div>
+            <div style="padding:10px 14px;font-size:12px;color:#9CA3AF;border-right:1px solid #E5E7EB">이름</div>
+            <div style="padding:10px 14px;font-size:13px;font-weight:600;color:#1A1D2E;border-right:1px solid #E5E7EB">${r.name}</div>
+            <div style="padding:10px 14px;text-align:center">
+              <span style="font-size:11.5px;color:#4361EE;background:#EEF1FD;padding:3px 8px;border-radius:5px;font-weight:700">주계정</span>
+            </div>
+          </div>
+        </div>
+        <!-- 연결 가족 -->
+        <div style="padding:12px 18px 6px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:10px">연결 가족</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            ${[
+              { role:'아빠',   name:'김진영' },
+              { role:'할머니', name:'유의순' },
+              { role:'할아버지',name:'김진곤' },
+            ].map(m => `
+            <div style="display:grid;grid-template-columns:80px 1fr 80px 1fr;align-items:center;border:1px solid #E5E7EB;border-radius:7px;overflow:hidden">
+              <div style="padding:9px 14px;font-size:12px;color:#9CA3AF;background:#FAFAFA;border-right:1px solid #E5E7EB">역할</div>
+              <div style="padding:9px 14px;font-size:13px;font-weight:500;border-right:1px solid #E5E7EB">${m.role}</div>
+              <div style="padding:9px 14px;font-size:12px;color:#9CA3AF;background:#FAFAFA;border-right:1px solid #E5E7EB">이름</div>
+              <div style="padding:9px 14px;font-size:13px;font-weight:600;color:#4361EE;cursor:pointer" onclick="showToast('회원 상세로 이동합니다.')">${m.name}</div>
+            </div>`).join('')}
+          </div>
+        </div>
+        <div style="height:6px"></div>
+      </div>
+
+      <!-- 관리자 메모 (학부모: 전폭) -->
+      <div class="dp2-sec">관리자 메모</div>
+      <div class="dp2-memo-card">
+        <textarea class="dp2-memo-textarea" id="dpMemo_${i}"
+          placeholder="계정 정지, 서비스탈퇴, 자녀 연결 변경 등 처리 시 참고용 메모를 입력 합니다."
+          maxlength="500"
+          oninput="document.getElementById('dpMemoCount_${i}').textContent=this.value.length"
+        >${r.memo||''}</textarea>
+        <div class="dp2-memo-footer">
+          <div>
+            <div class="dp2-memo-count"><span id="dpMemoCount_${i}">${(r.memo||'').length}</span> / 500자</div>
+            <div class="dp2-memo-date">마지막 수정: 2025-12-02 16:10, 김관리자</div>
+          </div>
+          <button class="dp2-memo-save" onclick="saveDpMemo(${i})">메모 저장</button>
+        </div>
+      </div>`;
+  }
+
+  document.getElementById('dpPageBody').innerHTML = html;
+  document.getElementById('detailPage').classList.add('show');
+  window.scrollTo(0, 0);
+}
+
+function closeDetailPage() {
+  document.getElementById('detailPage').classList.remove('show');
+}
+
+function saveDpMemo(i) {
+  const val = document.getElementById('dpMemo_' + i).value;
+  ROWS[i].memo = val;
+  showToast('메모가 저장되었습니다.');
+}
+
+
+renderTable(ROWS);
+
+/* ── nav sub-menu toggle ── */
+function toggleSubNav(el, subId) {
+  var sub = document.getElementById(subId);
+  if (!sub) return;
+  var isOpen = sub.style.display === 'block';
+  sub.style.display = isOpen ? 'none' : 'block';
+  var chev = el.querySelector('.nav-chevron');
+  if (chev) chev.style.transform = isOpen ? '' : 'rotate(90deg)';
+}
+</script>
+</body>
+</html>

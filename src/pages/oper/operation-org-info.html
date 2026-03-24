@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>기관정보 관리 — 키드키즈</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="operation-sidebar.js" defer></script>
+<style>
+:root {
+  --sidebar-bg:     #0C2D48;
+  --sidebar-hover:  #1A4A6B;
+  --sidebar-active: #1E5580;
+  --sidebar-text:   #B8D9F0;
+  --sidebar-width:  240px;
+  --header-height:  60px;
+  --accent:         #0EA5E9;
+  --accent-light:   #E0F2FE;
+  --accent-dark:    #0284C7;
+  --bg-base:        #F0F7FF;
+  --bg-surface:     #FFFFFF;
+  --text-primary:   #0C2D48;
+  --text-secondary: #4B7FA3;
+  --text-muted:     #94B8D0;
+  --border-light:   #DBEAFE;
+  --border-medium:  #BAD9F7;
+  --green:  #10B981; --green-bg:  #D1FAE5; --green-text:  #065F46;
+  --blue:   #3B82F6; --blue-bg:   #DBEAFE; --blue-text:   #1E40AF;
+  --amber:  #F59E0B; --amber-bg:  #FEF3C7; --amber-text:  #92400E;
+  --red:    #EF4444; --red-bg:    #FEE2E2; --red-text:    #991B1B;
+  --purple: #8B5CF6; --purple-bg: #EDE9FE; --purple-text: #5B21B6;
+  --shadow-sm: 0 1px 3px rgba(12,45,72,0.06);
+  --shadow-md: 0 4px 12px rgba(12,45,72,0.09);
+  --shadow-lg: 0 8px 28px rgba(12,45,72,0.11);
+  --radius-sm:6px; --radius-md:10px; --radius-lg:14px; --radius-xl:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--text-primary);display:flex;height:100vh;overflow:hidden;}
+
+/* ━━━ MAIN ━━━ */
+.main-wrap{margin-left:var(--sidebar-width);flex:1;display:flex;flex-direction:column;overflow:hidden;}
+
+/* ━━━ TOPBAR ━━━ */
+.topbar{height:var(--header-height);background:var(--bg-surface);border-bottom:1px solid var(--border-light);display:flex;align-items:center;padding:0 24px;gap:12px;box-shadow:var(--shadow-sm);flex-shrink:0;z-index:50;}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary);flex:1;}
+.breadcrumb .cur{color:var(--text-primary);font-weight:600;}
+.bc-sep{color:var(--text-muted);font-size:11px;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.topbar-date{font-size:12px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;}
+.icon-btn{width:36px;height:36px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;background:var(--bg-base);border:1px solid var(--border-light);cursor:pointer;transition:.18s;font-size:16px;position:relative;}
+.icon-btn:hover{background:var(--accent-light);border-color:var(--accent);}
+.notif-dot::after{content:'';position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--red);border:1.5px solid var(--bg-surface);}
+.readonly-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:var(--radius-sm);background:#F3F4F6;color:#6B7280;font-size:11px;font-weight:600;}
+
+/* ━━━ CONTENT ━━━ */
+.content{flex:1;overflow-y:auto;padding:24px;}
+.content::-webkit-scrollbar{width:5px;}
+.content::-webkit-scrollbar-thumb{background:var(--border-medium);border-radius:3px;}
+.content-inner{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:20px;}
+
+/* ━━━ SECTION CARD ━━━ */
+.section-card{background:var(--bg-surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-md);padding:24px;border:1px solid var(--border-light);}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.section-title{font-size:14px;font-weight:800;color:var(--text-primary);display:flex;align-items:center;gap:7px;}
+.section-title-icon{width:26px;height:26px;border-radius:var(--radius-sm);background:var(--accent-light);display:flex;align-items:center;justify-content:center;font-size:13px;}
+.section-actions{display:flex;align-items:center;gap:8px;}
+
+/* ━━━ PROFILE HEADER CARD ━━━ */
+.profile-card{background:var(--bg-surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-md);padding:24px;border:1px solid var(--border-light);border-left:4px solid var(--accent);position:relative;}
+.profile-top{display:flex;align-items:flex-start;gap:20px;}
+.org-avatar{width:64px;height:64px;border-radius:var(--radius-lg);background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;flex-shrink:0;letter-spacing:-1px;}
+.profile-info{flex:1;}
+.profile-name-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px;}
+.profile-name{font-size:20px;font-weight:800;color:var(--text-primary);}
+.profile-meta{font-size:13px;color:var(--text-secondary);display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.profile-meta-dot{width:3px;height:3px;border-radius:50%;background:var(--text-muted);}
+.profile-divider{height:1px;background:var(--border-light);margin:16px 0;}
+.profile-stats{display:flex;align-items:center;gap:0;}
+.profile-stat{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0;}
+.profile-stat+.profile-stat{border-left:1px solid var(--border-light);}
+.profile-stat-val{font-size:22px;font-weight:800;color:var(--accent);}
+.profile-stat-label{font-size:11px;color:var(--text-secondary);font-weight:500;}
+.profile-edit-btn-wrap{position:absolute;top:24px;right:24px;}
+
+/* ━━━ BADGES ━━━ */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;}
+.badge-green{background:var(--green-bg);color:var(--green-text);}
+.badge-blue{background:var(--blue-bg);color:var(--blue-text);}
+.badge-amber{background:var(--amber-bg);color:var(--amber-text);}
+.badge-red{background:var(--red-bg);color:var(--red-text);}
+.badge-purple{background:var(--purple-bg);color:var(--purple-text);}
+.badge-gray{background:#F3F4F6;color:#6B7280;}
+.badge-accent{background:var(--accent-light);color:var(--accent-dark);}
+.badge-dot{width:5px;height:5px;border-radius:50%;background:currentColor;}
+
+/* ━━━ FORM GRID ━━━ */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 20px;}
+.form-grid .full{grid-column:1/-1;}
+.form-field{display:flex;flex-direction:column;gap:6px;}
+.form-label{font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.4px;}
+.form-value{font-size:14px;font-weight:600;color:var(--text-primary);min-height:38px;display:flex;align-items:center;padding:0 2px;}
+.form-input{border:1.5px solid var(--border-light);border-radius:var(--radius-md);height:38px;padding:0 12px;font-size:14px;font-family:'Pretendard',sans-serif;color:var(--text-primary);background:var(--bg-surface);outline:none;transition:.18s;width:100%;}
+.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(14,165,233,0.10);}
+.form-select{border:1.5px solid var(--border-light);border-radius:var(--radius-md);height:38px;padding:0 12px;font-size:14px;font-family:'Pretendard',sans-serif;color:var(--text-primary);background:var(--bg-surface);outline:none;transition:.18s;width:100%;appearance:none;-webkit-appearance:none;cursor:pointer;}
+.form-select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(14,165,233,0.10);}
+
+/* ━━━ BUTTONS ━━━ */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-md);font-size:13px;font-weight:700;font-family:'Pretendard',sans-serif;cursor:pointer;border:none;transition:.18s;white-space:nowrap;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{background:var(--accent-dark);}
+.btn-outline{background:var(--bg-surface);color:var(--text-secondary);border:1.5px solid var(--border-medium);}
+.btn-outline:hover{background:var(--bg-base);border-color:var(--accent);color:var(--accent);}
+.btn-success{background:var(--green);color:#fff;}
+.btn-success:hover{background:#059669;}
+.btn-danger-outline{background:var(--bg-surface);color:var(--red-text);border:1.5px solid var(--red-bg);}
+.btn-danger-outline:hover{background:var(--red-bg);}
+.btn-sm{padding:4px 10px;font-size:11px;border-radius:var(--radius-sm);}
+
+/* ━━━ STATUS CARDS (서비스 현황) ━━━ */
+.status-cards{display:flex;gap:14px;flex-wrap:wrap;}
+.status-card{flex:1;min-width:160px;background:var(--bg-base);border-radius:var(--radius-lg);padding:16px 18px;border:1.5px solid var(--border-light);}
+.status-card-label{font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.4px;}
+.status-card-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:13px;font-weight:700;}
+
+/* ━━━ STAT CARDS (운영 현황) ━━━ */
+.stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.stat-card{background:var(--bg-base);border-radius:var(--radius-lg);padding:16px;border:1.5px solid var(--border-light);display:flex;align-items:center;gap:12px;}
+.stat-card-icon{width:42px;height:42px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.stat-card-info{}
+.stat-card-val{font-size:22px;font-weight:800;line-height:1;}
+.stat-card-label{font-size:11px;color:var(--text-secondary);font-weight:500;margin-top:3px;}
+
+/* ━━━ MEMBERSHIP GRID ━━━ */
+.membership-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 20px;}
+.mem-field{display:flex;flex-direction:column;gap:5px;}
+.mem-label{font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.4px;}
+.mem-value{font-size:14px;font-weight:600;color:var(--text-primary);}
+.info-banner{margin-top:18px;padding:12px 16px;border-radius:var(--radius-md);background:#F8FAFC;border:1px solid var(--border-light);display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);}
+.info-banner-icon{font-size:14px;flex-shrink:0;}
+
+/* ━━━ TABLE ━━━ */
+.data-table{width:100%;border-collapse:collapse;}
+.data-table thead tr{background:var(--bg-base);border-bottom:2px solid var(--border-light);}
+.data-table thead th{padding:10px 14px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;text-align:left;white-space:nowrap;}
+.data-table tbody tr{border-bottom:1px solid var(--border-light);transition:.15s;}
+.data-table tbody tr:hover{background:var(--bg-base);}
+.data-table tbody tr:last-child{border-bottom:none;}
+.data-table td{padding:12px 14px;font-size:13px;font-weight:500;color:var(--text-primary);vertical-align:middle;}
+.teacher-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0;}
+.teacher-name-cell{display:flex;align-items:center;gap:10px;}
+.teacher-name{font-size:13px;font-weight:700;color:var(--text-primary);}
+
+/* ━━━ TOAST ━━━ */
+#toast-container{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:9999;}
+.toast{display:flex;align-items:center;gap:10px;padding:12px 18px;border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);font-size:13px;font-weight:600;color:#fff;min-width:240px;animation:toastIn .25s ease;pointer-events:none;}
+.toast-success{background:#10B981;}
+.toast-info{background:var(--accent);}
+.toast-warning{background:var(--amber);}
+@keyframes toastIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+/* ━━━ RESPONSIVE ━━━ */
+@media(max-width:760px){
+  .stat-cards{grid-template-columns:1fr 1fr;}
+  .form-grid{grid-template-columns:1fr;}
+  .form-grid .full{grid-column:1;}
+  .status-cards{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+
+<aside id="appSidebar"></aside>
+
+<div class="main-wrap">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="breadcrumb">
+      <span>🏠</span>
+      <span class="bc-sep">›</span>
+      <span>운영관리</span>
+      <span class="bc-sep">›</span>
+      <span class="cur">기관정보 관리</span>
+    </div>
+    <div class="topbar-right" id="topbarRight">
+      <!-- JS로 조회 전용 뱃지 + 날짜 + 아이콘 렌더링 -->
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <div class="content-inner" id="pageContent">
+      <!-- JS renderPage() -->
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+// ━━━ MOCK DATA ━━━
+const ORG_MOCK = {
+  id: 'ORG001',
+  name: '해맑은 어린이집',
+  type: '어린이집',
+  director: '박은서',
+  phone: '02-1234-5678',
+  region: '서울',
+  address: '서울특별시 강남구 테헤란로 123',
+  addressDetail: '해맑은빌딩 2층',
+  email: 'info@haemalk.co.kr',
+  biz: '123-45-67890',
+  cert: '인증완료',
+  approval: '승인완료',
+  status: '이용중',
+  membership: '멀티회원',
+  memberPlan: '멀티회원 프리미엄',
+  memberSince: '2024.01.15',
+  memberExpire: '무기한',
+  cls: 3,
+  teacher: 5,
+  kid: 42,
+  joinDate: '2024-01-15',
+  lastDate: '2026-03-23',
+  multiMembers: [
+    {id:'T001', name:'김하늘', email:'khaneul@haemalk.co.kr', role:'담임교사', joinedAt:'2024-02-01', active:true,  avatarBg:'#4361EE'},
+    {id:'T002', name:'박소현', email:'psohyun@haemalk.co.kr', role:'담임교사', joinedAt:'2024-02-10', active:true,  avatarBg:'#10B981'},
+    {id:'T003', name:'이준호', email:'ljunho@haemalk.co.kr',  role:'담임교사', joinedAt:'2024-03-01', active:true,  avatarBg:'#F59E0B'},
+    {id:'T004', name:'최다영', email:'cdayoung@haemalk.co.kr',role:'보조교사', joinedAt:'2024-03-15', active:false, avatarBg:'#8B5CF6'},
+  ]
+};
+
+// ━━━ STATE ━━━
+const userRole = sessionStorage.getItem('userRole') || 'org_admin';
+const canEdit  = (userRole === 'super' || userRole === 'org_admin');
+let editMode   = false;
+let editData   = Object.assign({}, ORG_MOCK);
+
+// ━━━ HELPERS ━━━
+function getInitials(name) {
+  if (!name) return '?';
+  return name.length >= 2 ? name.slice(0, 2) : name;
+}
+
+function todayStr() {
+  const d = new Date();
+  const yy = d.getFullYear();
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  const days = ['일','월','화','수','목','금','토'];
+  return `${yy}.${mm}.${dd} (${days[d.getDay()]})`;
+}
+
+function approvalBadge(val) {
+  if (val === '승인완료') return `<span class="badge badge-green"><span class="badge-dot"></span>${val}</span>`;
+  if (val === '승인대기') return `<span class="badge badge-purple"><span class="badge-dot"></span>${val}</span>`;
+  return `<span class="badge badge-red"><span class="badge-dot"></span>${val}</span>`;
+}
+function certBadge(val) {
+  if (val === '인증완료') return `<span class="badge badge-blue"><span class="badge-dot"></span>${val}</span>`;
+  if (val === '인증대기') return `<span class="badge badge-amber"><span class="badge-dot"></span>${val}</span>`;
+  return `<span class="badge badge-red"><span class="badge-dot"></span>${val}</span>`;
+}
+function statusBadge(val) {
+  if (val === '이용중') return `<span class="badge badge-green"><span class="badge-dot"></span>${val}</span>`;
+  return `<span class="badge badge-red"><span class="badge-dot"></span>${val}</span>`;
+}
+function membershipBadge(val) {
+  if (val === '멀티회원') return `<span class="badge badge-purple">${val}</span>`;
+  if (val === '정회원')   return `<span class="badge badge-blue">${val}</span>`;
+  return `<span class="badge badge-gray">${val}</span>`;
+}
+function orgTypeBadge(val) {
+  return `<span class="badge badge-accent">${val}</span>`;
+}
+
+// ━━━ TOAST ━━━
+function showToast(msg, type = 'info') {
+  const container = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  const icons = {success:'✅', info:'ℹ️', warning:'⚠️'};
+  el.innerHTML = `<span>${icons[type]||'💬'}</span><span>${msg}</span>`;
+  container.appendChild(el);
+  setTimeout(() => {
+    el.style.transition = 'opacity .3s';
+    el.style.opacity = '0';
+    setTimeout(() => el.remove(), 320);
+  }, 2800);
+}
+
+// ━━━ EDIT ACTIONS ━━━
+function enterEditMode() { editMode = true; renderPage(); }
+
+function cancelEdit() {
+  editMode = false;
+  editData = Object.assign({}, ORG_MOCK);
+  renderPage();
+}
+
+function saveEdit() {
+  // 폼 값 수집
+  const fields = ['name','type','director','phone','region','email','address','addressDetail','biz'];
+  fields.forEach(f => {
+    const el = document.getElementById('input_' + f);
+    if (el) editData[f] = el.value;
+  });
+  Object.assign(ORG_MOCK, editData);
+  editMode = false;
+  renderPage();
+  showToast('기관 정보가 저장되었습니다.', 'success');
+}
+
+function toggleTeacherActive(id) {
+  const m = ORG_MOCK.multiMembers.find(t => t.id === id);
+  if (!m) return;
+  m.active = !m.active;
+  editData = Object.assign({}, ORG_MOCK);
+  renderPage();
+  showToast(m.active ? `${m.name} 교직원을 활성화했습니다.` : `${m.name} 교직원을 비활성화했습니다.`, 'info');
+}
+
+// ━━━ TOPBAR ━━━
+function renderTopbar() {
+  const el = document.getElementById('topbarRight');
+  let html = '';
+  if (!canEdit) {
+    html += `<span class="readonly-badge">👁️ 조회 전용</span>`;
+  }
+  html += `<span class="topbar-date">${todayStr()}</span>`;
+  html += `<div class="icon-btn notif-dot" title="알림">🔔</div>`;
+  html += `<div class="icon-btn" title="설정">⚙️</div>`;
+  el.innerHTML = html;
+}
+
+// ━━━ SECTION 0: 프로필 헤더 ━━━
+function renderProfileCard() {
+  const d = ORG_MOCK;
+  return `
+  <div class="profile-card">
+    <div class="profile-top">
+      <div class="org-avatar">${getInitials(d.name)}</div>
+      <div class="profile-info">
+        <div class="profile-name-row">
+          <span class="profile-name">${d.name}</span>
+          ${orgTypeBadge(d.type)}
+          ${statusBadge(d.status)}
+        </div>
+        <div class="profile-meta">
+          <span>대표자: ${d.director}</span>
+          <span class="profile-meta-dot"></span>
+          <span>${d.region}</span>
+          <span class="profile-meta-dot"></span>
+          <span>${d.phone}</span>
+        </div>
+      </div>
+    </div>
+    ${canEdit ? `<div class="profile-edit-btn-wrap">
+      <button class="btn btn-outline" onclick="enterEditMode()">✏️ 정보 수정</button>
+    </div>` : ''}
+    <div class="profile-divider"></div>
+    <div class="profile-stats">
+      <div class="profile-stat">
+        <span class="profile-stat-val">${d.cls}</span>
+        <span class="profile-stat-label">반</span>
+      </div>
+      <div class="profile-stat">
+        <span class="profile-stat-val">${d.teacher}</span>
+        <span class="profile-stat-label">교사</span>
+      </div>
+      <div class="profile-stat">
+        <span class="profile-stat-val">${d.kid}</span>
+        <span class="profile-stat-label">원아</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ━━━ SECTION 1: 기본 정보 ━━━
+function renderBasicInfo() {
+  const d = editMode ? editData : ORG_MOCK;
+  const typeOptions = ['어린이집','유치원'];
+  const regionOptions = ['서울','경기','인천','부산','대구','기타'];
+
+  function field(label, key, fullWidth, isSelect, options) {
+    const wrapClass = fullWidth ? 'form-field full' : 'form-field';
+    if (editMode) {
+      if (isSelect) {
+        const opts = options.map(o => `<option value="${o}"${d[key]===o?' selected':''}>${o}</option>`).join('');
+        return `<div class="${wrapClass}">
+          <label class="form-label">${label}</label>
+          <select class="form-select" id="input_${key}">${opts}</select>
+        </div>`;
+      }
+      return `<div class="${wrapClass}">
+        <label class="form-label">${label}</label>
+        <input class="form-input" id="input_${key}" type="text" value="${d[key]||''}">
+      </div>`;
+    }
+    return `<div class="${wrapClass}">
+      <label class="form-label">${label}</label>
+      <span class="form-value">${d[key]||'—'}</span>
+    </div>`;
+  }
+
+  const actionBtns = editMode
+    ? `<div class="section-actions">
+        <button class="btn btn-success" onclick="saveEdit()">✔ 저장</button>
+        <button class="btn btn-outline" onclick="cancelEdit()">✕ 취소</button>
+      </div>`
+    : (canEdit ? `<div class="section-actions">
+        <button class="btn btn-outline" onclick="enterEditMode()">✏️ 수정</button>
+      </div>` : '');
+
+  return `
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-title-icon">🏢</div>
+        기본 정보
+      </div>
+      ${actionBtns}
+    </div>
+    <div class="form-grid">
+      ${field('기관명', 'name', false, false)}
+      ${field('기관 유형', 'type', false, true, typeOptions)}
+      ${field('대표자', 'director', false, false)}
+      ${field('연락처', 'phone', false, false)}
+      ${field('지역', 'region', false, true, regionOptions)}
+      ${field('이메일', 'email', false, false)}
+      ${field('주소', 'address', true, false)}
+      ${field('상세 주소', 'addressDetail', true, false)}
+      ${field('사업자등록번호', 'biz', false, false)}
+    </div>
+  </div>`;
+}
+
+// ━━━ SECTION 2: 서비스 현황 ━━━
+function renderServiceStatus() {
+  const d = ORG_MOCK;
+  return `
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-title-icon">📋</div>
+        서비스 현황
+      </div>
+    </div>
+    <div class="status-cards">
+      <div class="status-card">
+        <div class="status-card-label">승인 상태</div>
+        <div>${approvalBadge(d.approval)}</div>
+      </div>
+      <div class="status-card">
+        <div class="status-card-label">인증 상태</div>
+        <div>${certBadge(d.cert)}</div>
+      </div>
+      <div class="status-card">
+        <div class="status-card-label">이용 상태</div>
+        <div>${statusBadge(d.status)}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ━━━ SECTION 3: 멤버십 정보 ━━━
+function renderMembership() {
+  const d = ORG_MOCK;
+  return `
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-title-icon">💎</div>
+        멤버십 정보
+      </div>
+    </div>
+    <div class="membership-grid">
+      <div class="mem-field">
+        <span class="mem-label">멤버십 등급</span>
+        <span class="mem-value">${membershipBadge(d.membership)}</span>
+      </div>
+      <div class="mem-field">
+        <span class="mem-label">가입 플랜</span>
+        <span class="mem-value">${d.memberPlan}</span>
+      </div>
+      <div class="mem-field">
+        <span class="mem-label">멤버십 시작일</span>
+        <span class="mem-value">${d.memberSince}</span>
+      </div>
+      <div class="mem-field">
+        <span class="mem-label">멤버십 만료일</span>
+        <span class="mem-value">${d.memberExpire}</span>
+      </div>
+    </div>
+    <div class="info-banner">
+      <span class="info-banner-icon">ℹ️</span>
+      <span>멤버십 변경은 키드키즈 고객센터(1588-0000)로 문의해 주세요.</span>
+    </div>
+  </div>`;
+}
+
+// ━━━ SECTION 4: 운영 현황 ━━━
+function renderOperStats() {
+  const d = ORG_MOCK;
+  const cards = [
+    { icon:'🏫', label:'등록 반',     val: d.cls + '개',    color:'var(--accent)',  bg:'var(--accent-light)' },
+    { icon:'👨‍🏫', label:'교사',       val: d.teacher + '명', color:'var(--green)',  bg:'var(--green-bg)' },
+    { icon:'👶', label:'원아',        val: d.kid + '명',    color:'var(--purple)', bg:'var(--purple-bg)' },
+    { icon:'📅', label:'서비스 가입일', val: d.joinDate,      color:'var(--amber)',  bg:'var(--amber-bg)' },
+  ];
+  const cardsHtml = cards.map(c => `
+    <div class="stat-card">
+      <div class="stat-card-icon" style="background:${c.bg};">${c.icon}</div>
+      <div class="stat-card-info">
+        <div class="stat-card-val" style="color:${c.color};">${c.val}</div>
+        <div class="stat-card-label">${c.label}</div>
+      </div>
+    </div>`).join('');
+  return `
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-title-icon">📊</div>
+        운영 현황
+      </div>
+    </div>
+    <div class="stat-cards">${cardsHtml}</div>
+  </div>`;
+}
+
+// ━━━ SECTION 5: 교직원 목록 ━━━
+function renderMultiMembers() {
+  if (ORG_MOCK.membership !== '멀티회원') return '';
+  const rows = ORG_MOCK.multiMembers.map(t => {
+    const activeBadge = t.active
+      ? `<span class="badge badge-green"><span class="badge-dot"></span>활성</span>`
+      : `<span class="badge badge-gray"><span class="badge-dot"></span>비활성</span>`;
+    const toggleBtn = canEdit
+      ? `<button class="btn btn-sm ${t.active ? 'btn-danger-outline' : 'btn-outline'}"
+           onclick="toggleTeacherActive('${t.id}')">
+           ${t.active ? '비활성화' : '활성화'}
+         </button>`
+      : '';
+    return `<tr>
+      <td>
+        <div class="teacher-name-cell">
+          <div class="teacher-avatar" style="background:${t.avatarBg};">${getInitials(t.name)}</div>
+          <span class="teacher-name">${t.name}</span>
+        </div>
+      </td>
+      <td style="color:var(--text-secondary);font-size:12px;">${t.email}</td>
+      <td>${t.role}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:12px;">${t.joinedAt}</td>
+      <td>${activeBadge}</td>
+      ${canEdit ? `<td>${toggleBtn}</td>` : ''}
+    </tr>`;
+  }).join('');
+
+  const thAction = canEdit ? '<th>관리</th>' : '';
+
+  return `
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-title-icon">👥</div>
+        교직원 목록
+        <span class="badge badge-purple" style="margin-left:4px;">${ORG_MOCK.multiMembers.length}명</span>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>이름</th>
+            <th>이메일</th>
+            <th>역할</th>
+            <th>가입일</th>
+            <th>상태</th>
+            ${thAction}
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+// ━━━ RENDER PAGE ━━━
+function renderPage() {
+  const container = document.getElementById('pageContent');
+  container.innerHTML =
+    renderProfileCard() +
+    renderBasicInfo() +
+    renderServiceStatus() +
+    renderMembership() +
+    renderOperStats() +
+    renderMultiMembers();
+}
+
+// ━━━ INIT ━━━
+document.addEventListener('DOMContentLoaded', () => {
+  renderTopbar();
+  renderPage();
+});
+</script>
+</body>
+</html>

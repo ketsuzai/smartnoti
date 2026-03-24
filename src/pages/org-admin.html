@@ -1,0 +1,2017 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>알림장 관리자 시스템 - 기관관리</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-base:        #F4F5F7;
+  --bg-surface:     #FFFFFF;
+  --bg-sidebar:     #1A1D2E;
+  --bg-sidebar-hover: #252840;
+  --bg-sidebar-active: #2E3250;
+
+  --accent-primary:       #4361EE;
+  --accent-primary-light: #EEF1FD;
+  --accent-secondary:     #3A0CA3;
+
+  --text-primary:   #1A1D2E;
+  --text-secondary: #6B7280;
+  --text-muted:     #9CA3AF;
+  --text-sidebar:   #C5C9D6;
+
+  --border-light:   #E5E7EB;
+  --border-medium:  #D1D5DB;
+
+  /* 기관 상태 */
+  --s-inuse-bg: #D1FAE5; --s-inuse-text: #065F46; --s-inuse-dot: #10B981;
+  --s-end-bg:   #FEE2E2; --s-end-text:   #991B1B; --s-end-dot:   #EF4444;
+
+  /* 멤버십 */
+  --m-multi-bg: #EDE9FE; --m-multi-text: #5B21B6; --m-multi-dot: #8B5CF6;
+  --m-regular-bg: #DBEAFE; --m-regular-text: #1E40AF; --m-regular-dot: #3B82F6;
+  --m-basic-bg: #F3F4F6; --m-basic-text: #374151; --m-basic-dot: #9CA3AF;
+  --m-none-bg:  #FEF9C3; --m-none-text:  #92400E; --m-none-dot:  #F59E0B;
+
+  /* 승인 상태 */
+  --s-wait-bg:  #EDE9FE; --s-wait-text:  #5B21B6; --s-wait-dot:  #8B5CF6;
+  --s-done-bg:  #D1FAE5; --s-done-text:  #065F46; --s-done-dot:  #10B981;
+  --s-reject-bg:#FEE2E2; --s-reject-text:#991B1B; --s-reject-dot:#EF4444;
+
+  /* 인증 상태 */
+  --s-cert-bg:  #DBEAFE; --s-cert-text:  #1E40AF; --s-cert-dot:  #3B82F6;
+  --s-cpend-bg: #FEF3C7; --s-cpend-text: #92400E; --s-cpend-dot: #F59E0B;
+  --s-cfail-bg: #FEE2E2; --s-cfail-text: #991B1B; --s-cfail-dot: #EF4444;
+
+  --shadow-sm:    0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md:    0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg:    0 8px 32px rgba(0,0,0,0.12);
+  --shadow-modal: 0 20px 60px rgba(0,0,0,0.18);
+
+  --radius-sm: 6px; --radius-md: 8px;
+  --radius-lg: 12px; --radius-xl: 16px;
+
+  --sidebar-width: 240px;
+  --header-height: 60px;
+}
+
+body {
+  font-family: 'Pretendard', -apple-system, sans-serif;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+}
+
+/* ════ SIDEBAR ════ */
+.sidebar {
+  width: var(--sidebar-width);
+  min-height: 100vh;
+  background: var(--bg-sidebar);
+  display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; bottom: 0; z-index: 100;
+}
+.sidebar-logo {
+  height: var(--header-height);
+  display: flex; align-items: center;
+  padding: 0 20px; gap: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.logo-icon {
+  width: 32px; height: 32px;
+  background: var(--accent-primary);
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.logo-text { font-size: 14px; font-weight: 700; color: #fff; letter-spacing: -0.3px; }
+.logo-badge {
+  font-size: 10px; font-weight: 500; color: var(--accent-primary);
+  background: rgba(67,97,238,0.15); padding: 2px 6px; border-radius: 4px; margin-left: auto;
+}
+.sidebar-nav { flex: 1; padding: 12px 0; overflow-y: auto; }
+.nav-section-title {
+  font-size: 10px; font-weight: 600; color: rgba(197,201,214,0.4);
+  letter-spacing: 1px; text-transform: uppercase; padding: 12px 20px 6px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 20px; color: var(--text-sidebar);
+  cursor: pointer; font-size: 13.5px; font-weight: 400;
+  transition: all 0.15s; position: relative;
+}
+.nav-item:hover { background: var(--bg-sidebar-hover); color: #fff; }
+.nav-item.active { background: var(--bg-sidebar-active); color: #fff; font-weight: 500; }
+.nav-item.active::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px; background: var(--accent-primary); border-radius: 0 2px 2px 0;
+}
+.nav-item .nav-icon { width: 18px; height: 18px; opacity: 0.75; flex-shrink: 0; }
+.nav-item.active .nav-icon { opacity: 1; }
+.nav-item .nav-badge {
+  margin-left: auto; background: var(--accent-primary); color: #fff;
+  font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 10px;
+}
+.nav-sub { background: rgba(0,0,0,0.15); }
+.nav-sub .nav-item { padding-left: 44px; font-size: 13px; }
+.nav-sub .nav-item.active { background: rgba(67,97,238,0.2); color: #fff; }
+.nav-parent-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 20px; color: var(--text-sidebar);
+  cursor: pointer; font-size: 13.5px; font-weight: 400;
+  transition: all 0.15s;
+}
+.nav-parent-item:hover { background: var(--bg-sidebar-hover); color: #fff; }
+.nav-parent-item .nav-icon { width: 18px; height: 18px; opacity: 0.75; flex-shrink: 0; }
+.nav-chevron { margin-left: auto; font-size: 10px; opacity: 0.5; transition: transform 0.2s; }
+.nav-parent-item.open .nav-chevron { transform: rotate(90deg); }
+
+.sidebar-footer {
+  padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.06);
+}
+.sidebar-user {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px; border-radius: var(--radius-md); cursor: pointer; transition: background 0.15s;
+}
+.sidebar-user:hover { background: var(--bg-sidebar-hover); }
+.user-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg,#4361EE,#7C3AED);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.user-info { flex: 1; min-width: 0; }
+.user-name { font-size: 13px; font-weight: 600; color: #fff; }
+.user-role { font-size: 11px; color: rgba(197,201,214,0.6); }
+
+/* ════ MAIN ════ */
+.main { margin-left: var(--sidebar-width); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+.topbar {
+  height: var(--header-height); background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-light);
+  display: flex; align-items: center; padding: 0 24px; gap: 12px;
+  position: sticky; top: 0; z-index: 50; box-shadow: var(--shadow-sm);
+}
+.breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary); }
+.breadcrumb-sep { color: var(--text-muted); }
+.breadcrumb-current { color: var(--text-primary); font-weight: 600; }
+.topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.icon-btn {
+  width: 34px; height: 34px; border: none; background: transparent;
+  border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--text-secondary); transition: all 0.15s; position: relative;
+}
+.icon-btn:hover { background: var(--bg-base); color: var(--text-primary); }
+.notif-dot {
+  position: absolute; top: 7px; right: 7px; width: 7px; height: 7px;
+  background: #EF4444; border-radius: 50%; border: 1.5px solid #fff;
+}
+.topbar-divider { width: 1px; height: 22px; background: var(--border-light); }
+.topbar-profile {
+  display: flex; align-items: center; gap: 8px; padding: 4px 10px;
+  border-radius: var(--radius-md); cursor: pointer; transition: background 0.15s;
+}
+.topbar-profile:hover { background: var(--bg-base); }
+.profile-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: linear-gradient(135deg,#4361EE,#7C3AED);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #fff;
+}
+.profile-name { font-size: 13px; font-weight: 600; }
+
+.content { flex: 1; padding: 24px; }
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
+.page-title { font-size: 20px; font-weight: 700; letter-spacing: -0.4px; }
+.page-subtitle { font-size: 13px; color: var(--text-secondary); margin-top: 3px; }
+
+/* ════ SUMMARY CARDS ════ */
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1.3fr 1fr 1fr;
+  gap: 12px; margin-bottom: 20px;
+}
+.sum-card {
+  background: var(--bg-surface); border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-lg); padding: 18px 20px 16px;
+  box-shadow: var(--shadow-sm); cursor: pointer; transition: all 0.18s;
+  position: relative; overflow: hidden;
+}
+.sum-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--card-accent, #E5E7EB);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+.sum-card:hover { border-color: var(--card-accent, var(--border-medium)); box-shadow: 0 4px 16px rgba(0,0,0,0.10); transform: translateY(-2px); }
+.sum-card.active-filter { border-color: var(--card-accent); box-shadow: 0 4px 16px rgba(0,0,0,0.10); }
+.sum-card-label {
+  font-size: 11.5px; font-weight: 600; color: var(--text-secondary);
+  letter-spacing: 0.1px; margin-bottom: 8px; display: flex; align-items: center; gap: 5px;
+}
+.dot-icon { width: 7px; height: 7px; border-radius: 50%; background: var(--card-accent, #9CA3AF); flex-shrink: 0; }
+.sum-card-num { font-size: 26px; font-weight: 800; color: var(--card-num, var(--text-primary)); letter-spacing: -1px; line-height: 1; margin-bottom: 10px; }
+.sum-card-footer { display: flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--text-muted); }
+.sum-card-link { font-size: 11.5px; font-weight: 600; color: var(--accent-primary); display: flex; align-items: center; gap: 3px; cursor: pointer; }
+.sum-card-link:hover { text-decoration: underline; }
+
+.card-total  { --card-accent: #4361EE; --card-num: #1A1D2E; }
+.card-wait   { --card-accent: #8B5CF6; --card-num: #5B21B6; }
+.card-inuse  { --card-accent: #10B981; --card-num: #065F46; }
+.card-multi  { --card-accent: #8B5CF6; --card-num: #5B21B6; }
+.card-regular{ --card-accent: #3B82F6; --card-num: #1E40AF; }
+.card-basic  { --card-accent: #9CA3AF; --card-num: #374151; }
+.card-end    { --card-accent: #EF4444; --card-num: #991B1B; }
+.card-paid   { --card-accent: #6D28D9; --card-num: #4C1D95; }
+
+/* 유료회원 분기 바 */
+.paid-breakdown {
+  display: flex; gap: 0; margin-top: 10px;
+  border-radius: 6px; overflow: hidden; height: 4px;
+}
+.paid-bar-multi   { background: #8B5CF6; }
+.paid-bar-regular { background: #3B82F6; }
+.paid-sub-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 8px; gap: 0;
+}
+.paid-sub-item {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 11px; color: var(--text-secondary);
+}
+.paid-sub-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.paid-sub-num { font-weight: 700; color: var(--text-primary); }
+
+/* ════ FILTER CARD ════ */
+.filter-card {
+  background: var(--bg-surface); border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 14px; box-shadow: var(--shadow-sm);
+}
+.filter-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.filter-row + .filter-row { margin-top: 10px; }
+.f-label { font-size: 11.5px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; width: 68px; flex-shrink: 0; }
+.f-select-wrap { position: relative; }
+.f-select-wrap::after {
+  content: ''; position: absolute; right: 9px; top: 50%; transform: translateY(-50%);
+  width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent;
+  border-top: 5px solid var(--text-muted); pointer-events: none;
+}
+.f-select {
+  height: 34px; padding: 0 28px 0 10px; border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm); font-size: 13px; font-family: inherit;
+  background: var(--bg-base); color: var(--text-primary); appearance: none; cursor: pointer; transition: all 0.15s; min-width: 120px;
+}
+.f-select:focus { outline: none; border-color: var(--accent-primary); background: #fff; box-shadow: 0 0 0 3px rgba(67,97,238,0.1); }
+.search-combo {
+  display: flex; align-items: center; border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-base); transition: all 0.15s;
+}
+.search-combo:focus-within { border-color: var(--accent-primary); background: #fff; box-shadow: 0 0 0 3px rgba(67,97,238,0.1); }
+.search-type {
+  height: 34px; padding: 0 10px; border: none; border-right: 1px solid var(--border-medium);
+  background: transparent; font-size: 12.5px; font-family: inherit; color: var(--text-secondary);
+  cursor: pointer; appearance: none; min-width: 80px; outline: none;
+}
+.search-input {
+  height: 34px; padding: 0 10px; border: none; background: transparent;
+  font-size: 13px; font-family: inherit; color: var(--text-primary); outline: none; width: 220px;
+}
+.search-input::placeholder { color: var(--text-muted); }
+.search-btn {
+  height: 34px; padding: 0 12px; background: var(--accent-primary); border: none;
+  color: #fff; cursor: pointer; transition: background 0.15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.search-btn:hover { background: #3251D5; }
+.filter-divider { width: 1px; height: 20px; background: var(--border-light); }
+.active-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-light); }
+.chip {
+  display: flex; align-items: center; gap: 5px; padding: 3px 8px;
+  background: var(--accent-primary-light); color: var(--accent-primary);
+  border-radius: 12px; font-size: 12px; font-weight: 500;
+}
+.chip-rm {
+  width: 14px; height: 14px; border-radius: 50%; background: rgba(67,97,238,0.2); border: none;
+  cursor: pointer; font-size: 10px; line-height: 1; color: var(--accent-primary);
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ════ TABLE ════ */
+.table-card {
+  background: var(--bg-surface); border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden;
+}
+.table-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px; border-bottom: 1px solid var(--border-light);
+}
+.result-info { font-size: 13px; color: var(--text-secondary); }
+.result-info strong { color: var(--text-primary); font-weight: 700; }
+.toolbar-right { display: flex; align-items: center; gap: 8px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px;
+  border-radius: var(--radius-md); font-size: 12.5px; font-weight: 500;
+  cursor: pointer; border: none; transition: all 0.15s; font-family: inherit; white-space: nowrap;
+}
+.btn-secondary { background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border-medium); }
+.btn-secondary:hover { background: var(--bg-base); }
+.btn-primary { background: var(--accent-primary); color: #fff; }
+.btn-primary:hover { background: #3251D5; }
+.btn-danger { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
+.btn-danger:hover { background: #FEF2F2; }
+.per-page-wrap { position: relative; }
+.per-page-wrap::after {
+  content: ''; position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  pointer-events: none; width: 0; height: 0;
+  border-left: 3px solid transparent; border-right: 3px solid transparent; border-top: 4px solid var(--text-muted);
+}
+.per-page {
+  height: 30px; padding: 0 20px 0 8px; border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm); font-size: 12px; background: var(--bg-base);
+  appearance: none; font-family: inherit; cursor: pointer; color: var(--text-primary);
+}
+
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 1520px; }
+th {
+  background: #F8F9FB; padding: 9px 12px; text-align: left;
+  font-size: 11px; font-weight: 700; color: var(--text-secondary);
+  letter-spacing: 0.4px; text-transform: uppercase;
+  border-bottom: 1px solid var(--border-light); white-space: nowrap;
+}
+th:first-child { padding-left: 20px; }
+td:first-child { padding-left: 20px; }
+td {
+  padding: 12px 12px; font-size: 12.5px; color: var(--text-primary);
+  border-bottom: 1px solid var(--border-light);
+  vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #FAFBFC; }
+tr.row-sel td { background: #EEF1FD; }
+
+/* col widths */
+.c-chk  { width: 38px; }
+.c-org  { width: 160px; }
+.c-type { width: 80px; }
+.c-dir  { width: 80px; }
+.c-phone{ width: 116px; }
+.c-region{ width: 70px; }
+.c-cert { width: 88px; }
+.c-appr { width: 88px; }
+.c-cls  { width: 52px; text-align: center; }
+.c-tch  { width: 52px; text-align: center; }
+.c-kid  { width: 52px; text-align: center; }
+.c-usage{ width: 88px; }
+.c-join { width: 92px; }
+.c-last { width: 92px; }
+.c-view { width: 56px; text-align: center; }
+
+.sbadge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 7px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap;
+}
+.sdot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+
+.mbadge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.mb-multi   { background: var(--m-multi-bg);   color: var(--m-multi-text); }
+.mb-regular { background: var(--m-regular-bg); color: var(--m-regular-text); }
+.mb-basic   { background: var(--m-basic-bg);   color: var(--m-basic-text); }
+.mb-none    { background: var(--m-none-bg);    color: var(--m-none-text); }
+
+.tag {
+  display: inline-flex; align-items: center; padding: 2px 7px;
+  border-radius: 4px; font-size: 11.5px; font-weight: 600; white-space: nowrap;
+}
+.tag-daycare  { background: #DBEAFE; color: #1E40AF; }
+.tag-kinder   { background: #F0FDF4; color: #166534; }
+.tag-etc      { background: #F3F4F6; color: #374151; }
+
+.count-cell { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; color: var(--text-primary); }
+
+.view-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: var(--radius-sm); border: 1px solid var(--border-medium);
+  background: transparent; cursor: pointer; color: var(--text-secondary); transition: all 0.15s; font-size: 13px;
+}
+.view-btn:hover { background: var(--accent-primary-light); border-color: var(--accent-primary); color: var(--accent-primary); }
+
+/* ════ PAGINATION ════ */
+.pagination {
+  display: flex; align-items: center; justify-content: center;
+  gap: 4px; padding: 18px 0 6px;
+}
+.page-btn {
+  min-width: 32px; height: 32px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-medium); background: var(--bg-surface);
+  font-size: 12.5px; cursor: pointer; color: var(--text-secondary); transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.page-btn:hover { background: var(--bg-base); border-color: var(--accent-primary); color: var(--accent-primary); }
+.page-btn.active { background: var(--accent-primary); color: #fff; border-color: var(--accent-primary); font-weight: 700; }
+.page-ellipsis { padding: 0 4px; color: var(--text-muted); font-size: 13px; }
+
+/* ════ MODAL ════ */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(10,12,20,0.5); z-index: 200;
+  align-items: center; justify-content: center;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--bg-surface); border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-modal); width: 560px; max-width: 95vw; max-height: 85vh;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.modal-header {
+  padding: 20px 24px 16px; border-bottom: 1px solid var(--border-light);
+  display: flex; align-items: center; gap: 10px;
+}
+.modal-title { font-size: 16px; font-weight: 700; }
+.modal-close {
+  margin-left: auto; width: 28px; height: 28px; border: none; background: transparent;
+  border-radius: var(--radius-sm); cursor: pointer; font-size: 16px; color: var(--text-muted);
+  display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+}
+.modal-close:hover { background: var(--bg-base); color: var(--text-primary); }
+.modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
+.modal-footer {
+  padding: 14px 24px; border-top: 1px solid var(--border-light);
+  display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+}
+
+/* ════ DETAIL SLIDE ════ */
+.detail-page {
+  position: fixed; top: 0; right: -100%; bottom: 0; width: 820px; max-width: 95vw;
+  background: var(--bg-surface); z-index: 150; box-shadow: var(--shadow-lg);
+  display: flex; flex-direction: column; transition: right 0.3s ease;
+  overflow: hidden;
+}
+.detail-page.show { right: 0; }
+.detail-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(10,12,20,0.3); z-index: 149;
+}
+.detail-overlay.show { display: block; }
+.detail-header {
+  padding: 0 24px; height: 60px; border-bottom: 1px solid var(--border-light);
+  display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+}
+.detail-title { font-size: 15px; font-weight: 700; }
+.detail-body { flex: 1; overflow-y: auto; padding: 24px; }
+.detail-tabs {
+  display: flex; gap: 0; border-bottom: 1px solid var(--border-light); margin-bottom: 24px;
+}
+.dtab {
+  padding: 10px 18px; font-size: 13px; font-weight: 500; color: var(--text-secondary);
+  cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; white-space: nowrap;
+}
+.dtab:hover { color: var(--text-primary); }
+.dtab.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); font-weight: 600; }
+
+/* Detail sections */
+.dp-sec {
+  font-size: 13px; font-weight: 700; color: var(--text-primary);
+  letter-spacing: -0.2px; margin-bottom: 12px; margin-top: 24px;
+  padding-bottom: 8px; border-bottom: 1.5px solid var(--border-light);
+  display: flex; align-items: center; gap: 8px;
+}
+.dp-sec:first-of-type { margin-top: 0; }
+.dp-info-table {
+  width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 4px;
+}
+.dp-info-table td { padding: 8px 12px; border: 1px solid var(--border-light); vertical-align: middle; }
+.dp-info-table td.label {
+  background: #F8F9FB; font-size: 11.5px; font-weight: 600;
+  color: var(--text-secondary); white-space: nowrap; width: 100px;
+}
+.dp-info-table td.val { color: var(--text-primary); }
+.dp-notice {
+  font-size: 11.5px; color: var(--text-muted); margin-top: 8px; padding: 8px 12px;
+  background: var(--bg-base); border-radius: var(--radius-sm); border-left: 3px solid var(--border-medium);
+}
+
+/* Stats row */
+.dp-stats-row {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 12px; margin-bottom: 4px;
+}
+.dp-stat-card {
+  background: var(--bg-base); border: 1px solid var(--border-light);
+  border-radius: var(--radius-md); padding: 14px 16px; text-align: center;
+}
+.dp-stat-num { font-size: 22px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px; }
+.dp-stat-label { font-size: 11px; font-weight: 600; color: var(--text-muted); margin-top: 4px; }
+
+/* Memo */
+.dp-memo-card {
+  background: var(--bg-base); border: 1px solid var(--border-light);
+  border-radius: var(--radius-md); overflow: hidden;
+}
+.dp-memo-textarea {
+  width: 100%; height: 100px; padding: 12px; border: none;
+  background: transparent; font-family: inherit; font-size: 13px; color: var(--text-primary);
+  resize: vertical; outline: none; line-height: 1.6;
+}
+.dp-memo-footer {
+  padding: 8px 12px; border-top: 1px solid var(--border-light);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.dp-memo-count { font-size: 11.5px; color: var(--text-muted); }
+.dp-memo-save {
+  height: 28px; padding: 0 14px; background: var(--accent-primary); color: #fff;
+  border: none; border-radius: var(--radius-sm); font-size: 12px; font-weight: 600;
+  cursor: pointer; font-family: inherit; transition: background 0.15s;
+}
+.dp-memo-save:hover { background: #3251D5; }
+.dp-memo-date { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+/* History */
+.history-list { display: flex; flex-direction: column; gap: 0; }
+.history-item {
+  display: flex; align-items: flex-start; gap: 14px; padding: 12px 0;
+  border-bottom: 1px solid var(--border-light); position: relative;
+}
+.history-item:last-child { border-bottom: none; }
+.history-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--accent-primary);
+  flex-shrink: 0; margin-top: 5px;
+}
+.history-content { flex: 1; }
+.history-action { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 3px; }
+.history-meta { font-size: 11.5px; color: var(--text-muted); }
+
+/* Shortcut buttons */
+.shortcut-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.shortcut-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px; border-radius: var(--radius-md);
+  border: 1px solid var(--border-medium); background: var(--bg-surface);
+  font-size: 12.5px; font-weight: 500; cursor: pointer; color: var(--text-primary);
+  transition: all 0.15s; font-family: inherit;
+}
+.shortcut-btn:hover { background: var(--accent-primary-light); border-color: var(--accent-primary); color: var(--accent-primary); }
+
+/* Status form */
+.status-form { display: flex; flex-direction: column; gap: 14px; }
+.status-option {
+  display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+  border: 2px solid var(--border-light); border-radius: var(--radius-md);
+  cursor: pointer; transition: all 0.15s;
+}
+.status-option:hover { border-color: var(--border-medium); }
+.status-option.selected { border-color: var(--accent-primary); background: var(--accent-primary-light); }
+.status-option input[type="radio"] { accent-color: var(--accent-primary); width: 16px; height: 16px; }
+.status-option-label { font-size: 13.5px; font-weight: 600; }
+.status-option-desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.reason-textarea {
+  width: 100%; min-height: 80px; padding: 10px 12px;
+  border: 1px solid var(--border-medium); border-radius: var(--radius-md);
+  font-family: inherit; font-size: 13px; color: var(--text-primary);
+  resize: vertical; outline: none; transition: border-color 0.15s;
+}
+.reason-textarea:focus { border-color: var(--accent-primary); box-shadow: 0 0 0 3px rgba(67,97,238,0.1); }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: #1A1D2E; color: #fff; padding: 10px 20px; border-radius: 24px;
+  font-size: 13px; font-weight: 500; box-shadow: var(--shadow-lg);
+  opacity: 0; transition: all 0.25s; z-index: 999; pointer-events: none; white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Alert box */
+.alert-box {
+  padding: 10px 14px; border-radius: var(--radius-md); font-size: 12.5px; margin-bottom: 14px;
+  display: flex; align-items: flex-start; gap: 8px;
+}
+.alert-warn { background: #FFFBEB; border: 1px solid #FDE68A; color: #92400E; }
+.alert-info { background: #EFF6FF; border: 1px solid #BFDBFE; color: #1D4ED8; }
+
+/* ════ 멀티회원 구성원 관리 ════ */
+.member-mgmt-box {
+  border: 1.5px solid #DDD6FE;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-top: 0;
+}
+.member-mgmt-header {
+  background: linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%);
+  padding: 14px 18px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid #DDD6FE;
+}
+.member-mgmt-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13.5px; font-weight: 700; color: #4C1D95;
+}
+.member-mgmt-cost-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: #fff; border: 1px solid #DDD6FE;
+  border-radius: 20px; padding: 4px 12px;
+  font-size: 12px; font-weight: 600; color: #5B21B6;
+}
+.member-mgmt-cost-badge .cost-num {
+  font-size: 13px; font-weight: 800; color: #7C3AED;
+}
+.member-cost-summary {
+  background: #F5F3FF;
+  padding: 12px 18px;
+  display: flex; align-items: center; gap: 0;
+  border-bottom: 1px solid #EDE9FE;
+}
+.cost-summary-item {
+  flex: 1; text-align: center;
+  padding: 0 12px;
+}
+.cost-summary-item + .cost-summary-item {
+  border-left: 1px solid #DDD6FE;
+}
+.cost-summary-label { font-size: 11px; font-weight: 600; color: #7C3AED; margin-bottom: 3px; }
+.cost-summary-val   { font-size: 18px; font-weight: 800; color: #4C1D95; letter-spacing: -0.5px; }
+.cost-summary-sub   { font-size: 11px; color: #A78BFA; margin-top: 1px; }
+
+.teacher-list-area { padding: 0; }
+.teacher-list-head {
+  display: grid;
+  grid-template-columns: 28px 1fr 80px 90px 80px 72px;
+  gap: 0; padding: 8px 18px;
+  background: #F8F7FF;
+  border-bottom: 1px solid #EDE9FE;
+  font-size: 11px; font-weight: 700; color: #7C3AED;
+  letter-spacing: 0.3px; text-transform: uppercase;
+}
+.teacher-list-row {
+  display: grid;
+  grid-template-columns: 28px 1fr 80px 90px 80px 72px;
+  gap: 0; padding: 11px 18px;
+  border-bottom: 1px solid #F3F4F6;
+  align-items: center; transition: background 0.12s;
+}
+.teacher-list-row:last-child { border-bottom: none; }
+.teacher-list-row:hover { background: #FAFAFF; }
+.teacher-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.teacher-name-cell { display: flex; align-items: center; gap: 10px; }
+.teacher-name      { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.teacher-email     { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.member-status-on  { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 20px; background: #EDE9FE; color: #5B21B6; font-size: 11px; font-weight: 700; }
+.member-status-off { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 20px; background: #F3F4F6; color: #9CA3AF; font-size: 11px; font-weight: 600; }
+.member-toggle-btn {
+  height: 26px; padding: 0 10px; border-radius: 6px; font-size: 12px; font-weight: 600;
+  cursor: pointer; border: none; font-family: inherit; transition: all 0.15s;
+}
+.toggle-add    { background: #7C3AED; color: #fff; }
+.toggle-add:hover { background: #6D28D9; }
+.toggle-remove { background: #F3F4F6; color: #6B7280; border: 1px solid #E5E7EB; }
+.toggle-remove:hover { background: #FEE2E2; color: #991B1B; border-color: #FCA5A5; }
+
+.member-add-row {
+  padding: 14px 18px;
+  background: #F8F7FF;
+  border-top: 1.5px dashed #DDD6FE;
+  display: flex; align-items: center; gap: 10px;
+}
+.member-add-input {
+  flex: 1; height: 34px; padding: 0 12px;
+  border: 1px solid #DDD6FE; border-radius: var(--radius-sm);
+  font-size: 13px; font-family: inherit; color: var(--text-primary);
+  background: #fff; outline: none; transition: all 0.15s;
+}
+.member-add-input:focus { border-color: #7C3AED; box-shadow: 0 0 0 3px rgba(124,58,237,0.1); }
+.member-add-input::placeholder { color: var(--text-muted); }
+.member-add-btn {
+  height: 34px; padding: 0 16px;
+  background: #7C3AED; color: #fff;
+  border: none; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 600; font-family: inherit;
+  cursor: pointer; transition: background 0.15s; white-space: nowrap;
+}
+.member-add-btn:hover { background: #6D28D9; }
+.not-multi-notice {
+  background: #F9FAFB; border: 1.5px dashed #E5E7EB;
+  border-radius: var(--radius-lg); padding: 28px 20px;
+  text-align: center; color: var(--text-muted);
+}
+.not-multi-notice .notice-icon { font-size: 28px; margin-bottom: 10px; }
+.not-multi-notice .notice-title { font-size: 14px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+.not-multi-notice .notice-desc  { font-size: 12.5px; line-height: 1.6; }
+
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🏫</div>
+    <div class="logo-text">알림장 Admin</div>
+    <div class="logo-badge">v2.4</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-title">메인</div>
+    <div class="nav-item " onclick="location.href='dashboard.html'" style="cursor:pointer">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1" stroke-width="2"/></svg>
+      Home (대시보드)
+    </div>
+
+    <div class="nav-section-title">관리</div>
+
+    <div class="nav-item " onclick="toggleSubNav(this,'sub-member')" style="cursor:pointer">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>
+      회원/승인관리
+      <span class="nav-badge" style="margin-left:auto;background:#4361EE;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px">3</span>
+      <svg class="nav-chevron" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-left:4px;opacity:0.5;transition:transform 0.2s;flex-shrink:0"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+    </div>
+    <div class="nav-sub" id="sub-member" style="none">
+      <div class="nav-item " onclick="location.href='member-list-admin.html'" style="cursor:pointer">통합회원 조회</div>
+      <div class="nav-item " onclick="location.href='member-approval.html'" style="cursor:pointer">가입 승인 관리 <span class="nav-badge">3</span></div>
+      <div class="nav-item " onclick="location.href='invitation-admin.html'" style="cursor:pointer">초대 관리</div>
+      <div class="nav-item " onclick="location.href='member-status-admin.html'" style="cursor:pointer">회원 상태 관리</div>
+    </div>
+
+    <div class="nav-item active" onclick="toggleSubNav(this,'sub-org')" style="cursor:pointer">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+      기관관리
+      <span class="nav-badge" style="margin-left:auto;background:#4361EE;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px">5</span>
+      <svg class="nav-chevron" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-left:4px;opacity:0.5;transition:transform 0.2s;flex-shrink:0"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+    </div>
+    <div class="nav-sub" id="sub-org" style="block">
+      <div class="nav-item active" onclick="location.href='org-admin.html'" style="cursor:pointer">기관 조회</div>
+      <div class="nav-item " onclick="location.href='org-admin.html#approval'" style="cursor:pointer">기관 승인 관리 <span class="nav-badge">5</span></div>
+      <div class="nav-item " onclick="location.href='org-admin.html#membership'" style="cursor:pointer">멤버십 관리</div>
+    </div>
+
+    <div class="nav-item" style="cursor:default;opacity:0.5">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      운영관리 <span style="font-size:10px;color:#9CA3AF;margin-left:auto">준비중</span>
+    </div>
+    <div class="nav-item" style="cursor:default;opacity:0.5">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      통계관리 <span style="font-size:10px;color:#9CA3AF;margin-left:auto">준비중</span>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sidebar-user" onclick="showToast('프로필 설정 화면으로 이동합니다.')" style="cursor:pointer">
+      <div class="user-avatar">관</div>
+      <div class="user-info" style="flex:1;min-width:0">
+        <div class="user-name">슈퍼 관리자</div>
+        <div class="user-role"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="4a2b2e2723240a21232e21232e39642138">[email&#160;protected]</a></div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════════════════ MAIN ═══════════════════ -->
+<main class="main">
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <nav class="breadcrumb">
+      <span>기관관리</span>
+      <span class="breadcrumb-sep">›</span>
+      <span class="breadcrumb-current" id="breadcrumbCurrent">기관 조회</span>
+    </nav>
+    <div class="topbar-actions">
+      <button class="icon-btn" title="새로고침" onclick="showToast('데이터를 새로고침했습니다.')">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+      </button>
+      <button class="icon-btn" title="알림" style="position:relative">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span class="notif-dot"></span>
+      </button>
+      <div class="topbar-divider"></div>
+      <div class="topbar-profile">
+        <div class="profile-avatar">김</div>
+        <span class="profile-name">김관리자</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ─── PAGE: 기관 조회 ─── -->
+  <div class="content" id="page-list">
+    <div class="page-header">
+      <div>
+        <div class="page-title">기관 조회</div>
+        <div class="page-subtitle">등록된 모든 기관을 조회하고 관리합니다.</div>
+      </div>
+      <button class="btn btn-primary" onclick="showToast('기관 직접 등록 기능은 준비 중입니다.')">
+        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+        기관 직접 등록
+      </button>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-grid">
+
+      <!-- 전체 기관 -->
+      <div class="sum-card card-total" onclick="filterByCard('all')">
+        <div class="sum-card-label"><span class="dot-icon"></span>전체 기관</div>
+        <div class="sum-card-num">248</div>
+        <div class="sum-card-footer">
+          <span>이번 달 신규</span>
+          <span style="color:#10B981;font-weight:600;margin-left:4px">+7</span>
+        </div>
+      </div>
+
+      <!-- 승인 대기 -->
+      <div class="sum-card card-wait" onclick="filterByCard('wait')">
+        <div class="sum-card-label"><span class="dot-icon"></span>승인 대기</div>
+        <div class="sum-card-num">5</div>
+        <div class="sum-card-footer"><span class="sum-card-link" onclick="event.stopPropagation();showPage('approval')">승인 관리 →</span></div>
+      </div>
+
+      <!-- 유료회원 (멀티+정회원 합산) -->
+      <div class="sum-card card-paid" onclick="showPage('membership')">
+        <div class="sum-card-label"><span class="dot-icon"></span>유료회원</div>
+        <div class="sum-card-num">160</div>
+        <!-- 비율 바 -->
+        <div class="paid-breakdown">
+          <div class="paid-bar-multi" style="width:30%"></div>
+          <div class="paid-bar-regular" style="width:70%"></div>
+        </div>
+        <!-- 멀티/정회원 분기 -->
+        <div class="paid-sub-row">
+          <div class="paid-sub-item">
+            <span class="paid-sub-dot" style="background:#8B5CF6"></span>
+            <span>멀티</span>
+            <span class="paid-sub-num" style="margin-left:3px">48</span>
+          </div>
+          <div style="width:1px;height:12px;background:var(--border-light)"></div>
+          <div class="paid-sub-item">
+            <span class="paid-sub-dot" style="background:#3B82F6"></span>
+            <span>정회원</span>
+            <span class="paid-sub-num" style="margin-left:3px">112</span>
+          </div>
+          <span class="sum-card-link" style="font-size:11px" onclick="event.stopPropagation();showPage('membership')">관리 →</span>
+        </div>
+      </div>
+
+      <!-- 일반회원 -->
+      <div class="sum-card card-basic" onclick="filterByCard('basic')">
+        <div class="sum-card-label"><span class="dot-icon"></span>일반회원</div>
+        <div class="sum-card-num">66</div>
+        <div class="sum-card-footer">
+          <span>무료 이용</span>
+          <span style="color:#9CA3AF;margin-left:4px">· 미가입 22</span>
+        </div>
+      </div>
+
+      <!-- 이용종료 -->
+      <div class="sum-card card-end" onclick="filterByCard('end')">
+        <div class="sum-card-label"><span class="dot-icon"></span>이용종료</div>
+        <div class="sum-card-num">22</div>
+        <div class="sum-card-footer"><span>누적 해지</span></div>
+      </div>
+
+    </div>
+
+    <!-- Filter -->
+    <div class="filter-card">
+      <div class="filter-row">
+        <span class="f-label">기관 상태</span>
+        <div class="f-select-wrap"><select class="f-select" id="fOrgStatus"><option value="">전체</option><option>이용중</option><option>이용종료</option></select></div>
+        <div class="filter-divider"></div>
+        <span class="f-label">승인 상태</span>
+        <div class="f-select-wrap"><select class="f-select" id="fApprStatus"><option value="">전체</option><option>승인대기</option><option>승인완료</option><option>반려</option></select></div>
+        <div class="filter-divider"></div>
+        <span class="f-label">인증 상태</span>
+        <div class="f-select-wrap"><select class="f-select" id="fCertStatus"><option value="">전체</option><option>인증완료</option><option>인증대기</option><option>인증실패</option></select></div>
+      </div>
+      <div class="filter-row">
+        <span class="f-label">멤버십</span>
+        <div class="f-select-wrap"><select class="f-select" id="fMembership"><option value="">전체</option><option>멀티회원</option><option>정회원</option><option>일반회원</option><option>미가입</option></select></div>
+        <div class="filter-divider"></div>
+        <span class="f-label">기관 유형</span>
+        <div class="f-select-wrap"><select class="f-select" id="fOrgType"><option value="">전체</option><option>어린이집</option><option>유치원</option><option>기타</option></select></div>
+        <div class="filter-divider"></div>
+        <span class="f-label">지역</span>
+        <div class="f-select-wrap"><select class="f-select" id="fRegion"><option value="">전체</option><option>서울</option><option>경기</option><option>인천</option><option>부산</option><option>대구</option><option>기타</option></select></div>
+        <div class="filter-divider"></div>
+        <span class="f-label">검색</span>
+        <div class="search-combo">
+          <select class="search-type">
+            <option>기관명</option><option>기관장</option><option>전화번호</option><option>사업자번호</option>
+          </select>
+          <input class="search-input" placeholder="검색어를 입력하세요" id="searchInput">
+          <button class="search-btn" onclick="applyFilter()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/></svg>
+          </button>
+        </div>
+        <button class="btn btn-secondary" style="height:34px;font-size:12px" onclick="resetFilter()">초기화</button>
+      </div>
+      <div class="active-chips" id="activeChips" style="display:none">
+        <span class="chip">이용중 <button class="chip-rm" onclick="removeChip(this)">×</button></span>
+        <span class="chip">서울 <button class="chip-rm" onclick="removeChip(this)">×</button></span>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div class="result-info">전체 <strong>248</strong>개 기관</div>
+        <div class="toolbar-right">
+          <button class="btn btn-secondary" onclick="showToast('엑셀 다운로드 기능 준비 중입니다.')">
+            <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            엑셀 다운로드
+          </button>
+          <div class="per-page-wrap">
+            <select class="per-page"><option>20개씩</option><option>50개씩</option><option>100개씩</option></select>
+          </div>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <colgroup>
+            <col class="c-chk"><col class="c-org"><col class="c-type"><col class="c-dir">
+            <col class="c-phone"><col class="c-region"><col class="c-cert"><col class="c-appr">
+            <col class="c-cls"><col class="c-tch"><col class="c-kid">
+            <col style="width:90px"><col class="c-usage"><col class="c-join"><col class="c-last"><col class="c-view">
+          </colgroup>
+          <thead>
+            <tr>
+              <th class="c-chk"><input type="checkbox" id="chkAll" onchange="toggleAll(this)"></th>
+              <th>기관명</th><th>유형</th><th>기관장</th>
+              <th>연락처</th><th>지역</th><th>인증상태</th><th>승인상태</th>
+              <th class="c-cls">반</th><th class="c-tch">교사</th><th class="c-kid">원아</th>
+              <th>멤버십</th><th>운영상태</th><th>가입일</th><th>최근이용</th><th class="c-view"></th>
+            </tr>
+          </thead>
+          <tbody id="orgTableBody"></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </div><!-- /page-list -->
+
+  <!-- ─── PAGE: 기관 승인 관리 ─── -->
+  <div class="content" id="page-approval" style="display:none">
+    <div class="page-header">
+      <div>
+        <div class="page-title">기관 승인 관리</div>
+        <div class="page-subtitle">기관 등록 신청을 검토하고 승인 또는 반려 처리합니다.</div>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+      <div class="sum-card card-wait">
+        <div class="sum-card-label"><span class="dot-icon"></span>승인 대기</div>
+        <div class="sum-card-num">5</div>
+        <div class="sum-card-footer">즉시 처리 필요</div>
+      </div>
+      <div class="sum-card card-inuse">
+        <div class="sum-card-label"><span class="dot-icon"></span>승인 완료</div>
+        <div class="sum-card-num">221</div>
+        <div class="sum-card-footer">누적 승인</div>
+      </div>
+      <div class="sum-card card-end">
+        <div class="sum-card-label"><span class="dot-icon"></span>반려</div>
+        <div class="sum-card-num">22</div>
+        <div class="sum-card-footer">누적 반려</div>
+      </div>
+      <div class="sum-card" style="--card-accent:#06B6D4;--card-num:#0E7490">
+        <div class="sum-card-label"><span class="dot-icon" style="background:#06B6D4"></span>인증 대기</div>
+        <div class="sum-card-num">8</div>
+        <div class="sum-card-footer">인증 확인 필요</div>
+      </div>
+    </div>
+
+    <div class="alert-box alert-warn">
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;margin-top:1px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+      <span>승인 대기 기관이 <strong>5건</strong> 있습니다. 신청일 기준 3일 이상 미처리 건을 먼저 확인해주세요.</span>
+    </div>
+
+    <!-- Filter -->
+    <div class="filter-card">
+      <div class="filter-row">
+        <span class="f-label">승인 상태</span>
+        <div class="f-select-wrap"><select class="f-select"><option value="">전체</option><option selected>승인대기</option><option>승인완료</option><option>반려</option></select></div>
+        <div class="filter-divider"></div>
+        <span class="f-label">인증 상태</span>
+        <div class="f-select-wrap"><select class="f-select"><option value="">전체</option><option>인증완료</option><option>인증대기</option><option>인증실패</option></select></div>
+        <div class="filter-divider"></div>
+        <span class="f-label">기관 유형</span>
+        <div class="f-select-wrap"><select class="f-select"><option value="">전체</option><option>어린이집</option><option>유치원</option></select></div>
+        <div class="filter-divider"></div>
+        <div class="search-combo">
+          <select class="search-type"><option>기관명</option><option>원장명</option><option>사업자번호</option></select>
+          <input class="search-input" placeholder="검색어를 입력하세요">
+          <button class="search-btn"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div class="result-info">대기 <strong>5</strong>건 / 전체 <strong>248</strong>건</div>
+        <div class="toolbar-right">
+          <button class="btn btn-secondary" onclick="showToast('일괄 승인 기능 준비 중입니다.')">일괄 승인</button>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table style="min-width:1100px">
+          <colgroup>
+            <col style="width:38px"><col style="width:160px"><col style="width:90px"><col style="width:90px">
+            <col style="width:120px"><col style="width:90px"><col style="width:90px"><col style="width:100px">
+            <col style="width:88px"><col style="width:130px">
+          </colgroup>
+          <thead>
+            <tr>
+              <th><input type="checkbox"></th>
+              <th>기관명</th><th>신청 원장명</th><th>기관유형</th>
+              <th>사업자번호</th><th>인증상태</th><th>신청일</th><th>경과</th>
+              <th>승인상태</th><th>처리</th>
+            </tr>
+          </thead>
+          <tbody id="approvalTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div><!-- /page-approval -->
+
+  <!-- ─── PAGE: 멤버십 관리 ─── -->
+  <div class="content" id="page-membership" style="display:none">
+    <div class="page-header">
+      <div>
+        <div class="page-title">멤버십 관리</div>
+        <div class="page-subtitle">유료 멤버십 가입 현황을 조회하고 기관별 등급을 관리합니다.</div>
+      </div>
+      <button class="btn btn-primary" onclick="showToast('멤버십 일괄 변경 기능 준비 중입니다.')">
+        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+        멤버십 일괄 변경
+      </button>
+    </div>
+
+    <!-- 멤버십 요약 카드 -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+      <div class="sum-card card-multi">
+        <div class="sum-card-label"><span class="dot-icon"></span>멀티회원</div>
+        <div class="sum-card-num">48</div>
+        <div class="sum-card-footer">프리미엄 요금제</div>
+      </div>
+      <div class="sum-card card-regular">
+        <div class="sum-card-label"><span class="dot-icon"></span>정회원</div>
+        <div class="sum-card-num">112</div>
+        <div class="sum-card-footer">스탠다드 요금제</div>
+      </div>
+      <div class="sum-card card-basic">
+        <div class="sum-card-label"><span class="dot-icon"></span>일반회원</div>
+        <div class="sum-card-num">66</div>
+        <div class="sum-card-footer">기본 무료 이용</div>
+      </div>
+      <div class="sum-card" style="--card-accent:#F59E0B;--card-num:#92400E">
+        <div class="sum-card-label"><span class="dot-icon" style="background:#F59E0B"></span>미가입</div>
+        <div class="sum-card-num">22</div>
+        <div class="sum-card-footer">가입 유도 대상</div>
+      </div>
+    </div>
+
+    <!-- 멤버십 설명 카드 -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px">
+      <div style="background:#F5F3FF;border:1.5px solid #DDD6FE;border-radius:10px;padding:14px 16px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span class="mbadge mb-multi">👑 멀티회원</span>
+        </div>
+        <div style="font-size:12px;color:#5B21B6;font-weight:600;margin-bottom:4px">다중 기관 운영 · 무제한 반/원아</div>
+        <div style="font-size:11.5px;color:#7C3AED">교사 계정 무제한 · 프리미엄 알림장 기능 · 통계 리포트 제공</div>
+      </div>
+      <div style="background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:10px;padding:14px 16px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span class="mbadge mb-regular">⭐ 정회원</span>
+        </div>
+        <div style="font-size:12px;color:#1E40AF;font-weight:600;margin-bottom:4px">단일 기관 · 반 최대 10개</div>
+        <div style="font-size:11.5px;color:#3B82F6">교사 계정 20명 · 기본 알림장 기능 전체 이용</div>
+      </div>
+      <div style="background:#F9FAFB;border:1.5px solid #E5E7EB;border-radius:10px;padding:14px 16px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span class="mbadge mb-basic">일반회원</span>
+        </div>
+        <div style="font-size:12px;color:#374151;font-weight:600;margin-bottom:4px">단일 기관 · 반 최대 3개</div>
+        <div style="font-size:11.5px;color:#6B7280">교사 계정 5명 · 기본 알림장 기능만 이용</div>
+      </div>
+    </div>
+
+    <!-- 필터 -->
+    <div class="filter-card">
+      <div class="filter-row">
+        <span class="f-label">멤버십</span>
+        <div class="f-select-wrap"><select class="f-select" id="fMembershipPage"><option value="">전체</option><option>멀티회원</option><option>정회원</option><option>일반회원</option><option>미가입</option></select></div>
+        <div class="filter-divider"></div>
+        <span class="f-label">기관 유형</span>
+        <div class="f-select-wrap"><select class="f-select"><option value="">전체</option><option>어린이집</option><option>유치원</option></select></div>
+        <div class="filter-divider"></div>
+        <span class="f-label">만료 임박</span>
+        <div class="f-select-wrap"><select class="f-select"><option value="">전체</option><option>30일 이내</option><option>60일 이내</option><option>90일 이내</option><option>만료됨</option></select></div>
+        <div class="filter-divider"></div>
+        <div class="search-combo">
+          <select class="search-type"><option>기관명</option><option>기관장</option></select>
+          <input class="search-input" placeholder="기관명 또는 기관장 검색">
+          <button class="search-btn"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 테이블 -->
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div class="result-info">유료 멤버십 기관 <strong>226</strong>건</div>
+        <div class="toolbar-right">
+          <button class="btn btn-secondary" onclick="showToast('엑셀 다운로드 기능 준비 중입니다.')">엑셀 다운로드</button>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table style="min-width:1100px;table-layout:fixed">
+          <colgroup>
+            <col style="width:38px"><col style="width:160px"><col style="width:80px">
+            <col style="width:80px"><col style="width:110px"><col style="width:110px">
+            <col style="width:100px"><col style="width:110px"><col style="width:52px">
+            <col style="width:52px"><col style="width:52px"><col style="width:130px">
+          </colgroup>
+          <thead>
+            <tr>
+              <th><input type="checkbox" onchange="document.querySelectorAll('.mb-row-chk').forEach(c=>c.checked=this.checked)"></th>
+              <th>기관명</th><th>유형</th><th>기관장</th>
+              <th>현재 멤버십</th><th>가입일</th><th>만료일</th>
+              <th>만료까지</th>
+              <th class="c-cls">반</th><th class="c-tch">교사</th><th class="c-kid">원아</th>
+              <th>멤버십 변경</th>
+            </tr>
+          </thead>
+          <tbody id="membershipTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div><!-- /page-membership -->
+
+</main>
+
+<!-- ─── DETAIL SLIDE-OVER ─── -->
+<div class="detail-overlay" id="detailOverlay" onclick="closeDetail()"></div>
+<aside class="detail-page" id="detailPage">
+  <div class="detail-header">
+    <button style="background:none;border:none;cursor:pointer;color:var(--text-secondary);display:flex;align-items:center;gap:4px;font-size:13px;font-family:inherit;padding:0" onclick="closeDetail()">
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>목록
+    </button>
+    <span class="detail-title" id="detailTitle">기관 상세</span>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button class="btn btn-secondary" style="font-size:12px" onclick="openMembershipModal(currentDetailId)">멤버십 변경</button>
+      <button class="btn btn-primary" style="font-size:12px" onclick="showToast('변경사항이 저장되었습니다.')">저장</button>
+    </div>
+  </div>
+  <div class="detail-body" id="detailBody"></div>
+</aside>
+
+<!-- ─── MODAL: 승인/반려 ─── -->
+<div class="modal-overlay" id="approvalModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span style="font-size:20px" id="approvalModalIcon">✅</span>
+      <div class="modal-title" id="approvalModalTitle">기관 승인 처리</div>
+      <button class="modal-close" onclick="closeModal('approvalModal')">×</button>
+    </div>
+    <div class="modal-body" id="approvalModalBody">
+      <div class="alert-box alert-info" style="margin-bottom:16px">
+        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>승인 시 기관이 즉시 개설되며, 원장에게 알림이 발송됩니다.</span>
+      </div>
+      <table class="dp-info-table" style="margin-bottom:16px">
+        <tr><td class="label">기관명</td><td class="val" id="am-orgName">키드키즈 어린이집</td></tr>
+        <tr><td class="label">원장명</td><td class="val" id="am-dirName">홍길동</td></tr>
+        <tr><td class="label">인증상태</td><td class="val" id="am-cert"></td></tr>
+        <tr><td class="label">신청일</td><td class="val" id="am-date">2026.03.10</td></tr>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('approvalModal')">취소</button>
+      <button class="btn btn-primary" id="approvalActionBtn" onclick="processApproval()">승인 처리</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MODAL: 멤버십 변경 ─── -->
+<div class="modal-overlay" id="membershipModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span style="font-size:20px">💳</span>
+      <div class="modal-title">멤버십 등급 변경</div>
+      <button class="modal-close" onclick="closeModal('membershipModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <table class="dp-info-table" style="margin-bottom:18px">
+        <tr><td class="label">기관명</td><td class="val" id="mm-orgName" style="font-weight:700">-</td></tr>
+        <tr><td class="label">현재 등급</td><td class="val" id="mm-current">-</td></tr>
+      </table>
+      <p style="font-size:12.5px;color:var(--text-secondary);margin-bottom:14px">변경할 멤버십 등급을 선택하세요.</p>
+      <div class="status-form">
+        <label class="status-option" onclick="selectStatus(this,'multi')">
+          <input type="radio" name="memberOpt" value="multi">
+          <div>
+            <div class="status-option-label" style="color:#5B21B6">👑 멀티회원</div>
+            <div class="status-option-desc">다중 기관 운영 · 무제한 반/원아 · 프리미엄 기능 전체</div>
+          </div>
+        </label>
+        <label class="status-option" onclick="selectStatus(this,'regular')">
+          <input type="radio" name="memberOpt" value="regular">
+          <div>
+            <div class="status-option-label" style="color:#1E40AF">⭐ 정회원</div>
+            <div class="status-option-desc">단일 기관 · 반 최대 10개 · 교사 계정 20명</div>
+          </div>
+        </label>
+        <label class="status-option" onclick="selectStatus(this,'basic')">
+          <input type="radio" name="memberOpt" value="basic">
+          <div>
+            <div class="status-option-label" style="color:#374151">일반회원</div>
+            <div class="status-option-desc">단일 기관 · 반 최대 3개 · 교사 계정 5명</div>
+          </div>
+        </label>
+        <label class="status-option" onclick="selectStatus(this,'none')">
+          <input type="radio" name="memberOpt" value="none">
+          <div>
+            <div class="status-option-label" style="color:#92400E">미가입 처리</div>
+            <div class="status-option-desc">멤버십 해지 처리. 유료 기능 이용이 제한됩니다.</div>
+          </div>
+        </label>
+      </div>
+      <div style="margin-top:14px">
+        <label style="font-size:12.5px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:6px">변경 사유 / 메모</label>
+        <textarea class="reason-textarea" placeholder="멤버십 변경 사유를 입력해주세요. (내부 운영 메모용)"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('membershipModal')">취소</button>
+      <button class="btn btn-primary" onclick="processMembershipChange()">등급 변경 적용</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MODAL: 반려 ─── -->
+<div class="modal-overlay" id="rejectModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span style="font-size:20px">❌</span>
+      <div class="modal-title">기관 등록 반려</div>
+      <button class="modal-close" onclick="closeModal('rejectModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="alert-box alert-warn" style="margin-bottom:16px">
+        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <span>반려 처리 시 원장에게 반려 사유가 포함된 알림이 발송됩니다.</span>
+      </div>
+      <div style="margin-bottom:14px">
+        <label style="font-size:12.5px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:6px">반려 사유 선택</label>
+        <div class="f-select-wrap" style="width:100%">
+          <select class="f-select" style="width:100%">
+            <option value="">사유를 선택하세요</option>
+            <option>기관인증 정보 불일치</option>
+            <option>사업자등록증 불일치</option>
+            <option>중복 기관 등록</option>
+            <option>서류 미비</option>
+            <option>기타 (직접 입력)</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label style="font-size:12.5px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:6px">상세 사유 입력</label>
+        <textarea class="reason-textarea" placeholder="반려 사유를 상세히 입력해주세요. 원장에게 전달됩니다."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('rejectModal')">취소</button>
+      <button class="btn btn-danger" onclick="processReject()">반려 처리</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MODAL: 이력 ─── -->
+<div class="modal-overlay" id="historyModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span style="font-size:20px">📋</span>
+      <div class="modal-title">상태 변경 이력</div>
+      <button class="modal-close" onclick="closeModal('historyModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:16px" id="historyOrgName">키드키즈 어린이집</p>
+      <div class="history-list" id="historyList"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('historyModal')">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+/* ═══════════════ DATA ═══════════════ */
+const ORG_DATA = [
+  { id:1,  name:'키드키즈 어린이집', type:'어린이집', director:'홍길동', phone:'02-1234-5678',  region:'서울', cert:'인증완료', approval:'승인완료', status:'이용중',   membership:'멀티회원', memberPlan:'멀티회원', memberSince:'2024.04.01', memberExpire:'2027.03.31', cls:6,  teacher:8,  kid:62,  joinDate:'2024.03.15', lastDate:'2026.03.16', biz:'123-45-67890',
+    multiMembers: [
+      { id:'T001', name:'이수진', email:'sujin@kidkids.kr',  role:'담임교사', joinedAt:'2024.04.01', active:true,  avatarBg:'#7C3AED' },
+      { id:'T002', name:'박지우', email:'jiwoo@kidkids.kr',  role:'담임교사', joinedAt:'2024.04.01', active:true,  avatarBg:'#3B82F6' },
+      { id:'T003', name:'최하은', email:'haeun@kidkids.kr',  role:'보조교사', joinedAt:'2024.06.15', active:true,  avatarBg:'#10B981' },
+      { id:'T004', name:'정민서', email:'minseo@kidkids.kr', role:'담임교사', joinedAt:'2025.01.10', active:true,  avatarBg:'#F59E0B' },
+      { id:'T005', name:'한소율', email:'soyul@kidkids.kr',  role:'보조교사', joinedAt:'2025.03.20', active:true,  avatarBg:'#EF4444' },
+      { id:'T006', name:'오다연', email:'dayeon@kidkids.kr', role:'담임교사', joinedAt:'-',          active:false, avatarBg:'#9CA3AF' },
+      { id:'T007', name:'김태영', email:'taeyoung@kidkids.kr',role:'보조교사',joinedAt:'-',          active:false, avatarBg:'#9CA3AF' },
+      { id:'T008', name:'윤예진', email:'yejin@kidkids.kr',  role:'담임교사', joinedAt:'-',          active:false, avatarBg:'#9CA3AF' },
+    ]
+  },
+  { id:2,  name:'햇살유치원',         type:'유치원',   director:'김미영', phone:'031-234-5678', region:'경기', cert:'인증완료', approval:'승인완료', status:'이용중',   membership:'정회원',   memberPlan:'정회원',   memberSince:'2024.06.01', memberExpire:'2026.05.31', cls:5,  teacher:7,  kid:55,  joinDate:'2024.05.20', lastDate:'2026.03.15', biz:'234-56-78901' },
+  { id:3,  name:'행복한 어린이집',    type:'어린이집', director:'이준서', phone:'032-345-6789', region:'인천', cert:'인증완료', approval:'승인완료', status:'이용중',   membership:'일반회원', memberPlan:'일반회원', memberSince:'2024.07.01', memberExpire:'-',          cls:4,  teacher:5,  kid:38,  joinDate:'2024.07.01', lastDate:'2026.02.20', biz:'345-67-89012' },
+  { id:4,  name:'하늘숲 유치원',      type:'유치원',   director:'박소연', phone:'051-456-7890', region:'부산', cert:'인증완료', approval:'승인완료', status:'이용중',   membership:'멀티회원', memberPlan:'멀티회원', memberSince:'2024.03.01', memberExpire:'2027.02.28', cls:8,  teacher:12, kid:94,  joinDate:'2024.02.10', lastDate:'2026.03.16', biz:'456-78-90123',
+    multiMembers: [
+      { id:'T101', name:'강민지', email:'minji@hanil.kr',  role:'담임교사', joinedAt:'2024.03.01', active:true,  avatarBg:'#7C3AED' },
+      { id:'T102', name:'서유나', email:'yuna@hanil.kr',   role:'담임교사', joinedAt:'2024.03.01', active:true,  avatarBg:'#3B82F6' },
+      { id:'T103', name:'임채원', email:'chaewon@hanil.kr',role:'보조교사', joinedAt:'2024.05.01', active:true,  avatarBg:'#10B981' },
+      { id:'T104', name:'조아라', email:'ara@hanil.kr',    role:'담임교사', joinedAt:'2024.05.01', active:true,  avatarBg:'#F59E0B' },
+      { id:'T105', name:'배수아', email:'sua@hanil.kr',    role:'보조교사', joinedAt:'2024.09.15', active:true,  avatarBg:'#EC4899' },
+      { id:'T106', name:'남지현', email:'jihyun@hanil.kr', role:'담임교사', joinedAt:'2025.01.01', active:true,  avatarBg:'#EF4444' },
+      { id:'T107', name:'류하린', email:'harin@hanil.kr',  role:'보조교사', joinedAt:'2025.02.10', active:true,  avatarBg:'#8B5CF6' },
+      { id:'T108', name:'신다은', email:'daeun@hanil.kr',  role:'담임교사', joinedAt:'-',          active:false, avatarBg:'#9CA3AF' },
+      { id:'T109', name:'문서연', email:'seoyeon@hanil.kr',role:'보조교사', joinedAt:'-',          active:false, avatarBg:'#9CA3AF' },
+    ]
+  },
+  { id:5,  name:'새싹 어린이집',      type:'어린이집', director:'최현우', phone:'053-567-8901', region:'대구', cert:'인증대기', approval:'승인대기', status:'승인대기', membership:'미가입',   memberPlan:'-',        memberSince:'-',          memberExpire:'-',          cls:0,  teacher:0,  kid:0,   joinDate:'2026.03.01', lastDate:'-',          biz:'567-89-01234' },
+  { id:6,  name:'꿈나무 어린이집',    type:'어린이집', director:'정다혜', phone:'02-678-9012',  region:'서울', cert:'인증완료', approval:'승인완료', status:'이용중',   membership:'정회원',   memberPlan:'정회원',   memberSince:'2023.12.01', memberExpire:'2026.11.30', cls:7,  teacher:10, kid:78,  joinDate:'2023.11.15', lastDate:'2026.03.14', biz:'678-90-12345' },
+  { id:7,  name:'무지개 유치원',      type:'유치원',   director:'한지수', phone:'031-789-0123', region:'경기', cert:'인증실패', approval:'반려',    status:'반려',     membership:'미가입',   memberPlan:'-',        memberSince:'-',          memberExpire:'-',          cls:0,  teacher:0,  kid:0,   joinDate:'2026.02.20', lastDate:'-',          biz:'789-01-23456' },
+  { id:8,  name:'아이나라 어린이집',  type:'어린이집', director:'오민준', phone:'042-890-1234', region:'기타', cert:'인증완료', approval:'승인완료', status:'이용종료', membership:'일반회원', memberPlan:'일반회원', memberSince:'2023.08.01', memberExpire:'2025.12.31', cls:3,  teacher:4,  kid:28,  joinDate:'2023.08.01', lastDate:'2025.12.31', biz:'890-12-34567' },
+  { id:9,  name:'별빛 유치원',        type:'유치원',   director:'송혜진', phone:'02-901-2345',  region:'서울', cert:'인증완료', approval:'승인완료', status:'이용중',   membership:'멀티회원', memberPlan:'멀티회원', memberSince:'2023.07.01', memberExpire:'2026.06.30', cls:9,  teacher:14, kid:110, joinDate:'2023.06.10', lastDate:'2026.03.16', biz:'901-23-45678' },
+  { id:10, name:'초록숲 어린이집',    type:'어린이집', director:'임태양', phone:'031-012-3456', region:'경기', cert:'인증완료', approval:'승인대기', status:'승인대기', membership:'미가입',   memberPlan:'-',        memberSince:'-',          memberExpire:'-',          cls:0,  teacher:0,  kid:0,   joinDate:'2026.03.08', lastDate:'-',          biz:'012-34-56789' },
+  { id:11, name:'사랑나눔 어린이집',  type:'어린이집', director:'윤서영', phone:'051-123-4567', region:'부산', cert:'인증완료', approval:'승인완료', status:'이용중',   membership:'정회원',   memberPlan:'정회원',   memberSince:'2024.10.01', memberExpire:'2026.09.30', cls:5,  teacher:6,  kid:44,  joinDate:'2024.09.05', lastDate:'2026.03.15', biz:'112-34-56789' },
+  { id:12, name:'꽃잎 유치원',        type:'유치원',   director:'강민호', phone:'062-234-5678', region:'기타', cert:'인증완료', approval:'승인완료', status:'이용중',   membership:'일반회원', memberPlan:'일반회원', memberSince:'2024.04.12', memberExpire:'-',          cls:4,  teacher:6,  kid:48,  joinDate:'2024.04.12', lastDate:'2026.03.10', biz:'223-45-67890' },
+];
+
+const APPROVAL_DATA = ORG_DATA.filter(o => o.approval === '승인대기' || o.approval === '반려');
+const STATUS_DATA = ORG_DATA.filter(o => o.membership !== '미가입' && o.approval === '승인완료');
+
+/* ═══════════════ RENDER ═══════════════ */
+function membershipBadge(m) {
+  const map = {
+    '멀티회원': ['mb-multi',   '👑 멀티회원'],
+    '정회원':   ['mb-regular', '⭐ 정회원'],
+    '일반회원': ['mb-basic',   '일반회원'],
+    '미가입':   ['mb-none',    '미가입'],
+  };
+  const [cls, label] = map[m] || ['mb-none', m||'-'];
+  return `<span class="mbadge ${cls}">${label}</span>`;
+}
+function certBadge(s) {
+  if(s==='인증완료') return `<span class="sbadge" style="background:var(--s-cert-bg);color:var(--s-cert-text)"><span class="sdot" style="background:var(--s-cert-dot)"></span>${s}</span>`;
+  if(s==='인증대기') return `<span class="sbadge" style="background:var(--s-cpend-bg);color:var(--s-cpend-text)"><span class="sdot" style="background:var(--s-cpend-dot)"></span>${s}</span>`;
+  return `<span class="sbadge" style="background:var(--s-cfail-bg);color:var(--s-cfail-text)"><span class="sdot" style="background:var(--s-cfail-dot)"></span>${s}</span>`;
+}
+function apprBadge(s) {
+  if(s==='승인완료') return `<span class="sbadge" style="background:var(--s-done-bg);color:var(--s-done-text)"><span class="sdot" style="background:var(--s-done-dot)"></span>${s}</span>`;
+  if(s==='승인대기') return `<span class="sbadge" style="background:var(--s-wait-bg);color:var(--s-wait-text)"><span class="sdot" style="background:var(--s-wait-dot)"></span>${s}</span>`;
+  return `<span class="sbadge" style="background:var(--s-reject-bg);color:var(--s-reject-text)"><span class="sdot" style="background:var(--s-reject-dot)"></span>${s}</span>`;
+}
+function statusBadge(s) {
+  if(s==='이용중') return `<span class="sbadge" style="background:var(--s-inuse-bg);color:var(--s-inuse-text)"><span class="sdot" style="background:var(--s-inuse-dot)"></span>${s}</span>`;
+  if(s==='이용종료') return `<span class="sbadge" style="background:var(--s-end-bg);color:var(--s-end-text)"><span class="sdot" style="background:var(--s-end-dot)"></span>${s}</span>`;
+  if(s==='승인대기') return `<span class="sbadge" style="background:var(--s-wait-bg);color:var(--s-wait-text)"><span class="sdot" style="background:var(--s-wait-dot)"></span>${s}</span>`;
+  return `<span class="sbadge" style="background:#F3F4F6;color:#374151"><span class="sdot" style="background:#9CA3AF"></span>${s}</span>`;
+}
+function typeBadge(t) {
+  if(t==='어린이집') return `<span class="tag tag-daycare">${t}</span>`;
+  if(t==='유치원')  return `<span class="tag tag-kinder">${t}</span>`;
+  return `<span class="tag tag-etc">${t}</span>`;
+}
+
+function renderOrgTable(data) {
+  const tbody = document.getElementById('orgTableBody');
+  if(!data.length) { tbody.innerHTML = `<tr><td colspan="15" style="text-align:center;padding:40px;color:var(--text-muted)">조회된 기관이 없습니다.</td></tr>`; return; }
+  tbody.innerHTML = data.map((r,i) => `
+    <tr>
+      <td><input type="checkbox" class="row-chk"></td>
+      <td><a style="font-weight:600;color:var(--accent-primary);cursor:pointer" onclick="openDetail(${r.id})">${r.name}</a></td>
+      <td>${typeBadge(r.type)}</td>
+      <td>${r.director}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:12px">${r.phone}</td>
+      <td>${r.region}</td>
+      <td>${certBadge(r.cert)}</td>
+      <td>${apprBadge(r.approval)}</td>
+      <td class="count-cell" style="text-align:center">${r.cls || '-'}</td>
+      <td class="count-cell" style="text-align:center">${r.teacher || '-'}</td>
+      <td class="count-cell" style="text-align:center">${r.kid || '-'}</td>
+      <td>${membershipBadge(r.membership)}</td>
+      <td>${r.status === '이용중' ? statusBadge(r.status) : r.status === '이용종료' ? statusBadge(r.status) : statusBadge(r.status)}</td>
+      <td style="font-size:12px;color:var(--text-secondary)">${r.joinDate}</td>
+      <td style="font-size:12px;color:var(--text-secondary)">${r.lastDate}</td>
+      <td style="text-align:center"><button class="view-btn" onclick="openDetail(${r.id})" title="상세보기">↗</button></td>
+    </tr>
+  `).join('');
+}
+
+function renderApprovalTable(data) {
+  const tbody = document.getElementById('approvalTableBody');
+  const days = d => {
+    const diff = Math.floor((new Date() - new Date(d.replace(/\./g,'-')))/86400000);
+    const cls = diff >= 3 ? 'color:#EF4444;font-weight:700' : 'color:var(--text-secondary)';
+    return `<span style="${cls}">${diff}일 경과</span>`;
+  };
+  tbody.innerHTML = data.map(r => `
+    <tr>
+      <td><input type="checkbox"></td>
+      <td><a style="font-weight:600;color:var(--accent-primary);cursor:pointer" onclick="openDetail(${r.id})">${r.name}</a></td>
+      <td>${r.director}</td>
+      <td>${typeBadge(r.type)}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:12px">${r.biz}</td>
+      <td>${certBadge(r.cert)}</td>
+      <td style="font-size:12px;color:var(--text-secondary)">${r.joinDate}</td>
+      <td>${days(r.joinDate)}</td>
+      <td>${apprBadge(r.approval)}</td>
+      <td>
+        ${r.approval === '승인대기' ? `
+          <button class="btn btn-primary" style="height:28px;font-size:12px;padding:0 10px" onclick="openApprovalModal(${r.id},'approve')">승인</button>
+          <button class="btn btn-danger" style="height:28px;font-size:12px;padding:0 10px;margin-left:4px" onclick="openRejectModal(${r.id})">반려</button>
+        ` : `<span style="font-size:12px;color:var(--text-muted)">처리완료</span>`}
+      </td>
+    </tr>
+  `).join('');
+}
+
+function renderStatusTable(data) {
+  const tbody = document.getElementById('statusTableBody');
+  tbody.innerHTML = data.map(r => `
+    <tr>
+      <td><input type="checkbox"></td>
+      <td><a style="font-weight:600;color:var(--accent-primary);cursor:pointer" onclick="openDetail(${r.id})">${r.name}</a></td>
+      <td>${typeBadge(r.type)}</td>
+      <td>${r.director}</td>
+      <td>${membershipBadge(r.membership)}</td>
+      <td>${r.status === '이용중' ? statusBadge(r.status) : r.status === '이용종료' ? statusBadge(r.status) : statusBadge(r.status)}</td>
+      <td style="font-size:12px;color:var(--text-secondary)">2026.01.15</td>
+      <td style="font-size:12px;color:var(--text-secondary);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">서비스 이용요금 미납 (3개월)</td>
+      <td><button class="btn btn-secondary" style="height:28px;font-size:12px;padding:0 10px" onclick="openHistoryModal('${r.name}')">이력 보기</button></td>
+      <td><button class="btn btn-primary" style="height:28px;font-size:12px;padding:0 10px" onclick="openStatusModal()">상태 변경</button></td>
+    </tr>
+  `).join('');
+}
+
+/* ═══════════════ DETAIL ═══════════════ */
+let currentDetailId = null;
+function openDetail(id) {
+  currentDetailId = id;
+  const r = ORG_DATA.find(o=>o.id===id);
+  if(!r) return;
+  document.getElementById('detailTitle').textContent = r.name;
+
+  document.getElementById('detailBody').innerHTML = `
+    <div class="detail-tabs">
+      <div class="dtab active" onclick="switchTab(this,'tab-basic')">기본정보</div>
+      <div class="dtab" onclick="switchTab(this,'tab-cert')">기관인증</div>
+      <div class="dtab" onclick="switchTab(this,'tab-members')">구성현황</div>
+      <div class="dtab" onclick="switchTab(this,'tab-service')">서비스이용</div>
+      <div class="dtab" onclick="switchTab(this,'tab-memo')">관리자 메모</div>
+    </div>
+
+    <!-- 기본정보 -->
+    <div id="tab-basic">
+      <div class="dp-sec">🏫 기본정보</div>
+      <table class="dp-info-table">
+        <tr>
+          <td class="label">기관명</td><td class="val" colspan="3"><strong>${r.name}</strong></td>
+        </tr>
+        <tr>
+          <td class="label">기관유형</td><td class="val">${typeBadge(r.type)}</td>
+          <td class="label">사업자번호</td><td class="val" style="font-family:'JetBrains Mono',monospace;font-size:12px">${r.biz}</td>
+        </tr>
+        <tr>
+          <td class="label">기관장명</td><td class="val">${r.director}</td>
+          <td class="label">연락처</td><td class="val" style="font-family:'JetBrains Mono',monospace">${r.phone}</td>
+        </tr>
+        <tr>
+          <td class="label">지역</td><td class="val">${r.region}</td>
+          <td class="label">가입일</td><td class="val">${r.joinDate}</td>
+        </tr>
+        <tr>
+          <td class="label">기관 주소</td>
+          <td class="val" colspan="3">서울특별시 강남구 테헤란로 123 (샘플 주소)</td>
+        </tr>
+        <tr>
+          <td class="label">승인 상태</td><td class="val">${apprBadge(r.approval)}</td>
+          <td class="label">승인일</td><td class="val">${r.approval==='승인완료'?'2024.03.20':'-'}</td>
+        </tr>
+      </table>
+
+      <div class="dp-sec" style="margin-top:20px">🔗 연계 관리 바로가기</div>
+      <div class="shortcut-row">
+        <button class="shortcut-btn" onclick="showToast('반 관리 화면으로 이동합니다.')">🏠 반 관리 (${r.cls}개)</button>
+        <button class="shortcut-btn" onclick="showToast('교사 관리 화면으로 이동합니다.')">👩‍🏫 교사 관리 (${r.teacher}명)</button>
+        <button class="shortcut-btn" onclick="showToast('원아 관리 화면으로 이동합니다.')">👶 원아 관리 (${r.kid}명)</button>
+        <button class="shortcut-btn" onclick="showToast('기관장 계정 조회 화면으로 이동합니다.')">👤 기관장 계정 보기</button>
+      </div>
+    </div>
+
+    <!-- 기관인증 -->
+    <div id="tab-cert" style="display:none">
+      <div class="dp-sec">🔐 기관인증 정보</div>
+      <table class="dp-info-table">
+        <tr>
+          <td class="label">인증 상태</td>
+          <td class="val" colspan="3">${certBadge(r.cert)}</td>
+        </tr>
+        <tr>
+          <td class="label">인증 기준값</td>
+          <td class="val" style="font-family:'JetBrains Mono',monospace;font-size:12px">CERT-2024-${String(r.id).padStart(5,'0')}</td>
+          <td class="label">인증 일시</td>
+          <td class="val">${r.cert==='인증완료'?'2024.03.18 14:32':'-'}</td>
+        </tr>
+        <tr>
+          <td class="label">인증 방식</td>
+          <td class="val">사업자등록번호 기반</td>
+          <td class="label">인증 기관</td>
+          <td class="val">국세청 연동</td>
+        </tr>
+        <tr>
+          <td class="label">실패/보완 사유</td>
+          <td class="val" colspan="3" style="color:${r.cert==='인증실패'?'#EF4444':'var(--text-muted)'}">
+            ${r.cert==='인증실패'?'사업자등록증 정보 불일치 — 상호명 미일치':r.cert==='인증완료'?'해당없음':'인증 검토 중'}
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- 구성현황 -->
+    <div id="tab-members" style="display:none">
+      <div class="dp-sec">📊 기관 구성 현황</div>
+      <div class="dp-stats-row">
+        <div class="dp-stat-card">
+          <div class="dp-stat-num">${r.cls||0}</div>
+          <div class="dp-stat-label">반 수</div>
+        </div>
+        <div class="dp-stat-card">
+          <div class="dp-stat-num">${r.teacher||0}</div>
+          <div class="dp-stat-label">교사 수</div>
+        </div>
+        <div class="dp-stat-card">
+          <div class="dp-stat-num">${r.kid||0}</div>
+          <div class="dp-stat-label">원아 수</div>
+        </div>
+        <div class="dp-stat-card">
+          <div class="dp-stat-num">${r.kid?Math.round(r.kid*1.8):0}</div>
+          <div class="dp-stat-label">학부모 수</div>
+        </div>
+      </div>
+      ${r.cls ? `
+      <div class="dp-sec" style="margin-top:20px">🏠 반 목록</div>
+      <table class="dp-info-table">
+        <thead><tr style="background:#F8F9FB">
+          <td class="label" style="font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:0.4px">반명</td>
+          <td class="label" style="font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:0.4px">연령</td>
+          <td class="label" style="font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:0.4px">담당교사</td>
+          <td class="label" style="font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:0.4px">원아 수</td>
+        </tr></thead>
+        <tbody>
+          ${['햇살반','꽃잎반','솔이반','달님반','별빛반','하늘반'].slice(0,r.cls).map((c,ci) => `
+          <tr><td class="val">${c}</td><td class="val">${3+ci}세</td><td class="val">교사${ci+1}명</td><td class="val count-cell">${8+ci*2}</td></tr>`).join('')}
+        </tbody>
+      </table>` : `<p class="dp-notice">아직 반이 개설되지 않았습니다.</p>`}
+    </div>
+
+    <!-- 서비스이용 -->
+     <!-- 서비스이용 -->
+    <div id="tab-service" style="display:none">
+
+      <div class="dp-sec">📱 서비스 이용 정보</div>
+      <table class="dp-info-table" style="margin-bottom:20px">
+        <tr>
+          <td class="label">멤버십</td>
+          <td class="val">${membershipBadge(r.membership)}</td>
+          <td class="label">가입일</td>
+          <td class="val" style="font-family:'JetBrains Mono',monospace;font-size:12px">${r.memberSince||'-'}</td>
+        </tr>
+        <tr>
+          <td class="label">만료일</td>
+          <td class="val" style="font-family:'JetBrains Mono',monospace;font-size:12px">${r.memberExpire||'-'}</td>
+          <td class="label">최근 접속일</td>
+          <td class="val" style="font-family:'JetBrains Mono',monospace;font-size:12px">${r.lastDate}</td>
+        </tr>
+        <tr>
+          <td class="label">운영 상태</td>
+          <td class="val">${statusBadge(r.status)}</td>
+          <td class="label">알림장</td>
+          <td class="val">${r.approval==='승인완료'?'<span style="color:#10B981;font-weight:700">✓ 사용 중</span>':'<span style="color:#9CA3AF">미사용</span>'}</td>
+        </tr>
+      </table>
+
+      ${r.membership === '멀티회원' ? renderMultiMemberSection(r) : renderNonMultiNotice(r.membership)}
+
+      <div class="dp-sec" style="margin-top:24px">📅 멤버십 이력</div>
+      <div class="history-list">
+        <div class="history-item">
+          <div class="history-dot" style="background:#10B981"></div>
+          <div class="history-content">
+            <div class="history-action">이용중 전환</div>
+            <div class="history-meta">2024.03.20 — 김관리자 | 승인 완료 후 서비스 개시</div>
+          </div>
+        </div>
+        ${r.membership!=='미가입'&&r.membership!=='일반회원'?`
+        <div class="history-item">
+          <div class="history-dot" style="background:#8B5CF6"></div>
+          <div class="history-content">
+            <div class="history-action">${r.membership} 가입</div>
+            <div class="history-meta">${r.memberSince} — 김관리자 | 유료 멤버십 전환</div>
+          </div>
+        </div>`:''}
+      </div>
+    </div>
+
+    <!-- 관리자 메모 -->
+    <div id="tab-memo" style="display:none">
+      <div class="dp-sec">📝 관리자 메모</div>
+      <div class="dp-memo-card">
+        <textarea class="dp-memo-textarea" id="detailMemoTA" placeholder="민원, 특이사항, 정지 사유, 내부 운영 메모 등을 입력합니다. (내부 전용, 원장에게 노출되지 않음)" maxlength="500" oninput="document.getElementById('detailMemoCount').textContent=this.value.length"></textarea>
+        <div class="dp-memo-footer">
+          <div>
+            <div class="dp-memo-count"><span id="detailMemoCount">0</span> / 500자</div>
+            <div class="dp-memo-date">마지막 수정: 2026.02.14 11:20 · 김관리자</div>
+          </div>
+          <button class="dp-memo-save" onclick="showToast('메모가 저장되었습니다.')">저장</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('detailOverlay').classList.add('show');
+  document.getElementById('detailPage').classList.add('show');
+}
+
+function switchTab(el, tabId) {
+  document.querySelectorAll('.dtab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('[id^="tab-"]').forEach(t => t.style.display='none');
+  document.getElementById(tabId).style.display='block';
+}
+
+function closeDetail() {
+  document.getElementById('detailOverlay').classList.remove('show');
+  document.getElementById('detailPage').classList.remove('show');
+}
+
+/* ═══════════════ PAGES ═══════════════ */
+function showPage(p) {
+  ['list','approval','membership'].forEach(id => {
+    const el = document.getElementById('page-'+id);
+    if(el) el.style.display = (id===p)?'block':'none';
+  });
+  const labels = {list:'기관 조회', approval:'기관 승인 관리', membership:'멤버십 관리'};
+  document.getElementById('breadcrumbCurrent').textContent = labels[p]||'기관관리';
+  if(location.hash.replace('#','') !== p) history.replaceState(null,'','#'+p);
+  document.querySelectorAll('#sub-org .nav-item').forEach(item => item.classList.remove('active'));
+  const idx = {list:0, approval:1, membership:2}[p];
+  const items = document.querySelectorAll('#sub-org .nav-item');
+  if(items[idx]) items[idx].classList.add('active');
+}
+
+/* ═══════════════ MODALS ═══════════════ */
+function openApprovalModal(id, action) {
+  const r = ORG_DATA.find(o=>o.id===id);
+  if(!r) return;
+  document.getElementById('approvalModalIcon').textContent = '✅';
+  document.getElementById('approvalModalTitle').textContent = '기관 승인 처리';
+  document.getElementById('am-orgName').textContent = r.name;
+  document.getElementById('am-dirName').textContent = r.director;
+  document.getElementById('am-cert').innerHTML = certBadge(r.cert);
+  document.getElementById('am-date').textContent = r.joinDate;
+  document.getElementById('approvalModal').classList.add('show');
+}
+
+function openRejectModal(id) {
+  document.getElementById('rejectModal').classList.add('show');
+}
+
+function openStatusModal() {
+  document.getElementById('statusModal').classList.add('show');
+}
+
+function openHistoryModal(orgName) {
+  document.getElementById('historyOrgName').textContent = orgName;
+  document.getElementById('historyList').innerHTML = `
+    <div class="history-item"><div class="history-dot" style="background:#F59E0B"></div><div class="history-content"><div class="history-action">정지 처리</div><div class="history-meta">2026.01.15 14:30 · 김관리자</div><div style="font-size:12px;color:var(--text-secondary);margin-top:4px">사유: 서비스 이용요금 미납 (3개월)</div></div></div>
+    <div class="history-item"><div class="history-dot" style="background:#10B981"></div><div class="history-content"><div class="history-action">이용중 전환</div><div class="history-meta">2024.07.05 09:15 · 이관리자</div><div style="font-size:12px;color:var(--text-secondary);margin-top:4px">기관 승인 완료 후 서비스 개시</div></div></div>
+    <div class="history-item"><div class="history-dot" style="background:#8B5CF6"></div><div class="history-content"><div class="history-action">기관 등록 신청</div><div class="history-meta">2024.07.01 11:00 · 원장 이준서 (신청)</div></div></div>
+  `;
+  document.getElementById('historyModal').classList.add('show');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('show');
+}
+
+function processApproval() {
+  closeModal('approvalModal');
+  showToast('✅ 기관 승인이 완료되었습니다. 원장에게 알림이 발송됩니다.');
+}
+function processReject() {
+  closeModal('rejectModal');
+  showToast('기관 등록 반려 처리가 완료되었습니다.');
+}
+
+function openMembershipModal(id) {
+  const r = ORG_DATA.find(o => o.id === id);
+  if(!r) return;
+  document.getElementById('mm-orgName').textContent = r.name;
+  document.getElementById('mm-current').innerHTML = membershipBadge(r.membership);
+  document.querySelectorAll('.status-option').forEach(o => o.classList.remove('selected'));
+  document.getElementById('membershipModal').classList.add('show');
+}
+function processMembershipChange() {
+  closeModal('membershipModal');
+  showToast('✅ 멤버십 등급이 변경되었습니다.');
+}
+
+
+function selectStatus(el, val) {
+  document.querySelectorAll('.status-option').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+/* ═══════════════ FILTER / UTIL ═══════════════ */
+function applyFilter() { showToast('필터가 적용되었습니다.'); }
+function resetFilter() { showToast('필터가 초기화되었습니다.'); }
+function filterByCard(type) {
+  if(type==='approval') showPage('approval');
+  else if(type==='multi'||type==='regular'||type==='paid') showPage('membership');
+  else if(type==='basic') showToast('일반회원 기관으로 필터링합니다.');
+  else if(type==='status') showPage('status');
+  else showToast(`"${type}" 필터로 조회합니다.`);
+}
+function removeChip(btn) {
+  btn.parentElement.remove();
+  const chips = document.getElementById('activeChips');
+  if(!chips.children.length) chips.style.display='none';
+}
+function toggleAll(chk) {
+  document.querySelectorAll('.row-chk').forEach(c => c.checked = chk.checked);
+}
+function toggleSubNav(el, subId) {
+  var sub = document.getElementById(subId);
+  if (!sub) return;
+  var isOpen = sub.style.display === 'block';
+  sub.style.display = isOpen ? 'none' : 'block';
+  var chev = el.querySelector('.nav-chevron');
+  if (chev) chev.style.transform = isOpen ? '' : 'rotate(90deg)';
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+/* ═══════════════ PAGINATION ═══════════════ */
+function renderPagination() {
+  const pg = document.getElementById('pagination');
+  let html = `<button class="page-btn">‹</button>`;
+  for(let i=1;i<=5;i++) html += `<button class="page-btn ${i===1?'active':''}" onclick="this.parentElement.querySelectorAll('.page-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">${i}</button>`;
+  html += `<span class="page-ellipsis">…</span><button class="page-btn">13</button><button class="page-btn">›</button>`;
+  pg.innerHTML = html;
+}
+
+function renderMembershipTable(data) {
+  const tbody = document.getElementById('membershipTableBody');
+  if(!tbody) return;
+  function dday(expire) {
+    if(!expire || expire==='-') return '<span style="color:var(--text-muted);font-size:12px">-</span>';
+    const diff = Math.ceil((new Date(expire.replace(/\./g,'-')) - new Date()) / 86400000);
+    if(diff < 0)  return '<span style="background:#FEE2E2;color:#991B1B;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:700">만료됨</span>';
+    if(diff <= 30) return '<span style="background:#FEF3C7;color:#92400E;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:700">D-'+diff+'</span>';
+    if(diff <= 90) return '<span style="background:#DBEAFE;color:#1E40AF;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:600">D-'+diff+'</span>';
+    return '<span style="font-size:12px;color:var(--text-secondary)">D-'+diff+'</span>';
+  }
+  tbody.innerHTML = data.map(r => `
+    <tr>
+      <td><input type="checkbox" class="mb-row-chk"></td>
+      <td><a style="font-weight:600;color:var(--accent-primary);cursor:pointer" onclick="openDetail(${r.id})">${r.name}</a></td>
+      <td>${typeBadge(r.type)}</td>
+      <td>${r.director}</td>
+      <td>${membershipBadge(r.membership)}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-secondary)">${r.memberSince||'-'}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-secondary)">${r.memberExpire||'-'}</td>
+      <td>${dday(r.memberExpire)}</td>
+      <td class="count-cell" style="text-align:center">${r.cls||'-'}</td>
+      <td class="count-cell" style="text-align:center">${r.teacher||'-'}</td>
+      <td class="count-cell" style="text-align:center">${r.kid||'-'}</td>
+      <td>
+        <button class="btn btn-secondary" style="height:28px;font-size:12px;padding:0 10px" onclick="openMembershipModal(${r.id})">변경</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+/* ═══════════════ HASH ROUTING ═══════════════ */
+function routeByHash() {
+  const hash = location.hash.replace('#','') || 'list';
+  const map = { list:'list', approval:'approval', membership:'membership' };
+  showPage(map[hash] || 'list');
+}
+window.addEventListener('hashchange', routeByHash);
+
+/* ═══════════════ INIT ═══════════════ */
+renderOrgTable(ORG_DATA);
+renderApprovalTable(APPROVAL_DATA);
+renderMembershipTable(STATUS_DATA);
+renderPagination();
+routeByHash();
+
+/* ════ 멀티회원 구성원 관리 함수 ════ */
+
+function renderMultiMemberSection(r) {
+  const members  = r.multiMembers || [];
+  const active   = members.filter(m => m.active);
+  const inactive = members.filter(m => !m.active);
+  const activeCount  = active.length;
+  const totalTeacher = members.length;
+  const addOnCost    = activeCount * 1000;
+  const baseCost     = 49000;
+  const totalCost    = baseCost + addOnCost;
+
+  const initials = name => name ? name[0] : '?';
+
+  const rowHtml = members.map(m => `
+    <div class="teacher-list-row">
+      <div>
+        <div class="teacher-avatar" style="background:${m.active ? m.avatarBg : '#D1D5DB'}">${initials(m.name)}</div>
+      </div>
+      <div class="teacher-name-cell">
+        <div>
+          <div class="teacher-name">${m.name}</div>
+          <div class="teacher-email">${m.email}</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--text-secondary)">${m.role}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted)">${m.joinedAt||'-'}</div>
+      <div>
+        ${m.active
+          ? '<span class="member-status-on">● 구성원</span>'
+          : '<span class="member-status-off">○ 미포함</span>'
+        }
+      </div>
+      <div>
+        ${m.active
+          ? `<button class="member-toggle-btn toggle-remove" onclick="toggleMultiMember('${r.id}','${m.id}',false,this)">제거</button>`
+          : `<button class="member-toggle-btn toggle-add"    onclick="toggleMultiMember('${r.id}','${m.id}',true,this)">추가</button>`
+        }
+      </div>
+    </div>
+  `).join('');
+
+  return `
+    <div class="dp-sec">👑 멀티회원 구성원 관리
+      <span style="margin-left:auto;font-size:11.5px;color:#7C3AED;font-weight:600;background:#EDE9FE;padding:3px 10px;border-radius:20px">
+        구성원 ${activeCount}명 / 전체 교사 ${totalTeacher}명
+      </span>
+    </div>
+    <div class="member-mgmt-box">
+
+      <!-- 헤더 -->
+      <div class="member-mgmt-header">
+        <div class="member-mgmt-title">
+          <span style="font-size:18px">👑</span>
+          멀티회원 구성원 현황
+        </div>
+        <div class="member-mgmt-cost-badge">
+          기본 <span class="cost-num">49,000</span>원 + 구성원
+          <span style="margin:0 4px;color:#DDD6FE">|</span>
+          추가 계정당 <span class="cost-num">1,000</span>원/월
+        </div>
+      </div>
+
+      <!-- 비용 요약 -->
+      <div class="member-cost-summary" id="costSummary_${r.id}">
+        <div class="cost-summary-item">
+          <div class="cost-summary-label">구성원 수</div>
+          <div class="cost-summary-val" id="activeCount_${r.id}">${activeCount}</div>
+          <div class="cost-summary-sub">교사 계정</div>
+        </div>
+        <div class="cost-summary-item">
+          <div class="cost-summary-label">추가 요금</div>
+          <div class="cost-summary-val" id="addOnCost_${r.id}">${addOnCost.toLocaleString()}</div>
+          <div class="cost-summary-sub">원 / 월 (구성원 × 1,000)</div>
+        </div>
+        <div class="cost-summary-item">
+          <div class="cost-summary-label">이번 달 예상 청구</div>
+          <div class="cost-summary-val" id="totalCost_${r.id}" style="color:#4C1D95">${totalCost.toLocaleString()}</div>
+          <div class="cost-summary-sub">원 (기본 49,000 + 추가)</div>
+        </div>
+      </div>
+
+      <!-- 컬럼 헤더 -->
+      <div class="teacher-list-head">
+        <div></div>
+        <div>교사명 / 이메일</div>
+        <div>역할</div>
+        <div>추가일</div>
+        <div>구성원 상태</div>
+        <div>관리</div>
+      </div>
+
+      <!-- 교사 목록 -->
+      <div class="teacher-list-area" id="teacherList_${r.id}">
+        ${rowHtml}
+      </div>
+
+      <!-- 교사 직접 추가 -->
+      <div class="member-add-row">
+        <input class="member-add-input" id="addInput_${r.id}"
+          placeholder="교사 이름 또는 이메일로 검색하여 구성원 추가">
+        <button class="member-add-btn" onclick="addMultiMemberByInput('${r.id}')">+ 구성원 추가</button>
+      </div>
+    </div>
+
+    <div style="margin-top:10px;padding:10px 14px;background:#F5F3FF;border-radius:8px;border-left:3px solid #8B5CF6">
+      <div style="font-size:12px;color:#5B21B6;font-weight:600;margin-bottom:3px">💡 멀티회원 구성원 안내</div>
+      <div style="font-size:12px;color:#7C3AED;line-height:1.7">
+        구성원으로 추가된 교사 계정은 멀티회원 멤버십의 모든 프리미엄 기능을 이용할 수 있습니다.<br>
+        구성원 추가/제거는 <strong>익월 1일</strong>부터 요금에 반영됩니다.
+      </div>
+    </div>
+  `;
+}
+
+function renderNonMultiNotice(membership) {
+  const msgs = {
+    '정회원':   { icon:'⭐', title:'정회원 기관', desc:'정회원은 구성원 추가 기능을 제공하지 않습니다.<br>멀티회원으로 업그레이드하면 교사 계정을 구성원으로 추가할 수 있습니다.' },
+    '일반회원': { icon:'📋', title:'일반회원 기관', desc:'일반회원은 구성원 추가 기능을 제공하지 않습니다.<br>유료 멤버십 가입 후 이용 가능합니다.' },
+    '미가입':   { icon:'🔒', title:'멤버십 미가입 기관', desc:'멤버십에 가입하지 않은 기관입니다.<br>멀티회원 가입 시 교사 계정 구성원 추가 기능을 이용할 수 있습니다.' },
+  };
+  const m = msgs[membership] || msgs['미가입'];
+  return `
+    <div class="not-multi-notice">
+      <div class="notice-icon">${m.icon}</div>
+      <div class="notice-title">${m.title}</div>
+      <div class="notice-desc">${m.desc}</div>
+      <button class="btn btn-primary" style="margin-top:14px;font-size:12.5px"
+        onclick="openMembershipModal(currentDetailId)">멤버십 업그레이드</button>
+    </div>
+  `;
+}
+
+/* 구성원 추가/제거 토글 */
+function toggleMultiMember(orgId, teacherId, addFlag, btn) {
+  const r = ORG_DATA.find(o => String(o.id) === String(orgId));
+  if (!r || !r.multiMembers) return;
+  const m = r.multiMembers.find(t => t.id === teacherId);
+  if (!m) return;
+
+  m.active = addFlag;
+  m.joinedAt = addFlag
+    ? new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\. /g,'.').replace('.','').replace('.','')
+    : '-';
+
+  // 비용 업데이트
+  const activeCount = r.multiMembers.filter(t => t.active).length;
+  const addOnCost   = activeCount * 1000;
+  const totalCost   = 49000 + addOnCost;
+
+  const acEl = document.getElementById('activeCount_' + orgId);
+  const aoEl = document.getElementById('addOnCost_'   + orgId);
+  const tcEl = document.getElementById('totalCost_'   + orgId);
+  if (acEl) acEl.textContent = activeCount;
+  if (aoEl) aoEl.textContent = addOnCost.toLocaleString();
+  if (tcEl) tcEl.textContent = totalCost.toLocaleString();
+
+  // 행 UI 업데이트
+  const row = btn.closest('.teacher-list-row');
+  const statusCell = row.children[4];
+  const actionCell = row.children[5];
+  const avatar     = row.children[0].querySelector('.teacher-avatar');
+
+  if (addFlag) {
+    avatar.style.background = m.avatarBg;
+    statusCell.innerHTML = '<span class="member-status-on">● 구성원</span>';
+    actionCell.innerHTML = `<button class="member-toggle-btn toggle-remove" onclick="toggleMultiMember('${orgId}','${teacherId}',false,this)">제거</button>`;
+    showToast('✅ ' + m.name + ' 교사가 멀티회원 구성원으로 추가되었습니다. (+1,000원/월)');
+  } else {
+    avatar.style.background = '#D1D5DB';
+    statusCell.innerHTML = '<span class="member-status-off">○ 미포함</span>';
+    actionCell.innerHTML = `<button class="member-toggle-btn toggle-add" onclick="toggleMultiMember('${orgId}','${teacherId}',true,this)">추가</button>`;
+    showToast(m.name + ' 교사가 구성원에서 제거되었습니다.');
+  }
+}
+
+function addMultiMemberByInput(orgId) {
+  const input = document.getElementById('addInput_' + orgId);
+  const val = input ? input.value.trim() : '';
+  if (!val) { showToast('교사 이름 또는 이메일을 입력해주세요.'); return; }
+  showToast('"' + val + '" 검색 결과가 없거나 이미 구성원입니다.');
+  if (input) input.value = '';
+}
+
+</script>
+</body>
+</html>

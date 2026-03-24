@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>알림장 관리자 시스템 — 대시보드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-base:        #F4F5F7;
+  --bg-surface:     #FFFFFF;
+  --bg-sidebar:     #1A1D2E;
+  --bg-sidebar-hover:#252840;
+  --bg-sidebar-active:#2E3250;
+
+  --accent:         #4361EE;
+  --accent-light:   #EEF1FD;
+  --accent-hover:   #3251D5;
+
+  --text-primary:   #1A1D2E;
+  --text-secondary: #6B7280;
+  --text-muted:     #9CA3AF;
+  --text-sidebar:   #C5C9D6;
+
+  --border-light:   #E5E7EB;
+  --border-medium:  #D1D5DB;
+
+  --green:   #10B981; --green-bg:  #D1FAE5; --green-text: #065F46;
+  --blue:    #3B82F6; --blue-bg:   #DBEAFE; --blue-text:  #1E40AF;
+  --amber:   #F59E0B; --amber-bg:  #FEF3C7; --amber-text: #92400E;
+  --red:     #EF4444; --red-bg:    #FEE2E2; --red-text:   #991B1B;
+  --purple:  #8B5CF6; --purple-bg: #EDE9FE; --purple-text:#5B21B6;
+  --cyan:    #06B6D4; --cyan-bg:   #CFFAFE; --cyan-text:  #164E63;
+
+  --shadow-sm:  0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md:  0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg:  0 8px 28px rgba(0,0,0,0.10);
+
+  --radius-sm: 6px;  --radius-md: 10px;
+  --radius-lg: 14px; --radius-xl: 18px;
+
+  --sidebar-width:  240px;
+  --header-height:  60px;
+}
+
+body {
+  font-family: 'Pretendard', -apple-system, sans-serif;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+}
+
+/* ══════════════════════════════════
+   SIDEBAR
+══════════════════════════════════ */
+.sidebar {
+  width: var(--sidebar-width);
+  min-height: 100vh;
+  background: var(--bg-sidebar);
+  display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; bottom: 0;
+  z-index: 100;
+}
+.sidebar-logo {
+  height: var(--header-height);
+  display: flex; align-items: center;
+  padding: 0 20px; gap: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.logo-icon {
+  width: 32px; height: 32px;
+  background: var(--accent);
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+.logo-text { font-size: 14px; font-weight: 700; color: #fff; letter-spacing: -0.3px; }
+.logo-badge {
+  font-size: 10px; font-weight: 500;
+  color: var(--accent); background: rgba(67,97,238,0.15);
+  padding: 2px 6px; border-radius: 4px; margin-left: auto;
+}
+.sidebar-nav { flex: 1; padding: 12px 0; overflow-y: auto; }
+.nav-section-title {
+  font-size: 10px; font-weight: 600;
+  color: rgba(197,201,214,0.4);
+  letter-spacing: 1px; text-transform: uppercase;
+  padding: 12px 20px 6px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 20px; color: var(--text-sidebar);
+  cursor: pointer; font-size: 13.5px;
+  transition: all 0.15s; position: relative;
+}
+.nav-item:hover { background: var(--bg-sidebar-hover); color: #fff; }
+.nav-item.active { background: var(--bg-sidebar-active); color: #fff; font-weight: 600; }
+.nav-item.active::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px; background: var(--accent);
+  border-radius: 0 2px 2px 0;
+}
+.nav-icon { width: 18px; height: 18px; opacity: 0.7; flex-shrink: 0; }
+.nav-item.active .nav-icon { opacity: 1; }
+.nav-badge {
+  margin-left: auto; background: var(--accent); color: #fff;
+  font-size: 10px; font-weight: 700;
+  padding: 1px 6px; border-radius: 10px;
+}
+.nav-sub { background: rgba(0,0,0,0.15); }
+.nav-sub .nav-item { padding-left: 44px; font-size: 13px; }
+.nav-sub .nav-item.active-sub { background: rgba(67,97,238,0.2); color: #fff; }
+
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.sidebar-user {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px; border-radius: var(--radius-md); cursor: pointer;
+  transition: background 0.15s;
+}
+.sidebar-user:hover { background: var(--bg-sidebar-hover); }
+.user-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg,#4361EE,#7C3AED);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.user-name { font-size: 13px; font-weight: 600; color: #fff; }
+.user-role { font-size: 11px; color: rgba(197,201,214,0.6); }
+
+/* ══════════════════════════════════
+   MAIN
+══════════════════════════════════ */
+.main { margin-left: var(--sidebar-width); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+.topbar {
+  height: var(--header-height);
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-light);
+  display: flex; align-items: center;
+  padding: 0 24px; gap: 12px;
+  position: sticky; top: 0; z-index: 50;
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+.breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary); }
+.breadcrumb-cur { color: var(--text-primary); font-weight: 600; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.icon-btn {
+  width: 34px; height: 34px; border: none; background: transparent;
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--text-secondary); transition: all 0.15s;
+  position: relative;
+}
+.icon-btn:hover { background: var(--bg-base); color: var(--text-primary); }
+.notif-dot {
+  position: absolute; top: 7px; right: 7px;
+  width: 7px; height: 7px; background: var(--red);
+  border-radius: 50%; border: 1.5px solid #fff;
+}
+.topbar-divider { width: 1px; height: 22px; background: var(--border-light); }
+.topbar-profile {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 10px; border-radius: var(--radius-md); cursor: pointer;
+  transition: background 0.15s;
+}
+.topbar-profile:hover { background: var(--bg-base); }
+.profile-av {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: linear-gradient(135deg,#4361EE,#7C3AED);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #fff;
+}
+.profile-name { font-size: 13px; font-weight: 600; }
+
+/* ══════════════════════════════════
+   CONTENT
+══════════════════════════════════ */
+.content { flex: 1; padding: 24px; display: flex; flex-direction: column; gap: 18px; }
+
+/* ── PERIOD FILTER BAR ── */
+.period-bar {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 12px 20px;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: var(--shadow-sm);
+}
+.period-label {
+  font-size: 12px; font-weight: 600;
+  color: var(--text-muted); letter-spacing: 0.3px;
+  margin-right: 4px;
+}
+.period-btn {
+  height: 32px; padding: 0 16px;
+  border: 1.5px solid var(--border-medium);
+  border-radius: 20px; font-size: 12.5px; font-weight: 500;
+  background: transparent; color: var(--text-secondary);
+  cursor: pointer; transition: all 0.15s; font-family: inherit;
+}
+.period-btn:hover { border-color: var(--accent); color: var(--accent); }
+.period-btn.active {
+  background: var(--accent); border-color: var(--accent);
+  color: #fff; font-weight: 600;
+  box-shadow: 0 2px 8px rgba(67,97,238,0.3);
+}
+.period-compare {
+  margin-left: auto; font-size: 12px; color: var(--text-muted);
+  background: var(--bg-base); padding: 4px 12px;
+  border-radius: 20px; border: 1px solid var(--border-light);
+}
+.period-compare span { font-weight: 600; color: var(--text-secondary); }
+
+/* ── SECTION TITLE ── */
+.section-head {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 12px;
+}
+.section-title {
+  font-size: 14px; font-weight: 700;
+  color: var(--text-primary); letter-spacing: -0.2px;
+}
+.section-sub { font-size: 12px; color: var(--text-muted); }
+.section-head-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+/* ── KPI CARDS ── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+.kpi-card {
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 18px 18px 14px;
+  box-shadow: var(--shadow-sm);
+  position: relative; overflow: hidden;
+  transition: all 0.18s ease;
+}
+.kpi-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  border-color: var(--card-color, var(--border-medium));
+}
+.kpi-card::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--card-color, var(--border-light));
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+.kpi-icon-wrap {
+  position: absolute; top: 14px; right: 14px;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--card-icon-bg, var(--bg-base));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px;
+}
+.kpi-label {
+  font-size: 11.5px; font-weight: 600;
+  color: var(--text-secondary); margin-bottom: 6px;
+}
+.kpi-num-row { display: flex; align-items: baseline; gap: 5px; margin-bottom: 8px; }
+.kpi-num {
+  font-size: 28px; font-weight: 800;
+  color: var(--text-primary); letter-spacing: -1px; line-height: 1;
+}
+.kpi-sub {
+  font-size: 13px; font-weight: 500;
+  color: var(--text-muted);
+}
+.kpi-trend {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 12px; font-weight: 600;
+}
+.trend-up   { color: var(--green); }
+.trend-down { color: var(--red); }
+.trend-neutral { color: var(--text-muted); }
+.kpi-trend-label { font-size: 11.5px; color: var(--text-muted); font-weight: 400; margin-left: 2px; }
+
+/* ── TWO-COL LAYOUT ── */
+.two-col { display: grid; grid-template-columns: 1fr 320px; gap: 18px; align-items: start; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 320px; gap: 18px; align-items: start; }
+
+/* ── CARD BASE ── */
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.card-body { padding: 20px; }
+.card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex; align-items: center; gap: 10px;
+}
+.card-title { font-size: 14px; font-weight: 700; letter-spacing: -0.2px; }
+.card-header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+/* ── CHART TABS ── */
+.chart-tabs { display: flex; gap: 4px; }
+.chart-tab {
+  padding: 5px 12px;
+  border: 1.5px solid var(--border-medium);
+  border-radius: 20px; font-size: 12px; font-weight: 500;
+  color: var(--text-secondary); cursor: pointer;
+  background: transparent; font-family: inherit;
+  transition: all 0.15s;
+}
+.chart-tab:hover { border-color: var(--accent); color: var(--accent); }
+.chart-tab.active {
+  background: var(--accent); border-color: var(--accent);
+  color: #fff; font-weight: 600;
+}
+
+/* ── CHART AREA ── */
+.chart-wrap { padding: 16px 20px 12px; position: relative; }
+.chart-canvas-wrap { position: relative; height: 200px; }
+
+/* ── TODO CARD ── */
+.todo-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px;
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-md);
+  cursor: pointer; transition: all 0.15s;
+  margin-bottom: 10px;
+  position: relative; overflow: hidden;
+}
+.todo-item:last-child { margin-bottom: 0; }
+.todo-item:hover { border-color: var(--item-color, var(--border-medium)); box-shadow: var(--shadow-sm); }
+.todo-item::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px; background: var(--item-color, var(--border-light));
+}
+.todo-icon {
+  width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; background: var(--item-icon-bg, var(--bg-base));
+}
+.todo-label { flex: 1; font-size: 13.5px; font-weight: 600; color: var(--text-primary); }
+.todo-sub { font-size: 11.5px; color: var(--text-muted); margin-top: 1px; }
+.todo-count {
+  font-size: 18px; font-weight: 800; letter-spacing: -0.5px;
+  color: var(--item-color, var(--text-secondary));
+  background: var(--item-bg, var(--bg-base));
+  padding: 4px 12px; border-radius: 8px;
+  min-width: 52px; text-align: center;
+}
+.todo-count.zero { color: var(--text-muted); background: var(--bg-base); font-size: 15px; }
+
+/* ── MENU USAGE CARD ── */
+.menu-select-wrap { position: relative; }
+.menu-select-wrap::after {
+  content: ''; position: absolute; right: 9px; top: 50%;
+  transform: translateY(-50%); pointer-events: none;
+  border-left: 4px solid transparent; border-right: 4px solid transparent;
+  border-top: 5px solid var(--text-muted);
+}
+.menu-select {
+  height: 30px; padding: 0 26px 0 10px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm); font-size: 12.5px;
+  background: var(--bg-base); appearance: none;
+  font-family: inherit; cursor: pointer; color: var(--text-primary);
+}
+.menu-chart-wrap { padding: 0 20px 20px; height: 200px; }
+
+/* ── NOTICE CARD ── */
+.notice-tabs { display: flex; gap: 1px; }
+.ntab {
+  padding: 4px 10px; font-size: 12px; font-weight: 600;
+  color: var(--text-muted); cursor: pointer;
+  border-radius: 4px; border: none; background: transparent;
+  font-family: inherit; transition: all 0.15s;
+}
+.ntab:hover { color: var(--text-secondary); }
+.ntab.active { color: var(--accent); background: var(--accent-light); }
+
+.notice-list { padding: 6px 0; }
+.notice-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 9px 20px; cursor: pointer; transition: background 0.12s;
+  border-bottom: 1px solid var(--border-light);
+}
+.notice-item:last-child { border-bottom: none; }
+.notice-item:hover { background: #FAFBFC; }
+.notice-tag {
+  padding: 2px 7px; border-radius: 4px;
+  font-size: 10.5px; font-weight: 700;
+  flex-shrink: 0; margin-top: 1px; white-space: nowrap;
+}
+.ntag-all     { background: #F3F4F6; color: #374151; }
+.ntag-org     { background: var(--amber-bg); color: var(--amber-text); }
+.ntag-parent  { background: var(--purple-bg); color: var(--purple-text); }
+.ntag-teacher { background: var(--blue-bg); color: var(--blue-text); }
+.notice-text { flex: 1; font-size: 12.5px; color: var(--text-primary); line-height: 1.4; }
+.notice-text strong { font-weight: 600; }
+.notice-date { font-size: 11px; color: var(--text-muted); flex-shrink: 0; font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
+.notice-more {
+  display: block; text-align: center; padding: 10px;
+  font-size: 12.5px; color: var(--accent); font-weight: 600;
+  cursor: pointer; transition: background 0.12s;
+  border-top: 1px solid var(--border-light);
+}
+.notice-more:hover { background: var(--accent-light); }
+
+/* ── RANKING CARD ── */
+.rank-toggle { display: flex; gap: 3px; background: var(--bg-base); padding: 3px; border-radius: 8px; }
+.rtog-btn {
+  padding: 5px 12px; font-size: 12px; font-weight: 600;
+  border: none; border-radius: 6px; cursor: pointer;
+  font-family: inherit; color: var(--text-secondary);
+  background: transparent; transition: all 0.15s;
+}
+.rtog-btn.active { background: var(--text-primary); color: #fff; }
+
+.rank-panels { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 0 20px 20px; }
+.rank-panel { }
+.rank-panel-title {
+  font-size: 11.5px; font-weight: 700;
+  color: var(--text-muted); text-transform: uppercase;
+  letter-spacing: 0.5px; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 5px;
+}
+.rank-hint { font-size: 10.5px; color: var(--text-muted); font-weight: 400; margin-left: auto; text-transform: none; letter-spacing: 0; }
+.rank-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+.rank-row:last-child { border-bottom: none; }
+.rank-num {
+  width: 18px; font-size: 12px; font-weight: 700;
+  color: var(--text-muted); flex-shrink: 0; text-align: center;
+}
+.rank-num.top1 { color: var(--amber); }
+.rank-num.top2 { color: var(--text-secondary); }
+.rank-num.top3 { color: #CD7F32; }
+.rank-name { flex: 1; font-size: 12.5px; font-weight: 500; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rank-val { font-size: 12px; color: var(--text-secondary); font-family: 'JetBrains Mono',monospace; flex-shrink: 0; }
+.rank-val .v-main { font-weight: 700; color: var(--text-primary); }
+.rank-val .v-pct-top  { color: var(--green); }
+.rank-val .v-pct-low  { color: var(--red); }
+
+/* ── DEVICE CARD ── */
+.device-wrap { display: flex; align-items: center; gap: 24px; padding: 16px 20px 20px; }
+.device-chart { position: relative; width: 140px; height: 140px; flex-shrink: 0; }
+.device-legend { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.legend-item { display: flex; align-items: center; gap: 8px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.legend-name { flex: 1; font-size: 12.5px; color: var(--text-primary); font-weight: 500; }
+.legend-pct { font-size: 13px; font-weight: 700; color: var(--text-primary); font-family: 'JetBrains Mono',monospace; }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 13px; border-radius: var(--radius-md);
+  font-size: 12.5px; font-weight: 500; cursor: pointer;
+  border: none; transition: all 0.15s; font-family: inherit;
+}
+.btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid transparent; }
+.btn-ghost:hover { background: var(--bg-base); color: var(--text-secondary); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+
+/* ── TOOLTIP ── */
+.kpi-tooltip {
+  position: absolute; top: 14px; left: 14px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--bg-base); border: 1px solid var(--border-medium);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; color: var(--text-muted); cursor: help;
+  font-weight: 700;
+}
+
+/* ── ANIMATE ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fadeUp 0.4s ease both; }
+.delay-1 { animation-delay: 0.05s; }
+.delay-2 { animation-delay: 0.10s; }
+.delay-3 { animation-delay: 0.15s; }
+.delay-4 { animation-delay: 0.20s; }
+.delay-5 { animation-delay: 0.25s; }
+
+/* ── TOAST ── */
+.toast-wrap { position: fixed; bottom: 24px; right: 24px; z-index: 2000; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 16px; background: #1A1D2E; color: #fff;
+  border-radius: var(--radius-md); font-size: 13px; font-weight: 500;
+  box-shadow: var(--shadow-lg); min-width: 240px;
+  animation: toastIn 0.25s ease;
+}
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+  /* ── nav-sub ── */
+  .nav-sub { overflow:hidden; }
+  .nav-sub .nav-item { padding-left:44px; font-size:13px; }
+  .nav-sub .nav-item.active { background:rgba(67,97,238,0.22); color:#fff; font-weight:600; }
+  .nav-sub .nav-item.active::before { display:none; }
+
+</style>
+</head>
+<body>
+
+<!-- ══════════════ SIDEBAR ══════════════ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🏫</div>
+    <div class="logo-text">알림장 Admin</div>
+    <div class="logo-badge">v2.4</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-title">메인</div>
+    <div class="nav-item active" onclick="location.href='dashboard.html'" style="cursor:pointer">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1" stroke-width="2"/></svg>
+      Home (대시보드)
+    </div>
+
+    <div class="nav-section-title">관리</div>
+
+    <div class="nav-item " onclick="toggleSubNav(this,'sub-member')" style="cursor:pointer">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>
+      회원/승인관리
+      <span class="nav-badge" style="margin-left:auto;background:#4361EE;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px">3</span>
+      <svg class="nav-chevron" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-left:4px;opacity:0.5;transition:transform 0.2s;flex-shrink:0"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+    </div>
+    <div class="nav-sub" id="sub-member" style="display:none">
+      <div class="nav-item " onclick="location.href='member-list-admin.html'" style="cursor:pointer">통합회원 조회</div>
+      <div class="nav-item " onclick="location.href='member-approval.html'" style="cursor:pointer">가입 승인 관리 <span class="nav-badge">3</span></div>
+      <div class="nav-item " onclick="location.href='invitation-admin.html'" style="cursor:pointer">초대 관리</div>
+      <div class="nav-item " onclick="location.href='member-status-admin.html'" style="cursor:pointer">회원 상태 관리</div>
+    </div>
+
+    <div class="nav-item " onclick="toggleSubNav(this,'sub-org')" style="cursor:pointer">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+      기관관리
+      <span class="nav-badge" style="margin-left:auto;background:#4361EE;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px">5</span>
+      <svg class="nav-chevron" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-left:4px;opacity:0.5;transition:transform 0.2s;flex-shrink:0"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+    </div>
+    <div class="nav-sub" id="sub-org" style="display:none">
+      <div class="nav-item " onclick="location.href='org-admin.html'" style="cursor:pointer">기관 조회</div>
+      <div class="nav-item " onclick="location.href='org-admin.html#approval'" style="cursor:pointer">기관 승인 관리 <span class="nav-badge">5</span></div>
+      <div class="nav-item " onclick="location.href='org-admin.html#status'" style="cursor:pointer">기관 상태 관리</div>
+    </div>
+
+    <div class="nav-item" onclick="location.href='./oper/operation-org-selector.html'" style="cursor:pointer">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      운영관리
+    </div>
+    <div class="nav-item" style="cursor:default;opacity:0.5">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      통계관리 <span style="font-size:10px;color:#9CA3AF;margin-left:auto">준비중</span>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sidebar-user" onclick="showToast('프로필 설정 화면으로 이동합니다.')" style="cursor:pointer">
+      <div class="user-avatar">관</div>
+      <div class="user-info" style="flex:1;min-width:0">
+        <div class="user-name">슈퍼 관리자</div>
+        <div class="user-role">admin@kidkids.kr</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ══════════════ MAIN ══════════════ -->
+<main class="main">
+  <header class="topbar">
+    <div class="breadcrumb">
+      <span class="breadcrumb-cur">대시보드</span>
+    </div>
+    <div class="topbar-right">
+      <button class="icon-btn" onclick="showToast('데이터를 새로고침합니다.')">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+      </button>
+      <button class="icon-btn">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span class="notif-dot"></span>
+      </button>
+      <div class="topbar-divider"></div>
+      <div class="topbar-profile">
+        <div class="profile-av">관</div>
+        <span class="profile-name">슈퍼 관리자</span>
+        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--text-muted)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+      </div>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- ① PERIOD FILTER BAR -->
+    <div class="period-bar fade-up">
+      <span class="period-label">기간</span>
+      <button class="period-btn active" onclick="setPeriod(this,'today')">오늘</button>
+      <button class="period-btn" onclick="setPeriod(this,'yesterday')">어제</button>
+      <button class="period-btn" onclick="setPeriod(this,'7d')">최근 7일</button>
+      <button class="period-btn" onclick="setPeriod(this,'30d')">최근 30일</button>
+      <div class="period-compare">대비 <span id="compareLabel">어제</span> 기준</div>
+    </div>
+
+    <!-- ② TODAY KPI CARDS -->
+    <div>
+      <div class="section-head">
+        <span class="section-title">Today</span>
+        <span class="section-sub" id="todayDate"></span>
+      </div>
+      <div class="kpi-grid">
+        <!-- 2-1 활성 기관 수 -->
+        <div class="kpi-card fade-up delay-1" style="--card-color:var(--blue);--card-icon-bg:var(--blue-bg)">
+          <div class="kpi-icon-wrap">🏫</div>
+          <div class="kpi-label">오늘 활성 기관 수</div>
+          <div class="kpi-num-row">
+            <div class="kpi-num">54</div>
+            <div class="kpi-sub">/ 105</div>
+          </div>
+          <div class="kpi-trend trend-up">
+            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+            12
+            <span class="kpi-trend-label">어제 대비</span>
+          </div>
+        </div>
+        <!-- 2-2 활성 교사 수 -->
+        <div class="kpi-card fade-up delay-2" style="--card-color:var(--green);--card-icon-bg:var(--green-bg)">
+          <div class="kpi-icon-wrap">👩‍🏫</div>
+          <div class="kpi-label">오늘 활성 교사 수</div>
+          <div class="kpi-num-row">
+            <div class="kpi-num">156</div>
+            <div class="kpi-sub">/ 162</div>
+          </div>
+          <div class="kpi-trend trend-up">
+            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+            12
+            <span class="kpi-trend-label">어제 대비</span>
+          </div>
+        </div>
+        <!-- 2-3 활성 학부모 수 -->
+        <div class="kpi-card fade-up delay-3" style="--card-color:var(--purple);--card-icon-bg:var(--purple-bg)">
+          <div class="kpi-icon-wrap">👨‍👩‍👧</div>
+          <div class="kpi-label">오늘 활성 학부모 수</div>
+          <div class="kpi-num-row">
+            <div class="kpi-num">88</div>
+            <div class="kpi-sub">/ 195</div>
+          </div>
+          <div class="kpi-trend trend-down">
+            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+            2
+            <span class="kpi-trend-label">어제 대비</span>
+          </div>
+        </div>
+        <!-- 2-4 접속자 수 -->
+        <div class="kpi-card fade-up delay-4" style="--card-color:var(--cyan);--card-icon-bg:var(--cyan-bg)">
+          <div class="kpi-icon-wrap">📱</div>
+          <div class="kpi-label">오늘 접속자 수</div>
+          <div class="kpi-num-row">
+            <div class="kpi-num">312</div>
+          </div>
+          <div class="kpi-trend trend-up">
+            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+            2
+            <span class="kpi-trend-label">어제 대비</span>
+          </div>
+        </div>
+        <!-- 2-5 오늘 게시글 수 -->
+        <div class="kpi-card fade-up delay-5" style="--card-color:var(--amber);--card-icon-bg:var(--amber-bg)">
+          <div class="kpi-icon-wrap">📝</div>
+          <div class="kpi-label">오늘 게시글 수 (전체)</div>
+          <div class="kpi-num-row">
+            <div class="kpi-num">55</div>
+          </div>
+          <div class="kpi-trend trend-up">
+            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+            12
+            <span class="kpi-trend-label">어제 대비</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ③ DAU/MAU  +  ④ To-do -->
+    <div class="two-col">
+
+      <!-- ③ DAU/MAU Chart -->
+      <div class="card fade-up">
+        <div class="card-header">
+          <div class="card-title">활성 사용자 추이</div>
+          <div class="card-header-right">
+            <div class="chart-tabs">
+              <button class="chart-tab active" onclick="switchChart(this,'dau')">일간활성 (DAU)</button>
+              <button class="chart-tab" onclick="switchChart(this,'mau')">월간활성 (MAU)</button>
+            </div>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <!-- DAU legend -->
+          <div id="dau-meta" style="display:flex;gap:16px;margin-bottom:12px;font-size:12px;color:var(--text-secondary)">
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:3px;background:#4361EE;border-radius:2px;display:inline-block"></span>전체 접속자</span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:3px;background:#10B981;border-radius:2px;display:inline-block"></span>교사</span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:3px;background:#8B5CF6;border-radius:2px;display:inline-block"></span>학부모</span>
+          </div>
+          <div id="mau-meta" style="display:none;gap:16px;margin-bottom:12px;font-size:12px;color:var(--text-secondary)">
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:3px;background:#4361EE;border-radius:2px;display:inline-block"></span>전체 MAU</span>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="mainChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- ④ To-do -->
+      <div class="card fade-up">
+        <div class="card-header">
+          <div class="card-title">오늘의 운영 To-do</div>
+          <div style="font-size:11.5px;color:var(--text-muted);margin-left:auto">전체 기간 기준</div>
+        </div>
+        <div style="padding:16px 16px 4px">
+          <div class="todo-item" style="--item-color:var(--red);--item-icon-bg:var(--red-bg);--item-bg:var(--red-bg)"
+               onclick="showToast('Q&A 관리 화면으로 이동합니다.')">
+            <div class="todo-icon">💬</div>
+            <div>
+              <div class="todo-label">미답변 Q&A</div>
+              <div class="todo-sub">답변 대기 중인 문의</div>
+            </div>
+            <div class="todo-count zero">0건</div>
+          </div>
+          <div class="todo-item" style="--item-color:var(--amber);--item-icon-bg:var(--amber-bg);--item-bg:var(--amber-bg)"
+               onclick="location.href='org-admin.html#approval'">
+            <div class="todo-icon">🏢</div>
+            <div>
+              <div class="todo-label">기관 가입 승인 요청</div>
+              <div class="todo-sub">승인 대기 상태</div>
+            </div>
+            <div class="todo-count" style="color:var(--amber-text);background:var(--amber-bg)">2건</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑤ 메뉴별 사용량  +  ⑥ 공지사항 -->
+    <div class="two-col">
+
+      <!-- ⑤ 메뉴별 사용량 -->
+      <div class="card fade-up">
+        <div class="card-header">
+          <div class="card-title">메뉴별 사용량</div>
+          <div class="card-header-right">
+            <div class="menu-select-wrap">
+              <select class="menu-select" id="menuMetric" onchange="updateMenuChart()">
+                <option value="posts">게시글 수</option>
+                <option value="orgs">사용 기관 수</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="menu-chart-wrap">
+          <canvas id="menuChart"></canvas>
+        </div>
+      </div>
+
+      <!-- ⑥ 공지사항 -->
+      <div class="card fade-up" style="display:flex;flex-direction:column">
+        <div class="card-header">
+          <div class="card-title">공지사항</div>
+          <div class="card-header-right">
+            <div class="notice-tabs">
+              <button class="ntab active" onclick="setNoticeTab(this,'latest')">최신순</button>
+              <button class="ntab" onclick="setNoticeTab(this,'views')">조회순</button>
+            </div>
+          </div>
+        </div>
+        <div class="notice-list" id="noticeList"></div>
+        <a class="notice-more" onclick="showToast('공지사항 전체 목록으로 이동합니다.')">더보기 →</a>
+      </div>
+    </div>
+
+    <!-- ⑦ 기관/교사 활동 랭킹  +  ⑧ 디바이스 분포 -->
+    <div class="two-col">
+
+      <!-- ⑦ 랭킹 -->
+      <div class="card fade-up">
+        <div class="card-header">
+          <div class="card-title">기관 / 교사 활동 랭킹</div>
+          <div style="font-size:11.5px;color:var(--text-muted);margin:0 6px">게시글 수 · 접속률 기준</div>
+          <div class="card-header-right">
+            <div class="rank-toggle">
+              <button class="rtog-btn active" onclick="setRankMode(this,'org')">기관 기준</button>
+              <button class="rtog-btn" onclick="setRankMode(this,'teacher')">교사 기준</button>
+            </div>
+          </div>
+        </div>
+        <div class="rank-panels" id="rankPanels"></div>
+      </div>
+
+      <!-- ⑧ 디바이스 분포 -->
+      <div class="card fade-up">
+        <div class="card-header">
+          <div class="card-title">디바이스별 이용 분포</div>
+          <div style="font-size:11.5px;color:var(--text-muted);margin-left:auto">로그인 사용자 기준</div>
+        </div>
+        <div class="device-wrap">
+          <div class="device-chart">
+            <canvas id="deviceChart"></canvas>
+          </div>
+          <div class="device-legend" id="deviceLegend"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+/* ═══════════════════════════════════════
+   DATA
+═══════════════════════════════════════ */
+const DAU_DATA = {
+  labels: ['3/4','3/5','3/6','3/7','3/8','3/9','3/10','3/11','3/12','3/13','3/14','3/15','3/16','3/17','3/18','3/19','3/20','3/21','3/22','3/23','3/24','3/25','3/26','3/27','3/28','3/29','3/30'],
+  total:   [220,245,210,198,260,310,312,298,275,283,301,288,265,240,290,315,320,310,295,280,302,318,325,310,298,305,312],
+  teacher: [60,72,65,58,78,95,98,90,84,88,92,87,81,75,88,96,100,94,90,85,91,97,101,95,91,94,98],
+  parent:  [120,138,115,110,148,175,178,168,155,163,170,162,150,138,165,180,182,177,165,158,170,182,188,175,165,170,178],
+};
+const MAU_DATA = {
+  labels: ['Jan','Feb','Mar','Apr','May','Jun'],
+  total:  [3200, 3850, 4100, 3950, 4380, 4520],
+};
+const MENU_POSTS = {
+  labels: ['알림장','공지사항','앨범','식단표','투약의뢰','출석부','스케줄'],
+  data:   [892, 314, 547, 208, 420, 688, 175],
+};
+const MENU_ORGS = {
+  labels: ['알림장','공지사항','앨범','식단표','투약의뢰','출석부','스케줄'],
+  data:   [98, 72, 81, 65, 58, 87, 43],
+};
+const RANK_ORG_TOP = [
+  { name:'키드키즈 어린이집', posts:150, pct:80 },
+  { name:'ABC 유치원',       posts:98,  pct:78 },
+  { name:'사랑센터 어린이집', posts:87,  pct:67 },
+  { name:'예쁜미소 어린이집', posts:85,  pct:45 },
+  { name:'기흥 빅스윔 어린이집', posts:80, pct:20 },
+];
+const RANK_ORG_LOW = [
+  { name:'사랄라 어린이집',   posts:2,  pct:12 },
+  { name:'사사링 유치원',     posts:10, pct:13 },
+  { name:'오로라핑 어린이집', posts:10, pct:9  },
+  { name:'룸당림 어린이집',   posts:25, pct:19 },
+  { name:'댄스링 어린이집',   posts:28, pct:10 },
+];
+const RANK_TCH_TOP = [
+  { name:'김민지 (햇살어린이집)',   posts:38, pct:94 },
+  { name:'이수아 (무지개유치원)',   posts:31, pct:88 },
+  { name:'박지현 (꿈나무어린이집)', posts:27, pct:82 },
+  { name:'최은정 (ABC유치원)',      posts:24, pct:75 },
+  { name:'윤서아 (참사랑어린이집)', posts:21, pct:70 },
+];
+const RANK_TCH_LOW = [
+  { name:'오세진 (꿈터유치원)',   posts:1, pct:15 },
+  { name:'조민호 (별빛어린이집)', posts:2, pct:18 },
+  { name:'한지혜 (하늘유치원)',   posts:3, pct:22 },
+  { name:'임수연 (강변어린이집)', posts:3, pct:25 },
+  { name:'전다인 (햇빛어린이집)', posts:4, pct:28 },
+];
+const NOTICES = [
+  { tag:'ALL',    tagClass:'ntag-all',    text:'시스템 점검 안내(12/03 AM 4~6시)',              date:'25-12-03', views:1420 },
+  { tag:'ALL',    tagClass:'ntag-all',    text:'<strong>새로운 스케줄 메뉴기능이 업데이트 되었습니다.</strong>', date:'25-12-02', views:980 },
+  { tag:'기관',   tagClass:'ntag-org',    text:'12월 크리스마스 EVENT! 산타잡기 OPEN!',           date:'25-12-01', views:870 },
+  { tag:'기관',   tagClass:'ntag-org',    text:'알림장이용 TOP3 기관에 유료회원 전용자료를 무료로...', date:'25-12-01', views:720 },
+  { tag:'ALL',    tagClass:'ntag-all',    text:'장애 오류 안내.(SORRY)',                          date:'25-11-28', views:612 },
+  { tag:'학부모', tagClass:'ntag-parent', text:'12월 아이들이 좋아하는 TOP5 선물 보기',            date:'25-11-25', views:540 },
+  { tag:'기관',   tagClass:'ntag-org',    text:'키드키즈 콘서트에 초대합니다.',                    date:'25-11-02', views:380 },
+];
+const DEVICE_DATA = [
+  { name:'Android', pct:52.1, color:'#1A1D2E' },
+  { name:'iOS',     pct:22.8, color:'#4361EE' },
+  { name:'Xiaomi',  pct:13.9, color:'#10B981' },
+  { name:'Other',   pct:11.2, color:'#D1D5DB' },
+];
+
+/* ═══════════════════════════════════════
+   PERIOD FILTER
+═══════════════════════════════════════ */
+const compareLabels = { today:'어제', yesterday:'그 전날', '7d':'이전 7일', '30d':'이전 30일' };
+function setPeriod(btn, key) {
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('compareLabel').textContent = compareLabels[key];
+  showToast('기간이 변경되었습니다: ' + btn.textContent.trim());
+}
+
+/* ═══════════════════════════════════════
+   TODAY DATE
+═══════════════════════════════════════ */
+(function(){
+  const d = new Date();
+  const days = ['일','월','화','수','목','금','토'];
+  document.getElementById('todayDate').textContent =
+    `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} (${days[d.getDay()]})`;
+})();
+
+/* ═══════════════════════════════════════
+   MAIN CHART (DAU / MAU)
+═══════════════════════════════════════ */
+let mainChart;
+function buildMainChart(mode) {
+  const ctx = document.getElementById('mainChart').getContext('2d');
+  if (mainChart) mainChart.destroy();
+
+  const isDau = mode === 'dau';
+  document.getElementById('dau-meta').style.display = isDau ? 'flex' : 'none';
+  document.getElementById('mau-meta').style.display = isDau ? 'none' : 'flex';
+
+  const cfg = isDau ? {
+    labels: DAU_DATA.labels,
+    datasets: [
+      { label:'전체 접속자', data: DAU_DATA.total,   borderColor:'#4361EE', backgroundColor:'rgba(67,97,238,0.08)', tension:0.4, fill:true,  pointRadius:0, pointHoverRadius:5, borderWidth:2 },
+      { label:'교사',       data: DAU_DATA.teacher, borderColor:'#10B981', backgroundColor:'transparent',            tension:0.4, fill:false, pointRadius:0, pointHoverRadius:5, borderWidth:1.5, borderDash:[4,3] },
+      { label:'학부모',     data: DAU_DATA.parent,  borderColor:'#8B5CF6', backgroundColor:'transparent',            tension:0.4, fill:false, pointRadius:0, pointHoverRadius:5, borderWidth:1.5, borderDash:[4,3] },
+    ]
+  } : {
+    labels: MAU_DATA.labels,
+    datasets: [
+      { label:'MAU', data: MAU_DATA.total, borderColor:'#4361EE', backgroundColor:'rgba(67,97,238,0.1)', tension:0.4, fill:true, pointRadius:4, pointHoverRadius:7, borderWidth:2.5, pointBackgroundColor:'#fff', pointBorderColor:'#4361EE', pointBorderWidth:2 },
+    ]
+  };
+
+  mainChart = new Chart(ctx, {
+    type:'line',
+    data: cfg,
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:'#1A1D2E', titleFont:{family:'Pretendard',size:11}, bodyFont:{family:'Pretendard',size:12}, padding:10, cornerRadius:8 }},
+      scales:{
+        x:{ grid:{ display:false }, ticks:{ font:{family:'Pretendard',size:10}, color:'#9CA3AF', maxRotation:0, maxTicksLimit: isDau ? 9 : 6 }},
+        y:{ grid:{ color:'rgba(0,0,0,0.04)' }, ticks:{ font:{family:'Pretendard',size:10}, color:'#9CA3AF' }, border:{display:false} }
+      }
+    }
+  });
+}
+
+function switchChart(btn, mode) {
+  document.querySelectorAll('.chart-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  buildMainChart(mode);
+}
+
+/* ═══════════════════════════════════════
+   MENU CHART
+═══════════════════════════════════════ */
+let menuChart;
+function buildMenuChart(data) {
+  const ctx = document.getElementById('menuChart').getContext('2d');
+  if (menuChart) menuChart.destroy();
+
+  const maxVal = Math.max(...data.data);
+  const colors = data.data.map((v,i) => {
+    const palette = ['#4361EE','#10B981','#8B5CF6','#F59E0B','#EF4444','#3B82F6','#06B6D4'];
+    return palette[i % palette.length];
+  });
+  const highlight = data.data.indexOf(maxVal);
+  const bgColors = colors.map((c,i) => i === highlight ? c : c + '66');
+
+  menuChart = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels: data.labels,
+      datasets:[{ data: data.data, backgroundColor: bgColors, borderRadius:6, borderSkipped:false }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'#1A1D2E',
+          titleFont:{family:'Pretendard',size:11},
+          bodyFont:{family:'Pretendard',size:12},
+          padding:10, cornerRadius:8,
+          callbacks:{ label: ctx => ` ${ctx.parsed.y.toLocaleString()}건` }
+        },
+        datalabels: false
+      },
+      scales:{
+        x:{ grid:{display:false}, ticks:{font:{family:'Pretendard',size:11},color:'#6B7280'} },
+        y:{ grid:{color:'rgba(0,0,0,0.04)'}, ticks:{font:{family:'Pretendard',size:10},color:'#9CA3AF'}, border:{display:false} }
+      }
+    }
+  });
+}
+
+function updateMenuChart() {
+  const m = document.getElementById('menuMetric').value;
+  buildMenuChart(m === 'posts' ? MENU_POSTS : MENU_ORGS);
+}
+
+/* ═══════════════════════════════════════
+   NOTICE
+═══════════════════════════════════════ */
+let noticeMode = 'latest';
+function renderNotices() {
+  const sorted = [...NOTICES].sort((a,b) => noticeMode === 'latest'
+    ? b.date.localeCompare(a.date)
+    : b.views - a.views
+  );
+  document.getElementById('noticeList').innerHTML = sorted.slice(0,7).map(n => `
+    <div class="notice-item" onclick="showToast('공지사항 상세로 이동합니다.')">
+      <span class="notice-tag ${n.tagClass}">${n.tag}</span>
+      <span class="notice-text">${n.text}</span>
+      <span class="notice-date">${n.date}</span>
+    </div>`).join('');
+}
+function setNoticeTab(btn, mode) {
+  document.querySelectorAll('.ntab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  noticeMode = mode;
+  renderNotices();
+}
+
+/* ═══════════════════════════════════════
+   RANKING
+═══════════════════════════════════════ */
+let rankMode = 'org';
+function renderRank() {
+  const topData = rankMode === 'org' ? RANK_ORG_TOP : RANK_TCH_TOP;
+  const lowData = rankMode === 'org' ? RANK_ORG_LOW : RANK_TCH_LOW;
+
+  function buildRows(arr, isTop) {
+    return arr.map((r,i) => `
+      <div class="rank-row">
+        <div class="rank-num ${i===0?'top1':i===1?'top2':i===2?'top3':''}">${i+1}</div>
+        <div class="rank-name">${r.name}</div>
+        <div class="rank-val">
+          <span class="v-main">${r.posts}</span>
+          <span style="color:var(--text-muted);font-size:11px"> / </span>
+          <span class="${isTop?'v-pct-top':'v-pct-low'}">${r.pct}%</span>
+        </div>
+      </div>`).join('');
+  }
+
+  document.getElementById('rankPanels').innerHTML = `
+    <div class="rank-panel">
+      <div class="rank-panel-title">
+        🔥 활동 TOP
+        <span class="rank-hint">게시글 수 / 열람률</span>
+      </div>
+      ${buildRows(topData, true)}
+    </div>
+    <div class="rank-panel">
+      <div class="rank-panel-title">
+        🧊 활동 LOW
+        <span class="rank-hint">게시글 수 / 열람률</span>
+      </div>
+      ${buildRows(lowData, false)}
+    </div>`;
+}
+function setRankMode(btn, mode) {
+  document.querySelectorAll('.rtog-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  rankMode = mode;
+  renderRank();
+}
+
+/* ═══════════════════════════════════════
+   DEVICE CHART
+═══════════════════════════════════════ */
+function buildDeviceChart() {
+  const ctx = document.getElementById('deviceChart').getContext('2d');
+  new Chart(ctx, {
+    type:'doughnut',
+    data:{
+      labels: DEVICE_DATA.map(d => d.name),
+      datasets:[{
+        data: DEVICE_DATA.map(d => d.pct),
+        backgroundColor: DEVICE_DATA.map(d => d.color),
+        borderWidth: 2,
+        borderColor: '#fff',
+        hoverOffset: 6,
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      cutout:'65%',
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'#1A1D2E',
+          titleFont:{family:'Pretendard',size:11},
+          bodyFont:{family:'Pretendard',size:12},
+          padding:10, cornerRadius:8,
+          callbacks:{ label: ctx => ` ${ctx.label}: ${ctx.parsed}%` }
+        }
+      }
+    }
+  });
+
+  document.getElementById('deviceLegend').innerHTML = DEVICE_DATA.map(d => `
+    <div class="legend-item">
+      <span class="legend-dot" style="background:${d.color}"></span>
+      <span class="legend-name">${d.name}</span>
+      <span class="legend-pct">${d.pct}%</span>
+    </div>`).join('');
+}
+
+/* ═══════════════════════════════════════
+   TOAST
+═══════════════════════════════════════ */
+function showToast(msg) {
+  const wrap = document.getElementById('toastWrap');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `<svg width="16" height="16" fill="none" stroke="#10B981" viewBox="0 0 24 24" style="flex-shrink:0"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>${msg}`;
+  wrap.appendChild(t);
+  setTimeout(() => { t.style.transition='opacity 0.3s'; t.style.opacity='0'; setTimeout(()=>t.remove(),300); }, 2600);
+}
+
+
+/* ═══════════════════════════════════════
+   INIT
+═══════════════════════════════════════ */
+buildMainChart('dau');
+buildMenuChart(MENU_POSTS);
+renderNotices();
+renderRank();
+buildDeviceChart();
+
+
+/* ── nav sub-menu toggle ── */
+function toggleSubNav(el, subId) {
+  var sub = document.getElementById(subId);
+  if (!sub) return;
+  var isOpen = sub.style.display === 'block';
+  sub.style.display = isOpen ? 'none' : 'block';
+  var chev = el.querySelector('.nav-chevron');
+  if (chev) chev.style.transform = isOpen ? '' : 'rotate(90deg)';
+}
+</script>
+</body>
+</html>

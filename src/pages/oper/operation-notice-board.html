@@ -1,0 +1,1839 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>알림장 — 키드키즈</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="operation-sidebar.js" defer></script>
+<style>
+:root {
+  --sidebar-bg:     #0C2D48;
+  --sidebar-hover:  #1A4A6B;
+  --sidebar-active: #1E5580;
+  --sidebar-text:   #B8D9F0;
+  --sidebar-width:  240px;
+  --header-height:  60px;
+  --accent:         #0EA5E9;
+  --accent-light:   #E0F2FE;
+  --accent-dark:    #0284C7;
+  --bg-base:        #F0F7FF;
+  --bg-surface:     #FFFFFF;
+  --text-primary:   #0C2D48;
+  --text-secondary: #4B7FA3;
+  --text-muted:     #94B8D0;
+  --border-light:   #DBEAFE;
+  --border-medium:  #BAD9F7;
+  --green:  #10B981; --green-bg:  #D1FAE5; --green-text:  #065F46;
+  --blue:   #3B82F6; --blue-bg:   #DBEAFE; --blue-text:   #1E40AF;
+  --amber:  #F59E0B; --amber-bg:  #FEF3C7; --amber-text:  #92400E;
+  --red:    #EF4444; --red-bg:    #FEE2E2; --red-text:    #991B1B;
+  --purple: #8B5CF6; --purple-bg: #EDE9FE; --purple-text: #5B21B6;
+  --shadow-sm: 0 1px 3px rgba(12,45,72,0.06);
+  --shadow-md: 0 4px 12px rgba(12,45,72,0.09);
+  --shadow-lg: 0 8px 28px rgba(12,45,72,0.11);
+  --shadow-modal: 0 20px 60px rgba(0,0,0,0.18);
+  --radius-sm:6px; --radius-md:10px; --radius-lg:14px; --radius-xl:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--text-primary);display:flex;height:100vh;overflow:hidden;}
+
+/* ━━━ MAIN ━━━ */
+.main-wrap{margin-left:var(--sidebar-width);flex:1;display:flex;flex-direction:column;overflow:hidden;}
+
+/* ━━━ TOPBAR ━━━ */
+.topbar{height:var(--header-height);background:var(--bg-surface);border-bottom:1px solid var(--border-light);display:flex;align-items:center;padding:0 24px;gap:12px;box-shadow:var(--shadow-sm);flex-shrink:0;z-index:50;}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary);flex:1;}
+.breadcrumb .cur{color:var(--text-primary);font-weight:600;}
+.bc-sep{color:var(--text-muted);font-size:11px;}
+.class-filter-wrap{display:flex;align-items:center;gap:8px;background:var(--bg-base);border:1.5px solid var(--border-light);border-radius:var(--radius-md);padding:5px 12px;transition:0.18s;}
+.class-filter-wrap:focus-within{border-color:var(--accent);background:#fff;}
+.class-filter-label{font-size:11px;color:var(--text-secondary);font-weight:600;white-space:nowrap;}
+.class-filter-divider{width:1px;height:14px;background:var(--border-medium);}
+.class-select-wrap{position:relative;}
+.class-select{appearance:none;-webkit-appearance:none;border:none;background:transparent;font-size:13px;font-weight:700;color:var(--text-primary);cursor:pointer;font-family:'Pretendard',sans-serif;outline:none;padding-right:20px;min-width:120px;}
+.class-select-arrow{position:absolute;right:0;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--text-muted);font-size:11px;}
+
+/* ━━━ 오늘의 현황 ━━━ */
+.today-section{margin-bottom:16px;}
+.today-section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.today-section-title{font-size:14px;font-weight:800;color:var(--text-primary);display:flex;align-items:center;gap:6px;}
+.today-section-meta{font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;}
+.today-children-grid{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;}
+.today-children-grid::-webkit-scrollbar{height:4px;}
+.today-children-grid::-webkit-scrollbar-thumb{background:var(--border-medium);border-radius:2px;}
+.today-child-card{flex-shrink:0;width:108px;border-radius:var(--radius-lg);padding:12px 8px 10px;display:flex;flex-direction:column;align-items:center;gap:5px;border:1.5px solid transparent;cursor:pointer;transition:box-shadow .18s,transform .18s;position:relative;}
+.today-child-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.tcc-present{background:#F0FDF4;border-color:#A7F3D0;}
+.tcc-absent {background:#FEF2F2;border-color:#FECACA;}
+.tcc-sick   {background:#FFFBEB;border-color:#FCD34D;}
+.tcc-leave  {background:#EFF6FF;border-color:#BAD9F7;}
+.tcc-unknown{background:#F9FAFB;border-color:#E5E7EB;}
+.tcc-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff;position:relative;flex-shrink:0;}
+.tcc-comment-dot{position:absolute;top:-3px;right:-3px;width:14px;height:14px;border-radius:50%;background:var(--red);border:2px solid var(--bg-surface);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:800;color:#fff;}
+.tcc-name{font-size:12px;font-weight:700;color:var(--text-primary);text-align:center;line-height:1.2;}
+.tcc-age{font-size:10px;color:var(--text-secondary);font-weight:500;}
+.tcc-attend-label{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;white-space:nowrap;}
+.tcc-al-present{background:var(--green-bg);color:var(--green-text);}
+.tcc-al-absent {background:var(--red-bg);  color:var(--red-text);}
+.tcc-al-sick   {background:var(--amber-bg);color:var(--amber-text);}
+.tcc-al-leave  {background:var(--blue-bg); color:var(--blue-text);}
+.tcc-al-unknown{background:#F3F4F6;color:#9CA3AF;}
+.tcc-notice-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;white-space:nowrap;}
+.tcc-notice-done{background:var(--green-bg);color:var(--green-text);}
+.tcc-notice-none{background:#F3F4F6;color:#9CA3AF;}
+
+/* 알림장 카드 내 원아 chips */
+.nc-children{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
+.nc-child-chip{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:8px;font-size:11px;font-weight:600;background:var(--accent-light);color:var(--accent-dark);}
+.nc-child-chip-av{width:13px;height:13px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:7px;font-weight:800;color:#fff;flex-shrink:0;}
+.nc-comment-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:8px;font-size:11px;font-weight:700;background:var(--amber-bg);color:var(--amber-text);}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.topbar-date{font-size:12px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;}
+.icon-btn{width:36px;height:36px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;background:var(--bg-base);border:1px solid var(--border-light);cursor:pointer;transition:.18s;font-size:16px;position:relative;}
+.icon-btn:hover{background:var(--accent-light);border-color:var(--accent);}
+.notif-dot::after{content:'';position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--red);border:1.5px solid var(--bg-surface);}
+
+/* ━━━ CONTENT ━━━ */
+.content{flex:1;overflow-y:auto;padding:20px 24px;}
+.content::-webkit-scrollbar{width:5px;}
+.content::-webkit-scrollbar-thumb{background:var(--border-medium);border-radius:3px;}
+
+/* 페이지 헤더 */
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;}
+.page-title{font-size:21px;font-weight:800;letter-spacing:-.5px;}
+.page-sub{font-size:13px;color:var(--text-secondary);margin-top:3px;}
+
+/* ━━━ KPI ━━━ */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+.kpi-card{background:var(--bg-surface);border-radius:var(--radius-lg);padding:14px 16px;box-shadow:var(--shadow-sm);border:1px solid var(--border-light);display:flex;align-items:center;gap:12px;transition:box-shadow .2s;}
+.kpi-card:hover{box-shadow:var(--shadow-md);}
+.kpi-ico{width:44px;height:44px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.kpi-ico.sky{background:#E0F2FE;}
+.kpi-ico.green{background:var(--green-bg);}
+.kpi-ico.amber{background:var(--amber-bg);}
+.kpi-ico.red{background:var(--red-bg);}
+.kpi-label{font-size:11px;color:var(--text-secondary);font-weight:500;margin-bottom:2px;}
+.kpi-value{font-size:23px;font-weight:800;color:var(--text-primary);letter-spacing:-.8px;line-height:1;}
+.kpi-sub{font-size:11px;color:var(--text-muted);margin-top:2px;}
+
+/* ━━━ 탭 ━━━ */
+.tab-bar{display:flex;gap:0;background:var(--bg-surface);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:5px;margin-bottom:14px;box-shadow:var(--shadow-sm);width:fit-content;}
+.tab-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--text-secondary);font-family:'Pretendard',sans-serif;transition:.18s;}
+.tab-btn:hover{color:var(--accent-dark);background:var(--accent-light);}
+.tab-btn.active{background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(14,165,233,.3);}
+.tab-count{font-size:11px;font-weight:700;padding:1px 7px;border-radius:10px;background:rgba(255,255,255,.25);}
+.tab-btn:not(.active) .tab-count{background:var(--border-light);color:var(--text-secondary);}
+
+/* ━━━ 필터바 ━━━ */
+.filter-bar{background:var(--bg-surface);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:12px 16px;margin-bottom:12px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;box-shadow:var(--shadow-sm);}
+.filter-group{display:flex;align-items:center;gap:5px;}
+.filter-label{font-size:11px;font-weight:600;color:var(--text-secondary);white-space:nowrap;}
+.filter-select,.filter-input{height:32px;padding:0 10px;border:1.5px solid var(--border-light);border-radius:var(--radius-md);font-size:12px;font-weight:500;color:var(--text-primary);background:#fff;font-family:'Pretendard',sans-serif;transition:border-color .18s;outline:none;}
+.filter-select:focus,.filter-input:focus{border-color:var(--accent);}
+.filter-input{width:160px;}
+.filter-divider{width:1px;height:20px;background:var(--border-light);}
+.filter-date-range{display:flex;align-items:center;gap:4px;}
+.filter-date-range input{height:32px;padding:0 8px;border:1.5px solid var(--border-light);border-radius:var(--radius-md);font-size:12px;color:var(--text-primary);font-family:'Pretendard',sans-serif;outline:none;transition:border-color .18s;}
+.filter-date-range input:focus{border-color:var(--accent);}
+.filter-date-range span{font-size:11px;color:var(--text-muted);}
+
+/* ━━━ 액션바 ━━━ */
+.action-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
+.action-left{display:flex;align-items:center;gap:8px;}
+.action-right{display:flex;align-items:center;gap:8px;}
+.total-count{font-size:13px;color:var(--text-secondary);}
+.total-count strong{color:var(--text-primary);font-weight:700;}
+.btn{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 16px;border-radius:var(--radius-md);font-size:13px;font-weight:600;font-family:'Pretendard',sans-serif;cursor:pointer;border:none;transition:.18s;white-space:nowrap;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{background:var(--accent-dark);}
+.btn-outline{background:#fff;color:var(--text-primary);border:1.5px solid var(--border-medium);}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent-dark);background:var(--accent-light);}
+.btn-sm{height:30px;padding:0 12px;font-size:12px;}
+
+/* ━━━ 날짜 그룹 ━━━ */
+.date-group{margin-bottom:16px;}
+.date-group-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.date-group-label{font-size:12px;font-weight:700;color:var(--text-secondary);font-family:'JetBrains Mono',monospace;}
+.date-group-line{flex:1;height:1px;background:var(--border-light);}
+.date-group-count{font-size:11px;color:var(--text-muted);font-weight:500;}
+
+/* ━━━ 보낸 알림장 카드 ━━━ */
+.notice-card{background:var(--bg-surface);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:14px 16px 12px 19px;margin-bottom:8px;cursor:pointer;transition:box-shadow .18s,border-color .18s;display:flex;gap:14px;align-items:flex-start;position:relative;overflow:hidden;}
+.notice-card:hover{box-shadow:var(--shadow-md);border-color:var(--border-medium);}
+
+/* 좌측 상태 강조바 */
+.nc-accent{position:absolute;left:0;top:0;bottom:0;width:4px;}
+.nc-accent.published{background:var(--green);}
+.nc-accent.draft{background:var(--amber);}
+.nc-accent.recalled{background:#9CA3AF;}
+.nc-accent.scheduled{background:var(--purple);}
+
+.nc-left{flex:1;min-width:0;}
+
+/* 교사 정보 행 */
+.nc-teacher-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.nc-teacher-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0;}
+.nc-teacher-info{flex:1;}
+.nc-teacher-name{font-size:13px;font-weight:700;color:var(--text-primary);}
+.nc-teacher-class{font-size:11px;color:var(--text-secondary);}
+
+/* 날씨·메타 */
+.nc-meta{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-secondary);flex-wrap:wrap;margin-bottom:5px;}
+.nc-meta-item{display:flex;align-items:center;gap:3px;}
+.nc-weather{font-size:13px;}
+
+/* 본문 미리보기 */
+.nc-preview{font-size:12.5px;color:var(--text-secondary);line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:6px;}
+
+/* 카드 푸터 */
+.nc-footer{display:flex;align-items:center;gap:8px;padding-top:8px;border-top:1px solid var(--border-light);margin-top:4px;}
+.nc-footer-meta{display:flex;align-items:center;gap:10px;flex:1;flex-wrap:wrap;}
+.nc-footer-item{display:flex;align-items:center;gap:3px;font-size:11px;color:var(--text-muted);}
+.nc-act-btns{display:flex;gap:4px;}
+.nc-act-btn{width:26px;height:26px;border-radius:var(--radius-sm);border:1px solid var(--border-light);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:.18s;color:var(--text-secondary);}
+.nc-act-btn:hover{background:var(--accent-light);border-color:var(--accent);}
+.nc-act-btn.danger:hover{background:var(--red-bg);border-color:#FECACA;color:var(--red);}
+
+.nc-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
+.nc-time{font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;}
+
+/* 상태 뱃지 */
+.nbadge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:12px;font-size:11px;font-weight:700;}
+.nbadge-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.nb-published{background:var(--green-bg);color:var(--green-text);}
+.nb-draft{background:#F3F4F6;color:#6B7280;}
+.nb-recalled{background:var(--red-bg);color:var(--red-text);}
+.nb-scheduled{background:var(--blue-bg);color:var(--blue-text);}
+.nc-ai-badge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;background:var(--purple-bg);color:var(--purple-text);}
+
+/* ━━━ 받은 알림장 카드 ━━━ */
+.parent-notice-card{background:var(--bg-surface);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:8px;cursor:pointer;transition:box-shadow .18s,border-color .18s;}
+.parent-notice-card:hover{box-shadow:var(--shadow-md);border-color:var(--border-medium);}
+.parent-notice-card.unread-card{border-left:3px solid var(--red);}
+
+.pnc-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.pnc-category{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;}
+.pnc-sub{font-size:12px;font-weight:700;color:var(--text-primary);flex:1;}
+.unread-pip{font-size:11px;font-weight:700;padding:2px 8px;border-radius:8px;background:var(--red-bg);color:var(--red-text);}
+
+.pnc-info{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.child-avatar-sm{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0;}
+.pnc-names{font-size:12px;font-weight:600;color:var(--text-primary);}
+.pnc-names span{color:var(--text-secondary);font-weight:400;}
+
+.pnc-content{font-size:12.5px;color:var(--text-secondary);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:8px;}
+.pnc-footer{display:flex;align-items:center;justify-content:space-between;}
+.pnc-time{font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;}
+.pnc-reply-btn{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--accent-dark);background:var(--accent-light);border:none;padding:4px 10px;border-radius:8px;cursor:pointer;font-family:'Pretendard',sans-serif;transition:.18s;}
+.pnc-reply-btn:hover{background:var(--accent);color:#fff;}
+
+/* 빈 상태 */
+.empty-state{text-align:center;padding:52px 24px;color:var(--text-muted);}
+.empty-state-icon{font-size:42px;margin-bottom:10px;}
+.empty-state-text{font-size:14px;font-weight:600;color:var(--text-secondary);}
+.empty-state-sub{font-size:12px;margin-top:4px;}
+
+/* ━━━ 오버레이 ━━━ */
+.panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:300;opacity:0;pointer-events:none;transition:opacity .25s;}
+.panel-overlay.show{opacity:1;pointer-events:all;}
+
+/* ━━━ 상세 뷰어 패널 (480px) ━━━ */
+.detail-panel{position:fixed;right:0;top:0;height:100vh;width:480px;background:#fff;z-index:400;box-shadow:-8px 0 32px rgba(12,45,72,.12);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);}
+.detail-panel.show{transform:translateX(0);}
+
+.panel-header{height:60px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border-light);flex-shrink:0;}
+.panel-title{font-size:16px;font-weight:800;display:flex;align-items:center;gap:8px;}
+.panel-close{width:32px;height:32px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--bg-base);border:1px solid var(--border-light);font-size:16px;transition:.18s;color:var(--text-secondary);}
+.panel-close:hover{background:var(--red-bg);border-color:#FECACA;color:var(--red);}
+
+/* 패널 탭 (원아별) */
+.panel-tabs{display:flex;border-bottom:1px solid var(--border-light);flex-shrink:0;background:#FAFCFF;overflow-x:auto;}
+.panel-tabs::-webkit-scrollbar{height:3px;}
+.panel-tabs::-webkit-scrollbar-thumb{background:var(--border-medium);border-radius:2px;}
+.panel-tab{flex-shrink:0;padding:10px 14px;text-align:center;font-size:12px;font-weight:600;color:var(--text-secondary);cursor:pointer;border-bottom:2.5px solid transparent;transition:.18s;white-space:nowrap;}
+.panel-tab:hover{color:var(--accent-dark);}
+.panel-tab.active{color:var(--accent-dark);border-bottom-color:var(--accent);background:#fff;}
+
+.panel-body{flex:1;overflow-y:auto;padding:18px 20px;}
+.panel-body::-webkit-scrollbar{width:4px;}
+.panel-body::-webkit-scrollbar-thumb{background:var(--border-medium);border-radius:2px;}
+
+/* 패널 섹션 타이틀 */
+.psec-title{font-size:11px;font-weight:800;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.psec-title::after{content:'';flex:1;height:1px;background:var(--border-light);}
+.psec{margin-bottom:18px;}
+
+/* 알림장 헤더 정보 */
+.notice-info-row{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--bg-base);border-radius:var(--radius-md);border:1px solid var(--border-light);margin-bottom:10px;}
+.ni-icon{font-size:18px;}
+.ni-text{flex:1;}
+.ni-main{font-size:13px;font-weight:700;color:var(--text-primary);}
+.ni-sub{font-size:11px;color:var(--text-secondary);}
+
+/* 본문 */
+.notice-content-box{background:var(--bg-base);border-radius:var(--radius-md);border:1px solid var(--border-light);padding:12px 14px;font-size:13px;line-height:1.7;color:var(--text-primary);}
+
+/* 종합 평가 요약 카드 */
+.eval-summary-card{border-radius:var(--radius-md);padding:10px 12px;margin-bottom:10px;display:flex;align-items:center;gap:10px;}
+.eval-summary-card.good{background:var(--green-bg);border:1px solid #A7F3D0;}
+.eval-summary-card.ok{background:#F0FDF4;border:1px solid #BBF7D0;}
+.eval-summary-card.check{background:var(--amber-bg);border:1px solid #FCD34D;}
+.eval-summary-icon{font-size:20px;}
+.eval-summary-text{font-size:13px;font-weight:700;}
+.eval-summary-text.good{color:var(--green-text);}
+.eval-summary-text.ok{color:#15803D;}
+.eval-summary-text.check{color:var(--amber-text);}
+
+.eval-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px;}
+.eval-item{background:#fff;border:1px solid var(--border-light);border-radius:var(--radius-sm);padding:8px 10px;text-align:center;}
+.eval-item-label{font-size:10px;color:var(--text-secondary);font-weight:600;margin-bottom:3px;}
+.eval-item-val{font-size:12px;font-weight:700;}
+.eval-val-good{color:var(--green-text);}
+.eval-val-ok{color:var(--text-secondary);}
+.eval-val-bad{color:var(--red-text);}
+
+/* 체크필드 그리드 */
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.check-item{background:#fff;border:1px solid var(--border-light);border-radius:var(--radius-sm);padding:9px 12px;}
+.check-label{font-size:10px;color:var(--text-secondary);font-weight:600;margin-bottom:4px;}
+.check-values{display:flex;flex-wrap:wrap;gap:4px;}
+.check-chip{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:2px 8px;border-radius:8px;}
+.cv-present{background:var(--green-bg);color:var(--green-text);}
+.cv-absent{background:var(--red-bg);color:var(--red-text);}
+.cv-late{background:var(--amber-bg);color:var(--amber-text);}
+.cv-good{background:var(--green-bg);color:var(--green-text);}
+.cv-some{background:var(--blue-bg);color:var(--blue-text);}
+.cv-no{background:#F3F4F6;color:#6B7280;}
+.cv-normal{background:var(--green-bg);color:var(--green-text);}
+
+/* 활동 태그 */
+.activity-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px;}
+.activity-tag{font-size:11px;font-weight:600;padding:3px 8px;border-radius:8px;background:var(--accent-light);color:var(--accent-dark);}
+
+/* 개별 메모 */
+.memo-box{background:var(--bg-base);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:10px 12px;font-size:13px;line-height:1.6;color:var(--text-primary);}
+
+/* ━━━ 댓글 ━━━ */
+.comment-section{border-top:1px solid var(--border-light);padding-top:14px;}
+.comment-list{display:flex;flex-direction:column;gap:10px;margin-bottom:12px;}
+.comment-item{display:flex;gap:10px;}
+.comment-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;}
+.comment-bubble{flex:1;background:var(--bg-base);border-radius:0 10px 10px 10px;padding:8px 12px;border:1px solid var(--border-light);}
+.comment-bubble.teacher-bubble{background:var(--accent-light);border-color:var(--border-medium);}
+.comment-meta{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.comment-author{font-size:12px;font-weight:700;color:var(--text-primary);}
+.comment-role{font-size:10px;font-weight:600;padding:1px 6px;border-radius:6px;}
+.cr-teacher{background:var(--blue-bg);color:var(--blue-text);}
+.cr-parent{background:var(--green-bg);color:var(--green-text);}
+.comment-time{font-size:10px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;margin-left:auto;}
+.comment-text{font-size:12.5px;line-height:1.55;color:var(--text-primary);}
+.reply-item{margin-left:30px;}
+.reply-item .comment-bubble{background:#fff;border:1px dashed var(--border-medium);}
+
+/* 댓글 입력 */
+.comment-input-wrap{display:flex;gap:8px;align-items:flex-end;}
+.comment-textarea{flex:1;border:1.5px solid var(--border-light);border-radius:var(--radius-md);padding:9px 12px;font-size:12.5px;font-family:'Pretendard',sans-serif;resize:none;height:60px;outline:none;transition:border-color .18s;line-height:1.5;}
+.comment-textarea:focus{border-color:var(--accent);}
+.comment-send-btn{height:60px;width:44px;border-radius:var(--radius-md);background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;transition:.18s;flex-shrink:0;}
+.comment-send-btn:hover{background:var(--accent-dark);}
+
+.panel-footer{padding:12px 20px;border-top:1px solid var(--border-light);flex-shrink:0;display:flex;gap:8px;justify-content:flex-end;background:#FAFCFF;}
+
+/* ━━━ 작성 패널 (760px) ━━━ */
+.write-panel{position:fixed;right:0;top:0;height:100vh;width:760px;background:#fff;z-index:400;box-shadow:-8px 0 40px rgba(12,45,72,.14);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);}
+.write-panel.show{transform:translateX(0);}
+
+.write-header{height:60px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border-light);flex-shrink:0;}
+.write-header-actions{display:flex;align-items:center;gap:8px;}
+.write-title{font-size:16px;font-weight:800;display:flex;align-items:center;gap:8px;}
+
+.write-body{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
+.write-body::-webkit-scrollbar{width:4px;}
+.write-body::-webkit-scrollbar-thumb{background:var(--border-medium);border-radius:2px;}
+
+.write-section{padding:18px 24px;border-bottom:1px solid var(--border-light);}
+.write-section-title{font-size:12px;font-weight:800;color:var(--text-muted);letter-spacing:.8px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.write-section-title .ws-icon{font-size:15px;}
+.write-section-title::after{content:'';flex:1;height:1px;background:var(--border-light);}
+
+/* 폼 */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.form-row.full{grid-template-columns:1fr;}
+.form-row.tri{grid-template-columns:1fr 1fr 1fr;}
+.form-group{display:flex;flex-direction:column;gap:4px;}
+.form-label{font-size:12px;font-weight:700;color:var(--text-secondary);display:flex;align-items:center;gap:4px;}
+.form-label .req{color:var(--red);font-size:10px;}
+.form-input,.form-select,.form-textarea{height:38px;padding:0 12px;border:1.5px solid var(--border-light);border-radius:var(--radius-md);font-size:13px;font-family:'Pretendard',sans-serif;color:var(--text-primary);transition:border-color .18s;outline:none;background:#fff;}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent);}
+.form-textarea{height:100px;padding:10px 12px;resize:vertical;width:100%;}
+
+/* 날씨 버튼 그룹 */
+.weather-group{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;}
+.weather-btn{padding:5px 12px;border-radius:var(--radius-md);border:1.5px solid var(--border-light);background:#fff;cursor:pointer;font-size:12px;font-family:'Pretendard',sans-serif;font-weight:600;transition:.18s;display:flex;align-items:center;gap:4px;color:var(--text-secondary);}
+.weather-btn:hover{border-color:var(--accent);}
+.weather-btn.active{border-color:var(--accent);background:var(--accent-light);color:var(--accent-dark);}
+
+/* AI 버튼 */
+.ai-toolbar{display:flex;gap:6px;margin-top:8px;}
+.ai-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:var(--radius-md);font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:'Pretendard',sans-serif;transition:.18s;}
+.ai-btn-gen{background:linear-gradient(135deg,#6366F1,#8B5CF6);color:#fff;}
+.ai-btn-gen:hover{background:linear-gradient(135deg,#4F46E5,#7C3AED);}
+.ai-btn-polish{background:linear-gradient(135deg,#0EA5E9,#38BDF8);color:#fff;}
+.ai-btn-polish:hover{background:linear-gradient(135deg,#0284C7,#0EA5E9);}
+.ai-btn-fill{background:linear-gradient(135deg,#10B981,#34D399);color:#fff;}
+.ai-btn-fill:hover{background:linear-gradient(135deg,#059669,#10B981);}
+.ai-loading{opacity:.6;pointer-events:none;}
+
+/* 종합평가 (공통) */
+.eval-write-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.eval-write-item{background:var(--bg-base);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:10px;text-align:center;}
+.eval-write-label{font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;}
+.eval-write-opts{display:flex;justify-content:center;gap:4px;}
+.eval-opt{width:30px;height:30px;border-radius:8px;border:1.5px solid var(--border-light);background:#fff;cursor:pointer;font-size:12px;font-weight:700;font-family:'Pretendard',sans-serif;transition:.18s;color:var(--text-secondary);display:flex;align-items:center;justify-content:center;}
+.eval-opt:hover{border-color:var(--accent);}
+.eval-opt.sel-good{border-color:var(--green);background:var(--green-bg);color:var(--green-text);}
+.eval-opt.sel-ok{border-color:var(--amber);background:var(--amber-bg);color:var(--amber-text);}
+.eval-opt.sel-bad{border-color:var(--red);background:var(--red-bg);color:var(--red-text);}
+
+/* 원아 선택 (카드형 그리드) */
+.child-select-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+.child-select-card{border:2px solid var(--border-light);border-radius:var(--radius-md);padding:10px 6px;cursor:pointer;transition:.18s;text-align:center;}
+.child-select-card:hover{border-color:var(--accent);background:var(--accent-light);}
+.child-select-card.selected{border-color:var(--accent);background:var(--accent-light);}
+.csc-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;margin:0 auto 6px;}
+.csc-name{font-size:12px;font-weight:700;color:var(--text-primary);}
+.csc-check{width:16px;height:16px;border-radius:50%;border:2px solid var(--border-medium);margin:4px auto 0;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;}
+.child-select-card.selected .csc-check{background:var(--accent);border-color:var(--accent);}
+
+/* 원아별 작성 카드 (그리드) */
+.write-child-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;padding:18px 24px;}
+.write-child-card{border:1.5px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;transition:border-color .18s;}
+.write-child-card:hover{border-color:var(--border-medium);}
+.wcc-header{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--bg-base);border-bottom:1px solid var(--border-light);}
+.wcc-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0;}
+.wcc-name{font-size:14px;font-weight:800;color:var(--text-primary);flex:1;}
+.wcc-body{padding:12px 14px;display:flex;flex-direction:column;gap:10px;}
+.wfield-label{font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:4px;}
+
+/* 체크 버튼 그룹 */
+.check-btn-group{display:flex;flex-wrap:wrap;gap:5px;}
+.check-btn{padding:4px 10px;border-radius:8px;border:1.5px solid var(--border-light);background:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif;transition:.18s;color:var(--text-secondary);}
+.check-btn:hover{border-color:var(--accent);color:var(--accent-dark);}
+.check-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.check-btn.active.green{background:var(--green);border-color:var(--green);}
+.check-btn.active.red{background:var(--red);border-color:var(--red);}
+.check-btn.active.amber{background:var(--amber);border-color:var(--amber);}
+
+/* 낮잠 시간 */
+.nap-time-row{display:flex;align-items:center;gap:6px;margin-top:5px;}
+.nap-time-input{width:80px;height:30px;padding:0 8px;border:1.5px solid var(--border-light);border-radius:var(--radius-sm);font-size:12px;font-family:'Pretendard',sans-serif;outline:none;}
+.nap-time-input:focus{border-color:var(--accent);}
+.nap-time-sep{font-size:12px;color:var(--text-muted);}
+
+/* 활동 태그 */
+.tag-select-wrap{display:flex;flex-wrap:wrap;gap:4px;}
+.tag-btn{padding:3px 9px;border-radius:8px;border:1.5px solid var(--border-light);background:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif;transition:.18s;color:var(--text-secondary);}
+.tag-btn:hover{border-color:var(--accent);}
+.tag-btn.sel{background:var(--accent-light);color:var(--accent-dark);border-color:var(--accent);}
+.tag-btn.sel.outdoor{background:var(--green-bg);color:var(--green-text);border-color:#A7F3D0;}
+
+/* 식사 그리드 */
+.meal-write-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+
+/* 작성 푸터 */
+.write-footer{padding:14px 24px;border-top:1px solid var(--border-light);flex-shrink:0;display:flex;gap:8px;justify-content:flex-end;background:#FAFCFF;}
+
+/* ━━━ 토스트 ━━━ */
+.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:900;display:flex;flex-direction:column;gap:8px;}
+.toast{background:#1A1D2E;color:#fff;padding:10px 16px;border-radius:var(--radius-md);font-size:13px;box-shadow:var(--shadow-lg);animation:toastIn .25s ease;display:flex;align-items:center;gap:8px;}
+.toast.success{background:var(--green);}
+.toast.error{background:var(--red);}
+@keyframes toastIn{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:translateX(0)}}
+
+/* ━━━ 종합 평가 (원아별) ━━━ */
+.eval-per-child{border-top:1.5px dashed var(--border-light);margin-top:14px;padding-top:14px;display:flex;flex-direction:column;gap:12px;}
+.eval-field{display:flex;flex-direction:column;gap:5px;}
+.eval-field-lbl{font-size:11px;font-weight:700;color:var(--text-secondary);}
+.eval-opts{display:flex;gap:5px;}
+.eval-opt-btn{padding:4px 14px;border-radius:8px;border:1.5px solid var(--border-light);background:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif;transition:.18s;color:var(--text-secondary);}
+.eval-opt-btn:hover{border-color:var(--accent);}
+.eval-opt-btn.e-good{background:var(--green-bg);color:var(--green-text);border-color:var(--green);}
+.eval-opt-btn.e-ok{background:var(--amber-bg);color:var(--amber-text);border-color:var(--amber);}
+.eval-opt-btn.e-bad{background:var(--red-bg);color:var(--red-text);border-color:var(--red);}
+.eval-expand{background:var(--bg-base);border-radius:var(--radius-md);padding:10px;display:flex;flex-direction:column;gap:8px;border:1px dashed var(--border-medium);}
+.eval-expand-lbl{font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
+.eval-temp-inp{width:90px;height:30px;padding:0 8px;border:1.5px solid var(--border-light);border-radius:var(--radius-sm);font-size:13px;font-family:'Pretendard',sans-serif;outline:none;}
+.eval-temp-inp:focus{border-color:var(--red);}
+.symptom-chip-wrap{display:flex;flex-wrap:wrap;gap:4px;}
+.symptom-chip{padding:3px 9px;border-radius:8px;border:1.5px solid var(--border-light);background:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif;transition:.18s;color:var(--text-secondary);}
+.symptom-chip:hover{border-color:var(--red);}
+.symptom-chip.sel{background:var(--red-bg);color:var(--red-text);border-color:var(--red);}
+.toilet-state-btn{padding:3px 9px;border-radius:8px;border:1.5px solid var(--border-light);background:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif;transition:.18s;color:var(--text-secondary);}
+.toilet-state-btn:hover{border-color:var(--amber);}
+.toilet-state-btn.sel{background:var(--amber-bg);color:var(--amber-text);border-color:var(--amber);}
+.toilet-count-inp{width:54px;height:30px;padding:0 6px;border:1.5px solid var(--border-light);border-radius:var(--radius-sm);font-size:13px;font-family:'Pretendard',sans-serif;outline:none;text-align:center;}
+.toilet-count-inp:focus{border-color:var(--amber);}
+.eval-memo-ta{width:100%;height:56px;padding:8px 10px;border:1.5px solid var(--border-light);border-radius:var(--radius-md);font-size:12px;font-family:'Pretendard',sans-serif;resize:none;outline:none;line-height:1.5;color:var(--text-primary);background:#fff;}
+.eval-memo-ta:focus{border-color:var(--accent);}
+
+/* ━━━ 예약 발행 모달 ━━━ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:none;align-items:center;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal-box{background:#fff;border-radius:var(--radius-xl);width:400px;max-width:94vw;box-shadow:var(--shadow-modal);animation:modalIn .22s ease;}
+@keyframes modalIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.modal-header{padding:20px 24px 14px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-size:16px;font-weight:800;}
+.modal-close{width:30px;height:30px;border-radius:var(--radius-sm);border:1px solid var(--border-light);background:var(--bg-base);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:var(--text-secondary);}
+.modal-close:hover{background:var(--red-bg);color:var(--red);border-color:#FECACA;}
+.modal-body{padding:18px 24px;}
+.modal-footer{padding:12px 24px;border-top:1px solid var(--border-light);display:flex;gap:8px;justify-content:flex-end;}
+</style>
+</head>
+<body>
+
+<!-- ━━━ SIDEBAR ━━━ -->
+<aside id="appSidebar"></aside>
+
+<!-- ━━━ MAIN ━━━ -->
+<div class="main-wrap">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="breadcrumb">
+      <span>🏠</span><span class="bc-sep">›</span>
+      <span id="breadcrumbOrg">운영관리</span><span class="bc-sep">›</span>
+      <span class="cur">알림장</span>
+    </div>
+    <!-- 반 필터 -->
+    <div class="class-filter-wrap">
+      <span class="class-filter-label">📌 반 선택</span>
+      <div class="class-filter-divider"></div>
+      <div class="class-select-wrap">
+        <select class="class-select" id="classFilter" onchange="applyFilters()">
+          <option value="">전체 반</option>
+          <option value="CLS001">햇님반</option>
+          <option value="CLS002">달님반</option>
+          <option value="CLS003">별님반</option>
+        </select>
+        <span class="class-select-arrow">▼</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-date" id="topDate"></span>
+      <div class="icon-btn notif-dot" title="알림">🔔</div>
+      <div class="icon-btn" title="설정">⚙️</div>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <div class="page-header">
+      <div>
+        <div class="page-title">📋 알림장</div>
+        <div class="page-sub">교사 ↔ 학부모 알림장 현황을 확인하고 관리합니다</div>
+      </div>
+    </div>
+
+    <!-- 오늘의 현황 -->
+    <div class="today-section">
+      <div class="today-section-header">
+        <div class="today-section-title">📅 오늘의 현황</div>
+        <span class="today-section-meta" id="todayMeta"></span>
+      </div>
+      <div class="today-children-grid" id="todayChildrenGrid"></div>
+    </div>
+
+    <!-- 탭 -->
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tabSent" onclick="switchTab('sent')">
+        📤 보낸 알림장 <span class="tab-count" id="sentCount">0</span>
+      </button>
+      <button class="tab-btn" id="tabReceived" onclick="switchTab('received')">
+        📥 받은 알림장 <span class="tab-count" id="receivedCount">0</span>
+      </button>
+    </div>
+
+    <!-- 필터바 (보낸) -->
+    <div class="filter-bar" id="sentFilterBar">
+      <div class="filter-group">
+        <span class="filter-label">상태</span>
+        <select class="filter-select" id="filterStatus" onchange="applyFilters()">
+          <option value="">전체</option>
+          <option value="published">발행됨</option>
+          <option value="draft">임시저장</option>
+          <option value="recalled">회수됨</option>
+          <option value="scheduled">예약발행</option>
+        </select>
+      </div>
+      <div class="filter-divider"></div>
+      <div class="filter-group">
+        <span class="filter-label">원아</span>
+        <input class="filter-input" type="text" id="filterChildName" placeholder="원아명 검색" oninput="applyFilters()">
+      </div>
+      <div class="filter-divider"></div>
+      <div class="filter-group">
+        <span class="filter-label">날짜</span>
+        <div class="filter-date-range">
+          <input type="date" id="filterDateFrom" onchange="applyFilters()">
+          <span>~</span>
+          <input type="date" id="filterDateTo" onchange="applyFilters()">
+        </div>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="resetSentFilters()" style="margin-left:auto">초기화</button>
+    </div>
+
+    <!-- 필터바 (받은) -->
+    <div class="filter-bar" id="receivedFilterBar" style="display:none;">
+      <div class="filter-group">
+        <span class="filter-label">카테고리</span>
+        <select class="filter-select" onchange="applyFilters()">
+          <option value="">전체</option>
+          <option value="ABSENCE">결석/지각/조퇴</option>
+          <option value="HEALTH">건강/병원</option>
+          <option value="SCHEDULE">일정/가족사유</option>
+          <option value="SUPPLY">준비물/전달</option>
+        </select>
+      </div>
+      <div class="filter-divider"></div>
+      <div class="filter-group">
+        <span class="filter-label">원아</span>
+        <input class="filter-input" type="text" placeholder="원아명 검색" oninput="applyFilters()">
+      </div>
+      <div class="filter-divider"></div>
+      <div class="filter-group">
+        <span class="filter-label">읽음 여부</span>
+        <select class="filter-select" onchange="applyFilters()">
+          <option value="">전체</option>
+          <option value="unread">미읽음</option>
+          <option value="read">읽음</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 액션바 -->
+    <div class="action-bar">
+      <div class="action-left">
+        <span class="total-count">총 <strong id="listCount">0</strong>건</span>
+      </div>
+      <div class="action-right">
+        <button class="btn btn-outline btn-sm" onclick="showToast('내보내기 기능은 준비 중입니다.')">📥 내보내기</button>
+        <button class="btn btn-primary" onclick="openWritePanel()">✏️ 알림장 작성</button>
+      </div>
+    </div>
+
+    <!-- 목록 -->
+    <div id="listArea"></div>
+  </div>
+</div>
+
+<!-- ━━━ 오버레이 ━━━ -->
+<div class="panel-overlay" id="panelOverlay" onclick="closeAllPanels()"></div>
+
+<!-- ━━━ 보낸 알림장 상세 뷰어 ━━━ -->
+<div class="detail-panel" id="sentDetailPanel">
+  <div class="panel-header">
+    <div class="panel-title">📤 <span id="sdpTitle">알림장 상세</span></div>
+    <div class="panel-close" onclick="closeSentDetail()">✕</div>
+  </div>
+  <div class="panel-tabs" id="sdpChildTabs"></div>
+  <div class="panel-body" id="sdpBody"></div>
+  <div class="panel-footer">
+    <button class="btn btn-outline btn-sm" onclick="closeSentDetail()">닫기</button>
+    <button class="btn btn-outline btn-sm">✏️ 수정</button>
+    <button class="btn btn-primary btn-sm" onclick="showToast('알림장이 회수되었습니다.')">↩ 회수</button>
+  </div>
+</div>
+
+<!-- ━━━ 받은 알림장 상세 뷰어 ━━━ -->
+<div class="detail-panel" id="receivedDetailPanel">
+  <div class="panel-header">
+    <div class="panel-title">📥 <span id="rdpTitle">받은 알림장</span></div>
+    <div class="panel-close" onclick="closeReceivedDetail()">✕</div>
+  </div>
+  <div class="panel-body" id="rdpBody"></div>
+  <div class="panel-footer">
+    <button class="btn btn-outline btn-sm" onclick="closeReceivedDetail()">닫기</button>
+  </div>
+</div>
+
+<!-- ━━━ 알림장 작성 패널 ━━━ -->
+<div class="write-panel" id="writePanel">
+  <div class="write-header">
+    <div class="write-title" id="writePanelTitle">✏️ 알림장 작성</div>
+    <div class="write-header-actions">
+      <button class="btn btn-outline btn-sm" onclick="saveDraft()">🗂️ 임시저장</button>
+      <div class="panel-close" onclick="closeWritePanel()">✕</div>
+    </div>
+  </div>
+  <div class="write-body" id="writePanelBody">
+    <!-- JS로 렌더링 -->
+  </div>
+  <div class="write-footer">
+    <button class="btn btn-outline" onclick="closeWritePanel()">취소</button>
+    <button class="btn btn-outline" onclick="document.getElementById('scheduleModal').classList.add('show')">🕐 예약 발행</button>
+    <button class="btn btn-primary" onclick="publishNotice()">📤 발행하기</button>
+  </div>
+</div>
+
+<!-- ━━━ 예약 발행 모달 ━━━ -->
+<div class="modal-overlay" id="scheduleModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">🕐 예약 발행 설정</div>
+      <div class="modal-close" onclick="document.getElementById('scheduleModal').classList.remove('show')">✕</div>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">예약 날짜 및 시간 <span class="req">*</span></label>
+        <input class="form-input" type="datetime-local" style="width:100%;height:38px;margin-top:4px;">
+      </div>
+      <p style="font-size:12px;color:var(--text-secondary);margin-top:10px;line-height:1.5;">설정한 시간에 자동으로 알림장이 발행되고 학부모에게 푸시알림이 전송됩니다.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('scheduleModal').classList.remove('show')">취소</button>
+      <button class="btn btn-primary btn-sm" onclick="document.getElementById('scheduleModal').classList.remove('show');showToast('예약 발행이 설정되었습니다.','success')">확인</button>
+    </div>
+  </div>
+</div>
+
+<!-- ━━━ 토스트 ━━━ -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+// ━━━ 목 데이터 ━━━
+const MOCK_SENT = [
+  {
+    id:'NB001', date:'2026-03-23', class:'햇님반', teacher:'김하늘', teacherColor:'#4361EE',
+    title:'2026년 3월 23일 햇님반 알림장', status:'published', statusLabel:'발행됨',
+    weather:'맑음', temperature:'18°C / 9°C', childCount:5, readCount:4, commentCount:3,
+    hasAi:true, publishedAt:'08:35', photoCount:3,
+    content:'안녕하세요! 오늘은 봄 날씨답게 따뜻하고 화창한 하루였습니다. 아이들이 즐겁게 봄 활동을 하며 보람찬 하루를 보냈습니다.',
+    children:[
+      { id:'C001', name:'김도현', color:'#3B82F6',
+        attendance:'출석', mealLunch:'잘먹음', mealSnackPm:'잘먹음', napStatus:'잘잠', napTime:'13:00~14:30',
+        toiletCount:2, toiletStatus:'정상',
+        activityIndoor:['블록놀이','그림그리기'], activityOutdoor:['모래놀이'],
+        individualMemo:'오늘 블록으로 집을 만들어 친구들에게 자랑했어요. 표현력이 많이 늘었답니다.',
+        dailyEval:{ mood:'좋음', health:'좋음', meal:'좋음', toilet:'좋음', activity:'좋음', social:'보통' },
+        evalSummary:'아주 좋아요 👍',
+        isRead:true, commentCount:1,
+        comments:[
+          { author:'김민지 엄마', type:'parent', color:'#10B981', relation:'엄마', text:'집에서도 블록 얘기를 하더라고요! 감사합니다 선생님 😊', time:'15:22' },
+          { author:'김선생', type:'teacher', color:'#0EA5E9', text:'도현이가 정말 집중해서 만들었어요. 대단하죠? 내일도 기대해 주세요!', time:'15:45', isReply:true }
+        ]
+      },
+      { id:'C002', name:'이서연', color:'#10B981',
+        attendance:'출석', mealLunch:'조금먹음', mealSnackPm:'잘먹음', napStatus:'조금잠', napTime:'13:10~14:00',
+        toiletCount:1, toiletStatus:'정상',
+        activityIndoor:['색칠하기','퍼즐'], activityOutdoor:['산책'],
+        individualMemo:'오늘 산책 중에 꽃을 발견하고 친구들에게 보여주는 서연이의 모습이 너무 예뻤어요.',
+        dailyEval:{ mood:'보통', health:'좋음', meal:'보통', toilet:'좋음', activity:'좋음', social:'좋음' },
+        evalSummary:'무난해요 😊',
+        isRead:true, commentCount:2,
+        comments:[
+          { author:'이지영 엄마', type:'parent', color:'#10B981', relation:'엄마', text:'점심을 조금 먹었군요, 집에 와서도 입맛이 없더라고요.', time:'16:10' },
+          { author:'김선생', type:'teacher', color:'#0EA5E9', text:'오후 간식은 잘 먹었어요! 너무 걱정 마세요 😊', time:'16:30', isReply:true }
+        ]
+      },
+      { id:'C003', name:'박준서', color:'#F59E0B',
+        attendance:'조퇴', mealLunch:'잘먹음', mealSnackPm:'해당없음', napStatus:'조금잠', napTime:'13:00~13:40',
+        toiletCount:1, toiletStatus:'정상',
+        activityIndoor:['블록놀이','역할놀이'], activityOutdoor:[],
+        individualMemo:'오후에 병원 예약이 있어 2시에 하원했습니다. 오전에는 활기차게 지냈어요.',
+        dailyEval:{ mood:'보통', health:'보통', meal:'좋음', toilet:'좋음', activity:'보통', social:'보통' },
+        evalSummary:'무난해요 😊',
+        isRead:false, commentCount:0,
+        comments:[]
+      }
+    ]
+  },
+  {
+    id:'NB002', date:'2026-03-22', class:'햇님반', teacher:'김하늘', teacherColor:'#4361EE',
+    title:'2026년 3월 22일 햇님반 알림장', status:'published', statusLabel:'발행됨',
+    weather:'구름조금', temperature:'16°C / 8°C', childCount:5, readCount:5, commentCount:1,
+    hasAi:false, publishedAt:'09:10', photoCount:6,
+    content:'오늘은 봄 미술 활동으로 꽃 그림을 그렸습니다. 아이들의 다양한 색감 표현이 아름다웠어요!',
+    children:[
+      { id:'C001', name:'김도현', color:'#3B82F6',
+        attendance:'출석', mealLunch:'잘먹음', mealSnackPm:'잘먹음', napStatus:'잘잠', napTime:'13:00~14:30',
+        toiletCount:2, toiletStatus:'정상',
+        activityIndoor:['그림그리기','색칠하기'], activityOutdoor:['공놀이'],
+        individualMemo:'봄꽃을 색연필로 섬세하게 그려 선생님도 놀랐어요.',
+        dailyEval:{ mood:'좋음', health:'좋음', meal:'좋음', toilet:'좋음', activity:'좋음', social:'좋음' },
+        evalSummary:'아주 좋아요 👍',
+        isRead:true, commentCount:0, comments:[]
+      }
+    ]
+  },
+  {
+    id:'NB003', date:'2026-03-22', class:'달님반', teacher:'박소현', teacherColor:'#10B981',
+    title:'2026년 3월 22일 달님반 알림장', status:'draft', statusLabel:'임시저장',
+    weather:'흐림', temperature:'14°C / 7°C', childCount:4, readCount:0, commentCount:0,
+    hasAi:false, publishedAt:null, photoCount:0,
+    content:'(임시저장)',
+    children:[]
+  },
+  {
+    id:'NB004', date:'2026-03-21', class:'햇님반', teacher:'김하늘', teacherColor:'#4361EE',
+    title:'2026년 3월 21일 햇님반 알림장', status:'recalled', statusLabel:'회수됨',
+    weather:'비', temperature:'12°C / 6°C', childCount:5, readCount:3, commentCount:0,
+    hasAi:false, publishedAt:'08:50', photoCount:0,
+    content:'(회수된 알림장)',
+    children:[]
+  }
+];
+
+const MOCK_RECEIVED = [
+  {
+    id:'RNB001', date:'2026-03-23', className:'햇님반', teacher:'김선생',
+    parent:'김민지', relation:'엄마', child:'김도현', childColor:'#3B82F6',
+    category:'HEALTH', categoryLabel:'건강/병원', categoryIcon:'🏥',
+    subCategory:'HEALTH_C', subLabel:'기침/콧물 증상이 있어요',
+    content:'선생님, 도현이가 어제 저녁부터 기침과 콧물 증상이 있어요. 병원은 다녀왔는데 감기 초기라고 합니다. 혹시 원에서 증상이 심해지면 바로 연락 부탁드립니다.',
+    isRead:false, commentCount:0, createdAt:'07:42 · 2026-03-23',
+    comments:[]
+  },
+  {
+    id:'RNB002', date:'2026-03-23', className:'햇님반', teacher:'김선생',
+    parent:'박지훈', relation:'아빠', child:'박준서', childColor:'#F59E0B',
+    category:'SCHEDULE', categoryLabel:'일정/가족사유', categoryIcon:'📅',
+    subCategory:'SCHEDULE_C', subLabel:'하원 후 일정이 있어요',
+    content:'선생님, 오늘 준서가 하원 후 피아노 학원 일정이 있어서 3시에 하원하겠습니다. 준비 부탁드려요.',
+    isRead:true, commentCount:1, createdAt:'08:15 · 2026-03-23',
+    comments:[
+      { author:'김선생', type:'teacher', color:'#0EA5E9', text:'네, 확인했습니다! 3시에 준비시켜 놓겠습니다 😊', time:'08:30' }
+    ]
+  },
+  {
+    id:'RNB003', date:'2026-03-22', className:'달님반', teacher:'박선생',
+    parent:'최수진', relation:'엄마', child:'최지아', childColor:'#8B5CF6',
+    category:'ABSENCE', categoryLabel:'결석/지각/조퇴', categoryIcon:'🚫',
+    subCategory:'ABSENCE_A', subLabel:'오늘 결석할게요',
+    content:'선생님, 오늘 지아가 몸이 좋지 않아 결석합니다. 열이 38도까지 올라서 병원에 다녀오려고요. 내일 상태 보고 다시 연락드릴게요.',
+    isRead:true, commentCount:1, createdAt:'07:55 · 2026-03-22',
+    comments:[
+      { author:'박선생', type:'teacher', color:'#0EA5E9', text:'알겠습니다. 지아가 빨리 나았으면 좋겠어요. 쾌유를 빕니다 💚', time:'08:05' }
+    ]
+  },
+  {
+    id:'RNB004', date:'2026-03-22', className:'햇님반', teacher:'김선생',
+    parent:'이지영', relation:'엄마', child:'이서연', childColor:'#10B981',
+    category:'SUPPLY', categoryLabel:'준비물/전달', categoryIcon:'🎒',
+    subCategory:'SUPPLY_C', subLabel:'전달할 물건이 있어요',
+    content:'선생님, 서연이 가방에 선생님께 드리는 작은 선물을 넣어두었어요. 부담 갖지 마시고 받아 주세요! 항상 감사합니다.',
+    isRead:true, commentCount:1, createdAt:'07:30 · 2026-03-22',
+    comments:[
+      { author:'김선생', type:'teacher', color:'#0EA5E9', text:'감사합니다! 정말 감동이에요 🥰 서연이 잘 돌볼게요!', time:'09:20' }
+    ]
+  }
+];
+
+// 카테고리 색상 맵
+const CAT_STYLE = {
+  ABSENCE:  { bg:'#FEE2E2', text:'#991B1B', dot:'#EF4444' },
+  HEALTH:   { bg:'#FEF3C7', text:'#92400E', dot:'#F59E0B' },
+  SCHEDULE: { bg:'#DBEAFE', text:'#1E40AF', dot:'#3B82F6' },
+  SUPPLY:   { bg:'#D1FAE5', text:'#065F46', dot:'#10B981' }
+};
+
+const WEATHER_ICON = { '맑음':'☀️', '구름조금':'🌤️', '흐림':'☁️', '비':'🌧️', '눈':'❄️', '바람':'💨' };
+
+// ━━━ 오늘의 현황 목 데이터 ━━━
+const TODAY_CHILDREN = [
+  { id:'C001', name:'김도현', color:'#3B82F6', age:5, attendance:'출석',  noticeWritten:true,  parentComment:true,  class:'CLS001' },
+  { id:'C002', name:'이서연', color:'#10B981', age:4, attendance:'출석',  noticeWritten:true,  parentComment:false, class:'CLS001' },
+  { id:'C003', name:'박준서', color:'#F59E0B', age:5, attendance:'조퇴',  noticeWritten:true,  parentComment:false, class:'CLS001' },
+  { id:'C004', name:'최지아', color:'#8B5CF6', age:4, attendance:'결석',  noticeWritten:false, parentComment:false, class:'CLS002' },
+  { id:'C005', name:'한민준', color:'#EF4444', age:5, attendance:'병결',  noticeWritten:false, parentComment:true,  class:'CLS002' },
+  { id:'C006', name:'정수아',  color:'#EC4899', age:3, attendance:'출석',  noticeWritten:true,  parentComment:false, class:'CLS001' },
+  { id:'C007', name:'윤지호',  color:'#0EA5E9', age:4, attendance:'미확인', noticeWritten:false, parentComment:false, class:'CLS003' },
+  { id:'C008', name:'강민재',  color:'#F97316', age:5, attendance:'출석',  noticeWritten:true,  parentComment:true,  class:'CLS003' },
+];
+
+// ━━━ 상태 ━━━
+let currentTab = 'sent';
+
+// ━━━ 초기화 ━━━
+document.addEventListener('DOMContentLoaded', () => {
+  const now = new Date();
+  document.getElementById('topDate').textContent =
+    now.toLocaleDateString('ko-KR', { year:'numeric', month:'2-digit', day:'2-digit', weekday:'short' });
+  // 오늘의 현황 날짜 메타
+  const todayStr = now.toLocaleDateString('ko-KR', { month:'long', day:'numeric', weekday:'long' });
+  document.getElementById('todayMeta').textContent = todayStr + ' 기준';
+
+  renderTodayDashboard();
+  renderList('sent');
+});
+
+// ━━━ 탭 전환 ━━━
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tabSent').classList.toggle('active', tab === 'sent');
+  document.getElementById('tabReceived').classList.toggle('active', tab === 'received');
+  document.getElementById('sentFilterBar').style.display     = tab === 'sent'     ? 'flex' : 'none';
+  document.getElementById('receivedFilterBar').style.display = tab === 'received' ? 'flex' : 'none';
+  renderList(tab);
+}
+
+// ━━━ 오늘의 현황 렌더 ━━━
+function renderTodayDashboard() {
+  const classVal = (document.getElementById('classFilter') || {}).value || '';
+  const grid = document.getElementById('todayChildrenGrid');
+  const children = TODAY_CHILDREN.filter(c => !classVal || c.class === classVal);
+
+  if (children.length === 0) {
+    grid.innerHTML = '<div style="font-size:13px;color:var(--text-muted);padding:12px 0">해당 반 원아 데이터가 없습니다.</div>';
+    return;
+  }
+
+  const attendConfig = {
+    '출석':  { cls:'tcc-present', labelCls:'tcc-al-present' },
+    '결석':  { cls:'tcc-absent',  labelCls:'tcc-al-absent'  },
+    '병결':  { cls:'tcc-sick',    labelCls:'tcc-al-sick'    },
+    '조퇴':  { cls:'tcc-leave',   labelCls:'tcc-al-leave'   },
+    '미확인':{ cls:'tcc-unknown', labelCls:'tcc-al-unknown' },
+  };
+
+  grid.innerHTML = children.map(c => {
+    const cfg = attendConfig[c.attendance] || attendConfig['미확인'];
+    const commentDot = c.parentComment
+      ? `<div class="tcc-comment-dot" title="학부모 댓글 있음">!</div>` : '';
+    const noticeBadge = c.noticeWritten
+      ? `<span class="tcc-notice-badge tcc-notice-done">✅ 작성완료</span>`
+      : `<span class="tcc-notice-badge tcc-notice-none">✏️ 미작성</span>`;
+    return `
+      <div class="today-child-card ${cfg.cls}" title="${c.name} · ${c.attendance}">
+        <div class="tcc-avatar" style="background:${c.color}">
+          ${c.name[0]}
+          ${commentDot}
+        </div>
+        <div class="tcc-name">${c.name}</div>
+        <div class="tcc-age">만 ${c.age}세</div>
+        <span class="tcc-attend-label ${cfg.labelCls}">${c.attendance}</span>
+        ${noticeBadge}
+      </div>`;
+  }).join('');
+}
+
+// ━━━ 목록 렌더 ━━━
+function renderList(tab) {
+  const area = document.getElementById('listArea');
+  if (tab === 'sent') {
+    renderSentList(area);
+  } else {
+    renderReceivedList(area);
+  }
+}
+
+function renderSentList(area) {
+  const classVal   = (document.getElementById('classFilter')    || {}).value || '';
+  const statusVal  = (document.getElementById('filterStatus')   || {}).value || '';
+  const childVal   = ((document.getElementById('filterChildName') || {}).value || '').trim().toLowerCase();
+  const dateFrom   = (document.getElementById('filterDateFrom') || {}).value || '';
+  const dateTo     = (document.getElementById('filterDateTo')   || {}).value || '';
+
+  const classMap = { CLS001:'햇님반', CLS002:'달님반', CLS003:'별님반' };
+  let data = MOCK_SENT.filter(n => {
+    if (classVal  && n.class !== classMap[classVal]) return false;
+    if (statusVal && n.status !== statusVal) return false;
+    if (childVal  && !n.children.some(c => c.name.toLowerCase().includes(childVal))) return false;
+    if (dateFrom  && n.date < dateFrom) return false;
+    if (dateTo    && n.date > dateTo)   return false;
+    return true;
+  });
+
+  document.getElementById('sentCount').textContent = data.length;
+  document.getElementById('listCount').textContent = data.length;
+
+  if (data.length === 0) {
+    area.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">조건에 맞는 알림장이 없습니다</div></div>`;
+    return;
+  }
+
+  const grouped = {};
+  data.forEach(n => {
+    if (!grouped[n.date]) grouped[n.date] = [];
+    grouped[n.date].push(n);
+  });
+
+  area.innerHTML = Object.entries(grouped).sort((a,b)=>b[0].localeCompare(a[0])).map(([date, notices]) => {
+    const d = new Date(date);
+    const label = d.toLocaleDateString('ko-KR', { month:'long', day:'numeric', weekday:'short' });
+    const cards = notices.map(n => {
+      const wi = WEATHER_ICON[n.weather] || '';
+      const parentComments = n.children.reduce((a,c)=>a+c.comments.filter(cm=>cm.type==='parent').length,0);
+
+      // 원아 chips — 읽음/미읽음 구분, 최대 5개
+      const childChips = n.children.length > 0
+        ? n.children.slice(0,5).map(c => {
+            const isRead = c.isRead;
+            const chipStyle = isRead
+              ? 'border-color:#A7F3D0;background:#F0FDF4;'
+              : 'border-color:#FED7AA;background:#FFF7ED;';
+            return `<span class="nc-child-chip" style="${chipStyle}"><span class="nc-child-chip-av" style="background:${c.color}">${c.name[0]}</span>${c.name}</span>`;
+          }).join('') + (n.children.length > 5 ? `<span class="nc-child-chip" style="background:#F3F4F6;color:#6B7280;border:none">+${n.children.length-5}</span>` : '')
+        : `<span style="font-size:11px;color:var(--text-muted)">원아 ${n.childCount}명</span>`;
+
+      // 댓글 뱃지
+      const commentBadge = parentComments > 0
+        ? `<span class="nc-comment-badge">💬 학부모 댓글 ${parentComments}</span>`
+        : '';
+
+      return `
+        <div class="notice-card" onclick="openSentDetail('${n.id}')">
+          <div class="nc-accent ${n.status}"></div>
+          <div class="nc-left">
+            <!-- 교사 행 -->
+            <div class="nc-teacher-row">
+              <div class="nc-teacher-av" style="background:${n.teacherColor||'#0EA5E9'}">${(n.teacher||'?')[0]}</div>
+              <div class="nc-teacher-info">
+                <div class="nc-teacher-name">${n.teacher} 선생님</div>
+                <div class="nc-teacher-class">${n.class}</div>
+              </div>
+              <span class="nbadge nb-${n.status}">
+                <span class="nbadge-dot" style="background:${statusDotColor(n.status)}"></span>
+                ${n.statusLabel}
+              </span>
+              ${n.hasAi ? '<span class="nc-ai-badge">✨ AI</span>' : ''}
+            </div>
+            <!-- 날씨·기온 -->
+            <div class="nc-meta">
+              ${n.weather ? `<span class="nc-meta-item"><span class="nc-weather">${wi}</span> ${n.weather} · ${n.temperature}</span>` : ''}
+            </div>
+            <!-- 본문 미리보기 -->
+            <div class="nc-preview">${n.content}</div>
+            <!-- 원아 chips -->
+            <div class="nc-children">${childChips}</div>
+            <!-- 카드 푸터 -->
+            <div class="nc-footer">
+              <div class="nc-footer-meta">
+                <span class="nc-footer-item">👁️ ${n.readCount}/${n.childCount}</span>
+                <span class="nc-footer-item">📸 ${n.photoCount||0}</span>
+                <span class="nc-footer-item">💬 ${n.commentCount}</span>
+                ${commentBadge}
+                <span class="nc-footer-item" style="margin-left:auto;font-family:'JetBrains Mono',monospace">${n.publishedAt||'--:--'}</span>
+              </div>
+              <div class="nc-act-btns" onclick="event.stopPropagation()">
+                <div class="nc-act-btn" title="수정" onclick="showToast('수정 기능은 준비 중입니다.')">✏️</div>
+                ${n.status==='published'?`<div class="nc-act-btn" title="회수" onclick="showToast('알림장이 회수되었습니다.')">↩️</div>`:''}
+                <div class="nc-act-btn danger" title="삭제" onclick="showToast('삭제 기능은 권한 확인 후 처리됩니다.','error')">🗑️</div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+    return `
+      <div class="date-group">
+        <div class="date-group-header">
+          <span class="date-group-label">${label}</span>
+          <div class="date-group-line"></div>
+          <span class="date-group-count">${notices.length}건</span>
+        </div>
+        ${cards}
+      </div>`;
+  }).join('');
+}
+
+function statusDotColor(s) {
+  return s==='published'?'#10B981':s==='draft'?'#9CA3AF':s==='recalled'?'#EF4444':'#3B82F6';
+}
+
+function renderReceivedList(area) {
+  const data = MOCK_RECEIVED;
+  document.getElementById('receivedCount').textContent = data.length;
+  document.getElementById('listCount').textContent = data.length;
+
+  const grouped = {};
+  data.forEach(r => {
+    if (!grouped[r.date]) grouped[r.date] = [];
+    grouped[r.date].push(r);
+  });
+
+  area.innerHTML = Object.entries(grouped).sort((a,b)=>b[0].localeCompare(a[0])).map(([date, notices]) => {
+    const d = new Date(date);
+    const label = d.toLocaleDateString('ko-KR', { month:'long', day:'numeric', weekday:'short' });
+    const cards = notices.map(r => {
+      const cs = CAT_STYLE[r.category];
+      return `
+        <div class="parent-notice-card ${!r.isRead?'unread-card':''}" onclick="openReceivedDetail('${r.id}')">
+          <div class="pnc-header">
+            <span class="pnc-category" style="background:${cs.bg};color:${cs.text}">
+              ${r.categoryIcon} ${r.categoryLabel}
+            </span>
+            <span class="pnc-sub">${r.subLabel}</span>
+            ${!r.isRead ? '<span class="unread-pip">미읽음</span>' : ''}
+          </div>
+          <div class="pnc-info">
+            <span class="child-avatar-sm" style="background:${r.childColor}">${r.child[0]}</span>
+            <span class="pnc-names">${r.child} · <span>${r.parent} ${r.relation}</span> · ${r.className}</span>
+          </div>
+          <div class="pnc-content">${r.content}</div>
+          <div class="pnc-footer">
+            <span class="pnc-time">${r.createdAt}</span>
+            <button class="pnc-reply-btn" onclick="event.stopPropagation();openReceivedDetail('${r.id}')">
+              💬 ${r.commentCount > 0 ? '답글 ' + r.commentCount : '답글하기'}
+            </button>
+          </div>
+        </div>`;
+    }).join('');
+    return `
+      <div class="date-group">
+        <div class="date-group-header">
+          <span class="date-group-label">${label}</span>
+          <div class="date-group-line"></div>
+          <span class="date-group-count">${notices.length}건</span>
+        </div>
+        ${cards}
+      </div>`;
+  }).join('');
+}
+
+// ━━━ 보낸 알림장 상세 ━━━
+function openSentDetail(id) {
+  const notice = MOCK_SENT.find(n => n.id === id);
+  if (!notice) return;
+  document.getElementById('sdpTitle').textContent = notice.date + ' ' + notice.class;
+
+  // 원아 탭
+  const tabs = document.getElementById('sdpChildTabs');
+  tabs.innerHTML = `<div class="panel-tab active" onclick="switchChildTab(this,0)">📋 공통</div>` +
+    notice.children.map((c,i) => `
+      <div class="panel-tab" onclick="switchChildTab(this,${i+1})">
+        ${c.name} ${!c.isRead && c.commentCount > 0 ? '<span style="color:var(--red)">●</span>' : ''}
+      </div>`).join('');
+
+  renderSentDetailCommon(notice);
+  showPanel('sentDetailPanel');
+}
+
+function switchChildTab(el, idx) {
+  document.querySelectorAll('#sdpChildTabs .panel-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const noticeId = document.querySelector('#sentDetailPanel .panel-title span').textContent;
+  const notice = MOCK_SENT.find(n => (n.date + ' ' + n.class) === noticeId);
+  if (!notice) return;
+  if (idx === 0) renderSentDetailCommon(notice);
+  else renderSentDetailChild(notice, notice.children[idx - 1]);
+}
+
+function renderSentDetailCommon(notice) {
+  const wi = WEATHER_ICON[notice.weather] || '';
+  const body = document.getElementById('sdpBody');
+
+  body.innerHTML = `
+    <div class="psec">
+      <div class="psec-title">기본 정보</div>
+      <div class="notice-info-row">
+        <span class="ni-icon">${wi}</span>
+        <div class="ni-text">
+          <div class="ni-main">${notice.date} · ${notice.class}</div>
+          <div class="ni-sub">🌡️ ${notice.temperature} · 👨‍🏫 ${notice.teacher} · 👶 ${notice.childCount}명 대상</div>
+        </div>
+        <span class="nbadge nb-${notice.status}">
+          <span class="nbadge-dot" style="background:${statusDotColor(notice.status)}"></span>
+          ${notice.statusLabel}
+        </span>
+      </div>
+    </div>
+    <div class="psec">
+      <div class="psec-title">공통 본문</div>
+      <div class="notice-content-box">${notice.content}</div>
+    </div>
+    <div class="psec">
+      <div class="psec-title">발행 현황</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+        <div class="eval-item"><div class="eval-item-label">읽음</div><div class="eval-item-val">${notice.readCount}/${notice.childCount}</div></div>
+        <div class="eval-item"><div class="eval-item-label">댓글</div><div class="eval-item-val">${notice.commentCount}</div></div>
+        <div class="eval-item"><div class="eval-item-label">발행시각</div><div class="eval-item-val" style="font-size:11px;font-family:'JetBrains Mono'">${notice.publishedAt||'--:--'}</div></div>
+      </div>
+    </div>
+  `;
+}
+
+function renderSentDetailChild(notice, child) {
+  const evalMap = { '좋음':'good', '보통':'ok', '나쁨':'bad' };
+  const evalLabelsD = [
+    {key:'mood',label:'기분'},{key:'health',label:'건강'},{key:'meal',label:'식사량'},
+    {key:'toilet',label:'배변'},{key:'activity',label:'참여도'},{key:'social',label:'교우관계'}
+  ];
+  const de = child.dailyEval || {};
+  const vals = Object.values(de).filter(Boolean);
+  const goodCnt = vals.filter(v=>v==='좋음').length;
+  const badCnt  = vals.filter(v=>v==='나쁨').length;
+  const summary = child.evalSummary || (badCnt>=1 ? '확인이 필요해요 ⚠️' : goodCnt>=4 ? '아주 좋아요 👍' : '무난해요 😊');
+  const sumCls = summary.includes('👍') ? 'good' : summary.includes('⚠️') ? 'check' : 'ok';
+  const evalGridHTML = evalLabelsD.map(e => {
+    const val = de[e.key];
+    const vc = val ? 'eval-val-' + evalMap[val] : '';
+    return `<div class="eval-item"><div class="eval-item-label">${e.label}</div><div class="eval-item-val ${vc}">${val||'—'}</div></div>`;
+  }).join('');
+
+  const comments = child.comments.map(cm => {
+    const isTeacher = cm.type === 'teacher';
+    const wrapClass = cm.isReply ? 'comment-item reply-item' : 'comment-item';
+    return `
+      <div class="${wrapClass}">
+        <div class="comment-avatar" style="background:${cm.color}">${cm.author[0]}</div>
+        <div class="comment-bubble ${isTeacher?'teacher-bubble':''}">
+          <div class="comment-meta">
+            <span class="comment-author">${cm.author}</span>
+            <span class="comment-role ${isTeacher?'cr-teacher':'cr-parent'}">${isTeacher?'교사':'학부모'}</span>
+            <span class="comment-time">${cm.time}</span>
+          </div>
+          <div class="comment-text">${cm.text}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  const body = document.getElementById('sdpBody');
+  body.innerHTML = `
+    <div class="psec">
+      <div class="psec-title">📊 종합 평가</div>
+      <div class="eval-summary-card ${sumCls}" style="margin-bottom:10px">
+        <span class="eval-summary-icon">${summary.slice(-2)}</span>
+        <span class="eval-summary-text ${sumCls}">${summary}</span>
+      </div>
+      <div class="eval-grid">${evalGridHTML}</div>
+    </div>
+    <div class="psec">
+      <div class="psec-title">출결 및 체크필드</div>
+      <div class="check-grid">
+        <div class="check-item"><div class="check-label">출결</div><div class="check-values">
+          <span class="check-chip ${child.attendance==='출석'?'cv-present':child.attendance==='결석'?'cv-absent':'cv-late'}">${child.attendance}</span>
+        </div></div>
+        <div class="check-item"><div class="check-label">점심</div><div class="check-values">
+          <span class="check-chip ${child.mealLunch==='잘먹음'?'cv-good':child.mealLunch==='조금먹음'?'cv-some':'cv-no'}">${child.mealLunch}</span>
+        </div></div>
+        <div class="check-item"><div class="check-label">낮잠</div><div class="check-values">
+          <span class="check-chip cv-good">${child.napStatus}</span>
+          <span style="font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono'">${child.napTime}</span>
+        </div></div>
+        <div class="check-item"><div class="check-label">배변</div><div class="check-values">
+          <span class="check-chip cv-normal">${child.toiletStatus}</span>
+          <span style="font-size:11px;color:var(--text-muted)">${child.toiletCount}회</span>
+        </div></div>
+      </div>
+    </div>
+    <div class="psec">
+      <div class="psec-title">활동</div>
+      <div style="margin-bottom:6px;"><div style="font-size:11px;color:var(--text-secondary);font-weight:600;margin-bottom:4px;">실내</div>
+        <div class="activity-tags">${child.activityIndoor.map(a=>`<span class="activity-tag">${a}</span>`).join('')||'<span style="font-size:12px;color:var(--text-muted)">—</span>'}</div>
+      </div>
+      <div><div style="font-size:11px;color:var(--text-secondary);font-weight:600;margin-bottom:4px;">실외</div>
+        <div class="activity-tags">${child.activityOutdoor.map(a=>`<span class="activity-tag">${a}</span>`).join('')||'<span style="font-size:12px;color:var(--text-muted)">—</span>'}</div>
+      </div>
+    </div>
+    <div class="psec">
+      <div class="psec-title">개별 메모</div>
+      <div class="memo-box">${child.individualMemo||'—'}</div>
+    </div>
+    <div class="comment-section">
+      <div class="psec-title" style="margin-bottom:12px;">댓글 · 대댓글</div>
+      <div class="comment-list">${comments||'<p style="font-size:12px;color:var(--text-muted);padding:8px 0">아직 댓글이 없습니다.</p>'}</div>
+      <div class="comment-input-wrap">
+        <textarea class="comment-textarea" placeholder="학부모에게 답글을 작성하세요..."></textarea>
+        <button class="comment-send-btn" onclick="showToast('댓글이 등록되었습니다.','success')">➤</button>
+      </div>
+    </div>
+  `;
+}
+
+function closeSentDetail() {
+  document.getElementById('sentDetailPanel').classList.remove('show');
+  document.getElementById('panelOverlay').classList.remove('show');
+}
+
+// ━━━ 받은 알림장 상세 ━━━
+function openReceivedDetail(id) {
+  const r = MOCK_RECEIVED.find(n => n.id === id);
+  if (!r) return;
+  r.isRead = true;
+  document.getElementById('rdpTitle').textContent = r.subLabel;
+
+  const cs = CAT_STYLE[r.category];
+  const comments = r.comments.map(cm => {
+    return `
+      <div class="comment-item">
+        <div class="comment-avatar" style="background:${cm.color}">${cm.author[0]}</div>
+        <div class="comment-bubble teacher-bubble">
+          <div class="comment-meta">
+            <span class="comment-author">${cm.author}</span>
+            <span class="comment-role cr-teacher">교사</span>
+            <span class="comment-time">${cm.time}</span>
+          </div>
+          <div class="comment-text">${cm.text}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('rdpBody').innerHTML = `
+    <div class="psec">
+      <div class="psec-title">카테고리 및 발신자</div>
+      <div class="notice-info-row">
+        <span class="ni-icon">${r.categoryIcon}</span>
+        <div class="ni-text">
+          <div class="ni-main">${r.subLabel}</div>
+          <div class="ni-sub">${r.className} · ${r.createdAt}</div>
+        </div>
+        <span class="pnc-category" style="background:${cs.bg};color:${cs.text};padding:4px 10px;border-radius:10px;font-size:11px;font-weight:700;">${r.categoryLabel}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--bg-base);border-radius:var(--radius-md);border:1px solid var(--border-light);">
+        <span class="child-avatar-sm" style="background:${r.childColor};width:32px;height:32px;font-size:12px;">${r.child[0]}</span>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text-primary);">${r.child}</div>
+          <div style="font-size:11px;color:var(--text-secondary);">${r.parent} ${r.relation}</div>
+        </div>
+      </div>
+    </div>
+    <div class="psec">
+      <div class="psec-title">메시지 내용</div>
+      <div class="notice-content-box" style="line-height:1.7;">${r.content}</div>
+    </div>
+    <div class="comment-section">
+      <div class="psec-title" style="margin-bottom:12px;">답글</div>
+      <div class="comment-list">${comments||'<p style="font-size:12px;color:var(--text-muted);padding:8px 0">아직 답글이 없습니다.</p>'}</div>
+      <div class="comment-input-wrap">
+        <textarea class="comment-textarea" placeholder="${r.parent}님께 답글을 작성하세요..."></textarea>
+        <button class="comment-send-btn" onclick="sendReceivedReply('${r.id}')">➤</button>
+      </div>
+    </div>
+  `;
+  showPanel('receivedDetailPanel');
+  renderList(currentTab);
+}
+
+function sendReceivedReply(id) {
+  const r = MOCK_RECEIVED.find(n => n.id === id);
+  if (r) r.commentCount++;
+  showToast('답글이 등록되었습니다.', 'success');
+}
+
+function closeReceivedDetail() {
+  document.getElementById('receivedDetailPanel').classList.remove('show');
+  document.getElementById('panelOverlay').classList.remove('show');
+}
+
+// ━━━ 패널 헬퍼 ━━━
+function showPanel(id) {
+  document.getElementById(id).classList.add('show');
+  document.getElementById('panelOverlay').classList.add('show');
+}
+
+function closeAllPanels() {
+  ['sentDetailPanel','receivedDetailPanel','writePanel'].forEach(id => {
+    document.getElementById(id).classList.remove('show');
+  });
+  document.getElementById('panelOverlay').classList.remove('show');
+}
+
+// ━━━ 작성 패널 ━━━
+const WRITE_CHILDREN = [
+  { id:'C001', name:'김도현', color:'#3B82F6' },
+  { id:'C002', name:'이서연', color:'#10B981' },
+  { id:'C003', name:'박준서', color:'#F59E0B' },
+  { id:'C004', name:'최지아', color:'#8B5CF6' },
+  { id:'C005', name:'한민준', color:'#EF4444' }
+];
+
+let writeSelectedChildren = new Set(['C001','C002','C003']);
+let writeSelectedWeather = '맑음';
+
+const CHILD_STATE = {};
+WRITE_CHILDREN.forEach(c => {
+  CHILD_STATE[c.id] = {
+    health:[], mealLunch:'', mealSnackAm:'', mealSnackPm:'',
+    napStatus:'', napStart:'', napEnd:'',
+    actIndoor:[], actOutdoor:[],
+    memo:'',
+    // 종합 평가 (원아별)
+    evalMood:'',
+    evalHealth:'', evalHealthTemp:'', evalHealthSymptoms:[], evalHealthMemo:'',
+    evalMeal:'', evalMealMemo:'',
+    evalToilet:'', evalToiletState:'', evalToiletCount:'', evalToiletMemo:'',
+    evalActivity:'', evalActivityMemo:'',
+    evalSocial:'', evalSocialMemo:''
+  };
+});
+
+const WEATHER_OPTS = [{key:'맑음',icon:'☀️'},{key:'흐림',icon:'☁️'},{key:'비',icon:'🌧️'},{key:'눈',icon:'❄️'},{key:'안개',icon:'🌫️'}];
+const INDOOR_TAGS = ['블록놀이','그림그리기','색칠하기','독서','퍼즐','역할놀이','율동','점토놀이'];
+const OUTDOOR_TAGS = ['모래놀이','산책','자전거','공놀이','줄넘기','텃밭가꾸기'];
+const MEAL_OPTS_W = ['잘먹음','조금먹음','안먹음','해당없음'];
+const NAP_OPTS_W = ['잘잠','조금잠','못잠','안잠'];
+const HEALTH_OPTS_W = ['양호','두통','발열','기침','콧물','설사','구토'];
+
+function openWritePanel() {
+  showPanel('writePanel');
+  renderWritePanel();
+}
+
+function closeWritePanel() {
+  document.getElementById('writePanel').classList.remove('show');
+  document.getElementById('panelOverlay').classList.remove('show');
+}
+
+function renderWritePanel() {
+  const now = new Date();
+  const todayVal = now.toISOString().slice(0,10);
+  const body = document.getElementById('writePanelBody');
+  if (!body) return;
+
+  const weatherHTML = WEATHER_OPTS.map(w =>
+    `<button class="weather-btn${writeSelectedWeather===w.key?' active':''}" onclick="selectWriteWeather(this,'${w.key}')">${w.icon} ${w.key}</button>`
+  ).join('');
+
+  const childSelectorHTML = WRITE_CHILDREN.map(c => `
+    <div class="child-select-card${writeSelectedChildren.has(c.id)?' selected':''}" onclick="toggleWriteChild('${c.id}',this)">
+      <div class="csc-avatar" style="background:${c.color}">${c.name[0]}</div>
+      <div class="csc-name">${c.name}</div>
+      <div class="csc-check">${writeSelectedChildren.has(c.id)?'✓':''}</div>
+    </div>`).join('');
+
+  body.innerHTML = `
+    <div class="write-section">
+      <div class="write-section-title"><span class="ws-icon">📋</span>기본 설정</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">날짜 <span class="req">*</span></label>
+          <input class="form-input" type="date" id="wDate" value="${todayVal}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">반 <span class="req">*</span></label>
+          <select class="form-select" id="wClass">
+            <option value="">반 선택</option>
+            <option value="CLS001">햇님반</option>
+            <option value="CLS002">달님반</option>
+            <option value="CLS003">별님반</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:10px">
+        <label class="form-label">날씨</label>
+        <div class="weather-group" id="wWeatherGroup">${weatherHTML}</div>
+      </div>
+      <div class="form-row" style="margin-top:10px;margin-bottom:0">
+        <div class="form-group">
+          <label class="form-label">최고 기온</label>
+          <input class="form-input" type="text" id="wTempHigh" placeholder="예: 18°C">
+        </div>
+        <div class="form-group">
+          <label class="form-label">최저 기온</label>
+          <input class="form-input" type="text" id="wTempLow" placeholder="예: 9°C">
+        </div>
+      </div>
+    </div>
+
+    <div class="write-section">
+      <div class="write-section-title"><span class="ws-icon">📝</span>공통 본문</div>
+      <div class="form-group">
+        <textarea class="form-textarea" id="wContent" style="height:120px" placeholder="오늘 하루 공통 내용을 입력하세요..."></textarea>
+      </div>
+      <div class="ai-toolbar" style="margin-top:6px">
+        <button class="ai-btn ai-btn-gen" onclick="aiGenerate()">✨ AI 자동생성</button>
+        <button class="ai-btn ai-btn-polish" onclick="aiPolish()">✦ 문장 다듬기</button>
+      </div>
+    </div>
+
+    <div class="write-section">
+      <div class="write-section-title"><span class="ws-icon">👶</span>원아 선택</div>
+      <div style="display:flex;gap:6px;margin-bottom:10px">
+        <button class="btn btn-outline btn-sm" onclick="selectAllWriteChildren()">전체 선택</button>
+        <button class="btn btn-outline btn-sm" onclick="deselectAllWriteChildren()">전체 해제</button>
+        <span style="font-size:12px;color:var(--text-muted);align-self:center;margin-left:4px" id="selectedCountLabel">${writeSelectedChildren.size}명 선택됨</span>
+      </div>
+      <div class="child-select-grid" id="childSelectorGrid">${childSelectorHTML}</div>
+    </div>
+
+    <div class="write-section" style="border-bottom:none">
+      <div class="write-section-title"><span class="ws-icon">✏️</span>원아별 기록</div>
+      <div id="writeChildCards">${renderWriteChildCardsHTML()}</div>
+    </div>
+  `;
+}
+
+function setChildEval(cid, field, val) {
+  CHILD_STATE[cid][field] = val;
+  const card = document.getElementById(`wcc-${cid}`);
+  if (card) card.outerHTML = renderWriteChildCardHTML(cid);
+}
+
+function toggleEvalSymptom(cid, sym) {
+  const arr = CHILD_STATE[cid].evalHealthSymptoms;
+  const idx = arr.indexOf(sym);
+  if (idx > -1) arr.splice(idx, 1);
+  else arr.push(sym);
+  const card = document.getElementById(`wcc-${cid}`);
+  if (card) card.outerHTML = renderWriteChildCardHTML(cid);
+}
+
+function renderWriteChildCardsHTML() {
+  const selected = WRITE_CHILDREN.filter(c => writeSelectedChildren.has(c.id));
+  if (selected.length === 0) {
+    return '<div class="empty-state" style="padding:32px"><div class="empty-state-icon">👶</div><div class="empty-state-text">대상 원아를 선택하세요</div></div>';
+  }
+  return selected.map(c => renderWriteChildCardHTML(c.id)).join('');
+}
+
+function renderWriteChildCardHTML(cid) {
+  const c = WRITE_CHILDREN.find(x => x.id === cid);
+  if (!c) return '';
+  const st = CHILD_STATE[cid];
+
+  const healthHTML = HEALTH_OPTS_W.map(v => {
+    const isActive = st.health.includes(v);
+    const colorCls = v==='양호' ? ' green' : isActive ? ' red' : '';
+    return `<button class="check-btn${isActive?' active'+colorCls:''}" onclick="toggleHealth('${cid}','${v}',this)">${v}</button>`;
+  }).join('');
+
+  const mealOptHTML = (field, label) => `
+    <div class="form-group">
+      <div class="wfield-label">${label}</div>
+      <div class="check-btn-group">
+        ${MEAL_OPTS_W.map(v => {
+          const colorCls = v==='잘먹음' ? ' green' : v==='안먹음' ? ' red' : '';
+          return `<button class="check-btn${st[field]===v?' active'+colorCls:''}" onclick="setCdField('${cid}','${field}','${v}')">${v}</button>`;
+        }).join('')}
+      </div>
+    </div>`;
+
+  const napHTML = NAP_OPTS_W.map(v => {
+    const colorCls = v==='잘잠' ? ' green' : v==='못잠'||v==='안잠' ? ' amber' : '';
+    return `<button class="check-btn${st.napStatus===v?' active'+colorCls:''}" onclick="setCdField('${cid}','napStatus','${v}')">${v}</button>`;
+  }).join('');
+
+  const indoorHTML = INDOOR_TAGS.map(t =>
+    `<button class="tag-btn${st.actIndoor.includes(t)?' sel':''}" onclick="toggleActivity('${cid}','indoor','${t}')">${t}</button>`
+  ).join('');
+  const outdoorHTML = OUTDOOR_TAGS.map(t =>
+    `<button class="tag-btn${st.actOutdoor.includes(t)?' sel outdoor':''}" onclick="toggleActivity('${cid}','outdoor','${t}')">${t}</button>`
+  ).join('');
+
+  // ── 종합 평가 helper
+  const eBtn = (field, val, cur) => {
+    const sc = cur===val ? ` e-${val==='좋음'?'good':val==='보통'?'ok':'bad'}` : '';
+    return `<button class="eval-opt-btn${sc}" onclick="setChildEval('${cid}','${field}','${val}')">${val}</button>`;
+  };
+
+  // 건강 나쁨 확장
+  const healthExpandHTML = st.evalHealth==='나쁨' ? `
+    <div class="eval-expand">
+      <div>
+        <div class="eval-expand-lbl">체온</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input type="number" class="eval-temp-inp" step="0.1" min="35" max="42"
+                 value="${st.evalHealthTemp||''}" placeholder="37.5"
+                 onchange="setCdDirect('${cid}','evalHealthTemp',this.value)">
+          <span style="font-size:12px;color:var(--text-muted)">°C</span>
+        </div>
+      </div>
+      <div>
+        <div class="eval-expand-lbl">증상 선택 (복수)</div>
+        <div class="symptom-chip-wrap">
+          ${['발열','기침','콧물','설사','구토','복통','두통','알레르기'].map(s =>
+            `<button class="symptom-chip${st.evalHealthSymptoms.includes(s)?' sel':''}" onclick="toggleEvalSymptom('${cid}','${s}')">${s}</button>`
+          ).join('')}
+        </div>
+      </div>
+      <div>
+        <div class="eval-expand-lbl">추가 메모</div>
+        <textarea class="eval-memo-ta" placeholder="오후에 미열이 있어 활동량을 줄이고 휴식을 도왔어요."
+                  oninput="setCdDirect('${cid}','evalHealthMemo',this.value)">${st.evalHealthMemo||''}</textarea>
+      </div>
+    </div>` : '';
+
+  // 식사량 나쁨 확장
+  const mealExpandHTML = st.evalMeal==='나쁨' ? `
+    <div class="eval-expand">
+      <div class="eval-expand-lbl">추가 메모</div>
+      <textarea class="eval-memo-ta" placeholder="식사량이 평소보다 적었어요. 특이사항을 입력하세요."
+                oninput="setCdDirect('${cid}','evalMealMemo',this.value)">${st.evalMealMemo||''}</textarea>
+    </div>` : '';
+
+  // 배변 확장 (항상 표시)
+  const toiletExpandHTML = `
+    <div class="eval-expand">
+      <div>
+        <div class="eval-expand-lbl">배변 상태</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px">
+          ${['정상','딱딱함','묽음','설사','배변 없음'].map(s =>
+            `<button class="toilet-state-btn${st.evalToiletState===s?' sel':''}" onclick="setCdField('${cid}','evalToiletState','${s}')">${s}</button>`
+          ).join('')}
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="eval-expand-lbl" style="margin-bottom:0">횟수</div>
+        <input type="number" class="toilet-count-inp" min="0" max="9"
+               value="${st.evalToiletCount||''}" placeholder="0"
+               onchange="setCdDirect('${cid}','evalToiletCount',this.value)">
+        <span style="font-size:12px;color:var(--text-muted)">회</span>
+      </div>
+      <div>
+        <div class="eval-expand-lbl">메모 (선택)</div>
+        <textarea class="eval-memo-ta" placeholder="오늘은 1회 배변했고 상태는 정상입니다."
+                  oninput="setCdDirect('${cid}','evalToiletMemo',this.value)">${st.evalToiletMemo||''}</textarea>
+      </div>
+    </div>`;
+
+  // 참여도·교우관계 메모 placeholder
+  const actPh = st.evalActivity==='좋음' ? '활동에 적극적으로 참여하고 발표도 했어요.'
+              : st.evalActivity==='나쁨' ? '참여가 어려워 쉬는 시간을 충분히 줬어요.'
+              : '중간중간 집중이 흐트러졌지만 잘 따라왔어요.';
+  const socPh = st.evalSocial==='좋음' ? '친구와 협력해서 놀이를 즐겼어요.'
+              : st.evalSocial==='나쁨' ? '친구와 다툼이 있어 상황을 조율했어요.'
+              : '혼자 노는 시간이 있었어요.';
+
+  return `
+    <div class="write-child-card" id="wcc-${cid}" style="margin-bottom:12px">
+      <div class="wcc-header">
+        <div class="wcc-avatar" style="background:${c.color}">${c.name[0]}</div>
+        <span class="wcc-name">${c.name}</span>
+        <button class="ai-btn ai-btn-fill" style="margin-left:auto;padding:4px 10px;font-size:11px" onclick="aiGenChild('${cid}',this)">✨ AI 자동채우기</button>
+      </div>
+      <div class="wcc-body" style="gap:12px">
+        <div>
+          <div class="wfield-label">건강 상태</div>
+          <div class="check-btn-group">${healthHTML}</div>
+        </div>
+        <div class="meal-write-grid">
+          ${mealOptHTML('mealLunch','점심')}
+          ${mealOptHTML('mealSnackPm','오후 간식')}
+        </div>
+        <div>
+          <div class="wfield-label">낮잠</div>
+          <div class="check-btn-group" style="margin-bottom:6px">${napHTML}</div>
+          <div class="nap-time-row">
+            <span style="font-size:11px;color:var(--text-muted)">수면 시간</span>
+            <input type="time" class="nap-time-input" value="${st.napStart||''}" onchange="setCdDirect('${cid}','napStart',this.value)">
+            <span class="nap-time-sep">~</span>
+            <input type="time" class="nap-time-input" value="${st.napEnd||''}" onchange="setCdDirect('${cid}','napEnd',this.value)">
+          </div>
+        </div>
+        <div>
+          <div class="wfield-label">실내 활동</div>
+          <div class="tag-select-wrap">${indoorHTML}</div>
+        </div>
+        <div>
+          <div class="wfield-label">실외 활동</div>
+          <div class="tag-select-wrap">${outdoorHTML}</div>
+        </div>
+        <div>
+          <div class="wfield-label">개별 메모</div>
+          <textarea class="form-textarea" style="height:64px" placeholder="${c.name} 개별 메모..." oninput="setCdDirect('${cid}','memo',this.value)">${st.memo}</textarea>
+        </div>
+        <!-- 종합 평가 -->
+        <div class="eval-per-child">
+          <div style="font-size:11px;font-weight:800;color:var(--text-primary);letter-spacing:.3px">📊 종합 평가</div>
+          <div class="eval-field">
+            <div class="eval-field-lbl">기분</div>
+            <div class="eval-opts">${eBtn('evalMood','좋음',st.evalMood)}${eBtn('evalMood','보통',st.evalMood)}${eBtn('evalMood','나쁨',st.evalMood)}</div>
+          </div>
+          <div class="eval-field">
+            <div class="eval-field-lbl">건강</div>
+            <div class="eval-opts">${eBtn('evalHealth','좋음',st.evalHealth)}${eBtn('evalHealth','보통',st.evalHealth)}${eBtn('evalHealth','나쁨',st.evalHealth)}</div>
+            ${healthExpandHTML}
+          </div>
+          <div class="eval-field">
+            <div class="eval-field-lbl">식사량</div>
+            <div class="eval-opts">${eBtn('evalMeal','좋음',st.evalMeal)}${eBtn('evalMeal','보통',st.evalMeal)}${eBtn('evalMeal','나쁨',st.evalMeal)}</div>
+            ${mealExpandHTML}
+          </div>
+          <div class="eval-field">
+            <div class="eval-field-lbl">배변</div>
+            <div class="eval-opts">${eBtn('evalToilet','좋음',st.evalToilet)}${eBtn('evalToilet','보통',st.evalToilet)}${eBtn('evalToilet','나쁨',st.evalToilet)}</div>
+            ${toiletExpandHTML}
+          </div>
+          <div class="eval-field">
+            <div class="eval-field-lbl">참여도</div>
+            <div class="eval-opts">${eBtn('evalActivity','좋음',st.evalActivity)}${eBtn('evalActivity','보통',st.evalActivity)}${eBtn('evalActivity','나쁨',st.evalActivity)}</div>
+            ${st.evalActivity ? `<div class="eval-expand">
+              <textarea class="eval-memo-ta" placeholder="${actPh}"
+                        oninput="setCdDirect('${cid}','evalActivityMemo',this.value)">${st.evalActivityMemo||''}</textarea>
+            </div>` : ''}
+          </div>
+          <div class="eval-field">
+            <div class="eval-field-lbl">교우관계</div>
+            <div class="eval-opts">${eBtn('evalSocial','좋음',st.evalSocial)}${eBtn('evalSocial','보통',st.evalSocial)}${eBtn('evalSocial','나쁨',st.evalSocial)}</div>
+            ${st.evalSocial ? `<div class="eval-expand">
+              <div class="eval-expand-lbl">관찰 메모 (선택)</div>
+              <textarea class="eval-memo-ta" placeholder="${socPh}"
+                        oninput="setCdDirect('${cid}','evalSocialMemo',this.value)">${st.evalSocialMemo||''}</textarea>
+            </div>` : ''}
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function toggleWriteChild(cid, el) {
+  if (writeSelectedChildren.has(cid)) writeSelectedChildren.delete(cid);
+  else writeSelectedChildren.add(cid);
+  el.classList.toggle('selected', writeSelectedChildren.has(cid));
+  const checkEl = el.querySelector('.csc-check');
+  if (checkEl) checkEl.textContent = writeSelectedChildren.has(cid) ? '✓' : '';
+  const label = document.getElementById('selectedCountLabel');
+  if (label) label.textContent = writeSelectedChildren.size + '명 선택됨';
+  const cards = document.getElementById('writeChildCards');
+  if (cards) cards.innerHTML = renderWriteChildCardsHTML();
+}
+
+function selectAllWriteChildren() {
+  WRITE_CHILDREN.forEach(c => writeSelectedChildren.add(c.id));
+  _refreshChildSelector();
+  const cards = document.getElementById('writeChildCards');
+  if (cards) cards.innerHTML = renderWriteChildCardsHTML();
+}
+
+function deselectAllWriteChildren() {
+  writeSelectedChildren.clear();
+  _refreshChildSelector();
+  const cards = document.getElementById('writeChildCards');
+  if (cards) cards.innerHTML = renderWriteChildCardsHTML();
+}
+
+function _refreshChildSelector() {
+  const grid = document.getElementById('childSelectorGrid');
+  if (grid) {
+    grid.innerHTML = WRITE_CHILDREN.map(c => `
+      <div class="child-select-card${writeSelectedChildren.has(c.id)?' selected':''}" onclick="toggleWriteChild('${c.id}',this)">
+        <div class="csc-avatar" style="background:${c.color}">${c.name[0]}</div>
+        <div class="csc-name">${c.name}</div>
+        <div class="csc-check">${writeSelectedChildren.has(c.id)?'✓':''}</div>
+      </div>`).join('');
+  }
+  const label = document.getElementById('selectedCountLabel');
+  if (label) label.textContent = writeSelectedChildren.size + '명 선택됨';
+}
+
+function setCdField(cid, field, val) {
+  CHILD_STATE[cid][field] = val;
+  const card = document.getElementById(`wcc-${cid}`);
+  if (card) card.outerHTML = renderWriteChildCardHTML(cid);
+}
+
+function setCdDirect(cid, field, val) {
+  CHILD_STATE[cid][field] = val;
+}
+
+function toggleHealth(cid, val) {
+  const arr = CHILD_STATE[cid].health;
+  if (val === '양호') {
+    CHILD_STATE[cid].health = arr.includes('양호') ? [] : ['양호'];
+  } else {
+    const hi = arr.indexOf('양호');
+    if (hi > -1) arr.splice(hi, 1);
+    const si = arr.indexOf(val);
+    if (si > -1) arr.splice(si, 1);
+    else arr.push(val);
+  }
+  const card = document.getElementById(`wcc-${cid}`);
+  if (card) card.outerHTML = renderWriteChildCardHTML(cid);
+}
+
+function toggleActivity(cid, type, tag) {
+  const arr = type === 'indoor' ? CHILD_STATE[cid].actIndoor : CHILD_STATE[cid].actOutdoor;
+  const idx = arr.indexOf(tag);
+  if (idx > -1) arr.splice(idx, 1);
+  else arr.push(tag);
+  const card = document.getElementById(`wcc-${cid}`);
+  if (card) card.outerHTML = renderWriteChildCardHTML(cid);
+}
+
+function selectWriteWeather(btn, w) {
+  writeSelectedWeather = w;
+  document.querySelectorAll('#wWeatherGroup .weather-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function aiGenChild(cid, btn) {
+  if (btn) { btn.classList.add('ai-loading'); btn.textContent = '⏳ 생성 중...'; }
+  setTimeout(() => {
+    const name = WRITE_CHILDREN.find(c => c.id === cid)?.name || '';
+    CHILD_STATE[cid].memo = `${name} 어린이는 오늘 활동에 적극적으로 참여했으며 건강하게 하루를 보냈습니다.`;
+    const card = document.getElementById(`wcc-${cid}`);
+    if (card) card.outerHTML = renderWriteChildCardHTML(cid);
+    showToast('AI가 자동으로 채워넣었습니다.', 'success');
+  }, 900);
+}
+
+// AI 기능 (정적 목업)
+function aiGenerate() {
+  const btn = document.querySelector('.ai-btn-gen');
+  btn.classList.add('ai-loading');
+  btn.textContent = '⏳ 생성 중...';
+  setTimeout(() => {
+    document.getElementById('wContent').value =
+      '안녕하세요! 오늘도 아이들과 즐거운 하루를 보냈습니다. ' +
+      '봄 날씨답게 따뜻한 햇살 아래 바깥 놀이를 하며 신나는 시간을 가졌어요. ' +
+      '아이들 모두 건강하고 밝은 하루를 보냈으니 안심하세요. ' +
+      '오늘 하루도 사랑으로 돌봐주셔서 감사합니다. 💕';
+    btn.classList.remove('ai-loading');
+    btn.textContent = '✨ AI 자동생성';
+    showToast('AI가 본문을 생성했습니다.', 'success');
+  }, 1200);
+}
+
+function aiPolish() {
+  const ta = document.getElementById('wContent');
+  if (!ta.value.trim()) { showToast('먼저 내용을 입력해 주세요.'); return; }
+  const btn = document.querySelector('.ai-btn-polish');
+  btn.classList.add('ai-loading');
+  btn.textContent = '⏳ 다듬는 중...';
+  setTimeout(() => {
+    ta.value = ta.value
+      .replace(/했습니다\./g, '했어요.')
+      .replace(/입니다\./g, '이에요.')
+      .replace(/합니다\./g, '해요.')
+      .replace(/있습니다\./g, '있어요.');
+    btn.classList.remove('ai-loading');
+    btn.textContent = '✦ 문장 다듬기';
+    showToast('문장이 부드럽게 다듬어졌습니다.', 'success');
+  }, 900);
+}
+
+function saveDraft() {
+  showToast('임시저장되었습니다.', 'success');
+}
+
+function publishNotice() {
+  const cls = document.getElementById('wClass').value;
+  if (!cls) { showToast('반을 선택해 주세요.'); return; }
+  if (writeSelectedChildren.size === 0) { showToast('대상 원아를 선택해 주세요.'); return; }
+  showToast(`알림장이 발행되었습니다. (${writeSelectedChildren.size}명)`, 'success');
+  closeWritePanel();
+}
+
+function applyFilters() {
+  renderTodayDashboard();
+  renderList(currentTab);
+}
+
+function resetSentFilters() {
+  const fs = document.getElementById('filterStatus');
+  const fc = document.getElementById('filterChildName');
+  const fd = document.getElementById('filterDateFrom');
+  const ft = document.getElementById('filterDateTo');
+  if (fs) fs.value = '';
+  if (fc) fc.value = '';
+  if (fd) fd.value = '';
+  if (ft) ft.value = '';
+  applyFilters();
+}
+
+// ━━━ 토스트 ━━━
+function showToast(msg, type) {
+  const wrap = document.getElementById('toastWrap');
+  const t = document.createElement('div');
+  t.className = 'toast' + (type ? ' ' + type : '');
+  t.innerHTML = (type === 'success' ? '✅ ' : type === 'error' ? '❌ ' : 'ℹ️ ') + msg;
+  wrap.appendChild(t);
+  setTimeout(() => t.style.opacity = '0', 2200);
+  setTimeout(() => t.remove(), 2600);
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllPanels(); });
+</script>
+</body>
+</html>
