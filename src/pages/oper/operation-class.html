@@ -6,42 +6,29 @@
 <title>반 관리 — 키드키즈</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
 <script src="operation-sidebar.js" defer></script>
 <style>
 :root {
-  --sidebar-bg:     #0C2D48;
-  --sidebar-hover:  #1A4A6B;
-  --sidebar-active: #1E5580;
-  --sidebar-text:   #B8D9F0;
-  --sidebar-width:  240px;
-  --header-height:  60px;
-  --accent:         #0EA5E9;
-  --accent-light:   #E0F2FE;
-  --accent-dark:    #0284C7;
-  --bg-base:        #F0F7FF;
-  --bg-surface:     #FFFFFF;
-  --text-primary:   #0C2D48;
-  --text-secondary: #4B7FA3;
-  --text-muted:     #94B8D0;
-  --border-light:   #DBEAFE;
-  --border-medium:  #BAD9F7;
-  --green:  #10B981; --green-bg:  #D1FAE5; --green-text:  #065F46;
-  --blue:   #3B82F6; --blue-bg:   #DBEAFE; --blue-text:   #1E40AF;
-  --amber:  #F59E0B; --amber-bg:  #FEF3C7; --amber-text:  #92400E;
-  --red:    #EF4444; --red-bg:    #FEE2E2; --red-text:    #991B1B;
-  --purple: #8B5CF6; --purple-bg: #EDE9FE; --purple-text: #5B21B6;
-  --shadow-sm: 0 1px 3px rgba(12,45,72,0.06);
-  --shadow-md: 0 4px 12px rgba(12,45,72,0.09);
-  --shadow-lg: 0 8px 28px rgba(12,45,72,0.14);
-  --radius-sm:6px; --radius-md:10px; --radius-lg:14px; --radius-xl:18px;
+  --sidebar-bg:#0C2D48;--sidebar-hover:#1A4A6B;--sidebar-active:#1E5580;--sidebar-text:#B8D9F0;
+  --sidebar-width:240px;--header-height:60px;
+  --accent:#0EA5E9;--accent-light:#E0F2FE;--accent-dark:#0284C7;
+  --bg-base:#F0F7FF;--bg-surface:#FFFFFF;
+  --text-primary:#0C2D48;--text-secondary:#4B7FA3;--text-muted:#94B8D0;
+  --border-light:#DBEAFE;--border-medium:#BAD9F7;
+  --green:#10B981;--green-bg:#D1FAE5;--green-text:#065F46;
+  --blue:#3B82F6;--blue-bg:#DBEAFE;--blue-text:#1E40AF;
+  --amber:#F59E0B;--amber-bg:#FEF3C7;--amber-text:#92400E;
+  --red:#EF4444;--red-bg:#FEE2E2;--red-text:#991B1B;
+  --purple:#8B5CF6;--purple-bg:#EDE9FE;--purple-text:#5B21B6;
+  --shadow-sm:0 1px 3px rgba(12,45,72,0.06);--shadow-md:0 4px 12px rgba(12,45,72,0.09);--shadow-lg:0 8px 28px rgba(12,45,72,0.14);
+  --radius-sm:6px;--radius-md:10px;--radius-lg:14px;--radius-xl:18px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--text-primary);display:flex;height:100vh;overflow:hidden;}
 
-/* ━━━ LAYOUT ━━━ */
+/* LAYOUT */
 .main-wrap{margin-left:var(--sidebar-width);flex:1;display:flex;flex-direction:column;overflow:hidden;}
-
-/* ━━━ TOPBAR ━━━ */
 .topbar{height:var(--header-height);background:var(--bg-surface);border-bottom:1px solid var(--border-light);display:flex;align-items:center;padding:0 24px;gap:12px;box-shadow:var(--shadow-sm);flex-shrink:0;z-index:50;}
 .breadcrumb{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary);flex:1;}
 .breadcrumb .cur{color:var(--text-primary);font-weight:700;}
@@ -50,23 +37,21 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .topbar-date{font-size:12px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;}
 .icon-btn{width:36px;height:36px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;background:var(--bg-base);border:1px solid var(--border-light);cursor:pointer;transition:.18s;font-size:16px;}
 .icon-btn:hover{background:var(--accent-light);border-color:var(--accent);}
-
-/* ━━━ CONTENT ━━━ */
 .content{flex:1;overflow-y:auto;padding:24px;}
 .content::-webkit-scrollbar{width:5px;}
 .content::-webkit-scrollbar-thumb{background:var(--border-medium);border-radius:3px;}
 .content-inner{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:20px;}
 
-/* ━━━ KPI CARDS ━━━ */
+/* KPI */
 .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
 .kpi-card{background:var(--bg-surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);padding:18px 20px;border:1px solid var(--border-light);display:flex;align-items:center;gap:14px;}
 .kpi-icon{width:46px;height:46px;border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
 .kpi-info{flex:1;}
-.kpi-val{font-size:26px;font-weight:800;line-height:1;color:var(--text-primary);}
+.kpi-val{font-size:26px;font-weight:800;line-height:1;}
 .kpi-label{font-size:11px;font-weight:600;color:var(--text-secondary);margin-top:4px;}
 .kpi-sub{font-size:11px;color:var(--text-muted);margin-top:2px;}
 
-/* ━━━ FILTER / ACTION BAR ━━━ */
+/* FILTER BAR */
 .action-bar{background:var(--bg-surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);padding:14px 18px;border:1px solid var(--border-light);display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
 .filter-group{display:flex;align-items:center;gap:6px;flex:1;}
 .fsel-wrap{position:relative;}
@@ -75,13 +60,13 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .fsel:focus{border-color:var(--accent);}
 .search-wrap{display:flex;align-items:center;border:1.5px solid var(--border-light);border-radius:var(--radius-md);overflow:hidden;background:var(--bg-surface);transition:.18s;}
 .search-wrap:focus-within{border-color:var(--accent);}
-.search-inp{height:34px;padding:0 10px;border:none;outline:none;font-size:13px;font-family:'Pretendard',sans-serif;color:var(--text-primary);background:transparent;width:200px;}
+.search-inp{height:34px;padding:0 10px;border:none;outline:none;font-size:13px;font-family:'Pretendard',sans-serif;color:var(--text-primary);background:transparent;width:220px;}
 .search-btn{height:34px;padding:0 12px;background:var(--accent-light);border:none;border-left:1.5px solid var(--border-light);cursor:pointer;font-size:13px;color:var(--accent-dark);transition:.18s;}
 .search-btn:hover{background:var(--accent);color:#fff;}
 .action-right{display:flex;align-items:center;gap:8px;margin-left:auto;}
 .results-count{font-size:12px;color:var(--text-muted);white-space:nowrap;}
 
-/* ━━━ BUTTONS ━━━ */
+/* BUTTONS */
 .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-md);font-size:13px;font-weight:700;font-family:'Pretendard',sans-serif;cursor:pointer;border:none;transition:.18s;white-space:nowrap;}
 .btn-primary{background:var(--accent);color:#fff;}
 .btn-primary:hover{background:var(--accent-dark);}
@@ -93,61 +78,50 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .btn-danger-outline:hover{background:var(--red-bg);}
 .btn-sm{padding:5px 10px;font-size:11px;border-radius:var(--radius-sm);}
 .btn-xs{padding:3px 8px;font-size:10px;border-radius:var(--radius-sm);}
+.btn:disabled{opacity:.45;cursor:not-allowed;pointer-events:none;}
 
-/* ━━━ CLASS GRID ━━━ */
+/* CLASS GRID */
 .class-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
 @media(max-width:900px){.class-grid{grid-template-columns:repeat(2,1fr);}}
 
-/* ━━━ CLASS CARD ━━━ */
+/* CLASS CARD */
 .class-card{background:var(--bg-surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);border:1.5px solid var(--border-light);overflow:hidden;cursor:pointer;transition:.2s;position:relative;}
 .class-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);border-color:var(--border-medium);}
 .class-card.active-card{border-color:var(--accent);box-shadow:0 0 0 3px rgba(14,165,233,0.12);}
 .class-card.teacher-assigned{border-left:4px solid var(--accent);}
-.cc-header{padding:16px 16px 12px;border-bottom:1px solid var(--border-light);}
 .cc-color-bar{position:absolute;top:0;left:0;right:0;height:4px;border-radius:var(--radius-xl) var(--radius-xl) 0 0;}
+.cc-header{padding:16px 16px 12px;border-bottom:1px solid var(--border-light);}
 .cc-top-row{display:flex;align-items:flex-start;justify-content:space-between;margin-top:8px;}
-.cc-name{font-size:17px;font-weight:800;color:var(--text-primary);}
-.cc-status-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;}
+.cc-name{font-size:17px;font-weight:800;}
 .cc-age{font-size:12px;color:var(--text-secondary);margin-top:3px;font-weight:600;}
-.cc-year-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;background:var(--bg-base);border-radius:var(--radius-sm);font-size:10px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;margin-top:3px;}
+.cc-status-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;}
 .cc-body{padding:12px 16px;}
-.cc-teacher-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
-.cc-teacher-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;}
-.cc-teacher-info{flex:1;}
-.cc-teacher-name{font-size:12px;font-weight:700;color:var(--text-primary);}
-.cc-teacher-role{font-size:10px;color:var(--text-muted);}
-.cc-capacity-section{margin-top:2px;}
+.cc-summary{font-size:12px;color:var(--text-secondary);margin-bottom:8px;font-weight:600;}
+.cc-teacher-names{font-size:11px;color:var(--text-muted);line-height:1.5;}
+.cc-capacity-section{margin-top:10px;}
 .cc-capacity-row{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--text-secondary);margin-bottom:5px;}
 .cc-capacity-count{font-weight:700;color:var(--text-primary);}
 .progress-bar{height:6px;background:var(--border-light);border-radius:3px;overflow:hidden;}
 .progress-fill{height:100%;border-radius:3px;transition:.3s;}
-.cc-footer{padding:8px 16px 12px;display:flex;align-items:center;justify-content:space-between;}
-.cc-footer-meta{font-size:10px;color:var(--text-muted);}
-.cc-actions{display:flex;align-items:center;gap:5px;}
-
-/* ━━━ ASSIGNED BADGE (교사용) ━━━ */
+.cc-footer{padding:8px 16px 12px;display:flex;align-items:center;justify-content:flex-end;gap:5px;}
 .assigned-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;background:var(--accent-light);border-radius:20px;font-size:10px;font-weight:700;color:var(--accent-dark);}
 
-/* ━━━ EMPTY STATE ━━━ */
-.empty-state{text-align:center;padding:60px 20px;color:var(--text-muted);}
-.empty-state-icon{font-size:40px;margin-bottom:12px;}
-.empty-state-title{font-size:14px;font-weight:700;margin-bottom:6px;color:var(--text-secondary);}
-
-/* ━━━ BADGE ━━━ */
+/* BADGES */
 .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;}
 .badge-green{background:var(--green-bg);color:var(--green-text);}
-.badge-blue{background:var(--blue-bg);color:var(--blue-text);}
-.badge-amber{background:var(--amber-bg);color:var(--amber-text);}
-.badge-red{background:var(--red-bg);color:var(--red-text);}
 .badge-gray{background:#F3F4F6;color:#6B7280;}
+.badge-blue{background:var(--blue-bg);color:var(--blue-text);}
+.badge-red{background:var(--red-bg);color:var(--red-text);}
+.badge-amber{background:var(--amber-bg);color:var(--amber-text);}
 .badge-dot{width:5px;height:5px;border-radius:50%;background:currentColor;}
+.badge-accent{background:var(--accent-light);color:var(--accent-dark);}
 
-/* ━━━ DRAWER ━━━ */
+/* DRAWER */
 .drawer{position:fixed;inset:0;z-index:200;pointer-events:none;}
 .drawer.open{pointer-events:all;}
 .drawer-overlay{position:absolute;inset:0;background:rgba(12,45,72,0.25);opacity:0;transition:.25s;}
 .drawer.open .drawer-overlay{opacity:1;}
-.drawer-panel{position:absolute;top:0;right:0;width:400px;height:100%;background:var(--bg-surface);box-shadow:-8px 0 32px rgba(12,45,72,0.15);display:flex;flex-direction:column;transform:translateX(100%);transition:.28s cubic-bezier(.4,0,.2,1);}
+.drawer-panel{position:absolute;top:0;right:0;width:440px;height:100%;background:var(--bg-surface);box-shadow:-8px 0 32px rgba(12,45,72,0.15);display:flex;flex-direction:column;transform:translateX(100%);transition:.28s cubic-bezier(.4,0,.2,1);}
 .drawer.open .drawer-panel{transform:translateX(0);}
 .drawer-header{padding:18px 20px 14px;border-bottom:1px solid var(--border-light);flex-shrink:0;}
 .drawer-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
@@ -157,71 +131,79 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .drawer-body::-webkit-scrollbar{width:4px;}
 .drawer-body::-webkit-scrollbar-thumb{background:var(--border-medium);border-radius:2px;}
 .drawer-footer{padding:14px 20px;border-top:1px solid var(--border-light);display:flex;gap:8px;flex-shrink:0;}
-.drawer-section{margin-bottom:20px;}
-.drawer-section-title{font-size:10px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;}
-.drawer-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;}
-.di-field{display:flex;flex-direction:column;gap:3px;}
-.di-label{font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;}
-.di-value{font-size:13px;font-weight:600;color:var(--text-primary);}
-.drawer-teacher-card{background:var(--bg-base);border-radius:var(--radius-md);padding:10px 12px;display:flex;align-items:center;gap:10px;border:1px solid var(--border-light);}
-.dt-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;}
-.dt-info{flex:1;}
-.dt-name{font-size:13px;font-weight:700;color:var(--text-primary);}
-.dt-role-badge{font-size:10px;color:var(--text-muted);}
-.child-list{display:flex;flex-direction:column;gap:6px;}
-.child-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg-base);border-radius:var(--radius-md);border:1px solid var(--border-light);}
-.child-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;}
-.child-name{font-size:12px;font-weight:700;color:var(--text-primary);}
-.child-meta{font-size:10px;color:var(--text-muted);margin-left:auto;}
-.view-all-link{display:flex;align-items:center;justify-content:center;padding:8px;border:1.5px dashed var(--border-medium);border-radius:var(--radius-md);font-size:12px;font-weight:600;color:var(--accent);cursor:pointer;transition:.18s;gap:5px;margin-top:6px;background:transparent;}
-.view-all-link:hover{background:var(--accent-light);border-color:var(--accent);}
-.capacity-display{background:var(--bg-base);border-radius:var(--radius-md);padding:12px 14px;border:1px solid var(--border-light);}
-.cap-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
-.cap-numbers{font-size:20px;font-weight:800;color:var(--text-primary);}
-.cap-sub{font-size:11px;color:var(--text-muted);}
-.cap-pct{font-size:13px;font-weight:700;}
 
-/* ━━━ MODAL ━━━ */
+/* DRAWER SECTIONS */
+.dsec{margin-bottom:22px;}
+.dsec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.dsec-title{font-size:13px;font-weight:800;color:var(--text-primary);}
+.dsec-count{font-size:12px;color:var(--text-muted);font-weight:600;margin-left:4px;}
+.dsec-add-btn{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:var(--radius-sm);font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid var(--accent);background:var(--accent-light);color:var(--accent-dark);transition:.18s;}
+.dsec-add-btn:hover{background:var(--accent);color:#fff;}
+.dsec-add-btn:disabled{opacity:.4;cursor:not-allowed;background:var(--bg-base);border-color:var(--border-light);color:var(--text-muted);}
+.dsec-add-btn:disabled:hover{background:var(--bg-base);color:var(--text-muted);}
+
+/* TEACHER CARD (drawer) */
+.dt-card{background:var(--bg-base);border-radius:var(--radius-md);padding:10px 12px;display:flex;align-items:center;gap:10px;border:1px solid var(--border-light);margin-bottom:6px;}
+.dt-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;}
+.dt-info{flex:1;min-width:0;}
+.dt-name{font-size:13px;font-weight:700;}
+.dt-sub{font-size:10px;color:var(--text-muted);}
+.dt-actions{display:flex;gap:4px;flex-shrink:0;}
+
+/* CHILD ROW (drawer) */
+.dc-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg-base);border-radius:var(--radius-md);border:1px solid var(--border-light);margin-bottom:5px;}
+.dc-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;}
+.dc-info{flex:1;min-width:0;}
+.dc-name{font-size:12px;font-weight:700;}
+.dc-birth{font-size:10px;color:var(--text-muted);}
+.dc-actions{display:flex;gap:4px;flex-shrink:0;}
+.dc-search{width:100%;height:32px;padding:0 10px;border:1.5px solid var(--border-light);border-radius:var(--radius-md);font-size:12px;font-family:'Pretendard',sans-serif;outline:none;margin-bottom:8px;}
+.dc-search:focus{border-color:var(--accent);}
+.dc-highlight{animation:dcHighlight 2s ease;}
+@keyframes dcHighlight{0%,20%{background:var(--accent-light);border-color:var(--accent);}100%{background:var(--bg-base);border-color:var(--border-light);}}
+
+/* EMPTY INLINE */
+.empty-inline{padding:16px;text-align:center;color:var(--text-muted);font-size:12px;background:var(--bg-base);border-radius:var(--radius-md);border:1px dashed var(--border-medium);}
+
+/* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(12,45,72,0.35);z-index:400;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:.2s;}
 .modal-overlay.open{opacity:1;pointer-events:all;}
 .modal-box{background:var(--bg-surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-lg);width:500px;max-width:95vw;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;transform:scale(.96);transition:.2s;}
 .modal-overlay.open .modal-box{transform:scale(1);}
 .modal-header{padding:20px 24px 16px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
-.modal-title{font-size:15px;font-weight:800;color:var(--text-primary);}
+.modal-title{font-size:15px;font-weight:800;}
 .modal-close{width:28px;height:28px;border-radius:var(--radius-sm);background:var(--bg-base);border:1.5px solid var(--border-light);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--text-secondary);transition:.15s;}
 .modal-close:hover{background:var(--red-bg);border-color:var(--red-bg);color:var(--red-text);}
 .modal-body{padding:20px 24px;overflow-y:auto;flex:1;}
 .modal-footer{padding:14px 24px;border-top:1px solid var(--border-light);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0;}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px;}
-.form-grid .full{grid-column:1/-1;}
-.form-field{display:flex;flex-direction:column;gap:6px;}
+
+/* FORM */
+.form-field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+.form-field:last-child{margin-bottom:0;}
 .form-label{font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.4px;}
 .form-label .req{color:var(--red);margin-left:2px;}
-.form-input{border:1.5px solid var(--border-light);border-radius:var(--radius-md);height:38px;padding:0 12px;font-size:14px;font-family:'Pretendard',sans-serif;color:var(--text-primary);background:var(--bg-surface);outline:none;transition:.18s;width:100%;}
-.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(14,165,233,0.10);}
-.form-select{border:1.5px solid var(--border-light);border-radius:var(--radius-md);height:38px;padding:0 12px;font-size:14px;font-family:'Pretendard',sans-serif;color:var(--text-primary);background:var(--bg-surface);outline:none;transition:.18s;width:100%;appearance:none;cursor:pointer;}
-.form-select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(14,165,233,0.10);}
+.form-input,.form-select{border:1.5px solid var(--border-light);border-radius:var(--radius-md);height:38px;padding:0 12px;font-size:14px;font-family:'Pretendard',sans-serif;color:var(--text-primary);background:var(--bg-surface);outline:none;transition:.18s;width:100%;}
+.form-input:focus,.form-select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(14,165,233,0.10);}
+.form-select{appearance:none;cursor:pointer;}
+.form-row{display:flex;gap:12px;}
+.form-row>*{flex:1;}
+
+/* AGE TOGGLE */
+.age-toggle{display:flex;border:1.5px solid var(--border-light);border-radius:var(--radius-md);overflow:hidden;margin-bottom:8px;}
+.age-toggle-btn{flex:1;padding:8px;text-align:center;font-size:12px;font-weight:700;cursor:pointer;background:var(--bg-surface);color:var(--text-secondary);border:none;font-family:'Pretendard',sans-serif;transition:.18s;}
+.age-toggle-btn.active{background:var(--accent);color:#fff;}
+
+/* STATUS TOGGLE */
 .status-toggle-row{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg-base);border-radius:var(--radius-md);border:1.5px solid var(--border-light);}
-.toggle-label{font-size:13px;font-weight:600;color:var(--text-primary);flex:1;}
+.toggle-label{font-size:13px;font-weight:600;flex:1;}
 .toggle-switch{position:relative;width:40px;height:22px;cursor:pointer;flex-shrink:0;}
 .toggle-switch input{opacity:0;width:0;height:0;position:absolute;}
 .toggle-track{position:absolute;inset:0;background:#D1D5DB;border-radius:11px;transition:.25s;}
 .toggle-thumb{position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;border-radius:50%;transition:.25s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
-.toggle-switch input:checked + .toggle-track{background:var(--green);}
-.toggle-switch input:checked ~ .toggle-thumb{left:20px;}
+.toggle-switch input:checked+.toggle-track{background:var(--green);}
+.toggle-switch input:checked~.toggle-thumb{left:20px;}
 
-/* ━━━ COLOR PALETTE ━━━ */
-.color-palette{display:flex;gap:8px;flex-wrap:wrap;padding:6px 0 2px;}
-.cp-chip{width:26px;height:26px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:.15s;flex-shrink:0;}
-.cp-chip:hover{transform:scale(1.18);}
-.cp-chip.selected{border-color:var(--text-primary);box-shadow:0 0 0 2px #fff inset;transform:scale(1.1);}
-
-/* ━━━ FORM HINT ━━━ */
-.form-hint{font-size:11px;color:var(--text-muted);margin-top:2px;}
-.form-hint.warn{color:var(--amber);}
-
-/* ━━━ DELETE MODAL ━━━ */
-.delete-modal-box{width:400px;}
+/* DELETE WARNING */
 .delete-warning{display:flex;align-items:flex-start;gap:12px;padding:14px;background:var(--red-bg);border-radius:var(--radius-md);margin-bottom:16px;}
 .delete-warning-icon{font-size:20px;flex-shrink:0;}
 .delete-warning-text{font-size:13px;color:var(--red-text);font-weight:600;line-height:1.5;}
@@ -229,11 +211,52 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .delete-info-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;}
 .delete-info-row+.delete-info-row{border-top:1px solid var(--border-light);}
 .delete-info-key{font-size:12px;color:var(--text-secondary);}
-.delete-info-val{font-size:12px;font-weight:700;color:var(--text-primary);}
+.delete-info-val{font-size:12px;font-weight:700;}
 
-/* ━━━ TOAST ━━━ */
+/* SELECTION LIST (add teacher/child modal) */
+.sel-search{width:100%;height:36px;padding:0 12px;border:1.5px solid var(--border-light);border-radius:var(--radius-md);font-size:13px;font-family:'Pretendard',sans-serif;outline:none;margin-bottom:10px;}
+.sel-search:focus{border-color:var(--accent);}
+.sel-list{max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;}
+.sel-list::-webkit-scrollbar{width:4px;}
+.sel-list::-webkit-scrollbar-thumb{background:var(--border-medium);border-radius:2px;}
+.sel-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--radius-md);border:1.5px solid var(--border-light);cursor:pointer;transition:.15s;background:var(--bg-surface);}
+.sel-item:hover{border-color:var(--accent);background:var(--accent-light);}
+.sel-item.selected{border-color:var(--accent);background:var(--accent-light);}
+.sel-item.disabled{opacity:.4;cursor:not-allowed;pointer-events:none;}
+.sel-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0;}
+.sel-info{flex:1;min-width:0;}
+.sel-name{font-size:13px;font-weight:700;}
+.sel-sub{font-size:10px;color:var(--text-muted);}
+.sel-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--border-medium);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:transparent;transition:.15s;}
+.sel-item.selected .sel-check{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+/* CHIPS */
+.chip-area{display:flex;flex-wrap:wrap;gap:6px;padding:8px 0;min-height:30px;}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:var(--accent-light);border-radius:20px;font-size:11px;font-weight:700;color:var(--accent-dark);}
+.chip-x{cursor:pointer;font-size:13px;margin-left:2px;opacity:.7;transition:.15s;}
+.chip-x:hover{opacity:1;color:var(--red);}
+
+/* TRANSFER LIST */
+.tf-target{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--border-light);border-radius:var(--radius-md);margin-bottom:6px;background:var(--bg-surface);transition:.15s;}
+.tf-target:not(.tf-current):hover{border-color:var(--accent);background:var(--accent-light);}
+.tf-current{background:var(--bg-base);opacity:.6;}
+.tf-info{flex:1;}
+.tf-name{font-size:13px;font-weight:700;}
+.tf-sub{font-size:10px;color:var(--text-muted);}
+
+/* ROLE CHANGE */
+.rc-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--border-light);border-radius:var(--radius-md);margin-bottom:6px;background:var(--bg-surface);}
+.rc-role-sel{height:30px;padding:0 8px;border:1.5px solid var(--border-light);border-radius:var(--radius-sm);font-size:11px;font-weight:700;font-family:'Pretendard',sans-serif;cursor:pointer;outline:none;background:var(--bg-surface);}
+.rc-role-sel:focus{border-color:var(--accent);}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:60px 20px;color:var(--text-muted);}
+.empty-state-icon{font-size:40px;margin-bottom:12px;}
+.empty-state-title{font-size:14px;font-weight:700;margin-bottom:6px;color:var(--text-secondary);}
+
+/* TOAST */
 #toast-container{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:9999;}
-.toast{display:flex;align-items:center;gap:10px;padding:12px 18px;border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);font-size:13px;font-weight:600;color:#fff;min-width:240px;animation:toastIn .25s ease;pointer-events:none;}
+.toast{display:flex;align-items:center;gap:10px;padding:12px 18px;border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);font-size:13px;font-weight:600;color:#fff;min-width:260px;animation:toastIn .25s ease;pointer-events:none;}
 .toast-success{background:#10B981;}
 .toast-info{background:var(--accent);}
 .toast-warning{background:var(--amber);}
@@ -245,28 +268,24 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 <aside id="appSidebar"></aside>
 
 <div class="main-wrap">
-  <!-- TOPBAR -->
   <div class="topbar">
     <div class="breadcrumb">
-      <span>🏠</span>
-      <span class="bc-sep">›</span>
-      <span>운영관리</span>
-      <span class="bc-sep">›</span>
-      <span class="cur">반 관리</span>
+      <span>🏠</span><span class="bc-sep">›</span><span>운영관리</span><span class="bc-sep">›</span><span class="cur">반 관리</span>
     </div>
     <div class="topbar-right" id="topbarRight"></div>
   </div>
-
-  <!-- CONTENT -->
   <div class="content">
     <div class="content-inner">
-
-      <!-- KPI -->
       <div class="kpi-row" id="kpiRow"></div>
-
-      <!-- FILTER BAR -->
       <div class="action-bar">
         <div class="filter-group">
+          <div class="fsel-wrap">
+            <select class="fsel" id="filterYear" onchange="applyFilter()">
+              <option value="">전체 학년도</option>
+              <option value="2025" selected>2025년</option>
+              <option value="2026">2026년</option>
+            </select>
+          </div>
           <div class="fsel-wrap">
             <select class="fsel" id="filterStatus" onchange="applyFilter()">
               <option value="">전체 상태</option>
@@ -274,35 +293,23 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
               <option value="inactive">비운영</option>
             </select>
           </div>
-          <div class="fsel-wrap">
-            <select class="fsel" id="filterYear" onchange="applyFilter()">
-              <option value="">전체 학년도</option>
-              <option value="2026">2026년도</option>
-              <option value="2025">2025년도</option>
-            </select>
-          </div>
           <div class="search-wrap">
-            <input class="search-inp" id="searchInput" placeholder="반 이름, 교사명 검색" oninput="applyFilter()">
+            <input class="search-inp" id="searchInput" placeholder="반, 원아명, 교직원명 검색" oninput="applyFilter()">
             <button class="search-btn">🔍</button>
           </div>
         </div>
         <div class="action-right">
           <span class="results-count" id="resultsCount"></span>
           <button class="btn btn-outline btn-sm" onclick="resetFilter()">초기화</button>
-          <button class="btn btn-primary btn-sm" id="addClassBtn" onclick="openAddModal()" style="display:none">
-            ＋ 반 추가
-          </button>
+          <button class="btn btn-primary btn-sm" id="addClassBtn" onclick="openAddClassModal()" style="display:none">＋ 반 추가</button>
         </div>
       </div>
-
-      <!-- CLASS GRID -->
       <div class="class-grid" id="classGrid"></div>
-
     </div>
   </div>
 </div>
 
-<!-- ━━━ DRAWER ━━━ -->
+<!-- DRAWER -->
 <div class="drawer" id="classDrawer">
   <div class="drawer-overlay" onclick="closeDrawer()"></div>
   <div class="drawer-panel">
@@ -312,272 +319,167 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
   </div>
 </div>
 
-<!-- ━━━ ADD/EDIT MODAL ━━━ -->
-<div class="modal-overlay" id="classModal">
-  <div class="modal-box">
+<!-- GENERIC MODAL CONTAINER -->
+<div class="modal-overlay" id="genericModal">
+  <div class="modal-box" id="genericModalBox">
     <div class="modal-header">
-      <span class="modal-title" id="modalTitle">반 추가</span>
-      <button class="modal-close" onclick="closeModal('classModal')">✕</button>
+      <span class="modal-title" id="gm_title"></span>
+      <button class="modal-close" onclick="closeModal('genericModal')">✕</button>
     </div>
-    <div class="modal-body">
-      <div class="form-grid">
-        <!-- 반 이름 -->
-        <div class="form-field full">
-          <label class="form-label">반 이름 <span class="req">*</span></label>
-          <input class="form-input" id="f_name" placeholder="예: 햇님반" maxlength="20">
-        </div>
-        <!-- 연령 그룹 + 학년도 -->
-        <div class="form-field">
-          <label class="form-label">연령 그룹 <span class="req">*</span></label>
-          <select class="form-select" id="f_age">
-            <option value="">선택</option>
-            <option value="만 0세">만 0세</option>
-            <option value="만 1세">만 1세</option>
-            <option value="만 2세">만 2세</option>
-            <option value="만 3세">만 3세</option>
-            <option value="만 4세">만 4세</option>
-            <option value="만 5세">만 5세</option>
-            <option value="만 6세">만 6세</option>
-            <option value="만 7세">만 7세</option>
-          </select>
-        </div>
-        <div class="form-field">
-          <label class="form-label">학년도 <span class="req">*</span></label>
-          <select class="form-select" id="f_year">
-            <option value="2026">2026년도</option>
-            <option value="2025">2025년도</option>
-            <option value="2024">2024년도</option>
-          </select>
-        </div>
-        <!-- 담임 교사 + 보조 교사 -->
-        <div class="form-field">
-          <label class="form-label">담임 교사</label>
-          <select class="form-select" id="f_teacher" onchange="onTeacherChange()">
-            <option value="">미배정</option>
-            <option value="이지현">이지현</option>
-            <option value="박수진">박수진</option>
-            <option value="최민준">최민준</option>
-            <option value="김예진">김예진</option>
-            <option value="정아름">정아름</option>
-            <option value="한소미">한소미</option>
-            <option value="박민아">박민아</option>
-            <option value="김다영">김다영</option>
-            <option value="이서준">이서준</option>
-            <option value="오지영">오지영</option>
-          </select>
-        </div>
-        <div class="form-field">
-          <label class="form-label">보조 교사</label>
-          <select class="form-select" id="f_coTeacher" onchange="onCoTeacherChange()">
-            <option value="">없음</option>
-            <option value="이지현">이지현</option>
-            <option value="박수진">박수진</option>
-            <option value="최민준">최민준</option>
-            <option value="김예진">김예진</option>
-            <option value="정아름">정아름</option>
-            <option value="한소미">한소미</option>
-            <option value="박민아">박민아</option>
-            <option value="김다영">김다영</option>
-            <option value="이서준">이서준</option>
-            <option value="오지영">오지영</option>
-          </select>
-        </div>
-        <!-- 정원 + 반 색상 -->
-        <div class="form-field">
-          <label class="form-label">정원 <span class="req">*</span></label>
-          <input class="form-input" id="f_capacity" type="number" min="1" max="50" placeholder="20">
-          <span class="form-hint" id="capacityHint"></span>
-        </div>
-        <div class="form-field">
-          <label class="form-label">반 색상</label>
-          <div class="color-palette" id="colorPalette"></div>
-        </div>
-        <!-- 운영 상태 -->
-        <div class="form-field full">
-          <label class="form-label">운영 상태</label>
-          <div class="status-toggle-row">
-            <span class="toggle-label" id="statusToggleLabel" style="font-weight:700">운영중</span>
-            <label class="toggle-switch">
-              <input type="checkbox" id="f_status" checked onchange="updateStatusLabel()">
-              <div class="toggle-track"></div>
-              <div class="toggle-thumb"></div>
-            </label>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('classModal')">취소</button>
-      <button class="btn btn-primary" id="modalSaveBtn" onclick="saveClass()">저장</button>
-    </div>
-  </div>
-</div>
-
-<!-- ━━━ DELETE CONFIRM MODAL ━━━ -->
-<div class="modal-overlay" id="deleteModal">
-  <div class="modal-box delete-modal-box">
-    <div class="modal-header">
-      <span class="modal-title">반 삭제</span>
-      <button class="modal-close" onclick="closeModal('deleteModal')">✕</button>
-    </div>
-    <div class="modal-body" id="deleteModalBody"></div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('deleteModal')">취소</button>
-      <button class="btn btn-danger" onclick="confirmDelete()">삭제</button>
-    </div>
+    <div class="modal-body" id="gm_body"></div>
+    <div class="modal-footer" id="gm_footer"></div>
   </div>
 </div>
 
 <div id="toast-container"></div>
 
 <script>
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   MOCK DATA
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-const MOCK_CLASSES = [
-  { id:'CLS001', name:'햇님반', ageGroup:'만 5세', year:2026, capacity:22, childCount:20, teacher:'이지현', coTeacher:'박민아', status:'active', color:'#F59E0B', createdAt:'2026-03-01' },
-  { id:'CLS002', name:'달님반', ageGroup:'만 4세', year:2026, capacity:20, childCount:18, teacher:'박수진', coTeacher:'', status:'active', color:'#10B981', createdAt:'2026-03-01' },
-  { id:'CLS003', name:'별빛반', ageGroup:'만 3세', year:2026, capacity:18, childCount:15, teacher:'최민준', coTeacher:'김다영', status:'active', color:'#8B5CF6', createdAt:'2026-03-01' },
-  { id:'CLS004', name:'새싹반', ageGroup:'만 2세', year:2026, capacity:15, childCount:12, teacher:'김예진', coTeacher:'', status:'active', color:'#0EA5E9', createdAt:'2026-03-01' },
-  { id:'CLS005', name:'꽃잎반', ageGroup:'만 1세', year:2026, capacity:10, childCount:8, teacher:'정아름', coTeacher:'한소미', status:'inactive', color:'#6B7280', createdAt:'2026-09-01' },
+/* ════════════════════════════════════════════
+   MOCK DATA (W17 기준)
+════════════════════════════════════════════ */
+const PALETTE = ['#F59E0B','#10B981','#8B5CF6','#0EA5E9','#EF4444','#EC4899','#F97316','#14B8A6'];
+
+const ALL_TEACHERS = [
+  { id:'T001', name:'강하나', classCount:2, color:'#F59E0B' },
+  { id:'T002', name:'박하나', classCount:1, color:'#EC4899' },
+  { id:'T003', name:'유지아', classCount:1, color:'#10B981' },
+  { id:'T004', name:'김민호', classCount:1, color:'#3B82F6' },
+  { id:'T005', name:'나예리', classCount:1, color:'#8B5CF6' },
+  { id:'T006', name:'로미오', classCount:1, color:'#F97316' },
+  { id:'T007', name:'김나다', classCount:0, color:'#14B8A6' },
+  { id:'T008', name:'라마바', classCount:0, color:'#6366F1' },
+  { id:'T009', name:'마바사', classCount:0, color:'#0EA5E9' },
+  { id:'T010', name:'도민준', classCount:0, color:'#EF4444' },
 ];
 
-const MOCK_CHILDREN = {
-  'CLS001': [
-    { id:'C001', name:'김민준', gender:'남', color:'#F59E0B' },
-    { id:'C002', name:'이서연', gender:'여', color:'#EC4899' },
-    { id:'C003', name:'박지호', gender:'남', color:'#3B82F6' },
-    { id:'C004', name:'최유리', gender:'여', color:'#10B981' },
-    { id:'C005', name:'정도윤', gender:'남', color:'#8B5CF6' },
-    { id:'C006', name:'한지민', gender:'여', color:'#F97316' },
-  ],
-  'CLS002': [
-    { id:'C007', name:'오서준', gender:'남', color:'#14B8A6' },
-    { id:'C008', name:'신예원', gender:'여', color:'#F43F5E' },
-    { id:'C009', name:'조현우', gender:'남', color:'#6366F1' },
-    { id:'C010', name:'윤지아', gender:'여', color:'#EAB308' },
-  ],
-  'CLS003': [
-    { id:'C011', name:'강민서', gender:'남', color:'#8B5CF6' },
-    { id:'C012', name:'임하은', gender:'여', color:'#F59E0B' },
-    { id:'C013', name:'서태양', gender:'남', color:'#10B981' },
-  ],
-  'CLS004': [
-    { id:'C014', name:'문예린', gender:'여', color:'#0EA5E9' },
-    { id:'C015', name:'권시온', gender:'남', color:'#F97316' },
-    { id:'C016', name:'노아진', gender:'남', color:'#EC4899' },
-  ],
-  'CLS005': [
-    { id:'C017', name:'배소율', gender:'여', color:'#6B7280' },
-    { id:'C018', name:'심준서', gender:'남', color:'#84CC16' },
-  ],
-};
+const ALL_CHILDREN = [
+  { id:'C001', name:'강가영', birth:'2020-06-28', age:'5세', color:'#F59E0B' },
+  { id:'C002', name:'강하나', birth:'2020-08-28', age:'5세', color:'#EC4899' },
+  { id:'C003', name:'나성호', birth:'2020-03-02', age:'5세', color:'#3B82F6' },
+  { id:'C004', name:'도지민', birth:'2020-04-09', age:'5세', color:'#10B981' },
+  { id:'C005', name:'도우진', birth:'2020-10-10', age:'5세', color:'#8B5CF6' },
+  { id:'C006', name:'로미오', birth:'2020-10-10', age:'5세', color:'#F97316' },
+  { id:'C007', name:'마에리', birth:'2020-12-30', age:'5세', color:'#14B8A6' },
+  { id:'C008', name:'김나다', birth:'2020-04-16', age:'5세', color:'#6366F1' },
+  { id:'C009', name:'배서현', birth:'2020-01-15', age:'5세', color:'#0EA5E9' },
+  { id:'C010', name:'오서준', birth:'2021-05-12', age:'4세', color:'#EF4444' },
+  { id:'C011', name:'신예원', birth:'2021-08-20', age:'4세', color:'#EC4899' },
+  { id:'C012', name:'조현우', birth:'2021-02-15', age:'4세', color:'#F59E0B' },
+  { id:'C013', name:'윤지아', birth:'2021-12-30', age:'4세', color:'#10B981' },
+  { id:'C014', name:'강민서', birth:'2022-03-10', age:'3세', color:'#8B5CF6' },
+  { id:'C015', name:'임하은', birth:'2022-07-22', age:'3세', color:'#3B82F6' },
+  { id:'C016', name:'서태양', birth:'2022-11-05', age:'3세', color:'#F97316' },
+  { id:'C017', name:'문예린', birth:'2023-01-20', age:'2세', color:'#0EA5E9' },
+  { id:'C018', name:'권시온', birth:'2023-06-14', age:'2세', color:'#14B8A6' },
+];
 
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   STATE & ROLE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+let CLASSES = [
+  {
+    id:'CLS001', name:'송이반', ageGroup:'5세', year:2025, capacity:20, status:'active', color:'#F59E0B', createdAt:'2025-03-01',
+    teachers:[
+      { id:'T001', name:'강하나', role:'lead' },
+      { id:'T002', name:'박하나', role:'assistant' },
+    ],
+    children:['C001','C002','C003','C004','C005','C006','C007','C008','C009'],
+  },
+  {
+    id:'CLS002', name:'뿌리반', ageGroup:'4세', year:2025, capacity:25, status:'active', color:'#10B981', createdAt:'2025-03-01',
+    teachers:[
+      { id:'T003', name:'유지아', role:'lead' },
+      { id:'T004', name:'김민호', role:'assistant' },
+    ],
+    children:['C010','C011','C012','C013'],
+  },
+  {
+    id:'CLS003', name:'나무반', ageGroup:'3세', year:2025, capacity:15, status:'active', color:'#8B5CF6', createdAt:'2025-03-01',
+    teachers:[
+      { id:'T005', name:'나예리', role:'lead' },
+    ],
+    children:['C014','C015','C016'],
+  },
+  {
+    id:'CLS004', name:'잎새반', ageGroup:'2세', year:2025, capacity:10, status:'inactive', color:'#0EA5E9', createdAt:'2025-03-01',
+    teachers:[
+      { id:'T006', name:'로미오', role:'lead' },
+    ],
+    children:['C017','C018'],
+  },
+];
+
+/* ════════════════════════════════════════════
+   STATE / ROLE
+════════════════════════════════════════════ */
 const userRole = sessionStorage.getItem('userRole') || 'org_admin';
 const _opCtx = JSON.parse(sessionStorage.getItem('operationContext') || 'null');
 const effectiveRole = (_opCtx && _opCtx.contextRole) ? _opCtx.contextRole : userRole;
-const assignedClasses = JSON.parse(sessionStorage.getItem('assignedClasses') || '[{"id":"CLS001","name":"햇님반"},{"id":"CLS002","name":"달님반"}]');
+const assignedClasses = JSON.parse(sessionStorage.getItem('assignedClasses') || '[{"id":"CLS001"},{"id":"CLS002"}]');
+const canManage = effectiveRole !== 'teacher';
 
-const canCreate = effectiveRole !== 'teacher';
-const canDeleteClass = effectiveRole !== 'teacher';
-
-function canEditClass(clsId) {
-  if (effectiveRole !== 'teacher') return true;
-  return assignedClasses.some(c => c.id === clsId);
-}
-
-function isAssigned(clsId) {
-  return assignedClasses.some(c => c.id === clsId);
-}
-
-const PALETTE_COLORS = ['#F59E0B','#10B981','#8B5CF6','#0EA5E9','#EF4444','#EC4899','#F97316','#14B8A6','#6366F1','#64748B'];
-let selectedColor = PALETTE_COLORS[0];
-
-let CLASSES = [...MOCK_CLASSES];
-let filteredClasses = [...CLASSES];
+let filteredClasses = [];
 let activeCardId = null;
-let deletingId = null;
-let editingId = null;
 
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+/* ════════════════════════════════════════════
+   HELPERS
+════════════════════════════════════════════ */
+function getChild(id) { return ALL_CHILDREN.find(c => c.id === id); }
+function getTeacher(id) { return ALL_TEACHERS.find(t => t.id === id); }
+function getClass(id) { return CLASSES.find(c => c.id === id); }
+function childrenOf(cls) { return cls.children.map(getChild).filter(Boolean); }
+function leadCount(cls) { return cls.teachers.filter(t => t.role === 'lead').length; }
+function isAssigned(id) { return assignedClasses.some(c => c.id === id); }
+function roleLabel(r) { return r === 'lead' ? '담임' : '보조'; }
+function formatBirth(b) { const d = b.split('-'); return `${d[0].slice(2)}.${d[1]}.${d[2]}`; }
+
+function showToast(msg, type='info') {
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  const icons = { success:'✅', info:'ℹ️', warning:'⚠️' };
+  t.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  document.getElementById('toast-container').appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+/* ════════════════════════════════════════════
    INIT
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
-  renderTopbar();
-  if (canCreate) document.getElementById('addClassBtn').style.display = 'inline-flex';
+  const now = new Date();
+  document.getElementById('topbarRight').innerHTML = `
+    <span class="topbar-date">${now.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'})}</span>
+    <button class="icon-btn" title="새로고침" onclick="applyFilter()">🔄</button>`;
+  if (canManage) document.getElementById('addClassBtn').style.display = 'inline-flex';
   renderKPI();
   applyFilter();
 });
 
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
-  if (document.getElementById('deleteModal').classList.contains('open')) closeModal('deleteModal');
-  else if (document.getElementById('classModal').classList.contains('open')) closeModal('classModal');
+  if (document.getElementById('genericModal').classList.contains('open')) closeModal('genericModal');
   else if (document.getElementById('classDrawer').classList.contains('open')) closeDrawer();
 });
 
-function renderTopbar() {
-  const now = new Date();
-  const dateStr = now.toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric', weekday:'short' });
-  document.getElementById('topbarRight').innerHTML = `
-    <span class="topbar-date">${dateStr}</span>
-    <button class="icon-btn" title="새로고침" onclick="applyFilter()">🔄</button>
-  `;
-}
-
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+/* ════════════════════════════════════════════
    KPI
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+════════════════════════════════════════════ */
 function renderKPI() {
   const total = CLASSES.length;
   const active = CLASSES.filter(c => c.status === 'active').length;
-  const totalChildren = CLASSES.reduce((s, c) => s + c.childCount, 0);
+  const totalChildren = CLASSES.reduce((s, c) => s + c.children.length, 0);
   const totalCap = CLASSES.reduce((s, c) => s + c.capacity, 0);
   const fillRate = totalCap ? Math.round(totalChildren / totalCap * 100) : 0;
-  const teachers = new Set(CLASSES.flatMap(c => [c.teacher, c.coTeacher].filter(Boolean))).size;
-
   document.getElementById('kpiRow').innerHTML = `
-    <div class="kpi-card">
-      <div class="kpi-icon" style="background:#E0F2FE">🏫</div>
-      <div class="kpi-info">
-        <div class="kpi-val">${total}</div>
-        <div class="kpi-label">전체 반</div>
-        <div class="kpi-sub">비운영 ${total - active}개 포함</div>
-      </div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-icon" style="background:#D1FAE5">✅</div>
-      <div class="kpi-info">
-        <div class="kpi-val" style="color:var(--green)">${active}</div>
-        <div class="kpi-label">운영중 반</div>
-        <div class="kpi-sub">현재 활성 반</div>
-      </div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-icon" style="background:#EDE9FE">👶</div>
-      <div class="kpi-info">
-        <div class="kpi-val" style="color:#8B5CF6">${totalChildren}</div>
-        <div class="kpi-label">총 원아 수</div>
-        <div class="kpi-sub">정원 ${totalCap}명 중</div>
-      </div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-icon" style="background:#FEF3C7">📊</div>
-      <div class="kpi-info">
-        <div class="kpi-val" style="color:var(--amber)">${fillRate}%</div>
-        <div class="kpi-label">평균 충원율</div>
-        <div class="kpi-sub">담당 교사 ${teachers}명</div>
-      </div>
-    </div>
-  `;
+    <div class="kpi-card"><div class="kpi-icon" style="background:#E0F2FE">🏫</div><div class="kpi-info"><div class="kpi-val">${total}</div><div class="kpi-label">전체 반</div><div class="kpi-sub">비운영 ${total-active}개 포함</div></div></div>
+    <div class="kpi-card"><div class="kpi-icon" style="background:#D1FAE5">✅</div><div class="kpi-info"><div class="kpi-val" style="color:var(--green)">${active}</div><div class="kpi-label">운영중 반</div><div class="kpi-sub">현재 활성</div></div></div>
+    <div class="kpi-card"><div class="kpi-icon" style="background:#EDE9FE">👶</div><div class="kpi-info"><div class="kpi-val" style="color:#8B5CF6">${totalChildren}</div><div class="kpi-label">총 원아 수</div><div class="kpi-sub">정원 ${totalCap}명 중</div></div></div>
+    <div class="kpi-card"><div class="kpi-icon" style="background:#FEF3C7">📊</div><div class="kpi-info"><div class="kpi-val" style="color:var(--amber)">${fillRate}%</div><div class="kpi-label">평균 충원율</div></div></div>`;
 }
 
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   FILTER & RENDER GRID
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* ════════════════════════════════════════════
+   FILTER & GRID
+════════════════════════════════════════════ */
 function applyFilter() {
   const status = document.getElementById('filterStatus').value;
   const year = document.getElementById('filterYear').value;
@@ -586,10 +488,14 @@ function applyFilter() {
   filteredClasses = CLASSES.filter(c => {
     if (status && c.status !== status) return false;
     if (year && String(c.year) !== year) return false;
-    if (q && !c.name.includes(q) && !c.teacher.toLowerCase().includes(q) && !c.coTeacher.toLowerCase().includes(q)) return false;
+    if (q) {
+      const nameMatch = c.name.toLowerCase().includes(q);
+      const teacherMatch = c.teachers.some(t => t.name.toLowerCase().includes(q));
+      const childMatch = c.children.some(cid => { const ch = getChild(cid); return ch && ch.name.toLowerCase().includes(q); });
+      if (!nameMatch && !teacherMatch && !childMatch) return false;
+    }
     return true;
   });
-
   document.getElementById('resultsCount').textContent = `${filteredClasses.length}개 반`;
   renderGrid();
 }
@@ -604,50 +510,31 @@ function resetFilter() {
 function renderGrid() {
   const grid = document.getElementById('classGrid');
   if (!filteredClasses.length) {
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
-      <div class="empty-state-icon">🔍</div>
-      <div class="empty-state-title">검색 결과가 없습니다</div>
-      <p style="font-size:12px;color:var(--text-muted)">검색 조건을 변경해 보세요</p>
-    </div>`;
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">🔍</div><div class="empty-state-title">검색 결과가 없습니다</div><p style="font-size:12px;color:var(--text-muted)">검색 조건을 변경해 보세요</p></div>`;
     return;
   }
-  grid.innerHTML = filteredClasses.map(c => renderClassCard(c)).join('');
+  grid.innerHTML = filteredClasses.map(renderCard).join('');
 }
 
-function renderClassCard(c) {
-  const pct = Math.round(c.childCount / c.capacity * 100);
-  const fillColor = pct >= 90 ? 'var(--red)' : pct >= 70 ? 'var(--amber)' : 'var(--green)';
+function renderCard(c) {
   const isActive = c.status === 'active';
   const statusBadge = isActive
-    ? `<span class="cc-status-badge badge-green"><span class="badge-dot"></span>운영중</span>`
-    : `<span class="cc-status-badge badge-gray"><span class="badge-dot"></span>비운영</span>`;
-
+    ? `<span class="cc-status-badge badge-green"><span class="badge-dot"></span>Y</span>`
+    : `<span class="cc-status-badge badge-gray"><span class="badge-dot"></span>N</span>`;
   const assigned = effectiveRole === 'teacher' && isAssigned(c.id);
-  const editBtn = canEditClass(c.id)
-    ? `<button class="btn btn-outline btn-xs" onclick="event.stopPropagation();openEditModal('${c.id}')">수정</button>`
-    : '';
-  const delBtn = canDeleteClass
-    ? `<button class="btn btn-danger-outline btn-xs" onclick="event.stopPropagation();openDeleteModal('${c.id}')">삭제</button>`
-    : '';
-
-  const coTeacherLine = c.coTeacher
-    ? `<div class="cc-teacher-row" style="margin-top:5px">
-        <div class="cc-teacher-avatar" style="background:#94A3B8;font-size:10px">${c.coTeacher[0]}</div>
-        <div class="cc-teacher-info">
-          <div class="cc-teacher-name">${c.coTeacher}</div>
-          <div class="cc-teacher-role">보조교사</div>
-        </div>
-      </div>` : '';
+  const pct = c.capacity ? Math.round(c.children.length / c.capacity * 100) : 0;
+  const fillColor = pct >= 90 ? 'var(--red)' : pct >= 70 ? 'var(--amber)' : 'var(--green)';
+  const teacherNames = c.teachers.map(t => t.name + ' 교사').join(' / ') || '-';
+  const editBtn = canManage ? `<button class="btn btn-outline btn-xs" onclick="event.stopPropagation();openEditClassModal('${c.id}')">수정</button>` : '';
+  const manageBtn = `<button class="btn btn-outline btn-xs" onclick="event.stopPropagation();openDrawer('${c.id}')">관리</button>`;
 
   return `
-    <div class="class-card${activeCardId===c.id?' active-card':''}${assigned?' teacher-assigned':''}" id="card_${c.id}" onclick="openDrawer('${c.id}')">
+    <div class="class-card${activeCardId===c.id?' active-card':''}${assigned?' teacher-assigned':''}" onclick="openDrawer('${c.id}')">
       <div class="cc-color-bar" style="background:${c.color}"></div>
       <div class="cc-header">
         <div class="cc-top-row">
           <div>
-            <div class="cc-name">${c.name}</div>
-            <div class="cc-age">${c.ageGroup}</div>
-            <div class="cc-year-badge">📅 ${c.year}년도</div>
+            <div class="cc-name">${c.name}(${c.ageGroup})</div>
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
             ${statusBadge}
@@ -656,55 +543,38 @@ function renderClassCard(c) {
         </div>
       </div>
       <div class="cc-body">
-        <div class="cc-teacher-row">
-          <div class="cc-teacher-avatar" style="background:${c.color}">${c.teacher ? c.teacher[0] : '?'}</div>
-          <div class="cc-teacher-info">
-            <div class="cc-teacher-name">${c.teacher || '미배정'}</div>
-            <div class="cc-teacher-role">담임교사</div>
-          </div>
-        </div>
-        ${coTeacherLine}
+        <div class="cc-summary">교사 ${c.teachers.length}명 / 원아 ${c.children.length}명</div>
+        <div class="cc-teacher-names">${teacherNames}</div>
         <div class="cc-capacity-section">
-          <div class="cc-capacity-row">
-            <span>원아 현황</span>
-            <span><span class="cc-capacity-count">${c.childCount}</span> / ${c.capacity}명</span>
-          </div>
-          <div class="progress-bar">
-            <div class="progress-fill" style="width:${pct}%;background:${fillColor}"></div>
-          </div>
+          <div class="cc-capacity-row"><span>원아 현황</span><span><span class="cc-capacity-count">${c.children.length}</span> / ${c.capacity}명</span></div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${fillColor}"></div></div>
         </div>
       </div>
-      <div class="cc-footer">
-        <span class="cc-footer-meta">생성 ${c.createdAt}</span>
-        <div class="cc-actions">
-          ${editBtn}
-          ${delBtn}
-        </div>
-      </div>
-    </div>
-  `;
+      <div class="cc-footer">${editBtn}${manageBtn}</div>
+    </div>`;
 }
 
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+/* ════════════════════════════════════════════
    DRAWER
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+════════════════════════════════════════════ */
 function openDrawer(id) {
-  // active card highlight
-  if (activeCardId) {
-    const prev = document.getElementById('card_' + activeCardId);
-    if (prev) prev.classList.remove('active-card');
-  }
+  if (activeCardId) { const prev = document.querySelector('.class-card.active-card'); if (prev) prev.classList.remove('active-card'); }
   activeCardId = id;
-  const card = document.getElementById('card_' + id);
-  if (card) card.classList.add('active-card');
+  const el = document.querySelector(`[onclick*="openDrawer('${id}')"]`);
+  if (el) el.classList.add('active-card');
+  renderDrawer(id);
+  document.getElementById('classDrawer').classList.add('open');
+}
 
-  const c = CLASSES.find(x => x.id === id);
+function closeDrawer() {
+  document.getElementById('classDrawer').classList.remove('open');
+  if (activeCardId) { const el = document.querySelector('.class-card.active-card'); if (el) el.classList.remove('active-card'); activeCardId = null; }
+}
+
+function renderDrawer(id) {
+  const c = getClass(id);
   if (!c) return;
-
-  const pct = Math.round(c.childCount / c.capacity * 100);
-  const fillColor = pct >= 90 ? 'var(--red)' : pct >= 70 ? 'var(--amber)' : 'var(--green)';
-  const children = MOCK_CHILDREN[id] || [];
-  const preview = children.slice(0, 5);
+  const children = childrenOf(c);
 
   // Header
   document.getElementById('drawerHeader').innerHTML = `
@@ -712,357 +582,674 @@ function openDrawer(id) {
       <div>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
           <div style="width:10px;height:10px;border-radius:50%;background:${c.color};flex-shrink:0"></div>
-          <span style="font-size:18px;font-weight:800;color:var(--text-primary)">${c.name}</span>
-          ${c.status==='active'
-            ? '<span class="badge badge-green"><span class="badge-dot"></span>운영중</span>'
-            : '<span class="badge badge-gray"><span class="badge-dot"></span>비운영</span>'}
+          <span style="font-size:18px;font-weight:800">${c.name}(${c.ageGroup})</span>
+          ${c.status==='active' ? '<span class="badge badge-green"><span class="badge-dot"></span>운영</span>' : '<span class="badge badge-gray"><span class="badge-dot"></span>비운영</span>'}
         </div>
-        <div style="font-size:12px;color:var(--text-secondary)">${c.ageGroup} · ${c.year}년도</div>
+        <div style="font-size:12px;color:var(--text-secondary)">${c.year}년도 · 정원 ${c.capacity}명</div>
+        ${canManage ? `<div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+          <span style="font-size:11px;font-weight:700;color:${c.status==='active'?'var(--green)':'var(--text-muted)'}" id="drawerStLabel">${c.status==='active'?'운영':'비운영'}</span>
+          <label class="toggle-switch" style="transform:scale(0.85)">
+            <input type="checkbox" ${c.status==='active'?'checked':''} onchange="toggleDrawerStatus('${c.id}',this.checked)">
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+        </div>` : ''}
       </div>
       <button class="drawer-close" onclick="closeDrawer()">✕</button>
-    </div>
-  `;
+    </div>`;
 
-  // Body
+  // Teacher section
+  const teacherAddDisabled = c.teachers.length >= 5;
+  const teacherCards = c.teachers.length === 0
+    ? `<div class="empty-inline">등록된 교사가 없습니다</div>`
+    : c.teachers.map(t => {
+      const roleBadge = t.role === 'lead' ? '<span class="badge badge-accent" style="font-size:9px;padding:2px 6px">담임</span>' : '<span class="badge badge-gray" style="font-size:9px;padding:2px 6px">보조</span>';
+      const teacher = getTeacher(t.id);
+      const actions = canManage ? `<div class="dt-actions">
+        <button class="btn btn-outline btn-xs" onclick="openTeacherTransferModal('${id}','${t.id}')">반이동</button>
+        <button class="btn btn-danger-outline btn-xs" onclick="handleTeacherDelete('${id}','${t.id}')">삭제</button>
+      </div>` : '';
+      return `<div class="dt-card">
+        <div class="dt-avatar" style="background:${teacher?.color||'#94A3B8'}">${t.name[0]}</div>
+        <div class="dt-info"><div class="dt-name">${t.name} ${roleBadge}</div><div class="dt-sub">소속반 ${teacher?.classCount||1}</div></div>
+        ${actions}
+      </div>`;
+    }).join('');
+
+  // Child section
+  const childCards = children.length === 0
+    ? `<div class="empty-inline">등록된 원아가 없습니다</div>`
+    : children.map(ch => {
+      const actions = canManage ? `<div class="dc-actions">
+        <button class="btn btn-outline btn-xs" onclick="openChildTransferModal('${id}','${ch.id}')">반이동</button>
+        <button class="btn btn-danger-outline btn-xs" onclick="openChildDeleteModal('${id}','${ch.id}')">삭제</button>
+      </div>` : '';
+      return `<div class="dc-row" id="dcRow_${ch.id}">
+        <div class="dc-avatar" style="background:${ch.color}">${ch.name[0]}</div>
+        <div class="dc-info"><div class="dc-name">${ch.name}</div><div class="dc-birth">${formatBirth(ch.birth)}</div></div>
+        ${actions}
+      </div>`;
+    }).join('');
+
   document.getElementById('drawerBody').innerHTML = `
-    <!-- 기본 정보 -->
-    <div class="drawer-section">
-      <div class="drawer-section-title">기본 정보</div>
-      <div class="drawer-info-grid">
-        <div class="di-field">
-          <div class="di-label">반 이름</div>
-          <div class="di-value">${c.name}</div>
-        </div>
-        <div class="di-field">
-          <div class="di-label">연령 그룹</div>
-          <div class="di-value">${c.ageGroup}</div>
-        </div>
-        <div class="di-field">
-          <div class="di-label">학년도</div>
-          <div class="di-value">${c.year}년도</div>
-        </div>
-        <div class="di-field">
-          <div class="di-label">생성일</div>
-          <div class="di-value">${c.createdAt}</div>
-        </div>
+    <div class="dsec">
+      <div class="dsec-head">
+        <div><span class="dsec-title">교사</span><span class="dsec-count">(${c.teachers.length})</span></div>
+        ${canManage ? `<button class="dsec-add-btn" ${teacherAddDisabled?'disabled':''} onclick="${teacherAddDisabled ? `showToast('한 반에 교사는 최대 5명까지 추가할 수 있어요.','warning')` : `openTeacherAddModal('${id}')`}">＋ 교사 추가</button>` : ''}
       </div>
+      ${teacherCards}
+      ${canManage && c.teachers.length > 0 ? `<button class="btn btn-outline btn-sm" style="width:100%;margin-top:6px" onclick="openRoleChangeModal('${id}')">역할 변경</button>` : ''}
     </div>
-
-    <!-- 정원 현황 -->
-    <div class="drawer-section">
-      <div class="drawer-section-title">정원 현황</div>
-      <div class="capacity-display">
-        <div class="cap-row">
-          <div>
-            <span class="cap-numbers">${c.childCount}</span>
-            <span style="font-size:13px;color:var(--text-muted)"> / ${c.capacity}명</span>
-          </div>
-          <span class="cap-pct" style="color:${fillColor}">${pct}% 충원</span>
-        </div>
-        <div class="progress-bar" style="height:8px">
-          <div class="progress-fill" style="width:${pct}%;background:${fillColor}"></div>
-        </div>
-        <div class="cap-sub" style="margin-top:6px">잔여 정원: ${c.capacity - c.childCount}명</div>
+    <div class="dsec">
+      <div class="dsec-head">
+        <div><span class="dsec-title">원아</span><span class="dsec-count">(${children.length})</span></div>
+        ${canManage ? `<button class="dsec-add-btn" onclick="openChildAddModal('${id}')">＋ 원아 추가</button>` : ''}
       </div>
-    </div>
+      <input class="dc-search" placeholder="원아 검색" oninput="filterDrawerChildren(this.value,'${id}')">
+      <div id="drawerChildList">${childCards}</div>
+    </div>`;
 
-    <!-- 담당 교사 -->
-    <div class="drawer-section">
-      <div class="drawer-section-title">담당 교사</div>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <div class="drawer-teacher-card">
-          <div class="dt-avatar" style="background:${c.color}">${c.teacher ? c.teacher[0] : '?'}</div>
-          <div class="dt-info">
-            <div class="dt-name">${c.teacher || '미배정'}</div>
-            <div class="dt-role-badge">담임교사</div>
-          </div>
-          <span class="badge badge-accent">담임</span>
-        </div>
-        ${c.coTeacher ? `
-        <div class="drawer-teacher-card">
-          <div class="dt-avatar" style="background:#94A3B8">${c.coTeacher[0]}</div>
-          <div class="dt-info">
-            <div class="dt-name">${c.coTeacher}</div>
-            <div class="dt-role-badge">보조교사</div>
-          </div>
-          <span class="badge badge-gray">보조</span>
-        </div>` : `
-        <div style="padding:8px 12px;font-size:12px;color:var(--text-muted);background:var(--bg-base);border-radius:var(--radius-md);border:1px dashed var(--border-medium)">
-          보조교사 미배정
-        </div>`}
-      </div>
-    </div>
-
-    <!-- 소속 원아 -->
-    <div class="drawer-section">
-      <div class="drawer-section-title">소속 원아 (${children.length}명)</div>
-      ${children.length === 0
-        ? `<div style="padding:12px;text-align:center;color:var(--text-muted);font-size:12px;background:var(--bg-base);border-radius:var(--radius-md)">등록된 원아가 없습니다</div>`
-        : `<div class="child-list">
-          ${preview.map(ch => `
-            <div class="child-item">
-              <div class="child-av" style="background:${ch.color}">${ch.name[0]}</div>
-              <span class="child-name">${ch.name}</span>
-              <span class="badge ${ch.gender==='남' ? 'badge-blue' : 'badge-red'}" style="font-size:10px;padding:2px 6px">${ch.gender}</span>
-              <span class="child-meta"></span>
-            </div>`).join('')}
-          </div>
-          ${children.length > 5 ? `
-          <div class="view-all-link" onclick="goToChildren('${id}')">
-            + ${children.length - 5}명 더 보기 · 원아관리로 이동 →
-          </div>` : `
-          <div class="view-all-link" onclick="goToChildren('${id}')">
-            원아관리에서 전체 보기 →
-          </div>`}`}
-    </div>
-  `;
-
-  // Footer buttons
-  const editBtn = canEditClass(id)
-    ? `<button class="btn btn-primary" style="flex:1" onclick="openEditModal('${id}')">✏️ 수정</button>` : '';
-  const delBtn = canDeleteClass
-    ? `<button class="btn btn-danger-outline" style="flex:1" onclick="openDeleteModal('${id}')">🗑️ 삭제</button>` : '';
-
-  document.getElementById('drawerFooter').innerHTML = editBtn + delBtn
-    || `<div style="font-size:12px;color:var(--text-muted);text-align:center;width:100%">조회 전용 — 수정 권한 없음</div>`;
-
-  document.getElementById('classDrawer').classList.add('open');
+  // Footer
+  document.getElementById('drawerFooter').innerHTML = canManage
+    ? `<button class="btn btn-outline" style="flex:1" onclick="openEditClassModal('${id}')">✏️ 수정</button><button class="btn btn-danger-outline" style="flex:1" onclick="openDeleteClassModal('${id}')">🗑️ 삭제</button>`
+    : `<div style="font-size:12px;color:var(--text-muted);text-align:center;width:100%">조회 전용 — 수정 권한 없음</div>`;
 }
 
-function closeDrawer() {
-  document.getElementById('classDrawer').classList.remove('open');
-  if (activeCardId) {
-    const card = document.getElementById('card_' + activeCardId);
-    if (card) card.classList.remove('active-card');
-    activeCardId = null;
+function toggleDrawerStatus(clsId, checked) {
+  const c = getClass(clsId);
+  if (!c) return;
+  c.status = checked ? 'active' : 'inactive';
+  const label = document.getElementById('drawerStLabel');
+  if (label) { label.textContent = checked ? '운영' : '비운영'; label.style.color = checked ? 'var(--green)' : 'var(--text-muted)'; }
+  renderKPI(); applyFilter();
+  renderDrawer(clsId);
+}
+
+function filterDrawerChildren(q, clsId) {
+  const c = getClass(clsId);
+  if (!c) return;
+  const lower = q.toLowerCase();
+  const children = childrenOf(c).filter(ch => ch.name.toLowerCase().includes(lower));
+  document.getElementById('drawerChildList').innerHTML = children.length === 0
+    ? `<div class="empty-inline">검색 결과 없음</div>`
+    : children.map(ch => {
+      const actions = canManage ? `<div class="dc-actions"><button class="btn btn-outline btn-xs" onclick="openChildTransferModal('${clsId}','${ch.id}')">반이동</button><button class="btn btn-danger-outline btn-xs" onclick="openChildDeleteModal('${clsId}','${ch.id}')">삭제</button></div>` : '';
+      return `<div class="dc-row"><div class="dc-avatar" style="background:${ch.color}">${ch.name[0]}</div><div class="dc-info"><div class="dc-name">${ch.name}</div><div class="dc-birth">${formatBirth(ch.birth)}</div></div>${actions}</div>`;
+    }).join('');
+}
+
+/* ════════════════════════════════════════════
+   CLASS ADD / EDIT / DELETE MODALS
+════════════════════════════════════════════ */
+let _editingClassId = null;
+
+function openAddClassModal() {
+  _editingClassId = null;
+  document.getElementById('gm_title').textContent = '반 개설하기';
+  document.getElementById('genericModalBox').style.width = '440px';
+  document.getElementById('gm_body').innerHTML = `
+    <div class="form-field">
+      <label class="form-label">반 이름 <span class="req">*</span></label>
+      <input class="form-input" id="fc_name" placeholder="예: 꽃잎 (15자 이내)" maxlength="15">
+    </div>
+    <div class="form-field">
+      <label class="form-label">연령 <span class="req">*</span></label>
+      <div class="age-toggle">
+        <button class="age-toggle-btn active" onclick="setAgeMode('single',this)">단일</button>
+        <button class="age-toggle-btn" onclick="setAgeMode('range',this)">복수</button>
+      </div>
+      <div id="ageInputArea">
+        <select class="form-select" id="fc_age_single">
+          <option value="">선택</option>
+          <option>0세</option><option>1세</option><option>2세</option><option>3세</option><option>4세</option><option>5세</option><option>6세</option><option>7세</option>
+        </select>
+      </div>
+    </div>`;
+  document.getElementById('gm_footer').innerHTML = `
+    <button class="btn btn-outline" onclick="closeModal('genericModal')">취소</button>
+    <button class="btn btn-primary" onclick="saveNewClass()">생성</button>`;
+  openModal('genericModal');
+}
+
+let _ageMode = 'single';
+function setAgeMode(mode, el) {
+  _ageMode = mode;
+  el.parentElement.querySelectorAll('.age-toggle-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  const area = document.getElementById('ageInputArea');
+  if (mode === 'single') {
+    area.innerHTML = `<select class="form-select" id="fc_age_single"><option value="">선택</option><option>0세</option><option>1세</option><option>2세</option><option>3세</option><option>4세</option><option>5세</option><option>6세</option><option>7세</option></select>`;
+  } else {
+    area.innerHTML = `<div class="form-row">
+      <select class="form-select" id="fc_age_min"><option value="">최소</option><option>0세</option><option>1세</option><option>2세</option><option>3세</option><option>4세</option><option>5세</option><option>6세</option><option>7세</option></select>
+      <span style="display:flex;align-items:center;color:var(--text-muted)">~</span>
+      <select class="form-select" id="fc_age_max"><option value="">최대</option><option>0세</option><option>1세</option><option>2세</option><option>3세</option><option>4세</option><option>5세</option><option>6세</option><option>7세</option></select>
+    </div>`;
   }
 }
 
-function goToChildren(clsId) {
-  // 원아관리 페이지로 이동 (반 필터 적용)
-  sessionStorage.setItem('currentClass', clsId);
-  window.location.href = 'operation-child.html';
-}
-
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   ADD / EDIT MODAL
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-function openAddModal() {
-  editingId = null;
-  document.getElementById('modalTitle').textContent = '반 추가';
-  document.getElementById('modalSaveBtn').textContent = '추가';
-  document.getElementById('f_name').value = '';
-  document.getElementById('f_age').value = '';
-  document.getElementById('f_year').value = '2026';
-  document.getElementById('f_capacity').value = '';
-  document.getElementById('f_teacher').value = '';
-  document.getElementById('f_coTeacher').value = '';
-  document.getElementById('f_status').checked = true;
-  document.getElementById('capacityHint').textContent = '';
-  document.getElementById('capacityHint').className = 'form-hint';
-  syncTeacherOptions();
-  updateStatusLabel();
-  renderColorPalette(PALETTE_COLORS[CLASSES.length % PALETTE_COLORS.length]);
-  openModal('classModal');
-}
-
-function openEditModal(id) {
-  const c = CLASSES.find(x => x.id === id);
-  if (!c) return;
-  editingId = id;
-  document.getElementById('modalTitle').textContent = `'${c.name}' 수정`;
-  document.getElementById('modalSaveBtn').textContent = '저장';
-  document.getElementById('f_name').value = c.name;
-  document.getElementById('f_age').value = c.ageGroup;
-  document.getElementById('f_year').value = String(c.year);
-  document.getElementById('f_capacity').value = c.capacity;
-  document.getElementById('f_teacher').value = c.teacher;
-  document.getElementById('f_coTeacher').value = c.coTeacher;
-  document.getElementById('f_status').checked = c.status === 'active';
-  document.getElementById('capacityHint').textContent = `현재 ${c.childCount}명 재원 중`;
-  document.getElementById('capacityHint').className = 'form-hint';
-  syncTeacherOptions();
-  updateStatusLabel();
-  renderColorPalette(c.color || PALETTE_COLORS[0]);
-  closeDrawer();
-  openModal('classModal');
-}
-
-function updateStatusLabel() {
-  const on = document.getElementById('f_status').checked;
-  const label = document.getElementById('statusToggleLabel');
-  label.textContent = on ? '운영중' : '비운영';
-  label.style.color = on ? 'var(--green)' : 'var(--text-muted)';
-}
-
-function saveClass() {
-  const name = document.getElementById('f_name').value.trim();
-  const ageGroup = document.getElementById('f_age').value;
-  const year = parseInt(document.getElementById('f_year').value);
-  const capacity = parseInt(document.getElementById('f_capacity').value);
-  const teacher = document.getElementById('f_teacher').value;
-  const coTeacher = document.getElementById('f_coTeacher').value;
-  const status = document.getElementById('f_status').checked ? 'active' : 'inactive';
-
-  // 필수값 검증
+function saveNewClass() {
+  const name = document.getElementById('fc_name').value.trim();
   if (!name) { showToast('반 이름을 입력해주세요', 'warning'); return; }
-  if (!ageGroup) { showToast('연령 그룹을 선택해주세요', 'warning'); return; }
-  if (!capacity || capacity < 1) { showToast('정원을 입력해주세요', 'warning'); return; }
+  let ageGroup;
+  if (_ageMode === 'single') {
+    ageGroup = document.getElementById('fc_age_single').value;
+    if (!ageGroup) { showToast('연령을 선택해주세요', 'warning'); return; }
+  } else {
+    const min = document.getElementById('fc_age_min').value;
+    const max = document.getElementById('fc_age_max').value;
+    if (!min || !max) { showToast('연령 범위를 선택해주세요', 'warning'); return; }
+    ageGroup = `${min}~${max}`;
+  }
+  const year = parseInt(document.getElementById('filterYear').value) || 2025;
+  const dup = CLASSES.find(c => c.name === name && c.year === year);
+  if (dup) { showToast(`'${name}' 반이 ${year}년도에 이미 존재합니다`, 'warning'); return; }
+  const newId = 'CLS' + String(CLASSES.length + 1).padStart(3, '0');
+  CLASSES.push({ id:newId, name, ageGroup, year, capacity:20, status:'inactive', color:PALETTE[CLASSES.length % PALETTE.length], createdAt:new Date().toISOString().slice(0,10), teachers:[], children:[] });
+  showToast(`반이 생성되었습니다. (연령: ${ageGroup}, 반명: ${name})`, 'success');
+  closeModal('genericModal');
+  renderKPI(); applyFilter();
+}
 
-  // 반 이름 중복 체크 (동일 학년도 내)
-  const duplicate = CLASSES.find(c => c.name === name && c.year === year && c.id !== editingId);
-  if (duplicate) {
-    showToast(`'${name}' 반이 ${year}년도에 이미 존재합니다`, 'warning');
+function openEditClassModal(id) {
+  const c = getClass(id);
+  if (!c) return;
+  _editingClassId = id;
+  _ageMode = c.ageGroup.includes('~') ? 'range' : 'single';
+  document.getElementById('gm_title').textContent = `${c.name} 수정`;
+  document.getElementById('genericModalBox').style.width = '440px';
+  document.getElementById('gm_body').innerHTML = `
+    <div class="form-field">
+      <label class="form-label">반 이름 <span class="req">*</span></label>
+      <input class="form-input" id="fc_name" value="${c.name}" maxlength="15">
+    </div>
+    <div class="form-field">
+      <label class="form-label">연령</label>
+      <div class="age-toggle">
+        <button class="age-toggle-btn ${!c.ageGroup.includes('~')?'active':''}" onclick="setAgeMode('single',this)">단일</button>
+        <button class="age-toggle-btn ${c.ageGroup.includes('~')?'active':''}" onclick="setAgeMode('range',this)">복수</button>
+      </div>
+      <div id="ageInputArea">
+        ${c.ageGroup.includes('~')
+          ? `<div class="form-row">
+              <select class="form-select" id="fc_age_min"><option value="">최소</option>${['0세','1세','2세','3세','4세','5세','6세','7세'].map(a=>`<option ${a===c.ageGroup.split('~')[0]?'selected':''}>${a}</option>`).join('')}</select>
+              <span style="display:flex;align-items:center;color:var(--text-muted)">~</span>
+              <select class="form-select" id="fc_age_max"><option value="">최대</option>${['0세','1세','2세','3세','4세','5세','6세','7세'].map(a=>`<option ${a===c.ageGroup.split('~')[1]?'selected':''}>${a}</option>`).join('')}</select>
+            </div>`
+          : `<select class="form-select" id="fc_age_single"><option value="">선택</option>${['0세','1세','2세','3세','4세','5세','6세','7세'].map(a=>`<option ${a===c.ageGroup?'selected':''}>${a}</option>`).join('')}</select>`
+        }
+      </div>
+    </div>
+    <div class="form-field">
+      <label class="form-label">운영 상태</label>
+      <div class="status-toggle-row">
+        <span class="toggle-label" id="stLabel" style="font-weight:700;color:${c.status==='active'?'var(--green)':'var(--text-muted)'}">${c.status==='active'?'운영':'비운영'}</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="fc_status" ${c.status==='active'?'checked':''} onchange="const l=document.getElementById('stLabel');const on=this.checked;l.textContent=on?'운영':'비운영';l.style.color=on?'var(--green)':'var(--text-muted)'">
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+      </div>
+    </div>`;
+  document.getElementById('gm_footer').innerHTML = `
+    <button class="btn btn-outline" onclick="closeModal('genericModal')">취소</button>
+    <button class="btn btn-primary" onclick="saveEditClass()">저장</button>`;
+  closeDrawer();
+  openModal('genericModal');
+}
+
+function saveEditClass() {
+  const c = getClass(_editingClassId);
+  if (!c) return;
+  const name = document.getElementById('fc_name').value.trim();
+  if (!name) { showToast('반 이름을 입력해주세요', 'warning'); return; }
+  let ageGroup;
+  if (_ageMode === 'single') {
+    ageGroup = document.getElementById('fc_age_single')?.value;
+    if (!ageGroup) { showToast('연령을 선택해주세요', 'warning'); return; }
+  } else {
+    const min = document.getElementById('fc_age_min')?.value;
+    const max = document.getElementById('fc_age_max')?.value;
+    if (!min || !max) { showToast('연령 범위를 선택해주세요', 'warning'); return; }
+    ageGroup = `${min}~${max}`;
+  }
+  c.name = name;
+  c.ageGroup = ageGroup;
+  c.status = document.getElementById('fc_status').checked ? 'active' : 'inactive';
+  showToast(`'${name}' 정보가 수정되었습니다`, 'success');
+  closeModal('genericModal');
+  renderKPI(); applyFilter();
+}
+
+function openDeleteClassModal(id) {
+  const c = getClass(id);
+  if (!c) return;
+  const childCount = c.children.length;
+  document.getElementById('gm_title').textContent = '반 삭제';
+  document.getElementById('genericModalBox').style.width = '420px';
+  document.getElementById('gm_body').innerHTML = `
+    <div class="delete-warning">
+      <span class="delete-warning-icon">⚠️</span>
+      <div class="delete-warning-text">${childCount > 0 ? `이 반에 원아 ${childCount}명이 소속되어 있습니다.<br>삭제 시 원아의 반 배정이 해제됩니다.` : '삭제된 반 정보는 복구할 수 없습니다.'}</div>
+    </div>
+    <div class="delete-info-card">
+      <div class="delete-info-row"><span class="delete-info-key">반 이름</span><span class="delete-info-val">${c.name}</span></div>
+      <div class="delete-info-row"><span class="delete-info-key">연령</span><span class="delete-info-val">${c.ageGroup}</span></div>
+      <div class="delete-info-row"><span class="delete-info-key">담임</span><span class="delete-info-val">${c.teachers.filter(t=>t.role==='lead').map(t=>t.name).join(', ')||'없음'}</span></div>
+      <div class="delete-info-row"><span class="delete-info-key">소속 원아</span><span class="delete-info-val">${childCount}명</span></div>
+    </div>`;
+  document.getElementById('gm_footer').innerHTML = `
+    <button class="btn btn-outline" onclick="closeModal('genericModal')">취소</button>
+    <button class="btn btn-danger" onclick="confirmDeleteClass('${id}')">삭제</button>`;
+  closeDrawer();
+  openModal('genericModal');
+}
+
+function confirmDeleteClass(id) {
+  const c = getClass(id);
+  CLASSES = CLASSES.filter(x => x.id !== id);
+  showToast(`'${c.name}' 반이 삭제되었습니다`, 'info');
+  closeModal('genericModal');
+  renderKPI(); applyFilter();
+}
+
+/* ════════════════════════════════════════════
+   TEACHER ADD MODAL
+════════════════════════════════════════════ */
+let _selTeachers = [];
+
+function openTeacherAddModal(clsId) {
+  const c = getClass(clsId);
+  if (!c) return;
+  _selTeachers = [];
+  document.getElementById('gm_title').textContent = `${c.name} 교사 추가`;
+  document.getElementById('genericModalBox').style.width = '480px';
+  renderTeacherAddBody(clsId);
+  document.getElementById('gm_footer').innerHTML = `
+    <button class="btn btn-outline" onclick="closeModal('genericModal')">취소</button>
+    <button class="btn btn-primary" id="taAddBtn" disabled onclick="confirmTeacherAdd('${clsId}')">추가(0)</button>`;
+  openModal('genericModal');
+}
+
+function renderTeacherAddBody(clsId) {
+  const c = getClass(clsId);
+  const existingIds = c.teachers.map(t => t.id);
+  const q = document.querySelector('#gm_body .sel-search')?.value?.toLowerCase() || '';
+  const filtered = ALL_TEACHERS.filter(t => !q || t.name.toLowerCase().includes(q));
+
+  const listHtml = filtered.map(t => {
+    const isExisting = existingIds.includes(t.id);
+    const isSelected = _selTeachers.includes(t.id);
+    return `<div class="sel-item${isSelected?' selected':''}${isExisting?' disabled':''}" onclick="toggleTeacherSel('${t.id}','${clsId}')">
+      <div class="sel-avatar" style="background:${t.color}">${t.name[0]}</div>
+      <div class="sel-info"><div class="sel-name">${t.name}</div><div class="sel-sub">소속반 ${t.classCount}${isExisting?' · 이미 소속':''}${isSelected?' · 보조':''}</div></div>
+      <div class="sel-check">${isSelected?'✓':''}</div>
+    </div>`;
+  }).join('');
+
+  const chipHtml = _selTeachers.map(tid => {
+    const t = getTeacher(tid);
+    return `<span class="chip">${t.name}<span class="chip-x" onclick="toggleTeacherSel('${tid}','${clsId}')">×</span></span>`;
+  }).join('');
+
+  document.getElementById('gm_body').innerHTML = `
+    <input class="sel-search" placeholder="교사명으로 검색" oninput="renderTeacherAddBody('${clsId}')">
+    <div class="sel-list">${listHtml}</div>
+    <div class="chip-area">${chipHtml}</div>`;
+}
+
+function toggleTeacherSel(tid, clsId) {
+  const idx = _selTeachers.indexOf(tid);
+  if (idx >= 0) _selTeachers.splice(idx, 1);
+  else _selTeachers.push(tid);
+  renderTeacherAddBody(clsId);
+  const btn = document.getElementById('taAddBtn');
+  btn.textContent = `추가(${_selTeachers.length})`;
+  btn.disabled = _selTeachers.length === 0;
+}
+
+function confirmTeacherAdd(clsId) {
+  const c = getClass(clsId);
+  if (!c) return;
+  if (c.teachers.length + _selTeachers.length > 5) {
+    showToast('한 반에 교사는 최대 5명까지 추가할 수 있어요.', 'warning');
+    return;
+  }
+  // Show confirmation modal
+  const names = _selTeachers.map(tid => getTeacher(tid)?.name).filter(Boolean);
+  document.getElementById('gm_title').textContent = '교사 추가 확인';
+  document.getElementById('genericModalBox').style.width = '420px';
+  document.getElementById('gm_body').innerHTML = `
+    <div style="font-size:14px;font-weight:700;margin-bottom:12px">${c.name}에 교사를 ${_selTeachers.length}명 추가하시겠습니까?</div>
+    <div style="padding:12px;background:var(--bg-base);border-radius:var(--radius-md);border:1px solid var(--border-light)">
+      ${names.map(n => `<div style="padding:5px 0;font-size:13px;font-weight:600">• ${n}</div>`).join('')}
+    </div>`;
+  document.getElementById('gm_footer').innerHTML = `
+    <button class="btn btn-outline" onclick="openTeacherAddModal('${clsId}')">뒤로</button>
+    <button class="btn btn-primary" onclick="executeTeacherAdd('${clsId}')">추가</button>`;
+}
+
+function executeTeacherAdd(clsId) {
+  const c = getClass(clsId);
+  if (!c) return;
+  _selTeachers.forEach(tid => {
+    const t = getTeacher(tid);
+    if (t) c.teachers.push({ id:tid, name:t.name, role:'assistant' });
+  });
+  showToast(`${c.name}에 교사 ${_selTeachers.length}명을 추가했습니다`, 'success');
+  closeModal('genericModal');
+  renderDrawer(clsId);
+  renderKPI(); applyFilter();
+}
+
+/* ════════════════════════════════════════════
+   TEACHER DELETE
+════════════════════════════════════════════ */
+function handleTeacherDelete(clsId, tid) {
+  const c = getClass(clsId);
+  const t = c.teachers.find(x => x.id === tid);
+  if (!t) return;
+
+  // Check: if deleting a lead and it would leave 0 leads
+  if (t.role === 'lead' && leadCount(c) <= 1 && c.teachers.length > 1) {
+    // Show "assign lead first" modal
+    document.getElementById('gm_title').textContent = '담임 교사를 먼저 지정해 주세요';
+    document.getElementById('genericModalBox').style.width = '420px';
+    document.getElementById('gm_body').innerHTML = `
+      <div class="delete-warning" style="background:var(--amber-bg)">
+        <span class="delete-warning-icon">⚠️</span>
+        <div class="delete-warning-text" style="color:var(--amber-text)">${c.name}에는 담임이 최소 1명 필요해요.<br>다른 교사를 담임으로 지정한 후 ${t.name} 교사를 반에서 제외할 수 있어요.</div>
+      </div>`;
+    document.getElementById('gm_footer').innerHTML = `
+      <button class="btn btn-outline" onclick="closeModal('genericModal')">취소</button>
+      <button class="btn btn-primary" onclick="closeModal('genericModal');openRoleChangeModal('${clsId}')">담임 지정하기</button>`;
+    openModal('genericModal');
     return;
   }
 
-  // 수정 시 정원 감소 경고
-  if (editingId) {
-    const cur = CLASSES.find(c => c.id === editingId);
-    if (cur && capacity < cur.childCount) {
-      const hint = document.getElementById('capacityHint');
-      hint.textContent = `⚠ 현재 ${cur.childCount}명 재원 중 — 정원을 이보다 낮게 설정할 수 없습니다`;
-      hint.className = 'form-hint warn';
-      showToast(`정원은 현재 원아 수(${cur.childCount}명) 이상이어야 합니다`, 'warning');
-      return;
-    }
-  }
-
-  if (editingId) {
-    const idx = CLASSES.findIndex(c => c.id === editingId);
-    if (idx !== -1) {
-      CLASSES[idx] = { ...CLASSES[idx], name, ageGroup, year, capacity, teacher, coTeacher, status, color: selectedColor };
-      showToast(`'${name}' 정보가 수정되었습니다`, 'success');
-    }
-    closeModal('classModal');
-    renderKPI();
-    applyFilter();
-    openDrawer(editingId); // 수정 후 드로어 복원
-  } else {
-    const maxNum = CLASSES.reduce((m, c) => {
-      const n = parseInt(c.id.replace('CLS', '')) || 0;
-      return Math.max(m, n);
-    }, 0);
-    const newId = 'CLS' + String(maxNum + 1).padStart(3, '0');
-    CLASSES.push({ id:newId, name, ageGroup, year, capacity, childCount:0, teacher, coTeacher, status, color: selectedColor, createdAt: new Date().toISOString().slice(0,10) });
-    showToast(`'${name}' 반이 추가되었습니다`, 'success');
-    closeModal('classModal');
-    renderKPI();
-    applyFilter();
-  }
-}
-
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   COLOR PALETTE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-function renderColorPalette(currentColor) {
-  selectedColor = currentColor;
-  document.getElementById('colorPalette').innerHTML = PALETTE_COLORS.map(c =>
-    `<div class="cp-chip${c === currentColor ? ' selected' : ''}" style="background:${c}" data-color="${c}" onclick="selectColor('${c}')" title="${c}"></div>`
-  ).join('');
-}
-
-function selectColor(color) {
-  selectedColor = color;
-  document.querySelectorAll('.cp-chip').forEach(chip => {
-    chip.classList.toggle('selected', chip.dataset.color === color);
-  });
-}
-
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   TEACHER MUTUAL EXCLUSION
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-function onTeacherChange() {
-  const tVal = document.getElementById('f_teacher').value;
-  const coSel = document.getElementById('f_coTeacher');
-  [...coSel.options].forEach(opt => { opt.disabled = opt.value !== '' && opt.value === tVal; });
-  if (coSel.value === tVal) coSel.value = '';
-}
-
-function onCoTeacherChange() {
-  const coVal = document.getElementById('f_coTeacher').value;
-  const tSel = document.getElementById('f_teacher');
-  [...tSel.options].forEach(opt => { opt.disabled = opt.value !== '' && opt.value === coVal; });
-  if (tSel.value === coVal) tSel.value = '';
-}
-
-function syncTeacherOptions() {
-  // 모달 열릴 때 기존 선택값 기준으로 상호 disable 초기화
-  [...document.getElementById('f_teacher').options].forEach(o => { o.disabled = false; });
-  [...document.getElementById('f_coTeacher').options].forEach(o => { o.disabled = false; });
-  onTeacherChange();
-  onCoTeacherChange();
-}
-
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   DELETE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-function openDeleteModal(id) {
-  const c = CLASSES.find(x => x.id === id);
-  if (!c) return;
-  deletingId = id;
-
-  const hasChildren = (MOCK_CHILDREN[id] || []).length > 0;
-
-  document.getElementById('deleteModalBody').innerHTML = `
+  // Normal delete
+  document.getElementById('gm_title').textContent = '교사 삭제';
+  document.getElementById('genericModalBox').style.width = '420px';
+  document.getElementById('gm_body').innerHTML = `
     <div class="delete-warning">
       <span class="delete-warning-icon">⚠️</span>
-      <div class="delete-warning-text">
-        ${hasChildren
-          ? `이 반에 원아 ${(MOCK_CHILDREN[id]||[]).length}명이 소속되어 있습니다.<br>삭제 시 원아의 반 배정이 해제됩니다.`
-          : '삭제된 반 정보는 복구할 수 없습니다.'}
-      </div>
-    </div>
-    <div class="delete-info-card">
-      <div class="delete-info-row">
-        <span class="delete-info-key">반 이름</span>
-        <span class="delete-info-val">${c.name}</span>
-      </div>
-      <div class="delete-info-row">
-        <span class="delete-info-key">연령 그룹</span>
-        <span class="delete-info-val">${c.ageGroup}</span>
-      </div>
-      <div class="delete-info-row">
-        <span class="delete-info-key">담임 교사</span>
-        <span class="delete-info-val">${c.teacher || '미배정'}</span>
-      </div>
-      <div class="delete-info-row">
-        <span class="delete-info-key">소속 원아</span>
-        <span class="delete-info-val">${(MOCK_CHILDREN[id]||[]).length}명</span>
-      </div>
-    </div>
-  `;
-
-  closeDrawer();
-  openModal('deleteModal');
+      <div class="delete-warning-text">${t.name} 교사(${roleLabel(t.role)})를 ${c.name}에서 삭제할까요?<br><br><span style="font-weight:400;font-size:12px">삭제 후에도 ${c.name}에 남긴 기록은 그대로 유지되나, 알림 수신 및 편집·삭제 권한은 즉시 해제됩니다.</span></div>
+    </div>`;
+  document.getElementById('gm_footer').innerHTML = `
+    <button class="btn btn-outline" onclick="closeModal('genericModal')">취소</button>
+    <button class="btn btn-danger" onclick="confirmTeacherDelete('${clsId}','${tid}')">삭제</button>`;
+  openModal('genericModal');
 }
 
-function confirmDelete() {
-  const c = CLASSES.find(x => x.id === deletingId);
-  if (!c) return;
-  CLASSES = CLASSES.filter(x => x.id !== deletingId);
-  showToast(`'${c.name}' 반이 삭제되었습니다`, 'info');
-  closeModal('deleteModal');
-  renderKPI();
+function confirmTeacherDelete(clsId, tid) {
+  const c = getClass(clsId);
+  const t = c.teachers.find(x => x.id === tid);
+  c.teachers = c.teachers.filter(x => x.id !== tid);
+  showToast(`${t.name} 교사를 ${c.name}에서 삭제했어요.`, 'success');
+  closeModal('genericModal');
+  renderDrawer(clsId);
+  renderKPI(); applyFilter();
+}
+
+/* ════════════════════════════════════════════
+   ROLE CHANGE MODAL
+════════════════════════════════════════════ */
+function openRoleChangeModal(clsId) {
+  const c = getClass(clsId);
+  if (!c || c.teachers.length === 0) return;
+  document.getElementById('gm_title').textContent = `${c.name} 역할 선택`;
+  document.getElementById('genericModalBox').style.width = '480px';
+  const listHtml = c.teachers.map(t => {
+    const teacher = getTeacher(t.id);
+    return `<div class="rc-item">
+      <div class="sel-avatar" style="background:${teacher?.color||'#94A3B8'};width:32px;height:32px;font-size:12px">${t.name[0]}</div>
+      <div class="sel-info"><div class="sel-name">${t.name}</div><div class="sel-sub">소속반 ${teacher?.classCount||1}</div></div>
+      <select class="rc-role-sel" id="rcRole_${t.id}">
+        <option value="lead" ${t.role==='lead'?'selected':''}>담임</option>
+        <option value="assistant" ${t.role==='assistant'?'selected':''}>보조</option>
+      </select>
+    </div>`;
+  }).join('');
+
+  document.getElementById('gm_body').innerHTML = listHtml;
+  document.getElementById('gm_footer').innerHTML = `
+    <button class="btn btn-outline" onclick="closeModal('genericModal')">취소</button>
+    <button class="btn btn-primary" onclick="saveRoleChange('${clsId}')">저장</button>`;
+  openModal('genericModal');
+}
+
+function saveRoleChange(clsId) {
+  const c = getClass(clsId);
+  let newLeadCount = 0;
+  c.teachers.forEach(t => {
+    const sel = document.getElementById('rcRole_' + t.id);
+    if (sel) {
+      t.role = sel.value;
+      if (sel.value === 'lead') newLeadCount++;
+    }
+  });
+  if (newLeadCount === 0) { showToast('담임이 최소 1명 필요합니다', 'warning'); return; }
+  if (newLeadCount > 2) { showToast('담임은 최대 2명까지 가능합니다', 'warning'); return; }
+  showToast('역할이 변경되었습니다', 'success');
+  closeModal('genericModal');
+  renderDrawer(clsId);
   applyFilter();
 }
 
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   MODAL HELPERS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+/* ════════════════════════════════════════════
+   TEACHER TRANSFER MODAL
+════════════════════════════════════════════ */
+function openTeacherTransferModal(clsId, tid) {
+  const c = getClass(clsId);
+  const t = c.teachers.find(x => x.id === tid);
+  if (!t) return;
 
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   TOAST
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-function showToast(msg, type='info') {
-  const t = document.createElement('div');
-  t.className = `toast toast-${type}`;
-  const icons = { success:'✅', info:'ℹ️', warning:'⚠️' };
-  t.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
-  document.getElementById('toast-container').appendChild(t);
-  setTimeout(() => t.remove(), 3000);
+  // Check lead 0 prevention
+  if (t.role === 'lead' && leadCount(c) <= 1 && c.teachers.length > 1) {
+    document.getElementById('gm_title').textContent = '담임 교사를 먼저 지정해 주세요';
+    document.getElementById('genericModalBox').style.width = '420px';
+    document.getElementById('gm_body').innerHTML = `
+      <div class="delete-warning" style="background:var(--amber-bg)">
+        <span class="delete-warning-icon">⚠️</span>
+        <div class="delete-warning-text" style="color:var(--amber-text)">${c.name}에는 담임이 최소 1명 필요해요.<br>다른 교사를 담임으로 지정한 후 ${t.name} 교사를 이동할 수 있어요.</div>
+      </div>`;
+    document.getElementById('gm_footer').innerHTML = `
+      <button class="btn btn-outline" onclick="closeModal('genericModal')">취소</button>
+      <button class="btn btn-primary" onclick="closeModal('genericModal');openRoleChangeModal('${clsId}')">담임 지정하기</button>`;
+    openModal('genericModal');
+    return;
+  }
+
+  const teacher = getTeacher(tid);
+  document.getElementById('gm_title').textContent = '반이동';
+  document.getElementById('genericModalBox').style.width = '440px';
+  const targetList = CLASSES.map(tc => {
+    const isCurrent = tc.id === clsId;
+    return `<div class="tf-target${isCurrent?' tf-current':''}">
+      <div class="tf-info"><div class="tf-name">${tc.name}(${tc.ageGroup})</div><div class="tf-sub">교사 ${tc.teachers.length}명</div></div>
+      ${isCurrent ? '<span class="badge badge-accent" style="font-size:10px">소속반</span>' : `<button class="btn btn-primary btn-xs" onclick="confirmTeacherTransfer('${clsId}','${tid}','${tc.id}')">이동</button>`}
+    </div>`;
+  }).join('');
+
+  document.getElementById('gm_body').innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:10px;background:var(--bg-base);border-radius:var(--radius-md)">
+      <div class="sel-avatar" style="background:${teacher?.color||'#94A3B8'};width:36px;height:36px">${t.name[0]}</div>
+      <div><div style="font-size:14px;font-weight:700">${t.name}</div><div style="font-size:11px;color:var(--text-muted)">${roleLabel(t.role)}</div></div>
+    </div>
+    ${targetList}`;
+  document.getElementById('gm_footer').innerHTML = `<button class="btn btn-outline" onclick="closeModal('genericModal')">취소</button>`;
+  openModal('genericModal');
+}
+
+function confirmTeacherTransfer(fromId, tid, toId) {
+  const from = getClass(fromId);
+  const to = getClass(toId);
+  const t = from.teachers.find(x => x.id === tid);
+  if (!t) return;
+
+  if (to.teachers.length >= 5) { showToast(`${to.name}에 교사가 이미 5명입니다`, 'warning'); return; }
+
+  // Remove from source, add to target as assistant
+  from.teachers = from.teachers.filter(x => x.id !== tid);
+  to.teachers.push({ id:tid, name:t.name, role:'assistant' });
+  showToast(`${t.name} 교사가 ${to.name}으로 이동되었습니다. (이전 반 권한 해제)`, 'success');
+  closeModal('genericModal');
+  renderDrawer(fromId);
+  renderKPI(); applyFilter();
+}
+
+/* ════════════════════════════════════════════
+   CHILD ADD MODAL
+════════════════════════════════════════════ */
+let _selChildren = [];
+
+function openChildAddModal(clsId) {
+  const c = getClass(clsId);
+  if (!c) return;
+  _selChildren = [];
+  _childAgeFilter = '';
+  document.getElementById('gm_title').textContent = `${c.name} 원아 추가`;
+  document.getElementById('genericModalBox').style.width = '480px';
+  renderChildAddBody(clsId);
+  document.getElementById('gm_footer').innerHTML = `
+    <button class="btn btn-outline" onclick="closeModal('genericModal')">취소</button>
+    <button class="btn btn-primary" id="caAddBtn" disabled onclick="confirmChildAdd('${clsId}')">추가(0)</button>`;
+  openModal('genericModal');
+}
+
+let _childAgeFilter = '';
+
+function renderChildAddBody(clsId) {
+  const c = getClass(clsId);
+  const existingIds = c.children;
+  const q = document.querySelector('#gm_body .sel-search')?.value?.toLowerCase() || '';
+  const ageF = _childAgeFilter;
+  const filtered = ALL_CHILDREN.filter(ch => {
+    if (q && !ch.name.toLowerCase().includes(q)) return false;
+    if (ageF && ch.age !== ageF) return false;
+    return true;
+  });
+  const sorted = [...filtered].sort((a,b) => a.name.localeCompare(b.name, 'ko'));
+
+  const listHtml = sorted.map(ch => {
+    const isExisting = existingIds.includes(ch.id);
+    const isSelected = _selChildren.includes(ch.id);
+    const belongsTo = CLASSES.find(cl => cl.children.includes(ch.id));
+    return `<div class="sel-item${isSelected?' selected':''}${isExisting?' disabled':''}" onclick="toggleChildSel('${ch.id}','${clsId}')">
+      <div class="sel-avatar" style="background:${ch.color}">${ch.name[0]}</div>
+      <div class="sel-info"><div class="sel-name">${ch.name} <span style="color:var(--text-muted);font-size:11px">${ch.age}</span></div><div class="sel-sub">${formatBirth(ch.birth)}${belongsTo ? ' · '+belongsTo.name : ''}${isExisting ? ' · 이미 등록' : ''}</div></div>
+      <div class="sel-check">${isSelected?'✓':''}</div>
+    </div>`;
+  }).join('');
+
+  const chipHtml = _selChildren.map(cid => {
+    const ch = getChild(cid);
+    return `<span class="chip">${ch.name}<span class="chip-x" onclick="toggleChildSel('${cid}','${clsId}')">×</span></span>`;
+  }).join('');
+
+  const ages = [...new Set(ALL_CHILDREN.map(ch => ch.age))].sort();
+  document.getElementById('gm_body').innerHTML = `
+    <div style="display:flex;gap:6px;margin-bottom:10px">
+      <input class="sel-search" style="margin-bottom:0;flex:1" placeholder="원아명으로 검색" oninput="renderChildAddBody('${clsId}')">
+      <select class="fsel" style="height:36px;min-width:70px" onchange="_childAgeFilter=this.value;renderChildAddBody('${clsId}')">
+        <option value="">전체 연령</option>
+        ${ages.map(a => `<option value="${a}" ${_childAgeFilter===a?'selected':''}>${a}</option>`).join('')}
+      </select>
+    </div>
+    <div class="sel-list">${listHtml}</div>
+    <div class="chip-area">${chipHtml}</div>`;
+}
+
+function toggleChildSel(cid, clsId) {
+  const idx = _selChildren.indexOf(cid);
+  if (idx >= 0) _selChildren.splice(idx, 1);
+  else _selChildren.push(cid);
+  renderChildAddBody(clsId);
+  const btn = document.getElementById('caAddBtn');
+  btn.textContent = `추가(${_selChildren.length})`;
+  btn.disabled = _selChildren.length === 0;
+}
+
+function confirmChildAdd(clsId) {
+  const c = getClass(clsId);
+  const addedIds = [];
+  _selChildren.forEach(cid => { if (!c.children.includes(cid)) { c.children.push(cid); addedIds.push(cid); } });
+  showToast(`${c.name}에 원아 ${_selChildren.length}명을 추가했습니다`, 'success');
+  closeModal('genericModal');
+  renderDrawer(clsId);
+  renderKPI(); applyFilter();
+  // Highlight newly added children
+  setTimeout(() => { addedIds.forEach(cid => { const el = document.getElementById('dcRow_' + cid); if (el) el.classList.add('dc-highlight'); }); }, 100);
+}
+
+/* ════════════════════════════════════════════
+   CHILD DELETE
+════════════════════════════════════════════ */
+function openChildDeleteModal(clsId, cid) {
+  const c = getClass(clsId);
+  const ch = getChild(cid);
+  if (!c || !ch) return;
+  document.getElementById('gm_title').textContent = '원아 제외';
+  document.getElementById('genericModalBox').style.width = '400px';
+  document.getElementById('gm_body').innerHTML = `
+    <div class="delete-warning">
+      <span class="delete-warning-icon">⚠️</span>
+      <div class="delete-warning-text">${ch.name} 원아를 ${c.name}에서 제외할까요?<br><br><span style="font-weight:400;font-size:12px">기록은 유지되며, 해당 반에서만 제외됩니다.</span></div>
+    </div>`;
+  document.getElementById('gm_footer').innerHTML = `
+    <button class="btn btn-outline" onclick="closeModal('genericModal')">취소</button>
+    <button class="btn btn-danger" onclick="confirmChildDelete('${clsId}','${cid}')">제외</button>`;
+  openModal('genericModal');
+}
+
+function confirmChildDelete(clsId, cid) {
+  const c = getClass(clsId);
+  const ch = getChild(cid);
+  c.children = c.children.filter(x => x !== cid);
+  showToast(`${ch.name} 원아를 ${c.name}에서 제외했습니다`, 'success');
+  closeModal('genericModal');
+  renderDrawer(clsId);
+  renderKPI(); applyFilter();
+}
+
+/* ════════════════════════════════════════════
+   CHILD TRANSFER MODAL
+════════════════════════════════════════════ */
+function openChildTransferModal(clsId, cid) {
+  const c = getClass(clsId);
+  const ch = getChild(cid);
+  if (!c || !ch) return;
+  document.getElementById('gm_title').textContent = '반이동';
+  document.getElementById('genericModalBox').style.width = '440px';
+  const targetList = CLASSES.map(tc => {
+    const isCurrent = tc.id === clsId;
+    return `<div class="tf-target${isCurrent?' tf-current':''}">
+      <div class="tf-info"><div class="tf-name">${tc.name}(${tc.ageGroup})</div><div class="tf-sub">원아 ${tc.children.length}명</div></div>
+      ${isCurrent ? '<span class="badge badge-accent" style="font-size:10px">소속반</span>' : `<button class="btn btn-primary btn-xs" onclick="confirmChildTransfer('${clsId}','${cid}','${tc.id}')">이동</button>`}
+    </div>`;
+  }).join('');
+
+  document.getElementById('gm_body').innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:10px;background:var(--bg-base);border-radius:var(--radius-md)">
+      <div class="sel-avatar" style="background:${ch.color};width:36px;height:36px">${ch.name[0]}</div>
+      <div><div style="font-size:14px;font-weight:700">${ch.name}</div><div style="font-size:11px;color:var(--text-muted)">${formatBirth(ch.birth)} (${ch.age})</div></div>
+    </div>
+    ${targetList}`;
+  document.getElementById('gm_footer').innerHTML = `<button class="btn btn-outline" onclick="closeModal('genericModal')">취소</button>`;
+  openModal('genericModal');
+}
+
+function confirmChildTransfer(fromId, cid, toId) {
+  const from = getClass(fromId);
+  const to = getClass(toId);
+  const ch = getChild(cid);
+  if (to.children.includes(cid)) { showToast(`${ch.name}은(는) 이미 ${to.name}에 소속되어 있습니다`, 'warning'); return; }
+  from.children = from.children.filter(x => x !== cid);
+  to.children.push(cid);
+  showToast(`${ch.name} 원아가 ${to.name}으로 이동되었습니다.`, 'success');
+  closeModal('genericModal');
+  renderDrawer(fromId);
+  renderKPI(); applyFilter();
 }
 </script>
 </body>

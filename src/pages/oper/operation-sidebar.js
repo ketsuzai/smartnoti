@@ -142,11 +142,10 @@
     const filename    = location.pathname.split('/').pop();
 
     const NAV = [
-      { section: '메인' },
       { icon:'🏠', label:'대시보드',                             href:'operation-dashboard.html'  },
+      { section: '학급 관리' },
       { icon:'👥', label:'반 관리',                              href:'operation-class.html'       },
       { icon:'🧒', label:'원아 관리',                            href:'operation-child.html'       },
-      { section: '초대 관리' },
       { icon:'📨', label:'초대장 관리',                          href:'operation-invitation.html',
                    badge: inviteBadge, badgeClass:'sky'                                            },
       { section: '콘텐츠' },
