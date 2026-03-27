@@ -337,7 +337,8 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 /* ════════════════════════════════════════════
    MOCK DATA (W17 기준)
 ════════════════════════════════════════════ */
-const PALETTE = ['#F59E0B','#10B981','#8B5CF6','#0EA5E9','#EF4444','#EC4899','#F97316','#14B8A6'];
+// 상태별 컬러바 색상
+const STATUS_COLOR = { active: 'var(--green)', inactive: '#D1D5DB' };
 
 const ALL_TEACHERS = [
   { id:'T001', name:'강하나', classCount:2, color:'#F59E0B' },
@@ -375,7 +376,7 @@ const ALL_CHILDREN = [
 
 let CLASSES = [
   {
-    id:'CLS001', name:'송이반', ageGroup:'5세', year:2025, capacity:20, status:'active', color:'#F59E0B', createdAt:'2025-03-01',
+    id:'CLS001', name:'송이반', ageGroup:'5세', year:2025, capacity:20, status:'active', createdAt:'2025-03-01',
     teachers:[
       { id:'T001', name:'강하나', role:'lead' },
       { id:'T002', name:'박하나', role:'assistant' },
@@ -383,7 +384,7 @@ let CLASSES = [
     children:['C001','C002','C003','C004','C005','C006','C007','C008','C009'],
   },
   {
-    id:'CLS002', name:'뿌리반', ageGroup:'4세', year:2025, capacity:25, status:'active', color:'#10B981', createdAt:'2025-03-01',
+    id:'CLS002', name:'뿌리반', ageGroup:'4세', year:2025, capacity:25, status:'active', createdAt:'2025-03-01',
     teachers:[
       { id:'T003', name:'유지아', role:'lead' },
       { id:'T004', name:'김민호', role:'assistant' },
@@ -391,14 +392,14 @@ let CLASSES = [
     children:['C010','C011','C012','C013'],
   },
   {
-    id:'CLS003', name:'나무반', ageGroup:'3세', year:2025, capacity:15, status:'active', color:'#8B5CF6', createdAt:'2025-03-01',
+    id:'CLS003', name:'나무반', ageGroup:'3세', year:2025, capacity:15, status:'active', createdAt:'2025-03-01',
     teachers:[
       { id:'T005', name:'나예리', role:'lead' },
     ],
     children:['C014','C015','C016'],
   },
   {
-    id:'CLS004', name:'잎새반', ageGroup:'2세', year:2025, capacity:10, status:'inactive', color:'#0EA5E9', createdAt:'2025-03-01',
+    id:'CLS004', name:'잎새반', ageGroup:'2세', year:2025, capacity:10, status:'inactive', createdAt:'2025-03-01',
     teachers:[
       { id:'T006', name:'로미오', role:'lead' },
     ],
@@ -530,7 +531,7 @@ function renderCard(c) {
 
   return `
     <div class="class-card${activeCardId===c.id?' active-card':''}${assigned?' teacher-assigned':''}" onclick="openDrawer('${c.id}')">
-      <div class="cc-color-bar" style="background:${c.color}"></div>
+      <div class="cc-color-bar" style="background:${STATUS_COLOR[c.status]||'#D1D5DB'}"></div>
       <div class="cc-header">
         <div class="cc-top-row">
           <div>
@@ -581,7 +582,6 @@ function renderDrawer(id) {
     <div class="drawer-title-row">
       <div>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-          <div style="width:10px;height:10px;border-radius:50%;background:${c.color};flex-shrink:0"></div>
           <span style="font-size:18px;font-weight:800">${c.name}(${c.ageGroup})</span>
           ${c.status==='active' ? '<span class="badge badge-green"><span class="badge-dot"></span>운영</span>' : '<span class="badge badge-gray"><span class="badge-dot"></span>비운영</span>'}
         </div>
@@ -745,7 +745,7 @@ function saveNewClass() {
   const dup = CLASSES.find(c => c.name === name && c.year === year);
   if (dup) { showToast(`'${name}' 반이 ${year}년도에 이미 존재합니다`, 'warning'); return; }
   const newId = 'CLS' + String(CLASSES.length + 1).padStart(3, '0');
-  CLASSES.push({ id:newId, name, ageGroup, year, capacity:20, status:'inactive', color:PALETTE[CLASSES.length % PALETTE.length], createdAt:new Date().toISOString().slice(0,10), teachers:[], children:[] });
+  CLASSES.push({ id:newId, name, ageGroup, year, capacity:20, status:'inactive', createdAt:new Date().toISOString().slice(0,10), teachers:[], children:[] });
   showToast(`반이 생성되었습니다. (연령: ${ageGroup}, 반명: ${name})`, 'success');
   closeModal('genericModal');
   renderKPI(); applyFilter();
@@ -864,17 +864,22 @@ function openTeacherAddModal(clsId) {
   _selTeachers = [];
   document.getElementById('gm_title').textContent = `${c.name} 교사 추가`;
   document.getElementById('genericModalBox').style.width = '480px';
-  renderTeacherAddBody(clsId);
+  document.getElementById('gm_body').innerHTML = `
+    <input class="sel-search" id="taSearchInput" placeholder="교사명으로 검색">
+    <div id="taListWrap"></div>
+    <div id="taChipWrap" class="chip-area"></div>`;
+  document.getElementById('taSearchInput').addEventListener('input', () => renderTeacherAddList(clsId));
+  renderTeacherAddList(clsId);
   document.getElementById('gm_footer').innerHTML = `
     <button class="btn btn-outline" onclick="closeModal('genericModal')">취소</button>
     <button class="btn btn-primary" id="taAddBtn" disabled onclick="confirmTeacherAdd('${clsId}')">추가(0)</button>`;
   openModal('genericModal');
 }
 
-function renderTeacherAddBody(clsId) {
+function renderTeacherAddList(clsId) {
   const c = getClass(clsId);
   const existingIds = c.teachers.map(t => t.id);
-  const q = document.querySelector('#gm_body .sel-search')?.value?.toLowerCase() || '';
+  const q = (document.getElementById('taSearchInput')?.value || '').toLowerCase();
   const filtered = ALL_TEACHERS.filter(t => !q || t.name.toLowerCase().includes(q));
 
   const listHtml = filtered.map(t => {
@@ -886,23 +891,20 @@ function renderTeacherAddBody(clsId) {
       <div class="sel-check">${isSelected?'✓':''}</div>
     </div>`;
   }).join('');
+  document.getElementById('taListWrap').innerHTML = `<div class="sel-list">${listHtml}</div>`;
 
   const chipHtml = _selTeachers.map(tid => {
     const t = getTeacher(tid);
     return `<span class="chip">${t.name}<span class="chip-x" onclick="toggleTeacherSel('${tid}','${clsId}')">×</span></span>`;
   }).join('');
-
-  document.getElementById('gm_body').innerHTML = `
-    <input class="sel-search" placeholder="교사명으로 검색" oninput="renderTeacherAddBody('${clsId}')">
-    <div class="sel-list">${listHtml}</div>
-    <div class="chip-area">${chipHtml}</div>`;
+  document.getElementById('taChipWrap').innerHTML = chipHtml;
 }
 
 function toggleTeacherSel(tid, clsId) {
   const idx = _selTeachers.indexOf(tid);
   if (idx >= 0) _selTeachers.splice(idx, 1);
   else _selTeachers.push(tid);
-  renderTeacherAddBody(clsId);
+  renderTeacherAddList(clsId);
   const btn = document.getElementById('taAddBtn');
   btn.textContent = `추가(${_selTeachers.length})`;
   btn.disabled = _selTeachers.length === 0;
@@ -994,28 +996,55 @@ function confirmTeacherDelete(clsId, tid) {
 /* ════════════════════════════════════════════
    ROLE CHANGE MODAL
 ════════════════════════════════════════════ */
+let _rcOrigRoles = {};  // 초기 역할 상태 저장
+
 function openRoleChangeModal(clsId) {
   const c = getClass(clsId);
   if (!c || c.teachers.length === 0) return;
+  _rcOrigRoles = {};
+  c.teachers.forEach(t => _rcOrigRoles[t.id] = t.role);
   document.getElementById('gm_title').textContent = `${c.name} 역할 선택`;
   document.getElementById('genericModalBox').style.width = '480px';
-  const listHtml = c.teachers.map(t => {
+  // 검색 input + 리스트 컨테이너를 분리해서 한 번만 렌더
+  document.getElementById('gm_body').innerHTML = `
+    <input class="sel-search" id="rcSearchInput" placeholder="교사명 검색..." style="margin-bottom:10px">
+    <div id="rcListWrap"></div>`;
+  document.getElementById('rcSearchInput').addEventListener('input', () => renderRoleChangeList(clsId));
+  renderRoleChangeList(clsId);
+  document.getElementById('gm_footer').innerHTML = `
+    <button class="btn btn-outline" onclick="closeModal('genericModal')">취소</button>
+    <button class="btn btn-primary" id="rcSaveBtn" disabled onclick="saveRoleChange('${clsId}')">저장</button>`;
+  openModal('genericModal');
+}
+
+function renderRoleChangeList(clsId) {
+  const c = getClass(clsId);
+  const q = (document.getElementById('rcSearchInput')?.value || '').toLowerCase();
+  const filtered = c.teachers.filter(t => !q || t.name.toLowerCase().includes(q));
+  const listHtml = filtered.map(t => {
     const teacher = getTeacher(t.id);
+    const curVal = document.getElementById('rcRole_' + t.id)?.value || t.role;
     return `<div class="rc-item">
       <div class="sel-avatar" style="background:${teacher?.color||'#94A3B8'};width:32px;height:32px;font-size:12px">${t.name[0]}</div>
       <div class="sel-info"><div class="sel-name">${t.name}</div><div class="sel-sub">소속반 ${teacher?.classCount||1}</div></div>
-      <select class="rc-role-sel" id="rcRole_${t.id}">
-        <option value="lead" ${t.role==='lead'?'selected':''}>담임</option>
-        <option value="assistant" ${t.role==='assistant'?'selected':''}>보조</option>
+      <select class="rc-role-sel" id="rcRole_${t.id}" onchange="checkRoleChanged('${clsId}')">
+        <option value="lead" ${curVal==='lead'?'selected':''}>담임</option>
+        <option value="assistant" ${curVal==='assistant'?'selected':''}>보조</option>
       </select>
     </div>`;
   }).join('');
+  document.getElementById('rcListWrap').innerHTML = listHtml;
+}
 
-  document.getElementById('gm_body').innerHTML = listHtml;
-  document.getElementById('gm_footer').innerHTML = `
-    <button class="btn btn-outline" onclick="closeModal('genericModal')">취소</button>
-    <button class="btn btn-primary" onclick="saveRoleChange('${clsId}')">저장</button>`;
-  openModal('genericModal');
+function checkRoleChanged(clsId) {
+  const c = getClass(clsId);
+  let changed = false;
+  c.teachers.forEach(t => {
+    const sel = document.getElementById('rcRole_' + t.id);
+    if (sel && sel.value !== _rcOrigRoles[t.id]) changed = true;
+  });
+  const btn = document.getElementById('rcSaveBtn');
+  if (btn) btn.disabled = !changed;
 }
 
 function saveRoleChange(clsId) {
@@ -1089,7 +1118,29 @@ function confirmTeacherTransfer(fromId, tid, toId) {
 
   if (to.teachers.length >= 5) { showToast(`${to.name}에 교사가 이미 5명입니다`, 'warning'); return; }
 
-  // Remove from source, add to target as assistant
+  // 확인 모달 표시
+  document.getElementById('gm_title').textContent = '교사 반이동 확인';
+  document.getElementById('genericModalBox').style.width = '420px';
+  document.getElementById('gm_body').innerHTML = `
+    <div style="text-align:center;padding:8px 0 12px">
+      <div style="font-size:15px;font-weight:600;margin-bottom:8px">${t.name} 교사를<br><span style="color:var(--text-muted)">${from.name}</span> → <span style="color:var(--accent)">${to.name}</span>으로 이동할까요?</div>
+      <div class="delete-warning" style="background:var(--amber-bg);text-align:left">
+        <span class="delete-warning-icon">⚠️</span>
+        <div class="delete-warning-text" style="color:var(--amber-text)">이동 시 ${from.name}에서의 알림 수신·편집 권한이 해제됩니다.<br>과거 기록은 유지됩니다.</div>
+      </div>
+    </div>`;
+  document.getElementById('gm_footer').innerHTML = `
+    <button class="btn btn-outline" onclick="openTeacherTransferModal('${fromId}','${tid}')">뒤로</button>
+    <button class="btn btn-primary" onclick="executeTeacherTransfer('${fromId}','${tid}','${toId}')">이동</button>`;
+  openModal('genericModal');
+}
+
+function executeTeacherTransfer(fromId, tid, toId) {
+  const from = getClass(fromId);
+  const to = getClass(toId);
+  const t = from.teachers.find(x => x.id === tid);
+  if (!t) return;
+
   from.teachers = from.teachers.filter(x => x.id !== tid);
   to.teachers.push({ id:tid, name:t.name, role:'assistant' });
   showToast(`${t.name} 교사가 ${to.name}으로 이동되었습니다. (이전 반 권한 해제)`, 'success');
@@ -1103,6 +1154,8 @@ function confirmTeacherTransfer(fromId, tid, toId) {
 ════════════════════════════════════════════ */
 let _selChildren = [];
 
+let _childAgeFilter = '';
+
 function openChildAddModal(clsId) {
   const c = getClass(clsId);
   if (!c) return;
@@ -1110,19 +1163,31 @@ function openChildAddModal(clsId) {
   _childAgeFilter = '';
   document.getElementById('gm_title').textContent = `${c.name} 원아 추가`;
   document.getElementById('genericModalBox').style.width = '480px';
-  renderChildAddBody(clsId);
+  // 검색/필터 input은 한 번만 렌더, 리스트·칩은 별도 컨테이너
+  const ages = [...new Set(ALL_CHILDREN.map(ch => ch.age))].sort();
+  document.getElementById('gm_body').innerHTML = `
+    <div style="display:flex;gap:6px;margin-bottom:10px">
+      <input class="sel-search" id="caSearchInput" style="margin-bottom:0;flex:1" placeholder="원아명으로 검색">
+      <select class="fsel" id="caAgeFilter" style="height:36px;min-width:70px">
+        <option value="">전체 연령</option>
+        ${ages.map(a => `<option value="${a}">${a}</option>`).join('')}
+      </select>
+    </div>
+    <div id="caListWrap"></div>
+    <div id="caChipWrap" class="chip-area"></div>`;
+  document.getElementById('caSearchInput').addEventListener('input', () => renderChildAddList(clsId));
+  document.getElementById('caAgeFilter').addEventListener('change', function() { _childAgeFilter = this.value; renderChildAddList(clsId); });
+  renderChildAddList(clsId);
   document.getElementById('gm_footer').innerHTML = `
     <button class="btn btn-outline" onclick="closeModal('genericModal')">취소</button>
     <button class="btn btn-primary" id="caAddBtn" disabled onclick="confirmChildAdd('${clsId}')">추가(0)</button>`;
   openModal('genericModal');
 }
 
-let _childAgeFilter = '';
-
-function renderChildAddBody(clsId) {
+function renderChildAddList(clsId) {
   const c = getClass(clsId);
   const existingIds = c.children;
-  const q = document.querySelector('#gm_body .sel-search')?.value?.toLowerCase() || '';
+  const q = (document.getElementById('caSearchInput')?.value || '').toLowerCase();
   const ageF = _childAgeFilter;
   const filtered = ALL_CHILDREN.filter(ch => {
     if (q && !ch.name.toLowerCase().includes(q)) return false;
@@ -1142,29 +1207,20 @@ function renderChildAddBody(clsId) {
     </div>`;
   }).join('');
 
+  document.getElementById('caListWrap').innerHTML = `<div class="sel-list">${listHtml}</div>`;
+
   const chipHtml = _selChildren.map(cid => {
     const ch = getChild(cid);
     return `<span class="chip">${ch.name}<span class="chip-x" onclick="toggleChildSel('${cid}','${clsId}')">×</span></span>`;
   }).join('');
-
-  const ages = [...new Set(ALL_CHILDREN.map(ch => ch.age))].sort();
-  document.getElementById('gm_body').innerHTML = `
-    <div style="display:flex;gap:6px;margin-bottom:10px">
-      <input class="sel-search" style="margin-bottom:0;flex:1" placeholder="원아명으로 검색" oninput="renderChildAddBody('${clsId}')">
-      <select class="fsel" style="height:36px;min-width:70px" onchange="_childAgeFilter=this.value;renderChildAddBody('${clsId}')">
-        <option value="">전체 연령</option>
-        ${ages.map(a => `<option value="${a}" ${_childAgeFilter===a?'selected':''}>${a}</option>`).join('')}
-      </select>
-    </div>
-    <div class="sel-list">${listHtml}</div>
-    <div class="chip-area">${chipHtml}</div>`;
+  document.getElementById('caChipWrap').innerHTML = chipHtml;
 }
 
 function toggleChildSel(cid, clsId) {
   const idx = _selChildren.indexOf(cid);
   if (idx >= 0) _selChildren.splice(idx, 1);
   else _selChildren.push(cid);
-  renderChildAddBody(clsId);
+  renderChildAddList(clsId);
   const btn = document.getElementById('caAddBtn');
   btn.textContent = `추가(${_selChildren.length})`;
   btn.disabled = _selChildren.length === 0;
@@ -1244,6 +1300,28 @@ function confirmChildTransfer(fromId, cid, toId) {
   const to = getClass(toId);
   const ch = getChild(cid);
   if (to.children.includes(cid)) { showToast(`${ch.name}은(는) 이미 ${to.name}에 소속되어 있습니다`, 'warning'); return; }
+
+  // 확인 모달 표시
+  document.getElementById('gm_title').textContent = '원아 반이동 확인';
+  document.getElementById('genericModalBox').style.width = '420px';
+  document.getElementById('gm_body').innerHTML = `
+    <div style="text-align:center;padding:8px 0 12px">
+      <div style="font-size:15px;font-weight:600;margin-bottom:8px">${ch.name} 원아를<br><span style="color:var(--text-muted)">${from.name}</span> → <span style="color:var(--accent)">${to.name}</span>으로 이동할까요?</div>
+      <div class="delete-warning" style="background:var(--amber-bg);text-align:left">
+        <span class="delete-warning-icon">⚠️</span>
+        <div class="delete-warning-text" style="color:var(--amber-text)">이동 시 ${from.name}에서의 소속이 해제됩니다.<br>과거 알림장·앨범 등 기록은 유지됩니다.</div>
+      </div>
+    </div>`;
+  document.getElementById('gm_footer').innerHTML = `
+    <button class="btn btn-outline" onclick="openChildTransferModal('${fromId}','${cid}')">뒤로</button>
+    <button class="btn btn-primary" onclick="executeChildTransfer('${fromId}','${cid}','${toId}')">이동</button>`;
+  openModal('genericModal');
+}
+
+function executeChildTransfer(fromId, cid, toId) {
+  const from = getClass(fromId);
+  const to = getClass(toId);
+  const ch = getChild(cid);
   from.children = from.children.filter(x => x !== cid);
   to.children.push(cid);
   showToast(`${ch.name} 원아가 ${to.name}으로 이동되었습니다.`, 'success');

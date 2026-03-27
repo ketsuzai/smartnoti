@@ -47,6 +47,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .breadcrumb{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary);flex:1;}
 .breadcrumb .cur{color:var(--text-primary);font-weight:600;}
 .bc-sep{color:var(--text-muted);font-size:11px;}
+
 /* ━━━ 오늘의 현황 ━━━ */
 .today-section{margin-bottom:16px;}
 .today-section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
@@ -164,32 +165,27 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 /* ━━━ 보낸 알림장 카드 ━━━ */
 .notice-card{background:var(--bg-surface);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:14px 16px 12px 19px;margin-bottom:8px;cursor:pointer;transition:box-shadow .18s,border-color .18s;display:flex;gap:14px;align-items:flex-start;position:relative;overflow:hidden;}
 .notice-card:hover{box-shadow:var(--shadow-md);border-color:var(--border-medium);}
-
-/* 좌측 상태 강조바 */
 .nc-accent{position:absolute;left:0;top:0;bottom:0;width:4px;}
 .nc-accent.published{background:var(--green);}
 .nc-accent.draft{background:var(--amber);}
 .nc-accent.recalled{background:#9CA3AF;}
 .nc-accent.scheduled{background:var(--purple);}
-
 .nc-left{flex:1;min-width:0;}
-
-/* 교사 정보 행 */
 .nc-teacher-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
 .nc-teacher-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0;}
 .nc-teacher-info{flex:1;}
 .nc-teacher-name{font-size:13px;font-weight:700;color:var(--text-primary);}
 .nc-teacher-class{font-size:11px;color:var(--text-secondary);}
-
-/* 날씨·메타 */
 .nc-meta{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-secondary);flex-wrap:wrap;margin-bottom:5px;}
 .nc-meta-item{display:flex;align-items:center;gap:3px;}
 .nc-weather{font-size:13px;}
-
-/* 본문 미리보기 */
 .nc-preview{font-size:12.5px;color:var(--text-secondary);line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:6px;}
-
-/* 카드 푸터 */
+/* 리스트 카드 썸네일 */
+.nc-thumb-row{display:flex;gap:6px;margin-bottom:8px;}
+.nc-thumb-item{width:56px;height:56px;border-radius:var(--radius-sm);overflow:hidden;flex-shrink:0;position:relative;border:1.5px solid var(--border-light);}
+.nc-thumb-item img{width:100%;height:100%;object-fit:cover;}
+.nc-thumb-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);color:#fff;font-size:18px;}
+.nc-thumb-more{width:56px;height:56px;border-radius:var(--radius-sm);flex-shrink:0;background:var(--bg-base);border:1.5px dashed var(--border-medium);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--text-muted);font-weight:700;letter-spacing:2px;}
 .nc-footer{display:flex;align-items:center;gap:8px;padding-top:8px;border-top:1px solid var(--border-light);margin-top:4px;}
 .nc-footer-meta{display:flex;align-items:center;gap:10px;flex:1;flex-wrap:wrap;}
 .nc-footer-item{display:flex;align-items:center;gap:3px;font-size:11px;color:var(--text-muted);}
@@ -197,9 +193,14 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .nc-act-btn{width:26px;height:26px;border-radius:var(--radius-sm);border:1px solid var(--border-light);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:.18s;color:var(--text-secondary);}
 .nc-act-btn:hover{background:var(--accent-light);border-color:var(--accent);}
 .nc-act-btn.danger:hover{background:var(--red-bg);border-color:#FECACA;color:var(--red);}
-
 .nc-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
 .nc-time{font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;}
+
+/* 단일 알림장 카드: 원아 강조 */
+.nc-single-child{display:flex;align-items:center;gap:8px;margin-top:6px;padding:6px 10px;background:var(--accent-light);border-radius:var(--radius-md);border:1px solid var(--border-medium);}
+.nc-single-child .nc-child-chip-av{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;}
+.nc-single-child-name{font-size:13px;font-weight:700;color:var(--accent-dark);}
+.nc-single-child-sub{font-size:11px;color:var(--text-secondary);}
 
 /* 상태 뱃지 */
 .nbadge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:12px;font-size:11px;font-weight:700;}
@@ -209,22 +210,22 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .nb-recalled{background:var(--red-bg);color:var(--red-text);}
 .nb-scheduled{background:var(--blue-bg);color:var(--blue-text);}
 .nc-ai-badge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;background:var(--purple-bg);color:var(--purple-text);}
+.nc-type-badge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;}
+.nc-type-single{background:var(--blue-bg);color:var(--blue-text);}
+.nc-type-multi{background:var(--green-bg);color:var(--green-text);}
 
 /* ━━━ 받은 알림장 카드 ━━━ */
 .parent-notice-card{background:var(--bg-surface);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:8px;cursor:pointer;transition:box-shadow .18s,border-color .18s;}
 .parent-notice-card:hover{box-shadow:var(--shadow-md);border-color:var(--border-medium);}
 .parent-notice-card.unread-card{border-left:3px solid var(--red);}
-
 .pnc-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
 .pnc-category{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;}
 .pnc-sub{font-size:12px;font-weight:700;color:var(--text-primary);flex:1;}
 .unread-pip{font-size:11px;font-weight:700;padding:2px 8px;border-radius:8px;background:var(--red-bg);color:var(--red-text);}
-
 .pnc-info{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
 .child-avatar-sm{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0;}
 .pnc-names{font-size:12px;font-weight:600;color:var(--text-primary);}
 .pnc-names span{color:var(--text-secondary);font-weight:400;}
-
 .pnc-content{font-size:12.5px;color:var(--text-secondary);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:8px;}
 .pnc-footer{display:flex;align-items:center;justify-content:space-between;}
 .pnc-time{font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;}
@@ -244,37 +245,27 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 /* ━━━ 상세 뷰어 패널 (480px) ━━━ */
 .detail-panel{position:fixed;right:0;top:0;height:100vh;width:480px;background:#fff;z-index:400;box-shadow:-8px 0 32px rgba(12,45,72,.12);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);}
 .detail-panel.show{transform:translateX(0);}
-
 .panel-header{height:60px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border-light);flex-shrink:0;}
 .panel-title{font-size:16px;font-weight:800;display:flex;align-items:center;gap:8px;}
 .panel-close{width:32px;height:32px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--bg-base);border:1px solid var(--border-light);font-size:16px;transition:.18s;color:var(--text-secondary);}
 .panel-close:hover{background:var(--red-bg);border-color:#FECACA;color:var(--red);}
-
-/* 패널 탭 (원아별) */
 .panel-tabs{display:flex;border-bottom:1px solid var(--border-light);flex-shrink:0;background:#FAFCFF;overflow-x:auto;}
 .panel-tabs::-webkit-scrollbar{height:3px;}
 .panel-tabs::-webkit-scrollbar-thumb{background:var(--border-medium);border-radius:2px;}
 .panel-tab{flex-shrink:0;padding:10px 14px;text-align:center;font-size:12px;font-weight:600;color:var(--text-secondary);cursor:pointer;border-bottom:2.5px solid transparent;transition:.18s;white-space:nowrap;}
 .panel-tab:hover{color:var(--accent-dark);}
 .panel-tab.active{color:var(--accent-dark);border-bottom-color:var(--accent);background:#fff;}
-
 .panel-body{flex:1;overflow-y:auto;padding:18px 20px;}
 .panel-body::-webkit-scrollbar{width:4px;}
 .panel-body::-webkit-scrollbar-thumb{background:var(--border-medium);border-radius:2px;}
-
-/* 패널 섹션 타이틀 */
 .psec-title{font-size:11px;font-weight:800;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
 .psec-title::after{content:'';flex:1;height:1px;background:var(--border-light);}
 .psec{margin-bottom:18px;}
-
-/* 알림장 헤더 정보 */
 .notice-info-row{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--bg-base);border-radius:var(--radius-md);border:1px solid var(--border-light);margin-bottom:10px;}
 .ni-icon{font-size:18px;}
 .ni-text{flex:1;}
 .ni-main{font-size:13px;font-weight:700;color:var(--text-primary);}
 .ni-sub{font-size:11px;color:var(--text-secondary);}
-
-/* 본문 */
 .notice-content-box{background:var(--bg-base);border-radius:var(--radius-md);border:1px solid var(--border-light);padding:12px 14px;font-size:13px;line-height:1.7;color:var(--text-primary);}
 
 /* 종합 평가 요약 카드 */
@@ -287,7 +278,6 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .eval-summary-text.good{color:var(--green-text);}
 .eval-summary-text.ok{color:#15803D;}
 .eval-summary-text.check{color:var(--amber-text);}
-
 .eval-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px;}
 .eval-item{background:#fff;border:1px solid var(--border-light);border-radius:var(--radius-sm);padding:8px 10px;text-align:center;}
 .eval-item-label{font-size:10px;color:var(--text-secondary);font-weight:600;margin-bottom:3px;}
@@ -296,26 +286,19 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .eval-val-ok{color:var(--text-secondary);}
 .eval-val-bad{color:var(--red-text);}
 
-/* 체크필드 그리드 */
-.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
-.check-item{background:#fff;border:1px solid var(--border-light);border-radius:var(--radius-sm);padding:9px 12px;}
-.check-label{font-size:10px;color:var(--text-secondary);font-weight:600;margin-bottom:4px;}
-.check-values{display:flex;flex-wrap:wrap;gap:4px;}
-.check-chip{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:2px 8px;border-radius:8px;}
-.cv-present{background:var(--green-bg);color:var(--green-text);}
-.cv-absent{background:var(--red-bg);color:var(--red-text);}
-.cv-late{background:var(--amber-bg);color:var(--amber-text);}
-.cv-good{background:var(--green-bg);color:var(--green-text);}
-.cv-some{background:var(--blue-bg);color:var(--blue-text);}
-.cv-no{background:#F3F4F6;color:#6B7280;}
-.cv-normal{background:var(--green-bg);color:var(--green-text);}
-
-/* 활동 태그 */
-.activity-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px;}
-.activity-tag{font-size:11px;font-weight:600;padding:3px 8px;border-radius:8px;background:var(--accent-light);color:var(--accent-dark);}
+/* 태그 (상세뷰) */
+.detail-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px;}
+.detail-tag{font-size:11px;font-weight:600;padding:3px 8px;border-radius:8px;background:var(--accent-light);color:var(--accent-dark);}
 
 /* 개별 메모 */
 .memo-box{background:var(--bg-base);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:10px 12px;font-size:13px;line-height:1.6;color:var(--text-primary);}
+
+/* 사진 그리드 (상세뷰 + 작성) */
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px;}
+.photo-thumb{width:100%;aspect-ratio:1;object-fit:cover;border-radius:var(--radius-md);border:2px solid var(--border-light);cursor:pointer;transition:.18s;background:var(--bg-base);position:relative;}
+.photo-thumb:hover{box-shadow:var(--shadow-md);transform:scale(1.03);}
+.photo-thumb.representative{border-color:var(--amber);box-shadow:0 0 0 2px var(--amber-bg);}
+.photo-video-badge{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);color:#fff;font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;}
 
 /* ━━━ 댓글 ━━━ */
 .comment-section{border-top:1px solid var(--border-light);padding-top:14px;}
@@ -333,28 +316,22 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .comment-text{font-size:12.5px;line-height:1.55;color:var(--text-primary);}
 .reply-item{margin-left:30px;}
 .reply-item .comment-bubble{background:#fff;border:1px dashed var(--border-medium);}
-
-/* 댓글 입력 */
 .comment-input-wrap{display:flex;gap:8px;align-items:flex-end;}
 .comment-textarea{flex:1;border:1.5px solid var(--border-light);border-radius:var(--radius-md);padding:9px 12px;font-size:12.5px;font-family:'Pretendard',sans-serif;resize:none;height:60px;outline:none;transition:border-color .18s;line-height:1.5;}
 .comment-textarea:focus{border-color:var(--accent);}
 .comment-send-btn{height:60px;width:44px;border-radius:var(--radius-md);background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;transition:.18s;flex-shrink:0;}
 .comment-send-btn:hover{background:var(--accent-dark);}
-
 .panel-footer{padding:12px 20px;border-top:1px solid var(--border-light);flex-shrink:0;display:flex;gap:8px;justify-content:flex-end;background:#FAFCFF;}
 
 /* ━━━ 작성 패널 (760px) ━━━ */
 .write-panel{position:fixed;right:0;top:0;height:100vh;width:760px;background:#fff;z-index:400;box-shadow:-8px 0 40px rgba(12,45,72,.14);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);}
 .write-panel.show{transform:translateX(0);}
-
 .write-header{height:60px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border-light);flex-shrink:0;}
 .write-header-actions{display:flex;align-items:center;gap:8px;}
 .write-title{font-size:16px;font-weight:800;display:flex;align-items:center;gap:8px;}
-
 .write-body{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
 .write-body::-webkit-scrollbar{width:4px;}
 .write-body::-webkit-scrollbar-thumb{background:var(--border-medium);border-radius:2px;}
-
 .write-section{padding:18px 24px;border-bottom:1px solid var(--border-light);}
 .write-section-title{font-size:12px;font-weight:800;color:var(--text-muted);letter-spacing:.8px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
 .write-section-title .ws-icon{font-size:15px;}
@@ -388,30 +365,43 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .ai-btn-fill:hover{background:linear-gradient(135deg,#059669,#10B981);}
 .ai-loading{opacity:.6;pointer-events:none;}
 
-/* 종합평가 (공통) */
-.eval-write-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
-.eval-write-item{background:var(--bg-base);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:10px;text-align:center;}
-.eval-write-label{font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;}
-.eval-write-opts{display:flex;justify-content:center;gap:4px;}
-.eval-opt{width:30px;height:30px;border-radius:8px;border:1.5px solid var(--border-light);background:#fff;cursor:pointer;font-size:12px;font-weight:700;font-family:'Pretendard',sans-serif;transition:.18s;color:var(--text-secondary);display:flex;align-items:center;justify-content:center;}
-.eval-opt:hover{border-color:var(--accent);}
-.eval-opt.sel-good{border-color:var(--green);background:var(--green-bg);color:var(--green-text);}
-.eval-opt.sel-ok{border-color:var(--amber);background:var(--amber-bg);color:var(--amber-text);}
-.eval-opt.sel-bad{border-color:var(--red);background:var(--red-bg);color:var(--red-text);}
-
 /* 원아 선택 (카드형 그리드) */
-.child-select-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
-.child-select-card{border:2px solid var(--border-light);border-radius:var(--radius-md);padding:10px 6px;cursor:pointer;transition:.18s;text-align:center;}
+.child-select-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;}
+.child-select-card{border:2px solid var(--border-light);border-radius:var(--radius-md);padding:10px 8px 8px;cursor:pointer;transition:.18s;text-align:center;position:relative;}
 .child-select-card:hover{border-color:var(--accent);background:var(--accent-light);}
 .child-select-card.selected{border-color:var(--accent);background:var(--accent-light);}
-.csc-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;margin:0 auto 6px;}
-.csc-name{font-size:12px;font-weight:700;color:var(--text-primary);}
+.csc-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;margin:0 auto 4px;position:relative;}
+.csc-name{font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:4px;}
 .csc-check{width:16px;height:16px;border-radius:50%;border:2px solid var(--border-medium);margin:4px auto 0;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;}
 .child-select-card.selected .csc-check{background:var(--accent);border-color:var(--accent);}
+.csc-badges{display:flex;flex-wrap:wrap;justify-content:center;gap:3px;margin-top:2px;}
+.csc-badge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap;}
+.csc-badge-present{background:var(--green-bg);color:var(--green-text);}
+.csc-badge-absent{background:var(--red-bg);color:var(--red-text);}
+.csc-badge-sick{background:var(--amber-bg);color:var(--amber-text);}
+.csc-badge-unknown{background:#F3F4F6;color:#9CA3AF;}
+.csc-badge-written{background:var(--green-bg);color:var(--green-text);}
+.csc-badge-unwritten{background:#F3F4F6;color:#9CA3AF;}
+.csc-badge-med-need{background:#FEF3C7;color:#92400E;}
+.csc-badge-med-done{background:var(--green-bg);color:var(--green-text);}
+.csc-no-class{text-align:center;padding:24px;color:var(--text-muted);font-size:13px;}
 
-/* 원아별 작성 카드 (그리드) */
-.write-child-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;padding:18px 24px;}
-.write-child-card{border:1.5px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;transition:border-color .18s;}
+/* 반 선택 카드 */
+.class-select-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.class-select-card{border:2px solid var(--border-light);border-radius:var(--radius-lg);padding:14px 16px;cursor:pointer;transition:.18s;position:relative;}
+.class-select-card:hover{border-color:var(--accent);box-shadow:var(--shadow-md);}
+.class-select-card.selected{border-color:var(--accent);background:var(--accent-light);}
+.clsc-name{font-size:14px;font-weight:800;color:var(--text-primary);margin-bottom:6px;}
+.clsc-info{display:flex;flex-direction:column;gap:3px;}
+.clsc-row{font-size:11px;color:var(--text-secondary);display:flex;align-items:center;gap:4px;}
+.clsc-row strong{font-weight:700;color:var(--text-primary);}
+.class-change-bar{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:8px 12px;background:var(--accent-light);border-radius:var(--radius-md);border:1px solid var(--border-medium);}
+.class-change-name{font-size:13px;font-weight:700;color:var(--accent-dark);flex:1;}
+.class-change-btn{font-size:11px;font-weight:700;color:var(--accent-dark);background:none;border:1px solid var(--accent);border-radius:var(--radius-sm);padding:3px 10px;cursor:pointer;font-family:'Pretendard',sans-serif;transition:.18s;}
+.class-change-btn:hover{background:var(--accent);color:#fff;}
+
+/* 원아별 작성 카드 */
+.write-child-card{border:1.5px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;transition:border-color .18s;margin-bottom:12px;}
 .write-child-card:hover{border-color:var(--border-medium);}
 .wcc-header{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--bg-base);border-bottom:1px solid var(--border-light);}
 .wcc-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0;}
@@ -419,42 +409,55 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .wcc-body{padding:12px 14px;display:flex;flex-direction:column;gap:10px;}
 .wfield-label{font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:4px;}
 
-/* 체크 버튼 그룹 */
-.check-btn-group{display:flex;flex-wrap:wrap;gap:5px;}
-.check-btn{padding:4px 10px;border-radius:8px;border:1.5px solid var(--border-light);background:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif;transition:.18s;color:var(--text-secondary);}
-.check-btn:hover{border-color:var(--accent);color:var(--accent-dark);}
-.check-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
-.check-btn.active.green{background:var(--green);border-color:var(--green);}
-.check-btn.active.red{background:var(--red);border-color:var(--red);}
-.check-btn.active.amber{background:var(--amber);border-color:var(--amber);}
+/* ━━━ 작성 모드 탭 ━━━ */
+.write-mode-bar{display:flex;background:var(--bg-base);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:4px;margin-bottom:16px;}
+.write-mode-btn{flex:1;padding:8px 0;text-align:center;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--text-secondary);font-family:'Pretendard',sans-serif;transition:.18s;}
+.write-mode-btn:hover{color:var(--accent-dark);}
+.write-mode-btn.active{background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(14,165,233,.3);}
 
-/* 낮잠 시간 */
-.nap-time-row{display:flex;align-items:center;gap:6px;margin-top:5px;}
-.nap-time-input{width:80px;height:30px;padding:0 8px;border:1.5px solid var(--border-light);border-radius:var(--radius-sm);font-size:12px;font-family:'Pretendard',sans-serif;outline:none;}
-.nap-time-input:focus{border-color:var(--accent);}
-.nap-time-sep{font-size:12px;color:var(--text-muted);}
+/* ━━━ 태그 시스템 (다중작성) ━━━ */
+.tag-cat-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;}
+.tag-cat-tab{padding:5px 12px;border-radius:8px;border:1.5px solid var(--border-light);background:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif;transition:.18s;color:var(--text-secondary);}
+.tag-cat-tab:hover{border-color:var(--accent);}
+.tag-cat-tab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.tag-cat-tab.has-tags{background:var(--accent-light);color:var(--accent-dark);border-color:var(--border-medium);}
+.tag-cat-tab.active.has-tags{background:var(--accent);color:#fff;border-color:var(--accent);}
+.tag-chip-grid{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;}
+.tag-chip{padding:4px 12px;border-radius:20px;border:1.5px solid var(--border-light);background:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif;transition:.18s;color:var(--text-secondary);}
+.tag-chip:hover{border-color:var(--accent);background:var(--accent-light);}
+.tag-chip.sel{background:var(--accent);color:#fff;border-color:var(--accent);}
+.tag-apply-bar{display:flex;gap:6px;margin-top:10px;}
+.tag-apply-btn{flex:1;padding:8px 0;border-radius:var(--radius-md);font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid var(--border-light);background:#fff;color:var(--text-secondary);font-family:'Pretendard',sans-serif;transition:.18s;}
+.tag-apply-btn:hover{border-color:var(--accent);background:var(--accent-light);color:var(--accent-dark);}
+.selected-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
+.selected-tag{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:12px;font-size:11px;font-weight:600;background:var(--accent-light);color:var(--accent-dark);}
+.selected-tag-x{cursor:pointer;font-size:13px;font-weight:700;color:var(--accent);line-height:1;}
+.selected-tag-x:hover{color:var(--red);}
 
-/* 활동 태그 */
-.tag-select-wrap{display:flex;flex-wrap:wrap;gap:4px;}
-.tag-btn{padding:3px 9px;border-radius:8px;border:1.5px solid var(--border-light);background:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif;transition:.18s;color:var(--text-secondary);}
-.tag-btn:hover{border-color:var(--accent);}
-.tag-btn.sel{background:var(--accent-light);color:var(--accent-dark);border-color:var(--accent);}
-.tag-btn.sel.outdoor{background:var(--green-bg);color:var(--green-text);border-color:#A7F3D0;}
+/* ━━━ 사진/동영상 스테이지 ━━━ */
+.media-stage{border:2px dashed var(--border-medium);border-radius:var(--radius-lg);padding:16px;background:var(--bg-base);min-height:100px;}
+.media-stage-empty{text-align:center;padding:24px;color:var(--text-muted);}
+.media-stage-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.media-stage-item{position:relative;aspect-ratio:1;border-radius:var(--radius-md);overflow:hidden;border:3px solid transparent;cursor:pointer;transition:.18s;}
+.media-stage-item:hover{box-shadow:var(--shadow-md);transform:scale(1.02);}
+.media-stage-item.representative{border-color:var(--amber);}
+.media-stage-item img{width:100%;height:100%;object-fit:cover;}
+.media-stage-badge{position:absolute;top:4px;left:4px;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;color:#fff;}
+.media-stage-badge.photo{background:var(--accent);}
+.media-stage-badge.video{background:var(--red);}
+.media-rep-badge{position:absolute;bottom:4px;left:4px;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;background:var(--amber);color:#fff;}
+.media-stage-remove{position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;border:none;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;transition:.18s;opacity:0;}
+.media-stage-item:hover .media-stage-remove{opacity:1;}
+.media-stage-remove:hover{background:var(--red);}
+.media-move-bar{position:absolute;bottom:4px;right:4px;display:flex;gap:2px;opacity:0;transition:.18s;}
+.media-stage-item:hover .media-move-bar{opacity:1;}
+.media-move-btn{width:20px;height:20px;border-radius:4px;background:rgba(0,0,0,.6);color:#fff;border:none;cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;transition:.18s;font-family:'Pretendard',sans-serif;}
+.media-move-btn:hover{background:var(--accent);}
+.media-add-bar{display:flex;gap:8px;margin-top:10px;}
+.media-add-btn{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;border-radius:var(--radius-md);border:1.5px solid var(--border-light);background:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif;transition:.18s;color:var(--text-secondary);}
+.media-add-btn:hover{border-color:var(--accent);background:var(--accent-light);color:var(--accent-dark);}
 
-/* 식사 그리드 */
-.meal-write-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-
-/* 작성 푸터 */
-.write-footer{padding:14px 24px;border-top:1px solid var(--border-light);flex-shrink:0;display:flex;gap:8px;justify-content:flex-end;background:#FAFCFF;}
-
-/* ━━━ 토스트 ━━━ */
-.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:900;display:flex;flex-direction:column;gap:8px;}
-.toast{background:#1A1D2E;color:#fff;padding:10px 16px;border-radius:var(--radius-md);font-size:13px;box-shadow:var(--shadow-lg);animation:toastIn .25s ease;display:flex;align-items:center;gap:8px;}
-.toast.success{background:var(--green);}
-.toast.error{background:var(--red);}
-@keyframes toastIn{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:translateX(0)}}
-
-/* ━━━ 종합 평가 (원아별) ━━━ */
+/* 종합평가 (작성) */
 .eval-per-child{border-top:1.5px dashed var(--border-light);margin-top:14px;padding-top:14px;display:flex;flex-direction:column;gap:12px;}
 .eval-field{display:flex;flex-direction:column;gap:5px;}
 .eval-field-lbl{font-size:11px;font-weight:700;color:var(--text-secondary);}
@@ -479,6 +482,16 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .toilet-count-inp:focus{border-color:var(--amber);}
 .eval-memo-ta{width:100%;height:56px;padding:8px 10px;border:1.5px solid var(--border-light);border-radius:var(--radius-md);font-size:12px;font-family:'Pretendard',sans-serif;resize:none;outline:none;line-height:1.5;color:var(--text-primary);background:#fff;}
 .eval-memo-ta:focus{border-color:var(--accent);}
+
+/* 작성 푸터 */
+.write-footer{padding:14px 24px;border-top:1px solid var(--border-light);flex-shrink:0;display:flex;gap:8px;justify-content:flex-end;background:#FAFCFF;}
+
+/* ━━━ 토스트 ━━━ */
+.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:900;display:flex;flex-direction:column;gap:8px;}
+.toast{background:#1A1D2E;color:#fff;padding:10px 16px;border-radius:var(--radius-md);font-size:13px;box-shadow:var(--shadow-lg);animation:toastIn .25s ease;display:flex;align-items:center;gap:8px;}
+.toast.success{background:var(--green);}
+.toast.error{background:var(--red);}
+@keyframes toastIn{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:translateX(0)}}
 
 /* ━━━ 예약 발행 모달 ━━━ */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:none;align-items:center;justify-content:center;}
@@ -547,7 +560,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
     <div class="filter-bar" id="sentFilterBar">
       <div class="filter-group">
         <div class="fsel-wrap" id="classFilterGroup">
-          <select class="fsel" id="classFilter" onchange="applyFilters()"><!-- JS 렌더링 --></select>
+          <select class="fsel" id="classFilter" onchange="applyFilters()"></select>
         </div>
         <div class="fsel-wrap">
           <select class="fsel" id="filterStatus" onchange="applyFilters()">
@@ -559,9 +572,9 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
           </select>
         </div>
         <div class="filter-date-range">
-          <input type="date" id="filterDateFrom" onchange="applyFilters()" style="height:34px;padding:0 10px;border:1.5px solid var(--border-light);border-radius:var(--radius-md);font-size:12px;font-family:'Pretendard',sans-serif;color:var(--text-primary);outline:none;">
-          <span style="font-size:12px;color:var(--text-muted)">~</span>
-          <input type="date" id="filterDateTo" onchange="applyFilters()" style="height:34px;padding:0 10px;border:1.5px solid var(--border-light);border-radius:var(--radius-md);font-size:12px;font-family:'Pretendard',sans-serif;color:var(--text-primary);outline:none;">
+          <input type="date" id="filterDateFrom" onchange="applyFilters()">
+          <span>~</span>
+          <input type="date" id="filterDateTo" onchange="applyFilters()">
         </div>
         <div class="search-wrap">
           <input class="search-inp" type="text" id="filterChildName" placeholder="원아명 검색" oninput="applyFilters()">
@@ -623,9 +636,10 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
   </div>
   <div class="panel-tabs" id="sdpChildTabs"></div>
   <div class="panel-body" id="sdpBody"></div>
-  <div class="panel-footer">
+  <div class="panel-footer" id="sdpFooter">
     <button class="btn btn-outline btn-sm" onclick="closeSentDetail()">닫기</button>
-    <button class="btn btn-outline btn-sm">✏️ 수정</button>
+    <button class="btn btn-outline btn-sm" id="sdpEditBtn">✏️ 수정</button>
+    <button class="btn btn-sm" style="background:var(--red);color:#fff;" id="sdpDeleteBtn">🗑️ 삭제</button>
     <button class="btn btn-primary btn-sm" onclick="showToast('알림장이 회수되었습니다.')">↩ 회수</button>
   </div>
 </div>
@@ -651,9 +665,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
       <div class="panel-close" onclick="closeWritePanel()">✕</div>
     </div>
   </div>
-  <div class="write-body" id="writePanelBody">
-    <!-- JS로 렌더링 -->
-  </div>
+  <div class="write-body" id="writePanelBody"></div>
   <div class="write-footer">
     <button class="btn btn-outline" onclick="closeWritePanel()">취소</button>
     <button class="btn btn-outline" onclick="document.getElementById('scheduleModal').classList.add('show')">🕐 예약 발행</button>
@@ -682,26 +694,47 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
   </div>
 </div>
 
+<!-- ━━━ 삭제 확인 모달 ━━━ -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">🗑️ 알림장 삭제</div>
+      <div class="modal-close" onclick="document.getElementById('deleteModal').classList.remove('show')">✕</div>
+    </div>
+    <div class="modal-body" id="deleteModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('deleteModal').classList.remove('show')">취소</button>
+      <button class="btn btn-sm" style="background:var(--red);color:#fff;" onclick="executeDelete()">삭제</button>
+    </div>
+  </div>
+</div>
+
 <!-- ━━━ 토스트 ━━━ -->
 <div class="toast-wrap" id="toastWrap"></div>
 
 <script>
-// ━━━ 목 데이터 ━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 목 데이터
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 const MOCK_SENT = [
   {
     id:'NB001', date:'2026-03-23', class:'햇님반', teacher:'김하늘', teacherColor:'#4361EE',
     title:'2026년 3월 23일 햇님반 알림장', status:'published', statusLabel:'발행됨',
-    weather:'맑음', temperature:'18°C / 9°C', childCount:5, readCount:4, commentCount:3,
-    hasAi:true, publishedAt:'08:35', photoCount:3,
+    weather:'맑음', childCount:3, readCount:2, commentCount:3,
+    hasAi:true, publishedAt:'08:35', writeType:'multi',
     content:'안녕하세요! 오늘은 봄 날씨답게 따뜻하고 화창한 하루였습니다. 아이들이 즐겁게 봄 활동을 하며 보람찬 하루를 보냈습니다.',
+    photos:[
+      { url:'https://placehold.co/400x300/E0F2FE/0EA5E9?text=블록놀이', type:'photo', isRepresentative:true },
+      { url:'https://placehold.co/400x300/D1FAE5/10B981?text=모래놀이', type:'photo', isRepresentative:false },
+      { url:'https://placehold.co/400x300/FEF3C7/F59E0B?text=산책영상', type:'video', isRepresentative:false },
+      { url:'https://placehold.co/400x300/EDE9FE/8B5CF6?text=점토놀이', type:'photo', isRepresentative:false },
+      { url:'https://placehold.co/400x300/FCE7F3/EC4899?text=율동영상', type:'video', isRepresentative:false }
+    ],
     children:[
       { id:'C001', name:'김도현', color:'#3B82F6',
-        attendance:'출석', mealLunch:'잘먹음', mealSnackPm:'잘먹음', napStatus:'잘잠', napTime:'13:00~14:30',
-        toiletCount:2, toiletStatus:'정상',
-        activityIndoor:['블록놀이','그림그리기'], activityOutdoor:['모래놀이'],
+        tags:['활발했어요','블록놀이','잘먹음','잘잠'],
         individualMemo:'오늘 블록으로 집을 만들어 친구들에게 자랑했어요. 표현력이 많이 늘었답니다.',
-        dailyEval:{ mood:'좋음', health:'좋음', meal:'좋음', toilet:'좋음', activity:'좋음', social:'보통' },
-        evalSummary:'아주 좋아요 👍',
         isRead:true, commentCount:1,
         comments:[
           { author:'김민지 엄마', type:'parent', color:'#10B981', relation:'엄마', text:'집에서도 블록 얘기를 하더라고요! 감사합니다 선생님 😊', time:'15:22' },
@@ -709,12 +742,8 @@ const MOCK_SENT = [
         ]
       },
       { id:'C002', name:'이서연', color:'#10B981',
-        attendance:'출석', mealLunch:'조금먹음', mealSnackPm:'잘먹음', napStatus:'조금잠', napTime:'13:10~14:00',
-        toiletCount:1, toiletStatus:'정상',
-        activityIndoor:['색칠하기','퍼즐'], activityOutdoor:['산책'],
+        tags:['수줍어했어요','그림그리기','조금먹음','조금잠'],
         individualMemo:'오늘 산책 중에 꽃을 발견하고 친구들에게 보여주는 서연이의 모습이 너무 예뻤어요.',
-        dailyEval:{ mood:'보통', health:'좋음', meal:'보통', toilet:'좋음', activity:'좋음', social:'좋음' },
-        evalSummary:'무난해요 😊',
         isRead:true, commentCount:2,
         comments:[
           { author:'이지영 엄마', type:'parent', color:'#10B981', relation:'엄마', text:'점심을 조금 먹었군요, 집에 와서도 입맛이 없더라고요.', time:'16:10' },
@@ -722,28 +751,24 @@ const MOCK_SENT = [
         ]
       },
       { id:'C003', name:'박준서', color:'#F59E0B',
-        attendance:'조퇴', mealLunch:'잘먹음', mealSnackPm:'해당없음', napStatus:'조금잠', napTime:'13:00~13:40',
-        toiletCount:1, toiletStatus:'정상',
-        activityIndoor:['블록놀이','역할놀이'], activityOutdoor:[],
+        tags:['졸려했어요','역할놀이','잘먹음','못잠'],
         individualMemo:'오후에 병원 예약이 있어 2시에 하원했습니다. 오전에는 활기차게 지냈어요.',
-        dailyEval:{ mood:'보통', health:'보통', meal:'좋음', toilet:'좋음', activity:'보통', social:'보통' },
-        evalSummary:'무난해요 😊',
-        isRead:false, commentCount:0,
-        comments:[]
+        isRead:false, commentCount:0, comments:[]
       }
     ]
   },
   {
     id:'NB002', date:'2026-03-22', class:'햇님반', teacher:'김하늘', teacherColor:'#4361EE',
-    title:'2026년 3월 22일 햇님반 알림장', status:'published', statusLabel:'발행됨',
-    weather:'구름조금', temperature:'16°C / 8°C', childCount:5, readCount:5, commentCount:1,
-    hasAi:false, publishedAt:'09:10', photoCount:6,
-    content:'오늘은 봄 미술 활동으로 꽃 그림을 그렸습니다. 아이들의 다양한 색감 표현이 아름다웠어요!',
+    title:'2026년 3월 22일 김도현 알림장', status:'published', statusLabel:'발행됨',
+    weather:'구름조금', childCount:1, readCount:1, commentCount:0,
+    hasAi:false, publishedAt:'09:10', writeType:'single',
+    content:'오늘은 봄 미술 활동으로 꽃 그림을 그렸습니다. 도현이의 다양한 색감 표현이 아름다웠어요!',
+    photos:[
+      { url:'https://placehold.co/400x300/EDE9FE/8B5CF6?text=꽃그림', type:'photo', isRepresentative:true },
+      { url:'https://placehold.co/400x300/DBEAFE/3B82F6?text=공놀이', type:'photo', isRepresentative:false }
+    ],
     children:[
       { id:'C001', name:'김도현', color:'#3B82F6',
-        attendance:'출석', mealLunch:'잘먹음', mealSnackPm:'잘먹음', napStatus:'잘잠', napTime:'13:00~14:30',
-        toiletCount:2, toiletStatus:'정상',
-        activityIndoor:['그림그리기','색칠하기'], activityOutdoor:['공놀이'],
         individualMemo:'봄꽃을 색연필로 섬세하게 그려 선생님도 놀랐어요.',
         dailyEval:{ mood:'좋음', health:'좋음', meal:'좋음', toilet:'좋음', activity:'좋음', social:'좋음' },
         evalSummary:'아주 좋아요 👍',
@@ -754,18 +779,26 @@ const MOCK_SENT = [
   {
     id:'NB003', date:'2026-03-22', class:'달님반', teacher:'박소현', teacherColor:'#10B981',
     title:'2026년 3월 22일 달님반 알림장', status:'draft', statusLabel:'임시저장',
-    weather:'흐림', temperature:'14°C / 7°C', childCount:4, readCount:0, commentCount:0,
-    hasAi:false, publishedAt:null, photoCount:0,
+    weather:'흐림', childCount:4, readCount:0, commentCount:0,
+    hasAi:false, publishedAt:null, writeType:'multi', photos:[],
     content:'(임시저장)',
     children:[]
   },
   {
     id:'NB004', date:'2026-03-21', class:'햇님반', teacher:'김하늘', teacherColor:'#4361EE',
-    title:'2026년 3월 21일 햇님반 알림장', status:'recalled', statusLabel:'회수됨',
-    weather:'비', temperature:'12°C / 6°C', childCount:5, readCount:3, commentCount:0,
-    hasAi:false, publishedAt:'08:50', photoCount:0,
-    content:'(회수된 알림장)',
-    children:[]
+    title:'2026년 3월 21일 이서연 알림장', status:'published', statusLabel:'발행됨',
+    weather:'비', childCount:1, readCount:1, commentCount:0,
+    hasAi:false, publishedAt:'08:50', writeType:'single',
+    photos:[],
+    content:'비 오는 날 실내에서 색칠놀이를 했어요. 서연이가 무지개를 예쁘게 그렸답니다.',
+    children:[
+      { id:'C002', name:'이서연', color:'#10B981',
+        individualMemo:'무지개를 그리면서 "엄마 보여줄 거야!"라고 했어요.',
+        dailyEval:{ mood:'좋음', health:'좋음', meal:'보통', toilet:'좋음', activity:'좋음', social:'보통' },
+        evalSummary:'무난해요 😊',
+        isRead:true, commentCount:0, comments:[]
+      }
+    ]
   }
 ];
 
@@ -776,8 +809,7 @@ const MOCK_RECEIVED = [
     category:'HEALTH', categoryLabel:'건강/병원', categoryIcon:'🏥',
     subCategory:'HEALTH_C', subLabel:'기침/콧물 증상이 있어요',
     content:'선생님, 도현이가 어제 저녁부터 기침과 콧물 증상이 있어요. 병원은 다녀왔는데 감기 초기라고 합니다. 혹시 원에서 증상이 심해지면 바로 연락 부탁드립니다.',
-    isRead:false, commentCount:0, createdAt:'07:42 · 2026-03-23',
-    comments:[]
+    isRead:false, commentCount:0, createdAt:'07:42 · 2026-03-23', comments:[]
   },
   {
     id:'RNB002', date:'2026-03-23', className:'햇님반', teacher:'김선생',
@@ -795,7 +827,7 @@ const MOCK_RECEIVED = [
     parent:'최수진', relation:'엄마', child:'최지아', childColor:'#8B5CF6',
     category:'ABSENCE', categoryLabel:'결석/지각/조퇴', categoryIcon:'🚫',
     subCategory:'ABSENCE_A', subLabel:'오늘 결석할게요',
-    content:'선생님, 오늘 지아가 몸이 좋지 않아 결석합니다. 열이 38도까지 올라서 병원에 다녀오려고요. 내일 상태 보고 다시 연락드릴게요.',
+    content:'선생님, 오늘 지아가 몸이 좋지 않아 결석합니다. 열이 38도까지 올라서 병원에 다녀오려고요.',
     isRead:true, commentCount:1, createdAt:'07:55 · 2026-03-22',
     comments:[
       { author:'박선생', type:'teacher', color:'#0EA5E9', text:'알겠습니다. 지아가 빨리 나았으면 좋겠어요. 쾌유를 빕니다 💚', time:'08:05' }
@@ -806,15 +838,14 @@ const MOCK_RECEIVED = [
     parent:'이지영', relation:'엄마', child:'이서연', childColor:'#10B981',
     category:'SUPPLY', categoryLabel:'준비물/전달', categoryIcon:'🎒',
     subCategory:'SUPPLY_C', subLabel:'전달할 물건이 있어요',
-    content:'선생님, 서연이 가방에 선생님께 드리는 작은 선물을 넣어두었어요. 부담 갖지 마시고 받아 주세요! 항상 감사합니다.',
+    content:'선생님, 서연이 가방에 선생님께 드리는 작은 선물을 넣어두었어요. 부담 갖지 마시고 받아 주세요!',
     isRead:true, commentCount:1, createdAt:'07:30 · 2026-03-22',
     comments:[
-      { author:'김선생', type:'teacher', color:'#0EA5E9', text:'감사합니다! 정말 감동이에요 🥰 서연이 잘 돌볼게요!', time:'09:20' }
+      { author:'김선생', type:'teacher', color:'#0EA5E9', text:'감사합니다! 정말 감동이에요 🥰', time:'09:20' }
     ]
   }
 ];
 
-// 카테고리 색상 맵
 const CAT_STYLE = {
   ABSENCE:  { bg:'#FEE2E2', text:'#991B1B', dot:'#EF4444' },
   HEALTH:   { bg:'#FEF3C7', text:'#92400E', dot:'#F59E0B' },
@@ -824,40 +855,46 @@ const CAT_STYLE = {
 
 const WEATHER_ICON = { '맑음':'☀️', '구름조금':'🌤️', '흐림':'☁️', '비':'🌧️', '눈':'❄️', '바람':'💨' };
 
-// ━━━ 오늘의 현황 목 데이터 ━━━
 const TODAY_CHILDREN = [
   { id:'C001', name:'김도현', color:'#3B82F6', age:5, attendance:'출석',  noticeWritten:true,  parentComment:true,  class:'CLS001' },
   { id:'C002', name:'이서연', color:'#10B981', age:4, attendance:'출석',  noticeWritten:true,  parentComment:false, class:'CLS001' },
   { id:'C003', name:'박준서', color:'#F59E0B', age:5, attendance:'조퇴',  noticeWritten:true,  parentComment:false, class:'CLS001' },
   { id:'C004', name:'최지아', color:'#8B5CF6', age:4, attendance:'결석',  noticeWritten:false, parentComment:false, class:'CLS002' },
   { id:'C005', name:'한민준', color:'#EF4444', age:5, attendance:'병결',  noticeWritten:false, parentComment:true,  class:'CLS002' },
-  { id:'C006', name:'정수아',  color:'#EC4899', age:3, attendance:'출석',  noticeWritten:true,  parentComment:false, class:'CLS001' },
-  { id:'C007', name:'윤지호',  color:'#0EA5E9', age:4, attendance:'미확인', noticeWritten:false, parentComment:false, class:'CLS003' },
-  { id:'C008', name:'강민재',  color:'#F97316', age:5, attendance:'출석',  noticeWritten:true,  parentComment:true,  class:'CLS003' },
+  { id:'C006', name:'정수아', color:'#EC4899', age:3, attendance:'출석',  noticeWritten:true,  parentComment:false, class:'CLS001' },
+  { id:'C007', name:'윤지호', color:'#0EA5E9', age:4, attendance:'미확인', noticeWritten:false, parentComment:false, class:'CLS003' },
+  { id:'C008', name:'강민재', color:'#F97316', age:5, attendance:'출석',  noticeWritten:true,  parentComment:true,  class:'CLS003' },
 ];
 
+// ━━━ 태그 카테고리 ━━━
+const TAG_CATEGORIES = {
+  '감정': ['활발했어요','기뻐했어요','자신감있었어요','수줍어했어요','졸려했어요','울었어요','차분했어요'],
+  '활동': ['블록놀이','그림그리기','색칠하기','역할놀이','율동','독서','퍼즐','점토놀이'],
+  '건강': ['양호','기침','콧물','발열','배탈','알레르기'],
+  '식사': ['잘먹음','조금먹음','안먹음','편식함','간식좋아함'],
+  '수면': ['잘잠','조금잠','못잠','안잠'],
+  '기타': ['친구와놀이','선생님과대화','혼자놀이','야외산책','특별활동']
+};
+
 // ━━━ 역할/반 컨텍스트 ━━━
-const NB_USER_ROLE     = sessionStorage.getItem('userRole') || 'org_admin';
-const NB_OP_CONTEXT    = JSON.parse(sessionStorage.getItem('operationContext') || 'null');
-const NB_EFFECTIVE     = (NB_OP_CONTEXT && NB_OP_CONTEXT.contextRole) ? NB_OP_CONTEXT.contextRole : NB_USER_ROLE;
-const NB_ASSIGNED      = NB_EFFECTIVE === 'teacher'
+const NB_USER_ROLE   = sessionStorage.getItem('userRole') || 'org_admin';
+const NB_OP_CONTEXT  = JSON.parse(sessionStorage.getItem('operationContext') || 'null');
+const NB_EFFECTIVE   = (NB_OP_CONTEXT && NB_OP_CONTEXT.contextRole) ? NB_OP_CONTEXT.contextRole : NB_USER_ROLE;
+const NB_ASSIGNED    = NB_EFFECTIVE === 'teacher'
   ? JSON.parse(sessionStorage.getItem('assignedClasses') || '[{"id":"CLS001","name":"햇님반"}]')
   : null;
-const NB_ALL_CLASSES   = [
+const NB_ALL_CLASSES = [
   { id:'CLS001', name:'햇님반' },
   { id:'CLS002', name:'달님반' },
   { id:'CLS003', name:'별님반' },
   { id:'CLS004', name:'꽃님반' },
 ];
 
-// ━━━ 반 필터 초기화 ━━━
 function initClassFilter() {
   const sel = document.getElementById('classFilter');
   if (!sel) return;
   sel.innerHTML = '';
-  if (NB_USER_ROLE !== 'teacher') {
-    sel.innerHTML += '<option value="">전체 반</option>';
-  }
+  if (NB_USER_ROLE !== 'teacher') sel.innerHTML += '<option value="">전체 반</option>';
   NB_ALL_CLASSES.forEach(cls => {
     const isAssigned = !NB_ASSIGNED || NB_ASSIGNED.some(a => a.id === cls.id);
     const opt = document.createElement('option');
@@ -866,48 +903,34 @@ function initClassFilter() {
     if (!isAssigned) { opt.disabled = true; opt.textContent += ' — 비담당'; }
     sel.appendChild(opt);
   });
-  if (NB_EFFECTIVE === 'teacher' && NB_ASSIGNED && NB_ASSIGNED.length > 0) {
-    sel.value = NB_ASSIGNED[0].id;
-  }
+  if (NB_EFFECTIVE === 'teacher' && NB_ASSIGNED && NB_ASSIGNED.length > 0) sel.value = NB_ASSIGNED[0].id;
 }
 
-// ━━━ 읽음 상태 런타임 맵 (key: `noticeId-childId`) ━━━
+// ━━━ 읽음 상태 ━━━
 const readState = {};
-MOCK_SENT.forEach(n => n.children.forEach(c => {
-  readState[`${n.id}-${c.id}`] = c.isRead;
-}));
+MOCK_SENT.forEach(n => n.children.forEach(c => { readState[`${n.id}-${c.id}`] = c.isRead; }));
 const isChildRead   = (nid, cid) => readState[`${nid}-${cid}`] ?? true;
 const markChildRead = (nid, cid) => { readState[`${nid}-${cid}`] = true; };
 
-// ━━━ 상태 ━━━
 let currentTab = 'sent';
 
 // ━━━ 초기화 ━━━
 document.addEventListener('DOMContentLoaded', () => {
   const now = new Date();
-  document.getElementById('topDate').textContent =
-    now.toLocaleDateString('ko-KR', { year:'numeric', month:'2-digit', day:'2-digit', weekday:'short' });
-  // 오늘의 현황 날짜 메타
-  const todayStr = now.toLocaleDateString('ko-KR', { month:'long', day:'numeric', weekday:'long' });
-  document.getElementById('todayMeta').textContent = todayStr + ' 기준';
-
+  document.getElementById('topDate').textContent = now.toLocaleDateString('ko-KR', { year:'numeric', month:'2-digit', day:'2-digit', weekday:'short' });
+  document.getElementById('todayMeta').textContent = now.toLocaleDateString('ko-KR', { month:'long', day:'numeric', weekday:'long' }) + ' 기준';
   initClassFilter();
   renderTodayDashboard();
   renderList('sent');
 
-  // noticePrefill: 대시보드에서 pre-fill로 이동한 경우 처리
   const prefill = JSON.parse(sessionStorage.getItem('noticePrefill') || 'null');
   if (prefill && prefill.childName) {
     sessionStorage.removeItem('noticePrefill');
     if (prefill.mode === 'write') {
-      // 알림장 작성 패널 열기 (작성 화면)
       showToast(`✏️ ${prefill.childName} 알림장 작성 화면으로 이동합니다.`);
-      setTimeout(() => openWritePanel && openWritePanel(prefill.childId), 300);
+      setTimeout(() => openWritePanel && openWritePanel(), 300);
     } else {
-      // 알림장 조회: 해당 원아 검색
       showToast(`👁️ ${prefill.childName}의 알림장을 조회합니다.`);
-      const searchEl = document.getElementById('sentSearch') || document.getElementById('searchInput');
-      if (searchEl) { searchEl.value = prefill.childName; renderList('sent'); }
     }
   }
 });
@@ -922,70 +945,59 @@ function switchTab(tab) {
   renderList(tab);
 }
 
-// ━━━ 오늘의 현황 렌더 ━━━
+// ━━━ 오늘의 현황 ━━━
 function renderTodayDashboard() {
   const classVal = (document.getElementById('classFilter') || {}).value || '';
   const grid = document.getElementById('todayChildrenGrid');
   const children = TODAY_CHILDREN.filter(c => !classVal || c.class === classVal);
-
   if (children.length === 0) {
     grid.innerHTML = '<div style="font-size:13px;color:var(--text-muted);padding:12px 0">해당 반 원아 데이터가 없습니다.</div>';
     return;
   }
-
   const attendConfig = {
-    '출석':  { cls:'tcc-present', labelCls:'tcc-al-present' },
-    '결석':  { cls:'tcc-absent',  labelCls:'tcc-al-absent'  },
-    '병결':  { cls:'tcc-sick',    labelCls:'tcc-al-sick'    },
-    '조퇴':  { cls:'tcc-leave',   labelCls:'tcc-al-leave'   },
-    '미확인':{ cls:'tcc-unknown', labelCls:'tcc-al-unknown' },
+    '출석':{ cls:'tcc-present',labelCls:'tcc-al-present' },
+    '결석':{ cls:'tcc-absent', labelCls:'tcc-al-absent' },
+    '병결':{ cls:'tcc-sick',   labelCls:'tcc-al-sick' },
+    '조퇴':{ cls:'tcc-leave',  labelCls:'tcc-al-leave' },
+    '미확인':{ cls:'tcc-unknown',labelCls:'tcc-al-unknown' },
   };
-
   grid.innerHTML = children.map(c => {
     const cfg = attendConfig[c.attendance] || attendConfig['미확인'];
-    const commentDot = c.parentComment
-      ? `<div class="tcc-comment-dot" title="학부모 댓글 있음">!</div>` : '';
+    const commentDot = c.parentComment ? `<div class="tcc-comment-dot" title="학부모 댓글 있음">!</div>` : '';
     const noticeBadge = c.noticeWritten
       ? `<span class="tcc-notice-badge tcc-notice-done">✅ 작성완료</span>`
       : `<span class="tcc-notice-badge tcc-notice-none">✏️ 미작성</span>`;
-    return `
-      <div class="today-child-card ${cfg.cls}" title="${c.name} · ${c.attendance}">
-        <div class="tcc-avatar" style="background:${c.color}">
-          ${c.name[0]}
-          ${commentDot}
-        </div>
-        <div class="tcc-name">${c.name}</div>
-        <div class="tcc-age">만 ${c.age}세</div>
-        <span class="tcc-attend-label ${cfg.labelCls}">${c.attendance}</span>
-        ${noticeBadge}
-      </div>`;
+    return `<div class="today-child-card ${cfg.cls}" title="${c.name} · ${c.attendance}">
+      <div class="tcc-avatar" style="background:${c.color}">${c.name[0]}${commentDot}</div>
+      <div class="tcc-name">${c.name}</div>
+      <div class="tcc-age">만 ${c.age}세</div>
+      <span class="tcc-attend-label ${cfg.labelCls}">${c.attendance}</span>
+      ${noticeBadge}
+    </div>`;
   }).join('');
 }
 
 // ━━━ 목록 렌더 ━━━
 function renderList(tab) {
   const area = document.getElementById('listArea');
-  if (tab === 'sent') {
-    renderSentList(area);
-  } else {
-    renderReceivedList(area);
-  }
+  if (tab === 'sent') renderSentList(area);
+  else renderReceivedList(area);
 }
 
 function renderSentList(area) {
-  const classVal   = (document.getElementById('classFilter')    || {}).value || '';
-  const statusVal  = (document.getElementById('filterStatus')   || {}).value || '';
-  const childVal   = ((document.getElementById('filterChildName') || {}).value || '').trim().toLowerCase();
-  const dateFrom   = (document.getElementById('filterDateFrom') || {}).value || '';
-  const dateTo     = (document.getElementById('filterDateTo')   || {}).value || '';
+  const classVal  = (document.getElementById('classFilter') || {}).value || '';
+  const statusVal = (document.getElementById('filterStatus') || {}).value || '';
+  const childVal  = ((document.getElementById('filterChildName') || {}).value || '').trim().toLowerCase();
+  const dateFrom  = (document.getElementById('filterDateFrom') || {}).value || '';
+  const dateTo    = (document.getElementById('filterDateTo') || {}).value || '';
+  const classMap  = { CLS001:'햇님반', CLS002:'달님반', CLS003:'별님반', CLS004:'꽃님반' };
 
-  const classMap = { CLS001:'햇님반', CLS002:'달님반', CLS003:'별님반' };
   let data = MOCK_SENT.filter(n => {
     if (classVal  && n.class !== classMap[classVal]) return false;
     if (statusVal && n.status !== statusVal) return false;
     if (childVal  && !n.children.some(c => c.name.toLowerCase().includes(childVal))) return false;
     if (dateFrom  && n.date < dateFrom) return false;
-    if (dateTo    && n.date > dateTo)   return false;
+    if (dateTo    && n.date > dateTo) return false;
     return true;
   });
 
@@ -998,94 +1010,100 @@ function renderSentList(area) {
   }
 
   const grouped = {};
-  data.forEach(n => {
-    if (!grouped[n.date]) grouped[n.date] = [];
-    grouped[n.date].push(n);
-  });
+  data.forEach(n => { if (!grouped[n.date]) grouped[n.date] = []; grouped[n.date].push(n); });
 
   area.innerHTML = Object.entries(grouped).sort((a,b)=>b[0].localeCompare(a[0])).map(([date, notices]) => {
     const d = new Date(date);
     const label = d.toLocaleDateString('ko-KR', { month:'long', day:'numeric', weekday:'short' });
     const cards = notices.map(n => {
       const wi = WEATHER_ICON[n.weather] || '';
-      const parentComments = n.children.reduce((a,c)=>a+c.comments.filter(cm=>cm.type==='parent').length,0);
+      const parentComments = n.children.reduce((a,c) => a + c.comments.filter(cm=>cm.type==='parent').length, 0);
+      const isSingle = n.writeType === 'single';
+      const photoCount = (n.photos || []).length;
 
-      // 원아 chips — 읽음/미읽음 구분, 최대 5개
-      const childChips = n.children.length > 0
-        ? n.children.slice(0,5).map(c => {
-            const isRead = isChildRead(n.id, c.id);
-            const chipStyle = isRead
-              ? 'border-color:#A7F3D0;background:#F0FDF4;'
-              : 'border-color:#FED7AA;background:#FFF7ED;';
-            const parentCnt = c.comments.filter(cm => cm.type === 'parent').length;
-            const unread = parentCnt > 0 && !isRead;
-            const cntBadge = parentCnt > 0 ? `<span class="nc-chip-cnt${unread ? '' : ' read'}">${parentCnt}</span>` : '';
-            const unreadDot = unread ? `<span class="nc-chip-unread"></span>` : '';
-            return `<span class="nc-child-chip" style="${chipStyle}"><span class="nc-child-chip-av" style="background:${c.color}">${c.name[0]}</span>${c.name}${cntBadge}${unreadDot}</span>`;
-          }).join('') + (n.children.length > 5 ? `<span class="nc-child-chip" style="background:#F3F4F6;color:#6B7280;border:none">+${n.children.length-5}</span>` : '')
-        : `<span style="font-size:11px;color:var(--text-muted)">원아 ${n.childCount}명</span>`;
+      // 원아 영역: 단일 → 원아 강조, 다중 → chips
+      let childAreaHTML = '';
+      if (isSingle && n.children.length === 1) {
+        const c = n.children[0];
+        childAreaHTML = `<div class="nc-single-child">
+          <div class="nc-child-chip-av" style="background:${c.color}">${c.name[0]}</div>
+          <div><div class="nc-single-child-name">${c.name}</div>
+          <div class="nc-single-child-sub">1:1 알림장${c.dailyEval ? ' · 종합평가 포함' : ''}</div></div>
+        </div>`;
+      } else if (n.children.length > 0) {
+        childAreaHTML = `<div class="nc-children">${n.children.slice(0,5).map(c => {
+          const isRead = isChildRead(n.id, c.id);
+          const chipStyle = isRead ? 'border-color:#A7F3D0;background:#F0FDF4;' : 'border-color:#FED7AA;background:#FFF7ED;';
+          const parentCnt = c.comments.filter(cm=>cm.type==='parent').length;
+          const unread = parentCnt > 0 && !isRead;
+          const cntBadge = parentCnt > 0 ? `<span class="nc-chip-cnt${unread?'':' read'}">${parentCnt}</span>` : '';
+          const unreadDot = unread ? `<span class="nc-chip-unread"></span>` : '';
+          return `<span class="nc-child-chip" style="${chipStyle}"><span class="nc-child-chip-av" style="background:${c.color}">${c.name[0]}</span>${c.name}${cntBadge}${unreadDot}</span>`;
+        }).join('')}${n.children.length > 5 ? `<span class="nc-child-chip" style="background:#F3F4F6;color:#6B7280;border:none">+${n.children.length-5}</span>` : ''}</div>`;
+      } else {
+        childAreaHTML = `<span style="font-size:11px;color:var(--text-muted)">원아 ${n.childCount}명</span>`;
+      }
 
-      // 댓글 뱃지
-      const commentBadge = parentComments > 0
-        ? `<span class="nc-comment-badge">💬 학부모 댓글 ${parentComments}</span>`
-        : '';
+      const commentBadge = parentComments > 0 ? `<span class="nc-comment-badge">💬 학부모 댓글 ${parentComments}</span>` : '';
 
-      return `
-        <div class="notice-card" onclick="openSentDetail('${n.id}')">
-          <div class="nc-accent ${n.status}"></div>
-          <div class="nc-left">
-            <!-- 교사 행 -->
-            <div class="nc-teacher-row">
-              <div class="nc-teacher-av" style="background:${n.teacherColor||'#0EA5E9'}">${(n.teacher||'?')[0]}</div>
-              <div class="nc-teacher-info">
-                <div class="nc-teacher-name">${n.teacher} 선생님</div>
-                <div class="nc-teacher-class">${n.class}</div>
-              </div>
-              <span class="nbadge nb-${n.status}">
-                <span class="nbadge-dot" style="background:${statusDotColor(n.status)}"></span>
-                ${n.statusLabel}
-              </span>
-              ${n.hasAi ? '<span class="nc-ai-badge">✨ AI</span>' : ''}
+      return `<div class="notice-card" onclick="openSentDetail('${n.id}')">
+        <div class="nc-accent ${n.status}"></div>
+        <div class="nc-left">
+          <div class="nc-teacher-row">
+            <div class="nc-teacher-av" style="background:${n.teacherColor||'#0EA5E9'}">${(n.teacher||'?')[0]}</div>
+            <div class="nc-teacher-info">
+              <div class="nc-teacher-name">${n.teacher} 선생님</div>
+              <div class="nc-teacher-class">${n.class}</div>
             </div>
-            <!-- 날씨·기온 -->
-            <div class="nc-meta">
-              ${n.weather ? `<span class="nc-meta-item"><span class="nc-weather">${wi}</span> ${n.weather} · ${n.temperature}</span>` : ''}
+            <span class="nc-type-badge ${isSingle?'nc-type-single':'nc-type-multi'}">${isSingle?'1:1':'다중'}</span>
+            <span class="nbadge nb-${n.status}"><span class="nbadge-dot" style="background:${statusDotColor(n.status)}"></span>${n.statusLabel}</span>
+            ${n.hasAi ? '<span class="nc-ai-badge">✨ AI</span>' : ''}
+          </div>
+          <div class="nc-meta">
+            ${n.weather ? `<span class="nc-meta-item"><span class="nc-weather">${wi}</span> ${n.weather}</span>` : ''}
+          </div>
+          <div class="nc-preview">${n.content}</div>
+          ${(() => {
+            const photos = n.photos || [];
+            if (photos.length === 0) return '';
+            const show = photos.slice(0, 3);
+            const thumbs = show.map(p => `<div class="nc-thumb-item">
+              <img src="${p.url}" alt="${p.type}" onerror="this.parentElement.style.display='none'">
+              ${p.type==='video'?'<div class="nc-thumb-play">▶</div>':''}
+            </div>`).join('');
+            const more = photos.length > 3 ? `<div class="nc-thumb-more">+${photos.length - 3}</div>` : '';
+            return `<div class="nc-thumb-row">${thumbs}${more}</div>`;
+          })()}
+          ${childAreaHTML}
+          <div class="nc-footer">
+            <div class="nc-footer-meta">
+              <span class="nc-footer-item">👁️ ${n.readCount}/${n.childCount}</span>
+              <span class="nc-footer-item">📸 ${photoCount}</span>
+              <span class="nc-footer-item">💬 ${n.commentCount}</span>
+              ${commentBadge}
+              <span class="nc-footer-item" style="margin-left:auto;font-family:'JetBrains Mono',monospace">${n.publishedAt||'--:--'}</span>
             </div>
-            <!-- 본문 미리보기 -->
-            <div class="nc-preview">${n.content}</div>
-            <!-- 원아 chips -->
-            <div class="nc-children">${childChips}</div>
-            <!-- 카드 푸터 -->
-            <div class="nc-footer">
-              <div class="nc-footer-meta">
-                <span class="nc-footer-item">👁️ ${n.readCount}/${n.childCount}</span>
-                <span class="nc-footer-item">📸 ${n.photoCount||0}</span>
-                <span class="nc-footer-item">💬 ${n.commentCount}</span>
-                ${commentBadge}
-                <span class="nc-footer-item" style="margin-left:auto;font-family:'JetBrains Mono',monospace">${n.publishedAt||'--:--'}</span>
-              </div>
-              <div class="nc-act-btns" onclick="event.stopPropagation()">
-                ${(() => {
-                  const canAct = !NB_ASSIGNED || n.teacher === sessionStorage.getItem('userName') || NB_USER_ROLE !== 'teacher';
-                  if (!canAct) return `<span style="font-size:10px;color:var(--text-muted)">조회만</span>`;
-                  return `<div class="nc-act-btn" title="수정" onclick="showToast('수정 기능은 준비 중입니다.')">✏️</div>
-                    ${n.status==='published'?`<div class="nc-act-btn" title="회수" onclick="showToast('알림장이 회수되었습니다.')">↩️</div>`:''}
-                    <div class="nc-act-btn danger" title="삭제" onclick="showToast('삭제 기능은 권한 확인 후 처리됩니다.','error')">🗑️</div>`;
-                })()}
-              </div>
+            <div class="nc-act-btns" onclick="event.stopPropagation()">
+              ${(() => {
+                const canAct = !NB_ASSIGNED || n.teacher === sessionStorage.getItem('userName') || NB_USER_ROLE !== 'teacher';
+                if (!canAct) return `<span style="font-size:10px;color:var(--text-muted)">조회만</span>`;
+                return `<div class="nc-act-btn" title="수정" onclick="editNotice('${n.id}')">✏️</div>
+                  ${n.status==='published'?`<div class="nc-act-btn" title="회수" onclick="showToast('알림장이 회수되었습니다.')">↩️</div>`:''}
+                  <div class="nc-act-btn danger" title="삭제" onclick="confirmDelete('${n.id}')">🗑️</div>`;
+              })()}
             </div>
           </div>
-        </div>`;
-    }).join('');
-    return `
-      <div class="date-group">
-        <div class="date-group-header">
-          <span class="date-group-label">${label}</span>
-          <div class="date-group-line"></div>
-          <span class="date-group-count">${notices.length}건</span>
         </div>
-        ${cards}
       </div>`;
+    }).join('');
+    return `<div class="date-group">
+      <div class="date-group-header">
+        <span class="date-group-label">${label}</span>
+        <div class="date-group-line"></div>
+        <span class="date-group-count">${notices.length}건</span>
+      </div>
+      ${cards}
+    </div>`;
   }).join('');
 }
 
@@ -1094,52 +1112,50 @@ function statusDotColor(s) {
 }
 
 function renderReceivedList(area) {
-  const data = MOCK_RECEIVED;
+  const catVal   = (document.getElementById('receivedCategory') || {}).value || '';
+  const readVal  = (document.getElementById('receivedReadStatus') || {}).value || '';
+  const childVal = ((document.getElementById('receivedChildName') || {}).value || '').trim().toLowerCase();
+
+  const data = MOCK_RECEIVED.filter(r => {
+    if (catVal  && r.category !== catVal) return false;
+    if (readVal === 'unread' && r.isRead) return false;
+    if (readVal === 'read'   && !r.isRead) return false;
+    if (childVal && !r.child.toLowerCase().includes(childVal)) return false;
+    return true;
+  });
+
   document.getElementById('receivedCount').textContent = data.length;
   document.getElementById('listCount').textContent = data.length;
 
   const grouped = {};
-  data.forEach(r => {
-    if (!grouped[r.date]) grouped[r.date] = [];
-    grouped[r.date].push(r);
-  });
+  data.forEach(r => { if (!grouped[r.date]) grouped[r.date] = []; grouped[r.date].push(r); });
 
   area.innerHTML = Object.entries(grouped).sort((a,b)=>b[0].localeCompare(a[0])).map(([date, notices]) => {
     const d = new Date(date);
     const label = d.toLocaleDateString('ko-KR', { month:'long', day:'numeric', weekday:'short' });
     const cards = notices.map(r => {
       const cs = CAT_STYLE[r.category];
-      return `
-        <div class="parent-notice-card ${!r.isRead?'unread-card':''}" onclick="openReceivedDetail('${r.id}')">
-          <div class="pnc-header">
-            <span class="pnc-category" style="background:${cs.bg};color:${cs.text}">
-              ${r.categoryIcon} ${r.categoryLabel}
-            </span>
-            <span class="pnc-sub">${r.subLabel}</span>
-            ${!r.isRead ? '<span class="unread-pip">미읽음</span>' : ''}
-          </div>
-          <div class="pnc-info">
-            <span class="child-avatar-sm" style="background:${r.childColor}">${r.child[0]}</span>
-            <span class="pnc-names">${r.child} · <span>${r.parent} ${r.relation}</span> · ${r.className}</span>
-          </div>
-          <div class="pnc-content">${r.content}</div>
-          <div class="pnc-footer">
-            <span class="pnc-time">${r.createdAt}</span>
-            <button class="pnc-reply-btn" onclick="event.stopPropagation();openReceivedDetail('${r.id}')">
-              💬 ${r.commentCount > 0 ? '답글 ' + r.commentCount : '답글하기'}
-            </button>
-          </div>
-        </div>`;
-    }).join('');
-    return `
-      <div class="date-group">
-        <div class="date-group-header">
-          <span class="date-group-label">${label}</span>
-          <div class="date-group-line"></div>
-          <span class="date-group-count">${notices.length}건</span>
+      return `<div class="parent-notice-card ${!r.isRead?'unread-card':''}" onclick="openReceivedDetail('${r.id}')">
+        <div class="pnc-header">
+          <span class="pnc-category" style="background:${cs.bg};color:${cs.text}">${r.categoryIcon} ${r.categoryLabel}</span>
+          <span class="pnc-sub">${r.subLabel}</span>
+          ${!r.isRead ? '<span class="unread-pip">미읽음</span>' : ''}
         </div>
-        ${cards}
+        <div class="pnc-info">
+          <span class="child-avatar-sm" style="background:${r.childColor}">${r.child[0]}</span>
+          <span class="pnc-names">${r.child} · <span>${r.parent} ${r.relation}</span> · ${r.className}</span>
+        </div>
+        <div class="pnc-content">${r.content}</div>
+        <div class="pnc-footer">
+          <span class="pnc-time">${r.createdAt}</span>
+          <button class="pnc-reply-btn" onclick="event.stopPropagation();openReceivedDetail('${r.id}')">💬 ${r.commentCount > 0 ? '답글 '+r.commentCount : '답글하기'}</button>
+        </div>
       </div>`;
+    }).join('');
+    return `<div class="date-group">
+      <div class="date-group-header"><span class="date-group-label">${label}</span><div class="date-group-line"></div><span class="date-group-count">${notices.length}건</span></div>
+      ${cards}
+    </div>`;
   }).join('');
 }
 
@@ -1149,7 +1165,6 @@ function openSentDetail(id) {
   if (!notice) return;
   document.getElementById('sdpTitle').textContent = notice.date + ' ' + notice.class;
 
-  // 원아 탭
   const tabs = document.getElementById('sdpChildTabs');
   tabs.innerHTML = `<div class="panel-tab active" onclick="switchChildTab(this,0)">📋 공통</div>` +
     notice.children.map((c,i) => {
@@ -1160,6 +1175,8 @@ function openSentDetail(id) {
     }).join('');
 
   renderSentDetailCommon(notice);
+  document.getElementById('sdpEditBtn').onclick = () => editNotice(notice.id);
+  document.getElementById('sdpDeleteBtn').onclick = () => confirmDelete(notice.id);
   showPanel('sentDetailPanel');
 }
 
@@ -1182,7 +1199,21 @@ function switchChildTab(el, idx) {
 
 function renderSentDetailCommon(notice) {
   const wi = WEATHER_ICON[notice.weather] || '';
+  const isSingle = notice.writeType === 'single';
+  const photos = notice.photos || [];
   const body = document.getElementById('sdpBody');
+
+  const photosHTML = photos.length > 0 ? `
+    <div class="psec">
+      <div class="psec-title">📸 사진/동영상 (${photos.length})</div>
+      <div class="photo-grid">
+        ${photos.map(p => `<div style="position:relative">
+          <img class="photo-thumb${p.isRepresentative?' representative':''}" src="${p.url}" alt="${p.type}" onerror="this.style.display='none'">
+          ${p.isRepresentative ? '<div style="position:absolute;bottom:6px;left:6px;background:var(--amber);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;">대표</div>' : ''}
+          ${p.type==='video' ? '<div style="position:absolute;top:6px;right:6px;background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;">영상</div>' : ''}
+        </div>`).join('')}
+      </div>
+    </div>` : '';
 
   body.innerHTML = `
     <div class="psec">
@@ -1191,18 +1222,16 @@ function renderSentDetailCommon(notice) {
         <span class="ni-icon">${wi}</span>
         <div class="ni-text">
           <div class="ni-main">${notice.date} · ${notice.class}</div>
-          <div class="ni-sub">🌡️ ${notice.temperature} · 👨‍🏫 ${notice.teacher} · 👶 ${notice.childCount}명 대상</div>
+          <div class="ni-sub">👨‍🏫 ${notice.teacher} · 👶 ${notice.childCount}명 · ${isSingle?'1:1 알림장':'다중 알림장'}</div>
         </div>
-        <span class="nbadge nb-${notice.status}">
-          <span class="nbadge-dot" style="background:${statusDotColor(notice.status)}"></span>
-          ${notice.statusLabel}
-        </span>
+        <span class="nbadge nb-${notice.status}"><span class="nbadge-dot" style="background:${statusDotColor(notice.status)}"></span>${notice.statusLabel}</span>
       </div>
     </div>
     <div class="psec">
       <div class="psec-title">공통 본문</div>
       <div class="notice-content-box">${notice.content}</div>
     </div>
+    ${photosHTML}
     <div class="psec">
       <div class="psec-title">발행 현황</div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
@@ -1210,83 +1239,72 @@ function renderSentDetailCommon(notice) {
         <div class="eval-item"><div class="eval-item-label">댓글</div><div class="eval-item-val">${notice.commentCount}</div></div>
         <div class="eval-item"><div class="eval-item-label">발행시각</div><div class="eval-item-val" style="font-size:11px;font-family:'JetBrains Mono'">${notice.publishedAt||'--:--'}</div></div>
       </div>
-    </div>
-  `;
+    </div>`;
 }
 
 function renderSentDetailChild(notice, child) {
-  const evalMap = { '좋음':'good', '보통':'ok', '나쁨':'bad' };
-  const evalLabelsD = [
-    {key:'mood',label:'기분'},{key:'health',label:'건강'},{key:'meal',label:'식사량'},
-    {key:'toilet',label:'배변'},{key:'activity',label:'참여도'},{key:'social',label:'교우관계'}
-  ];
-  const de = child.dailyEval || {};
-  const vals = Object.values(de).filter(Boolean);
-  const goodCnt = vals.filter(v=>v==='좋음').length;
-  const badCnt  = vals.filter(v=>v==='나쁨').length;
-  const summary = child.evalSummary || (badCnt>=1 ? '확인이 필요해요 ⚠️' : goodCnt>=4 ? '아주 좋아요 👍' : '무난해요 😊');
-  const sumCls = summary.includes('👍') ? 'good' : summary.includes('⚠️') ? 'check' : 'ok';
-  const evalGridHTML = evalLabelsD.map(e => {
-    const val = de[e.key];
-    const vc = val ? 'eval-val-' + evalMap[val] : '';
-    return `<div class="eval-item"><div class="eval-item-label">${e.label}</div><div class="eval-item-val ${vc}">${val||'—'}</div></div>`;
-  }).join('');
+  const isSingle = notice.writeType === 'single';
+  const body = document.getElementById('sdpBody');
+
+  // 종합평가 (단일만)
+  let evalHTML = '';
+  if (isSingle && child.dailyEval) {
+    const evalMap = { '좋음':'good', '보통':'ok', '나쁨':'bad' };
+    const evalLabels = [
+      {key:'mood',label:'기분'},{key:'health',label:'건강'},{key:'meal',label:'식사량'},
+      {key:'toilet',label:'배변'},{key:'activity',label:'참여도'},{key:'social',label:'교우관계'}
+    ];
+    const de = child.dailyEval;
+    const vals = Object.values(de).filter(Boolean);
+    const goodCnt = vals.filter(v=>v==='좋음').length;
+    const badCnt = vals.filter(v=>v==='나쁨').length;
+    const summary = child.evalSummary || (badCnt>=1?'확인이 필요해요 ⚠️':goodCnt>=4?'아주 좋아요 👍':'무난해요 😊');
+    const sumCls = summary.includes('👍')?'good':summary.includes('⚠️')?'check':'ok';
+
+    evalHTML = `<div class="psec">
+      <div class="psec-title">📊 종합 평가</div>
+      <div class="eval-summary-card ${sumCls}">
+        <span class="eval-summary-icon">${summary.slice(-2)}</span>
+        <span class="eval-summary-text ${sumCls}">${summary}</span>
+      </div>
+      <div class="eval-grid">
+        ${evalLabels.map(e => {
+          const val = de[e.key];
+          const vc = val ? 'eval-val-' + evalMap[val] : '';
+          return `<div class="eval-item"><div class="eval-item-label">${e.label}</div><div class="eval-item-val ${vc}">${val||'—'}</div></div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }
+
+  // 태그 (다중만)
+  let tagsHTML = '';
+  if (!isSingle && child.tags && child.tags.length > 0) {
+    tagsHTML = `<div class="psec">
+      <div class="psec-title">🏷️ 태그</div>
+      <div class="detail-tags">${child.tags.map(t => `<span class="detail-tag">${t}</span>`).join('')}</div>
+    </div>`;
+  }
 
   const comments = child.comments.map(cm => {
     const isTeacher = cm.type === 'teacher';
     const wrapClass = cm.isReply ? 'comment-item reply-item' : 'comment-item';
-    return `
-      <div class="${wrapClass}">
-        <div class="comment-avatar" style="background:${cm.color}">${cm.author[0]}</div>
-        <div class="comment-bubble ${isTeacher?'teacher-bubble':''}">
-          <div class="comment-meta">
-            <span class="comment-author">${cm.author}</span>
-            <span class="comment-role ${isTeacher?'cr-teacher':'cr-parent'}">${isTeacher?'교사':'학부모'}</span>
-            <span class="comment-time">${cm.time}</span>
-          </div>
-          <div class="comment-text">${cm.text}</div>
+    return `<div class="${wrapClass}">
+      <div class="comment-avatar" style="background:${cm.color}">${cm.author[0]}</div>
+      <div class="comment-bubble ${isTeacher?'teacher-bubble':''}">
+        <div class="comment-meta">
+          <span class="comment-author">${cm.author}</span>
+          <span class="comment-role ${isTeacher?'cr-teacher':'cr-parent'}">${isTeacher?'교사':'학부모'}</span>
+          <span class="comment-time">${cm.time}</span>
         </div>
-      </div>`;
+        <div class="comment-text">${cm.text}</div>
+      </div>
+    </div>`;
   }).join('');
 
-  const body = document.getElementById('sdpBody');
   body.innerHTML = `
-    <div class="psec">
-      <div class="psec-title">📊 종합 평가</div>
-      <div class="eval-summary-card ${sumCls}" style="margin-bottom:10px">
-        <span class="eval-summary-icon">${summary.slice(-2)}</span>
-        <span class="eval-summary-text ${sumCls}">${summary}</span>
-      </div>
-      <div class="eval-grid">${evalGridHTML}</div>
-    </div>
-    <div class="psec">
-      <div class="psec-title">출결 및 체크필드</div>
-      <div class="check-grid">
-        <div class="check-item"><div class="check-label">출결</div><div class="check-values">
-          <span class="check-chip ${child.attendance==='출석'?'cv-present':child.attendance==='결석'?'cv-absent':'cv-late'}">${child.attendance}</span>
-        </div></div>
-        <div class="check-item"><div class="check-label">점심</div><div class="check-values">
-          <span class="check-chip ${child.mealLunch==='잘먹음'?'cv-good':child.mealLunch==='조금먹음'?'cv-some':'cv-no'}">${child.mealLunch}</span>
-        </div></div>
-        <div class="check-item"><div class="check-label">낮잠</div><div class="check-values">
-          <span class="check-chip cv-good">${child.napStatus}</span>
-          <span style="font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono'">${child.napTime}</span>
-        </div></div>
-        <div class="check-item"><div class="check-label">배변</div><div class="check-values">
-          <span class="check-chip cv-normal">${child.toiletStatus}</span>
-          <span style="font-size:11px;color:var(--text-muted)">${child.toiletCount}회</span>
-        </div></div>
-      </div>
-    </div>
-    <div class="psec">
-      <div class="psec-title">활동</div>
-      <div style="margin-bottom:6px;"><div style="font-size:11px;color:var(--text-secondary);font-weight:600;margin-bottom:4px;">실내</div>
-        <div class="activity-tags">${child.activityIndoor.map(a=>`<span class="activity-tag">${a}</span>`).join('')||'<span style="font-size:12px;color:var(--text-muted)">—</span>'}</div>
-      </div>
-      <div><div style="font-size:11px;color:var(--text-secondary);font-weight:600;margin-bottom:4px;">실외</div>
-        <div class="activity-tags">${child.activityOutdoor.map(a=>`<span class="activity-tag">${a}</span>`).join('')||'<span style="font-size:12px;color:var(--text-muted)">—</span>'}</div>
-      </div>
-    </div>
+    ${evalHTML}
+    ${tagsHTML}
     <div class="psec">
       <div class="psec-title">개별 메모</div>
       <div class="memo-box">${child.individualMemo||'—'}</div>
@@ -1298,8 +1316,7 @@ function renderSentDetailChild(notice, child) {
         <textarea class="comment-textarea" placeholder="학부모에게 답글을 작성하세요..."></textarea>
         <button class="comment-send-btn" onclick="showToast('댓글이 등록되었습니다.','success')">➤</button>
       </div>
-    </div>
-  `;
+    </div>`;
 }
 
 function closeSentDetail() {
@@ -1313,45 +1330,37 @@ function openReceivedDetail(id) {
   if (!r) return;
   r.isRead = true;
   document.getElementById('rdpTitle').textContent = r.subLabel;
-
   const cs = CAT_STYLE[r.category];
-  const comments = r.comments.map(cm => {
-    return `
-      <div class="comment-item">
-        <div class="comment-avatar" style="background:${cm.color}">${cm.author[0]}</div>
-        <div class="comment-bubble teacher-bubble">
-          <div class="comment-meta">
-            <span class="comment-author">${cm.author}</span>
-            <span class="comment-role cr-teacher">교사</span>
-            <span class="comment-time">${cm.time}</span>
-          </div>
-          <div class="comment-text">${cm.text}</div>
+  const comments = r.comments.map(cm => `
+    <div class="comment-item">
+      <div class="comment-avatar" style="background:${cm.color}">${cm.author[0]}</div>
+      <div class="comment-bubble teacher-bubble">
+        <div class="comment-meta">
+          <span class="comment-author">${cm.author}</span>
+          <span class="comment-role cr-teacher">교사</span>
+          <span class="comment-time">${cm.time}</span>
         </div>
-      </div>`;
-  }).join('');
+        <div class="comment-text">${cm.text}</div>
+      </div>
+    </div>`).join('');
 
   document.getElementById('rdpBody').innerHTML = `
     <div class="psec">
       <div class="psec-title">카테고리 및 발신자</div>
       <div class="notice-info-row">
         <span class="ni-icon">${r.categoryIcon}</span>
-        <div class="ni-text">
-          <div class="ni-main">${r.subLabel}</div>
-          <div class="ni-sub">${r.className} · ${r.createdAt}</div>
-        </div>
+        <div class="ni-text"><div class="ni-main">${r.subLabel}</div><div class="ni-sub">${r.className} · ${r.createdAt}</div></div>
         <span class="pnc-category" style="background:${cs.bg};color:${cs.text};padding:4px 10px;border-radius:10px;font-size:11px;font-weight:700;">${r.categoryLabel}</span>
       </div>
       <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--bg-base);border-radius:var(--radius-md);border:1px solid var(--border-light);">
         <span class="child-avatar-sm" style="background:${r.childColor};width:32px;height:32px;font-size:12px;">${r.child[0]}</span>
-        <div>
-          <div style="font-size:13px;font-weight:700;color:var(--text-primary);">${r.child}</div>
-          <div style="font-size:11px;color:var(--text-secondary);">${r.parent} ${r.relation}</div>
-        </div>
+        <div><div style="font-size:13px;font-weight:700;color:var(--text-primary);">${r.child}</div>
+        <div style="font-size:11px;color:var(--text-secondary);">${r.parent} ${r.relation}</div></div>
       </div>
     </div>
     <div class="psec">
       <div class="psec-title">메시지 내용</div>
-      <div class="notice-content-box" style="line-height:1.7;">${r.content}</div>
+      <div class="notice-content-box">${r.content}</div>
     </div>
     <div class="comment-section">
       <div class="psec-title" style="margin-bottom:12px;">답글</div>
@@ -1360,8 +1369,7 @@ function openReceivedDetail(id) {
         <textarea class="comment-textarea" placeholder="${r.parent}님께 답글을 작성하세요..."></textarea>
         <button class="comment-send-btn" onclick="sendReceivedReply('${r.id}')">➤</button>
       </div>
-    </div>
-  `;
+    </div>`;
   showPanel('receivedDetailPanel');
   renderList(currentTab);
 }
@@ -1382,51 +1390,84 @@ function showPanel(id) {
   document.getElementById(id).classList.add('show');
   document.getElementById('panelOverlay').classList.add('show');
 }
-
 function closeAllPanels() {
-  ['sentDetailPanel','receivedDetailPanel','writePanel'].forEach(id => {
-    document.getElementById(id).classList.remove('show');
-  });
+  ['sentDetailPanel','receivedDetailPanel','writePanel'].forEach(id => document.getElementById(id).classList.remove('show'));
   document.getElementById('panelOverlay').classList.remove('show');
 }
 
-// ━━━ 작성 패널 ━━━
-const WRITE_CHILDREN = [
-  { id:'C001', name:'김도현', color:'#3B82F6' },
-  { id:'C002', name:'이서연', color:'#10B981' },
-  { id:'C003', name:'박준서', color:'#F59E0B' },
-  { id:'C004', name:'최지아', color:'#8B5CF6' },
-  { id:'C005', name:'한민준', color:'#EF4444' }
-];
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 작성 패널
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-let writeSelectedChildren = new Set(['C001','C002','C003']);
+const CLASS_CHILDREN = {
+  CLS001: [
+    { id:'C001', name:'김도현', color:'#3B82F6', attendance:'출석', noticeWritten:true, medication:null },
+    { id:'C002', name:'이서연', color:'#10B981', attendance:'출석', noticeWritten:false, medication:'need' },
+    { id:'C003', name:'박준서', color:'#F59E0B', attendance:'병결', noticeWritten:false, medication:null },
+    { id:'C006', name:'정수아', color:'#EC4899', attendance:'출석', noticeWritten:true, medication:'done' },
+    { id:'C009', name:'오하은', color:'#6366F1', attendance:'미확인', noticeWritten:false, medication:null },
+  ],
+  CLS002: [
+    { id:'C004', name:'최지아', color:'#8B5CF6', attendance:'결석', noticeWritten:false, medication:null },
+    { id:'C005', name:'한민준', color:'#EF4444', attendance:'출석', noticeWritten:true, medication:'need' },
+    { id:'C010', name:'장예린', color:'#14B8A6', attendance:'출석', noticeWritten:false, medication:null },
+    { id:'C011', name:'송시우', color:'#F97316', attendance:'출석', noticeWritten:true, medication:null },
+  ],
+  CLS003: [
+    { id:'C007', name:'윤지호', color:'#0EA5E9', attendance:'미확인', noticeWritten:false, medication:null },
+    { id:'C008', name:'강민재', color:'#F97316', attendance:'출석', noticeWritten:true, medication:'done' },
+    { id:'C012', name:'임서준', color:'#A855F7', attendance:'출석', noticeWritten:false, medication:null },
+  ]
+};
+
+const CLASS_INFO = {
+  CLS001: { name:'햇님반', headTeacher:'김하늘', assistTeacher:'이민정', childCount:5 },
+  CLS002: { name:'달님반', headTeacher:'박소현', assistTeacher:'최유리', childCount:4 },
+  CLS003: { name:'별님반', headTeacher:'정다은', assistTeacher:null, childCount:3 },
+};
+
+let WRITE_CHILDREN = []; // 반 선택 시 동적 로딩
+
+let writeMode = 'single'; // 'single' | 'multi'
+let writeSelectedChildren = new Set();
 let writeSelectedWeather = '맑음';
+let writePhotos = []; // { url, type:'photo'|'video', isRepresentative }
+const writeTagActiveCats = {}; // 원아별 활성 카테고리
+let isEditMode = false; // 수정 모드 여부
+let writeSelectedClass = ''; // 선택된 반 ID
 
 const CHILD_STATE = {};
-WRITE_CHILDREN.forEach(c => {
-  CHILD_STATE[c.id] = {
-    health:[], mealLunch:'', mealSnackAm:'', mealSnackPm:'',
-    napStatus:'', napStart:'', napEnd:'',
-    actIndoor:[], actOutdoor:[],
-    memo:'',
-    // 종합 평가 (원아별)
-    evalMood:'',
-    evalHealth:'', evalHealthTemp:'', evalHealthSymptoms:[], evalHealthMemo:'',
+function resetChildState(cid) {
+  CHILD_STATE[cid] = {
+    memo: '',
+    tags: [],
+    evalMood:'', evalHealth:'', evalHealthTemp:'', evalHealthSymptoms:[], evalHealthMemo:'',
     evalMeal:'', evalMealMemo:'',
     evalToilet:'', evalToiletState:'', evalToiletCount:'', evalToiletMemo:'',
     evalActivity:'', evalActivityMemo:'',
     evalSocial:'', evalSocialMemo:''
   };
-});
+}
 
 const WEATHER_OPTS = [{key:'맑음',icon:'☀️'},{key:'흐림',icon:'☁️'},{key:'비',icon:'🌧️'},{key:'눈',icon:'❄️'},{key:'안개',icon:'🌫️'}];
-const INDOOR_TAGS = ['블록놀이','그림그리기','색칠하기','독서','퍼즐','역할놀이','율동','점토놀이'];
-const OUTDOOR_TAGS = ['모래놀이','산책','자전거','공놀이','줄넘기','텃밭가꾸기'];
-const MEAL_OPTS_W = ['잘먹음','조금먹음','안먹음','해당없음'];
-const NAP_OPTS_W = ['잘잠','조금잠','못잠','안잠'];
-const HEALTH_OPTS_W = ['양호','두통','발열','기침','콧물','설사','구토'];
+
+// ━━━ 사진/동영상 목업 데이터 ━━━
+const MOCK_PHOTOS = [
+  { url:'https://placehold.co/400x300/E0F2FE/0EA5E9?text=블록놀이+1', type:'photo' },
+  { url:'https://placehold.co/400x300/D1FAE5/10B981?text=산책+2', type:'photo' },
+  { url:'https://placehold.co/400x300/FEF3C7/F59E0B?text=점심시간+3', type:'photo' },
+  { url:'https://placehold.co/400x300/EDE9FE/8B5CF6?text=놀이영상', type:'video' },
+];
 
 function openWritePanel() {
+  writeMode = 'single';
+  isEditMode = false;
+  writeSelectedClass = '';
+  writeSelectedChildren.clear();
+  writePhotos = [];
+  WRITE_CHILDREN = [];
+  writeSelectedWeather = '맑음';
+  document.getElementById('writePanelTitle').innerHTML = '✏️ 알림장 작성';
   showPanel('writePanel');
   renderWritePanel();
 }
@@ -1434,6 +1475,57 @@ function openWritePanel() {
 function closeWritePanel() {
   document.getElementById('writePanel').classList.remove('show');
   document.getElementById('panelOverlay').classList.remove('show');
+}
+
+function switchWriteMode(mode) {
+  if (isEditMode) {
+    showToast('수정 모드에서는 작성 유형을 변경할 수 없습니다.', 'error');
+    return;
+  }
+  writeMode = mode;
+  writeSelectedChildren.clear();
+  WRITE_CHILDREN.forEach(c => resetChildState(c.id));
+  renderWritePanel();
+}
+
+function onClassChange(classId) {
+  writeSelectedClass = classId;
+  writeSelectedChildren.clear();
+  WRITE_CHILDREN = CLASS_CHILDREN[classId] || [];
+  WRITE_CHILDREN.forEach(c => resetChildState(c.id));
+  renderWritePanel();
+  // 프리필 유지
+  setTimeout(() => {
+    const dateEl = document.getElementById('wDate');
+    if (dateEl && dateEl.value === '') dateEl.value = new Date().toISOString().slice(0,10);
+  }, 10);
+}
+
+function renderClassCardsHTML() {
+  const classIds = Object.keys(CLASS_INFO);
+  return classIds.map(cid => {
+    const ci = CLASS_INFO[cid];
+    const children = CLASS_CHILDREN[cid] || [];
+    return `<div class="class-select-card" onclick="onClassChange('${cid}')">
+      <div class="clsc-name">🏫 ${ci.name}</div>
+      <div class="clsc-info">
+        <div class="clsc-row">👩‍🏫 담임: <strong>${ci.headTeacher}</strong></div>
+        ${ci.assistTeacher ? `<div class="clsc-row">👩‍🏫 보조: <strong>${ci.assistTeacher}</strong></div>` : ''}
+        <div class="clsc-row">👶 원아: <strong>${children.length}명</strong></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function changeClass() {
+  if (isEditMode) {
+    showToast('수정 모드에서는 반을 변경할 수 없습니다.', 'error');
+    return;
+  }
+  writeSelectedClass = '';
+  writeSelectedChildren.clear();
+  WRITE_CHILDREN = [];
+  renderWritePanel();
 }
 
 function renderWritePanel() {
@@ -1446,15 +1538,29 @@ function renderWritePanel() {
     `<button class="weather-btn${writeSelectedWeather===w.key?' active':''}" onclick="selectWriteWeather(this,'${w.key}')">${w.icon} ${w.key}</button>`
   ).join('');
 
-  const childSelectorHTML = WRITE_CHILDREN.map(c => `
-    <div class="child-select-card${writeSelectedChildren.has(c.id)?' selected':''}" onclick="toggleWriteChild('${c.id}',this)">
-      <div class="csc-avatar" style="background:${c.color}">${c.name[0]}</div>
-      <div class="csc-name">${c.name}</div>
-      <div class="csc-check">${writeSelectedChildren.has(c.id)?'✓':''}</div>
-    </div>`).join('');
+  // 반 선택 여부에 따라 원아 섹션 분기
+  const classSelected = writeSelectedClass && CLASS_INFO[writeSelectedClass];
+  const ci = classSelected ? CLASS_INFO[writeSelectedClass] : null;
+
+  const classSectionHTML = classSelected
+    ? `<div class="class-change-bar">
+        <span class="class-change-name">🏫 ${ci.name} <span style="font-size:11px;font-weight:500;color:var(--text-secondary)">· 담임 ${ci.headTeacher}${ci.assistTeacher ? ' · 보조 '+ci.assistTeacher : ''} · 원아 ${ci.childCount}명</span></span>
+        ${!isEditMode ? `<button class="class-change-btn" onclick="changeClass()">반 변경</button>` : '<span style="font-size:10px;color:var(--text-muted)">수정 시 변경 불가</span>'}
+      </div>
+      ${writeMode==='multi' ? `<div style="display:flex;gap:6px;margin-bottom:10px">
+        <button class="btn btn-outline btn-sm" onclick="selectAllWriteChildren()">전체 선택</button>
+        <button class="btn btn-outline btn-sm" onclick="deselectAllWriteChildren()">전체 해제</button>
+        <span style="font-size:12px;color:var(--text-muted);align-self:center;margin-left:4px" id="selectedCountLabel">${writeSelectedChildren.size}명 선택됨</span>
+      </div>` : `<p style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">1:1 알림장 — 원아 1명을 선택하세요</p>`}
+      <div class="child-select-grid" id="childSelectorGrid">${renderChildSelectorHTML()}</div>`
+    : `<div class="class-select-grid">${renderClassCardsHTML()}</div>`;
 
   body.innerHTML = `
     <div class="write-section">
+      <div class="write-mode-bar">
+        <button class="write-mode-btn${writeMode==='single'?' active':''}${isEditMode?' disabled':''}" onclick="switchWriteMode('single')"${isEditMode?' style="opacity:.5;cursor:not-allowed"':''}>📝 단일작성 (1:1)</button>
+        <button class="write-mode-btn${writeMode==='multi'?' active':''}${isEditMode?' disabled':''}" onclick="switchWriteMode('multi')"${isEditMode?' style="opacity:.5;cursor:not-allowed"':''}>👥 다중작성</button>
+      </div>
       <div class="write-section-title"><span class="ws-icon">📋</span>기본 설정</div>
       <div class="form-row">
         <div class="form-group">
@@ -1462,27 +1568,8 @@ function renderWritePanel() {
           <input class="form-input" type="date" id="wDate" value="${todayVal}">
         </div>
         <div class="form-group">
-          <label class="form-label">반 <span class="req">*</span></label>
-          <select class="form-select" id="wClass">
-            <option value="">반 선택</option>
-            <option value="CLS001">햇님반</option>
-            <option value="CLS002">달님반</option>
-            <option value="CLS003">별님반</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group" style="margin-top:10px">
-        <label class="form-label">날씨</label>
-        <div class="weather-group" id="wWeatherGroup">${weatherHTML}</div>
-      </div>
-      <div class="form-row" style="margin-top:10px;margin-bottom:0">
-        <div class="form-group">
-          <label class="form-label">최고 기온</label>
-          <input class="form-input" type="text" id="wTempHigh" placeholder="예: 18°C">
-        </div>
-        <div class="form-group">
-          <label class="form-label">최저 기온</label>
-          <input class="form-input" type="text" id="wTempLow" placeholder="예: 9°C">
+          <label class="form-label">날씨</label>
+          <div class="weather-group" id="wWeatherGroup">${weatherHTML}</div>
         </div>
       </div>
     </div>
@@ -1499,22 +1586,350 @@ function renderWritePanel() {
     </div>
 
     <div class="write-section">
-      <div class="write-section-title"><span class="ws-icon">👶</span>원아 선택</div>
-      <div style="display:flex;gap:6px;margin-bottom:10px">
-        <button class="btn btn-outline btn-sm" onclick="selectAllWriteChildren()">전체 선택</button>
-        <button class="btn btn-outline btn-sm" onclick="deselectAllWriteChildren()">전체 해제</button>
-        <span style="font-size:12px;color:var(--text-muted);align-self:center;margin-left:4px" id="selectedCountLabel">${writeSelectedChildren.size}명 선택됨</span>
+      <div class="write-section-title"><span class="ws-icon">👶</span>${classSelected ? '원아 선택 ' + (writeMode==='single'?'(1명)':'(여러 명)') : '반 선택'} <span class="req">*</span></div>
+      ${classSectionHTML}
+    </div>
+
+    <div class="write-section">
+      <div class="write-section-title"><span class="ws-icon">📸</span>사진 / 동영상</div>
+      <div class="media-stage" id="mediaStage">${renderMediaStageHTML()}</div>
+      <div class="media-add-bar">
+        <button class="media-add-btn" onclick="addMockMedia('photo')">📷 사진 추가</button>
+        <button class="media-add-btn" onclick="addMockMedia('video')">🎥 동영상 추가</button>
       </div>
-      <div class="child-select-grid" id="childSelectorGrid">${childSelectorHTML}</div>
     </div>
 
     <div class="write-section" style="border-bottom:none">
-      <div class="write-section-title"><span class="ws-icon">✏️</span>원아별 기록</div>
+      <div class="write-section-title"><span class="ws-icon">✏️</span>${writeMode==='single'?'원아 종합평가':'원아별 기록'}</div>
       <div id="writeChildCards">${renderWriteChildCardsHTML()}</div>
     </div>
   `;
 }
 
+function renderChildSelectorHTML() {
+  if (WRITE_CHILDREN.length === 0) {
+    return '<div class="csc-no-class">반을 먼저 선택해 주세요</div>';
+  }
+  const attendBadge = (a) => {
+    const m = {'출석':'present','결석':'absent','병결':'sick','미확인':'unknown'};
+    return `<span class="csc-badge csc-badge-${m[a]||'unknown'}">${a}</span>`;
+  };
+  return WRITE_CHILDREN.map(c => {
+    const noticeBadge = c.noticeWritten
+      ? '<span class="csc-badge csc-badge-written">작성완료</span>'
+      : '<span class="csc-badge csc-badge-unwritten">미작성</span>';
+    const medBadge = c.medication === 'need'
+      ? '<span class="csc-badge csc-badge-med-need">💊 투약필요</span>'
+      : c.medication === 'done'
+      ? '<span class="csc-badge csc-badge-med-done">💊 투약완료</span>'
+      : '';
+    return `<div class="child-select-card${writeSelectedChildren.has(c.id)?' selected':''}" onclick="toggleWriteChild('${c.id}')">
+      <div class="csc-avatar" style="background:${c.color}">${c.name[0]}</div>
+      <div class="csc-name">${c.name}</div>
+      <div class="csc-badges">
+        ${attendBadge(c.attendance)}
+        ${noticeBadge}
+        ${medBadge}
+      </div>
+      <div class="csc-check">${writeSelectedChildren.has(c.id)?'✓':''}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleWriteChild(cid) {
+  if (writeMode === 'single') {
+    writeSelectedChildren.clear();
+    writeSelectedChildren.add(cid);
+  } else {
+    if (writeSelectedChildren.has(cid)) writeSelectedChildren.delete(cid);
+    else writeSelectedChildren.add(cid);
+  }
+  document.getElementById('childSelectorGrid').innerHTML = renderChildSelectorHTML();
+  const label = document.getElementById('selectedCountLabel');
+  if (label) label.textContent = writeSelectedChildren.size + '명 선택됨';
+  document.getElementById('writeChildCards').innerHTML = renderWriteChildCardsHTML();
+}
+
+function selectAllWriteChildren() {
+  WRITE_CHILDREN.forEach(c => writeSelectedChildren.add(c.id));
+  document.getElementById('childSelectorGrid').innerHTML = renderChildSelectorHTML();
+  const label = document.getElementById('selectedCountLabel');
+  if (label) label.textContent = writeSelectedChildren.size + '명 선택됨';
+  document.getElementById('writeChildCards').innerHTML = renderWriteChildCardsHTML();
+}
+function deselectAllWriteChildren() {
+  writeSelectedChildren.clear();
+  document.getElementById('childSelectorGrid').innerHTML = renderChildSelectorHTML();
+  const label = document.getElementById('selectedCountLabel');
+  if (label) label.textContent = '0명 선택됨';
+  document.getElementById('writeChildCards').innerHTML = renderWriteChildCardsHTML();
+}
+
+// ━━━ 사진/동영상 스테이지 ━━━
+function renderMediaStageHTML() {
+  if (writePhotos.length === 0) {
+    return `<div class="media-stage-empty">
+      <div style="font-size:28px;margin-bottom:6px">📷</div>
+      <div style="font-size:13px;font-weight:600;color:var(--text-secondary)">사진/동영상을 추가하세요</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:4px">이미지를 클릭하면 대표이미지로 지정됩니다</div>
+    </div>`;
+  }
+  return `<div class="media-stage-grid">
+    ${writePhotos.map((p, i) => `
+      <div class="media-stage-item${p.isRepresentative?' representative':''}" onclick="setRepresentative(${i})">
+        <img src="${p.url}" alt="${p.type}">
+        <span class="media-stage-badge ${p.type}">${p.type==='photo'?'사진':'영상'}</span>
+        ${p.isRepresentative ? '<span class="media-rep-badge">⭐ 대표</span>' : ''}
+        <button class="media-stage-remove" onclick="event.stopPropagation();removeMedia(${i})">×</button>
+        <div class="media-move-bar" onclick="event.stopPropagation()">
+          ${i > 0 ? `<button class="media-move-btn" onclick="moveMedia(${i},-1)" title="왼쪽으로">◀</button>` : ''}
+          ${i < writePhotos.length - 1 ? `<button class="media-move-btn" onclick="moveMedia(${i},1)" title="오른쪽으로">▶</button>` : ''}
+        </div>
+      </div>
+    `).join('')}
+  </div>
+  <div style="margin-top:8px;font-size:11px;color:var(--text-muted)">사진 ${writePhotos.filter(p=>p.type==='photo').length} · 동영상 ${writePhotos.filter(p=>p.type==='video').length} · 클릭하여 대표이미지 지정 · ◀▶로 순서변경</div>`;
+}
+
+function addMockMedia(type) {
+  const pool = MOCK_PHOTOS.filter(p => p.type === type);
+  const idx = writePhotos.filter(p => p.type === type).length % pool.length;
+  const item = { ...pool[idx], isRepresentative: writePhotos.length === 0 };
+  writePhotos.push(item);
+  document.getElementById('mediaStage').innerHTML = renderMediaStageHTML();
+  showToast(`${type==='photo'?'사진':'동영상'}이 추가되었습니다.`, 'success');
+}
+
+function setRepresentative(idx) {
+  writePhotos.forEach((p, i) => p.isRepresentative = (i === idx));
+  document.getElementById('mediaStage').innerHTML = renderMediaStageHTML();
+}
+
+function removeMedia(idx) {
+  const wasRep = writePhotos[idx].isRepresentative;
+  writePhotos.splice(idx, 1);
+  if (wasRep && writePhotos.length > 0) writePhotos[0].isRepresentative = true;
+  document.getElementById('mediaStage').innerHTML = renderMediaStageHTML();
+}
+
+function moveMedia(idx, dir) {
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= writePhotos.length) return;
+  [writePhotos[idx], writePhotos[newIdx]] = [writePhotos[newIdx], writePhotos[idx]];
+  document.getElementById('mediaStage').innerHTML = renderMediaStageHTML();
+}
+
+// ━━━ 원아별 카드 렌더 ━━━
+function renderWriteChildCardsHTML() {
+  const selected = WRITE_CHILDREN.filter(c => writeSelectedChildren.has(c.id));
+  if (selected.length === 0) {
+    return '<div class="empty-state" style="padding:32px"><div class="empty-state-icon">👶</div><div class="empty-state-text">대상 원아를 선택하세요</div></div>';
+  }
+  return selected.map(c => renderWriteChildCardHTML(c.id)).join('');
+}
+
+function renderWriteChildCardHTML(cid) {
+  const c = WRITE_CHILDREN.find(x => x.id === cid);
+  if (!c) return '';
+  const st = CHILD_STATE[cid];
+
+  if (writeMode === 'single') {
+    return renderSingleChildCard(c, st);
+  } else {
+    return renderMultiChildCard(c, st);
+  }
+}
+
+// ━━━ 단일작성: 종합평가 + 메모 ━━━
+function renderSingleChildCard(c, st) {
+  const cid = c.id;
+  const eBtn = (field, val, cur) => {
+    const sc = cur===val ? ` e-${val==='좋음'?'good':val==='보통'?'ok':'bad'}` : '';
+    return `<button class="eval-opt-btn${sc}" onclick="setChildEval('${cid}','${field}','${val}')">${val}</button>`;
+  };
+
+  const healthExpandHTML = st.evalHealth==='나쁨' ? `
+    <div class="eval-expand">
+      <div><div class="eval-expand-lbl">체온</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input type="number" class="eval-temp-inp" step="0.1" min="35" max="42" value="${st.evalHealthTemp||''}" placeholder="37.5" onchange="setCdDirect('${cid}','evalHealthTemp',this.value)">
+          <span style="font-size:12px;color:var(--text-muted)">°C</span>
+        </div>
+      </div>
+      <div><div class="eval-expand-lbl">증상 선택 (복수)</div>
+        <div class="symptom-chip-wrap">
+          ${['발열','기침','콧물','설사','구토','복통','두통','알레르기'].map(s =>
+            `<button class="symptom-chip${st.evalHealthSymptoms.includes(s)?' sel':''}" onclick="toggleEvalSymptom('${cid}','${s}')">${s}</button>`
+          ).join('')}
+        </div>
+      </div>
+      <div><div class="eval-expand-lbl">추가 메모</div>
+        <textarea class="eval-memo-ta" placeholder="건강 관련 메모..." oninput="setCdDirect('${cid}','evalHealthMemo',this.value)">${st.evalHealthMemo||''}</textarea>
+      </div>
+    </div>` : '';
+
+  const mealExpandHTML = st.evalMeal==='나쁨' ? `
+    <div class="eval-expand">
+      <div class="eval-expand-lbl">추가 메모</div>
+      <textarea class="eval-memo-ta" placeholder="식사 관련 메모..." oninput="setCdDirect('${cid}','evalMealMemo',this.value)">${st.evalMealMemo||''}</textarea>
+    </div>` : '';
+
+  const toiletExpandHTML = `
+    <div class="eval-expand">
+      <div><div class="eval-expand-lbl">배변 상태</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px">
+          ${['정상','딱딱함','묽음','설사','배변 없음'].map(s =>
+            `<button class="toilet-state-btn${st.evalToiletState===s?' sel':''}" onclick="setCdField('${cid}','evalToiletState','${s}')">${s}</button>`
+          ).join('')}
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="eval-expand-lbl" style="margin-bottom:0">횟수</div>
+        <input type="number" class="toilet-count-inp" min="0" max="9" value="${st.evalToiletCount||''}" placeholder="0" onchange="setCdDirect('${cid}','evalToiletCount',this.value)">
+        <span style="font-size:12px;color:var(--text-muted)">회</span>
+      </div>
+    </div>`;
+
+  return `<div class="write-child-card" id="wcc-${cid}">
+    <div class="wcc-header">
+      <div class="wcc-avatar" style="background:${c.color}">${c.name[0]}</div>
+      <span class="wcc-name">${c.name} — 종합평가</span>
+    </div>
+    <div class="wcc-body" style="gap:12px">
+      <div class="eval-per-child" style="border-top:none;margin-top:0;padding-top:0">
+        <div class="eval-field"><div class="eval-field-lbl">기분</div>
+          <div class="eval-opts">${eBtn('evalMood','좋음',st.evalMood)}${eBtn('evalMood','보통',st.evalMood)}${eBtn('evalMood','나쁨',st.evalMood)}</div>
+        </div>
+        <div class="eval-field"><div class="eval-field-lbl">건강</div>
+          <div class="eval-opts">${eBtn('evalHealth','좋음',st.evalHealth)}${eBtn('evalHealth','보통',st.evalHealth)}${eBtn('evalHealth','나쁨',st.evalHealth)}</div>
+          ${healthExpandHTML}
+        </div>
+        <div class="eval-field"><div class="eval-field-lbl">식사량</div>
+          <div class="eval-opts">${eBtn('evalMeal','좋음',st.evalMeal)}${eBtn('evalMeal','보통',st.evalMeal)}${eBtn('evalMeal','나쁨',st.evalMeal)}</div>
+          ${mealExpandHTML}
+        </div>
+        <div class="eval-field"><div class="eval-field-lbl">배변</div>
+          <div class="eval-opts">${eBtn('evalToilet','좋음',st.evalToilet)}${eBtn('evalToilet','보통',st.evalToilet)}${eBtn('evalToilet','나쁨',st.evalToilet)}</div>
+          ${toiletExpandHTML}
+        </div>
+        <div class="eval-field"><div class="eval-field-lbl">참여도</div>
+          <div class="eval-opts">${eBtn('evalActivity','좋음',st.evalActivity)}${eBtn('evalActivity','보통',st.evalActivity)}${eBtn('evalActivity','나쁨',st.evalActivity)}</div>
+          ${st.evalActivity ? `<div class="eval-expand">
+            <textarea class="eval-memo-ta" placeholder="참여도 관련 메모..." oninput="setCdDirect('${cid}','evalActivityMemo',this.value)">${st.evalActivityMemo||''}</textarea>
+          </div>` : ''}
+        </div>
+        <div class="eval-field"><div class="eval-field-lbl">교우관계</div>
+          <div class="eval-opts">${eBtn('evalSocial','좋음',st.evalSocial)}${eBtn('evalSocial','보통',st.evalSocial)}${eBtn('evalSocial','나쁨',st.evalSocial)}</div>
+          ${st.evalSocial ? `<div class="eval-expand">
+            <textarea class="eval-memo-ta" placeholder="교우관계 메모..." oninput="setCdDirect('${cid}','evalSocialMemo',this.value)">${st.evalSocialMemo||''}</textarea>
+          </div>` : ''}
+        </div>
+      </div>
+      <div>
+        <div class="wfield-label">개별 메시지</div>
+        <textarea class="form-textarea" style="height:80px" placeholder="${c.name}에게 보내는 메시지..." oninput="setCdDirect('${cid}','memo',this.value)">${st.memo}</textarea>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ━━━ 다중작성: 태그 + 메모 ━━━
+function renderMultiChildCard(c, st) {
+  const cid = c.id;
+  const catKeys = Object.keys(TAG_CATEGORIES);
+  if (!writeTagActiveCats[cid]) writeTagActiveCats[cid] = '감정';
+  const activeCat = writeTagActiveCats[cid];
+  const activeTags = TAG_CATEGORIES[activeCat] || [];
+
+  // 카테고리별 선택된 태그 존재 여부 체크
+  const catHasTags = {};
+  catKeys.forEach(k => {
+    catHasTags[k] = (TAG_CATEGORIES[k] || []).some(t => st.tags.includes(t));
+  });
+
+  const catTabsHTML = catKeys.map(k =>
+    `<button class="tag-cat-tab${k===activeCat?' active':''}${catHasTags[k]?' has-tags':''}" onclick="switchTagCat('${cid}','${k}')">${k}${catHasTags[k]?'<span style="font-size:6px;vertical-align:super;margin-left:1px">●</span>':''}</button>`
+  ).join('');
+
+  const chipGridHTML = activeTags.map(t =>
+    `<button class="tag-chip${st.tags.includes(t)?' sel':''}" onclick="toggleChildTag('${cid}','${t}')">${t}</button>`
+  ).join('');
+
+  const selectedTagsHTML = st.tags.length > 0
+    ? `<div class="selected-tags">${st.tags.map(t =>
+        `<span class="selected-tag">${t}<span class="selected-tag-x" onclick="removeChildTag('${cid}','${t}')">×</span></span>`
+      ).join('')}</div>`
+    : '';
+
+  return `<div class="write-child-card" id="wcc-${cid}">
+    <div class="wcc-header">
+      <div class="wcc-avatar" style="background:${c.color}">${c.name[0]}</div>
+      <span class="wcc-name">${c.name}</span>
+      <span style="font-size:11px;color:var(--text-muted);margin-left:auto">태그 ${st.tags.length}개</span>
+    </div>
+    <div class="wcc-body" style="gap:10px;position:relative">
+      ${st.tags.length > 0 ? `<a href="javascript:void(0)" onclick="resetChildTags('${cid}')" style="position:absolute;top:0;right:0;font-size:11px;color:var(--text-muted);text-decoration:none;transition:.18s;" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text-muted)'">초기화</a>` : ''}
+      <div>
+        <div class="wfield-label">🏷️ 태그 선택</div>
+        <div class="tag-cat-tabs">${catTabsHTML}</div>
+        <div class="tag-chip-grid">${chipGridHTML}</div>
+        ${selectedTagsHTML}
+        <div class="tag-apply-bar">
+          <button class="tag-apply-btn" onclick="applyTagsToAll('${cid}')">📋 선택 태그를 전체 원아에게 적용</button>
+        </div>
+      </div>
+      <div>
+        <div class="wfield-label">개별 메모</div>
+        <textarea class="form-textarea" style="height:64px" placeholder="${c.name} 개별 메모..." oninput="setCdDirect('${cid}','memo',this.value)">${st.memo}</textarea>
+      </div>
+    </div>
+  </div>`;
+}
+
+function switchTagCat(cid, cat) {
+  writeTagActiveCats[cid] = cat;
+  const card = document.getElementById(`wcc-${cid}`);
+  if (card) card.outerHTML = renderWriteChildCardHTML(cid);
+}
+
+function toggleChildTag(cid, tag) {
+  const arr = CHILD_STATE[cid].tags;
+  const idx = arr.indexOf(tag);
+  if (idx > -1) arr.splice(idx, 1);
+  else arr.push(tag);
+  const card = document.getElementById(`wcc-${cid}`);
+  if (card) card.outerHTML = renderWriteChildCardHTML(cid);
+}
+
+function removeChildTag(cid, tag) {
+  const arr = CHILD_STATE[cid].tags;
+  const idx = arr.indexOf(tag);
+  if (idx > -1) arr.splice(idx, 1);
+  const card = document.getElementById(`wcc-${cid}`);
+  if (card) card.outerHTML = renderWriteChildCardHTML(cid);
+}
+
+function applyTagsToAll(fromCid) {
+  const srcTags = [...CHILD_STATE[fromCid].tags];
+  WRITE_CHILDREN.forEach(c => {
+    if (writeSelectedChildren.has(c.id) && c.id !== fromCid) {
+      srcTags.forEach(t => {
+        if (!CHILD_STATE[c.id].tags.includes(t)) CHILD_STATE[c.id].tags.push(t);
+      });
+    }
+  });
+  document.getElementById('writeChildCards').innerHTML = renderWriteChildCardsHTML();
+  showToast(`${srcTags.length}개 태그가 전체 원아에게 적용되었습니다.`, 'success');
+}
+
+function resetChildTags(cid) {
+  CHILD_STATE[cid].tags = [];
+  const card = document.getElementById(`wcc-${cid}`);
+  if (card) card.outerHTML = renderWriteChildCardHTML(cid);
+  showToast('태그가 초기화되었습니다.', 'success');
+}
+
+// ━━━ 상태 헬퍼 ━━━
 function setChildEval(cid, field, val) {
   CHILD_STATE[cid][field] = val;
   const card = document.getElementById(`wcc-${cid}`);
@@ -1530,244 +1945,6 @@ function toggleEvalSymptom(cid, sym) {
   if (card) card.outerHTML = renderWriteChildCardHTML(cid);
 }
 
-function renderWriteChildCardsHTML() {
-  const selected = WRITE_CHILDREN.filter(c => writeSelectedChildren.has(c.id));
-  if (selected.length === 0) {
-    return '<div class="empty-state" style="padding:32px"><div class="empty-state-icon">👶</div><div class="empty-state-text">대상 원아를 선택하세요</div></div>';
-  }
-  return selected.map(c => renderWriteChildCardHTML(c.id)).join('');
-}
-
-function renderWriteChildCardHTML(cid) {
-  const c = WRITE_CHILDREN.find(x => x.id === cid);
-  if (!c) return '';
-  const st = CHILD_STATE[cid];
-
-  const healthHTML = HEALTH_OPTS_W.map(v => {
-    const isActive = st.health.includes(v);
-    const colorCls = v==='양호' ? ' green' : isActive ? ' red' : '';
-    return `<button class="check-btn${isActive?' active'+colorCls:''}" onclick="toggleHealth('${cid}','${v}',this)">${v}</button>`;
-  }).join('');
-
-  const mealOptHTML = (field, label) => `
-    <div class="form-group">
-      <div class="wfield-label">${label}</div>
-      <div class="check-btn-group">
-        ${MEAL_OPTS_W.map(v => {
-          const colorCls = v==='잘먹음' ? ' green' : v==='안먹음' ? ' red' : '';
-          return `<button class="check-btn${st[field]===v?' active'+colorCls:''}" onclick="setCdField('${cid}','${field}','${v}')">${v}</button>`;
-        }).join('')}
-      </div>
-    </div>`;
-
-  const napHTML = NAP_OPTS_W.map(v => {
-    const colorCls = v==='잘잠' ? ' green' : v==='못잠'||v==='안잠' ? ' amber' : '';
-    return `<button class="check-btn${st.napStatus===v?' active'+colorCls:''}" onclick="setCdField('${cid}','napStatus','${v}')">${v}</button>`;
-  }).join('');
-
-  const indoorHTML = INDOOR_TAGS.map(t =>
-    `<button class="tag-btn${st.actIndoor.includes(t)?' sel':''}" onclick="toggleActivity('${cid}','indoor','${t}')">${t}</button>`
-  ).join('');
-  const outdoorHTML = OUTDOOR_TAGS.map(t =>
-    `<button class="tag-btn${st.actOutdoor.includes(t)?' sel outdoor':''}" onclick="toggleActivity('${cid}','outdoor','${t}')">${t}</button>`
-  ).join('');
-
-  // ── 종합 평가 helper
-  const eBtn = (field, val, cur) => {
-    const sc = cur===val ? ` e-${val==='좋음'?'good':val==='보통'?'ok':'bad'}` : '';
-    return `<button class="eval-opt-btn${sc}" onclick="setChildEval('${cid}','${field}','${val}')">${val}</button>`;
-  };
-
-  // 건강 나쁨 확장
-  const healthExpandHTML = st.evalHealth==='나쁨' ? `
-    <div class="eval-expand">
-      <div>
-        <div class="eval-expand-lbl">체온</div>
-        <div style="display:flex;align-items:center;gap:6px">
-          <input type="number" class="eval-temp-inp" step="0.1" min="35" max="42"
-                 value="${st.evalHealthTemp||''}" placeholder="37.5"
-                 onchange="setCdDirect('${cid}','evalHealthTemp',this.value)">
-          <span style="font-size:12px;color:var(--text-muted)">°C</span>
-        </div>
-      </div>
-      <div>
-        <div class="eval-expand-lbl">증상 선택 (복수)</div>
-        <div class="symptom-chip-wrap">
-          ${['발열','기침','콧물','설사','구토','복통','두통','알레르기'].map(s =>
-            `<button class="symptom-chip${st.evalHealthSymptoms.includes(s)?' sel':''}" onclick="toggleEvalSymptom('${cid}','${s}')">${s}</button>`
-          ).join('')}
-        </div>
-      </div>
-      <div>
-        <div class="eval-expand-lbl">추가 메모</div>
-        <textarea class="eval-memo-ta" placeholder="오후에 미열이 있어 활동량을 줄이고 휴식을 도왔어요."
-                  oninput="setCdDirect('${cid}','evalHealthMemo',this.value)">${st.evalHealthMemo||''}</textarea>
-      </div>
-    </div>` : '';
-
-  // 식사량 나쁨 확장
-  const mealExpandHTML = st.evalMeal==='나쁨' ? `
-    <div class="eval-expand">
-      <div class="eval-expand-lbl">추가 메모</div>
-      <textarea class="eval-memo-ta" placeholder="식사량이 평소보다 적었어요. 특이사항을 입력하세요."
-                oninput="setCdDirect('${cid}','evalMealMemo',this.value)">${st.evalMealMemo||''}</textarea>
-    </div>` : '';
-
-  // 배변 확장 (항상 표시)
-  const toiletExpandHTML = `
-    <div class="eval-expand">
-      <div>
-        <div class="eval-expand-lbl">배변 상태</div>
-        <div style="display:flex;flex-wrap:wrap;gap:4px">
-          ${['정상','딱딱함','묽음','설사','배변 없음'].map(s =>
-            `<button class="toilet-state-btn${st.evalToiletState===s?' sel':''}" onclick="setCdField('${cid}','evalToiletState','${s}')">${s}</button>`
-          ).join('')}
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <div class="eval-expand-lbl" style="margin-bottom:0">횟수</div>
-        <input type="number" class="toilet-count-inp" min="0" max="9"
-               value="${st.evalToiletCount||''}" placeholder="0"
-               onchange="setCdDirect('${cid}','evalToiletCount',this.value)">
-        <span style="font-size:12px;color:var(--text-muted)">회</span>
-      </div>
-      <div>
-        <div class="eval-expand-lbl">메모 (선택)</div>
-        <textarea class="eval-memo-ta" placeholder="오늘은 1회 배변했고 상태는 정상입니다."
-                  oninput="setCdDirect('${cid}','evalToiletMemo',this.value)">${st.evalToiletMemo||''}</textarea>
-      </div>
-    </div>`;
-
-  // 참여도·교우관계 메모 placeholder
-  const actPh = st.evalActivity==='좋음' ? '활동에 적극적으로 참여하고 발표도 했어요.'
-              : st.evalActivity==='나쁨' ? '참여가 어려워 쉬는 시간을 충분히 줬어요.'
-              : '중간중간 집중이 흐트러졌지만 잘 따라왔어요.';
-  const socPh = st.evalSocial==='좋음' ? '친구와 협력해서 놀이를 즐겼어요.'
-              : st.evalSocial==='나쁨' ? '친구와 다툼이 있어 상황을 조율했어요.'
-              : '혼자 노는 시간이 있었어요.';
-
-  return `
-    <div class="write-child-card" id="wcc-${cid}" style="margin-bottom:12px">
-      <div class="wcc-header">
-        <div class="wcc-avatar" style="background:${c.color}">${c.name[0]}</div>
-        <span class="wcc-name">${c.name}</span>
-        <button class="ai-btn ai-btn-fill" style="margin-left:auto;padding:4px 10px;font-size:11px" onclick="aiGenChild('${cid}',this)">✨ AI 자동채우기</button>
-      </div>
-      <div class="wcc-body" style="gap:12px">
-        <div>
-          <div class="wfield-label">건강 상태</div>
-          <div class="check-btn-group">${healthHTML}</div>
-        </div>
-        <div class="meal-write-grid">
-          ${mealOptHTML('mealLunch','점심')}
-          ${mealOptHTML('mealSnackPm','오후 간식')}
-        </div>
-        <div>
-          <div class="wfield-label">낮잠</div>
-          <div class="check-btn-group" style="margin-bottom:6px">${napHTML}</div>
-          <div class="nap-time-row">
-            <span style="font-size:11px;color:var(--text-muted)">수면 시간</span>
-            <input type="time" class="nap-time-input" value="${st.napStart||''}" onchange="setCdDirect('${cid}','napStart',this.value)">
-            <span class="nap-time-sep">~</span>
-            <input type="time" class="nap-time-input" value="${st.napEnd||''}" onchange="setCdDirect('${cid}','napEnd',this.value)">
-          </div>
-        </div>
-        <div>
-          <div class="wfield-label">실내 활동</div>
-          <div class="tag-select-wrap">${indoorHTML}</div>
-        </div>
-        <div>
-          <div class="wfield-label">실외 활동</div>
-          <div class="tag-select-wrap">${outdoorHTML}</div>
-        </div>
-        <div>
-          <div class="wfield-label">개별 메모</div>
-          <textarea class="form-textarea" style="height:64px" placeholder="${c.name} 개별 메모..." oninput="setCdDirect('${cid}','memo',this.value)">${st.memo}</textarea>
-        </div>
-        <!-- 종합 평가 -->
-        <div class="eval-per-child">
-          <div style="font-size:11px;font-weight:800;color:var(--text-primary);letter-spacing:.3px">📊 종합 평가</div>
-          <div class="eval-field">
-            <div class="eval-field-lbl">기분</div>
-            <div class="eval-opts">${eBtn('evalMood','좋음',st.evalMood)}${eBtn('evalMood','보통',st.evalMood)}${eBtn('evalMood','나쁨',st.evalMood)}</div>
-          </div>
-          <div class="eval-field">
-            <div class="eval-field-lbl">건강</div>
-            <div class="eval-opts">${eBtn('evalHealth','좋음',st.evalHealth)}${eBtn('evalHealth','보통',st.evalHealth)}${eBtn('evalHealth','나쁨',st.evalHealth)}</div>
-            ${healthExpandHTML}
-          </div>
-          <div class="eval-field">
-            <div class="eval-field-lbl">식사량</div>
-            <div class="eval-opts">${eBtn('evalMeal','좋음',st.evalMeal)}${eBtn('evalMeal','보통',st.evalMeal)}${eBtn('evalMeal','나쁨',st.evalMeal)}</div>
-            ${mealExpandHTML}
-          </div>
-          <div class="eval-field">
-            <div class="eval-field-lbl">배변</div>
-            <div class="eval-opts">${eBtn('evalToilet','좋음',st.evalToilet)}${eBtn('evalToilet','보통',st.evalToilet)}${eBtn('evalToilet','나쁨',st.evalToilet)}</div>
-            ${toiletExpandHTML}
-          </div>
-          <div class="eval-field">
-            <div class="eval-field-lbl">참여도</div>
-            <div class="eval-opts">${eBtn('evalActivity','좋음',st.evalActivity)}${eBtn('evalActivity','보통',st.evalActivity)}${eBtn('evalActivity','나쁨',st.evalActivity)}</div>
-            ${st.evalActivity ? `<div class="eval-expand">
-              <textarea class="eval-memo-ta" placeholder="${actPh}"
-                        oninput="setCdDirect('${cid}','evalActivityMemo',this.value)">${st.evalActivityMemo||''}</textarea>
-            </div>` : ''}
-          </div>
-          <div class="eval-field">
-            <div class="eval-field-lbl">교우관계</div>
-            <div class="eval-opts">${eBtn('evalSocial','좋음',st.evalSocial)}${eBtn('evalSocial','보통',st.evalSocial)}${eBtn('evalSocial','나쁨',st.evalSocial)}</div>
-            ${st.evalSocial ? `<div class="eval-expand">
-              <div class="eval-expand-lbl">관찰 메모 (선택)</div>
-              <textarea class="eval-memo-ta" placeholder="${socPh}"
-                        oninput="setCdDirect('${cid}','evalSocialMemo',this.value)">${st.evalSocialMemo||''}</textarea>
-            </div>` : ''}
-          </div>
-        </div>
-      </div>
-    </div>`;
-}
-
-function toggleWriteChild(cid, el) {
-  if (writeSelectedChildren.has(cid)) writeSelectedChildren.delete(cid);
-  else writeSelectedChildren.add(cid);
-  el.classList.toggle('selected', writeSelectedChildren.has(cid));
-  const checkEl = el.querySelector('.csc-check');
-  if (checkEl) checkEl.textContent = writeSelectedChildren.has(cid) ? '✓' : '';
-  const label = document.getElementById('selectedCountLabel');
-  if (label) label.textContent = writeSelectedChildren.size + '명 선택됨';
-  const cards = document.getElementById('writeChildCards');
-  if (cards) cards.innerHTML = renderWriteChildCardsHTML();
-}
-
-function selectAllWriteChildren() {
-  WRITE_CHILDREN.forEach(c => writeSelectedChildren.add(c.id));
-  _refreshChildSelector();
-  const cards = document.getElementById('writeChildCards');
-  if (cards) cards.innerHTML = renderWriteChildCardsHTML();
-}
-
-function deselectAllWriteChildren() {
-  writeSelectedChildren.clear();
-  _refreshChildSelector();
-  const cards = document.getElementById('writeChildCards');
-  if (cards) cards.innerHTML = renderWriteChildCardsHTML();
-}
-
-function _refreshChildSelector() {
-  const grid = document.getElementById('childSelectorGrid');
-  if (grid) {
-    grid.innerHTML = WRITE_CHILDREN.map(c => `
-      <div class="child-select-card${writeSelectedChildren.has(c.id)?' selected':''}" onclick="toggleWriteChild('${c.id}',this)">
-        <div class="csc-avatar" style="background:${c.color}">${c.name[0]}</div>
-        <div class="csc-name">${c.name}</div>
-        <div class="csc-check">${writeSelectedChildren.has(c.id)?'✓':''}</div>
-      </div>`).join('');
-  }
-  const label = document.getElementById('selectedCountLabel');
-  if (label) label.textContent = writeSelectedChildren.size + '명 선택됨';
-}
-
 function setCdField(cid, field, val) {
   CHILD_STATE[cid][field] = val;
   const card = document.getElementById(`wcc-${cid}`);
@@ -1778,60 +1955,22 @@ function setCdDirect(cid, field, val) {
   CHILD_STATE[cid][field] = val;
 }
 
-function toggleHealth(cid, val) {
-  const arr = CHILD_STATE[cid].health;
-  if (val === '양호') {
-    CHILD_STATE[cid].health = arr.includes('양호') ? [] : ['양호'];
-  } else {
-    const hi = arr.indexOf('양호');
-    if (hi > -1) arr.splice(hi, 1);
-    const si = arr.indexOf(val);
-    if (si > -1) arr.splice(si, 1);
-    else arr.push(val);
-  }
-  const card = document.getElementById(`wcc-${cid}`);
-  if (card) card.outerHTML = renderWriteChildCardHTML(cid);
-}
-
-function toggleActivity(cid, type, tag) {
-  const arr = type === 'indoor' ? CHILD_STATE[cid].actIndoor : CHILD_STATE[cid].actOutdoor;
-  const idx = arr.indexOf(tag);
-  if (idx > -1) arr.splice(idx, 1);
-  else arr.push(tag);
-  const card = document.getElementById(`wcc-${cid}`);
-  if (card) card.outerHTML = renderWriteChildCardHTML(cid);
-}
-
 function selectWriteWeather(btn, w) {
   writeSelectedWeather = w;
   document.querySelectorAll('#wWeatherGroup .weather-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
 }
 
-function aiGenChild(cid, btn) {
-  if (btn) { btn.classList.add('ai-loading'); btn.textContent = '⏳ 생성 중...'; }
-  setTimeout(() => {
-    const name = WRITE_CHILDREN.find(c => c.id === cid)?.name || '';
-    CHILD_STATE[cid].memo = `${name} 어린이는 오늘 활동에 적극적으로 참여했으며 건강하게 하루를 보냈습니다.`;
-    const card = document.getElementById(`wcc-${cid}`);
-    if (card) card.outerHTML = renderWriteChildCardHTML(cid);
-    showToast('AI가 자동으로 채워넣었습니다.', 'success');
-  }, 900);
-}
-
-// AI 기능 (정적 목업)
+// ━━━ AI 기능 ━━━
 function aiGenerate() {
   const btn = document.querySelector('.ai-btn-gen');
-  btn.classList.add('ai-loading');
-  btn.textContent = '⏳ 생성 중...';
+  btn.classList.add('ai-loading'); btn.textContent = '⏳ 생성 중...';
   setTimeout(() => {
     document.getElementById('wContent').value =
       '안녕하세요! 오늘도 아이들과 즐거운 하루를 보냈습니다. ' +
       '봄 날씨답게 따뜻한 햇살 아래 바깥 놀이를 하며 신나는 시간을 가졌어요. ' +
-      '아이들 모두 건강하고 밝은 하루를 보냈으니 안심하세요. ' +
-      '오늘 하루도 사랑으로 돌봐주셔서 감사합니다. 💕';
-    btn.classList.remove('ai-loading');
-    btn.textContent = '✨ AI 자동생성';
+      '아이들 모두 건강하고 밝은 하루를 보냈으니 안심하세요. 💕';
+    btn.classList.remove('ai-loading'); btn.textContent = '✨ AI 자동생성';
     showToast('AI가 본문을 생성했습니다.', 'success');
   }, 1200);
 }
@@ -1840,32 +1979,103 @@ function aiPolish() {
   const ta = document.getElementById('wContent');
   if (!ta.value.trim()) { showToast('먼저 내용을 입력해 주세요.'); return; }
   const btn = document.querySelector('.ai-btn-polish');
-  btn.classList.add('ai-loading');
-  btn.textContent = '⏳ 다듬는 중...';
+  btn.classList.add('ai-loading'); btn.textContent = '⏳ 다듬는 중...';
   setTimeout(() => {
-    ta.value = ta.value
-      .replace(/했습니다\./g, '했어요.')
-      .replace(/입니다\./g, '이에요.')
-      .replace(/합니다\./g, '해요.')
-      .replace(/있습니다\./g, '있어요.');
-    btn.classList.remove('ai-loading');
-    btn.textContent = '✦ 문장 다듬기';
+    ta.value = ta.value.replace(/했습니다\./g,'했어요.').replace(/입니다\./g,'이에요.').replace(/합니다\./g,'해요.').replace(/있습니다\./g,'있어요.');
+    btn.classList.remove('ai-loading'); btn.textContent = '✦ 문장 다듬기';
     showToast('문장이 부드럽게 다듬어졌습니다.', 'success');
   }, 900);
 }
 
-function saveDraft() {
-  showToast('임시저장되었습니다.', 'success');
-}
+function saveDraft() { showToast('임시저장되었습니다.', 'success'); }
 
 function publishNotice() {
-  const cls = document.getElementById('wClass').value;
-  if (!cls) { showToast('반을 선택해 주세요.'); return; }
+  if (!writeSelectedClass) { showToast('반을 선택해 주세요.'); return; }
   if (writeSelectedChildren.size === 0) { showToast('대상 원아를 선택해 주세요.'); return; }
-  showToast(`알림장이 발행되었습니다. (${writeSelectedChildren.size}명)`, 'success');
+  showToast(`알림장이 발행되었습니다. (${writeMode==='single'?'1:1':'다중'} · ${writeSelectedChildren.size}명)`, 'success');
   closeWritePanel();
 }
 
+// ━━━ 삭제 확인 ━━━
+let _deleteTargetId = null;
+function confirmDelete(id) {
+  const notice = MOCK_SENT.find(n => n.id === id);
+  if (!notice) return;
+  _deleteTargetId = id;
+  document.getElementById('deleteModalBody').innerHTML = `
+    <p style="font-size:14px;color:var(--text-primary);line-height:1.6;">
+      <strong>${notice.date} ${notice.class}</strong> 알림장을 삭제하시겠습니까?
+    </p>
+    <div style="margin-top:8px;padding:8px 10px;background:var(--bg-base);border-radius:var(--radius-sm);border:1px solid var(--border-light);font-size:12px;color:var(--text-secondary);">
+      👨‍🏫 ${notice.teacher} · 👶 ${notice.childCount}명 대상 · ${notice.writeType==='single'?'1:1':'다중'}
+    </div>
+    <p style="font-size:12px;color:var(--red-text);margin-top:10px;line-height:1.5;">⚠️ 삭제된 알림장은 복구할 수 없으며, 학부모에게 전송된 알림도 회수됩니다.</p>`;
+  document.getElementById('deleteModal').classList.add('show');
+}
+
+function executeDelete() {
+  if (!_deleteTargetId) return;
+  const idx = MOCK_SENT.findIndex(n => n.id === _deleteTargetId);
+  if (idx > -1) MOCK_SENT.splice(idx, 1);
+  document.getElementById('deleteModal').classList.remove('show');
+  showToast('알림장이 삭제되었습니다.', 'success');
+  closeSentDetail();
+  renderList(currentTab);
+  _deleteTargetId = null;
+}
+
+// ━━━ 수정 (프리필) ━━━
+function editNotice(id) {
+  const notice = MOCK_SENT.find(n => n.id === id);
+  if (!notice) return;
+  closeSentDetail();
+  closeAllPanels();
+
+  setTimeout(() => {
+    isEditMode = true;
+    writeMode = notice.writeType || 'multi';
+    writeSelectedWeather = notice.weather || '맑음';
+    writePhotos = (notice.photos || []).map(p => ({...p}));
+
+    // 반 기반 원아 로딩
+    const classMap = {'햇님반':'CLS001','달님반':'CLS002','별님반':'CLS003','꽃님반':'CLS004'};
+    writeSelectedClass = classMap[notice.class] || '';
+    WRITE_CHILDREN = CLASS_CHILDREN[writeSelectedClass] || [];
+    WRITE_CHILDREN.forEach(c => resetChildState(c.id));
+
+    writeSelectedChildren.clear();
+    notice.children.forEach(c => writeSelectedChildren.add(c.id));
+
+    // 원아별 상태 프리필
+    notice.children.forEach(c => {
+      if (!CHILD_STATE[c.id]) resetChildState(c.id);
+      const st = CHILD_STATE[c.id];
+      if (c.individualMemo) st.memo = c.individualMemo;
+      if (c.tags) st.tags = [...c.tags];
+      if (c.dailyEval) {
+        st.evalMood = c.dailyEval.mood || '';
+        st.evalHealth = c.dailyEval.health || '';
+        st.evalMeal = c.dailyEval.meal || '';
+        st.evalToilet = c.dailyEval.toilet || '';
+        st.evalActivity = c.dailyEval.activity || '';
+        st.evalSocial = c.dailyEval.social || '';
+      }
+    });
+
+    document.getElementById('writePanelTitle').innerHTML = '✏️ 알림장 수정 <span style="font-size:12px;color:var(--text-muted);font-weight:500;margin-left:6px;">' + notice.id + '</span>';
+    showPanel('writePanel');
+    renderWritePanel();
+
+    setTimeout(() => {
+      const dateEl = document.getElementById('wDate');
+      if (dateEl) dateEl.value = notice.date;
+      const contentEl = document.getElementById('wContent');
+      if (contentEl) contentEl.value = notice.content;
+    }, 50);
+  }, 200);
+}
+
+// ━━━ 필터 ━━━
 function applyFilters() {
   renderTodayDashboard();
   renderList(currentTab);

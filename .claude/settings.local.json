@@ -2,7 +2,25 @@
   "permissions": {
     "allow": [
       "Bash(wc -l C:/Users/2AP2020-004/Desktop/myrp/.brain/*.md C:/Users/2AP2020-004/Desktop/myrp/CLAUDE.md)",
-      "Bash(wc -c C:/Users/2AP2020-004/Desktop/myrp/.brain/*.md C:/Users/2AP2020-004/Desktop/myrp/CLAUDE.md)"
+      "Bash(wc -c C:/Users/2AP2020-004/Desktop/myrp/.brain/*.md C:/Users/2AP2020-004/Desktop/myrp/CLAUDE.md)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(python3 -c \"from PIL import Image; img = Image.open\\(''C:/Users/2AP2020-004/Desktop/myrp/refer/W10.알림장.png''\\); print\\(f''Size: {img.size}, Mode: {img.mode}''\\)\")",
+      "Bash(python -c \"from PIL import Image; img = Image.open\\(''C:/Users/2AP2020-004/Desktop/myrp/refer/W10.알림장.png''\\); print\\(f''Size: {img.size}, Mode: {img.mode}''\\)\")",
+      "Bash(identify \"C:/Users/2AP2020-004/Desktop/myrp/refer/W10.알림장.png\")",
+      "Bash(pip install:*)",
+      "Bash(python -c \"from PIL import Image; print\\(''ok''\\)\")",
+      "Bash(pip3 install:*)",
+      "Bash(python3 -c \"from PIL import Image; print\\(''ok''\\)\")",
+      "Read(//c/Users/2AP2020-004/AppData/Local/Programs/**)",
+      "Bash(ls /c/Python*/python.exe)",
+      "Bash(where python:*)",
+      "Bash(/c/Users/2AP2020-004/AppData/Local/Microsoft/WindowsApps/python.exe -m pip install Pillow)",
+      "Bash(node -e \":*)",
+      "Bash(cd /tmp)",
+      "Bash(npm init:*)",
+      "Bash(npm install:*)"
     ]
   }
 }
