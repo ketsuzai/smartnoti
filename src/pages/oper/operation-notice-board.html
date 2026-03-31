@@ -162,55 +162,97 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .date-group-line{flex:1;height:1px;background:var(--border-light);}
 .date-group-count{font-size:11px;color:var(--text-muted);font-weight:500;}
 
-/* ━━━ 보낸 알림장 카드 ━━━ */
-.notice-card{background:var(--bg-surface);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:14px 16px 12px 19px;margin-bottom:8px;cursor:pointer;transition:box-shadow .18s,border-color .18s;display:flex;gap:14px;align-items:flex-start;position:relative;overflow:hidden;}
-.notice-card:hover{box-shadow:var(--shadow-md);border-color:var(--border-medium);}
-.nc-accent{position:absolute;left:0;top:0;bottom:0;width:4px;}
-.nc-accent.published{background:var(--green);}
-.nc-accent.draft{background:var(--amber);}
-.nc-accent.recalled{background:#9CA3AF;}
-.nc-accent.scheduled{background:var(--purple);}
-.nc-left{flex:1;min-width:0;}
-.nc-teacher-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
-.nc-teacher-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0;}
-.nc-teacher-info{flex:1;}
-.nc-teacher-name{font-size:13px;font-weight:700;color:var(--text-primary);}
-.nc-teacher-class{font-size:11px;color:var(--text-secondary);}
-.nc-meta{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-secondary);flex-wrap:wrap;margin-bottom:5px;}
-.nc-meta-item{display:flex;align-items:center;gap:3px;}
-.nc-weather{font-size:13px;}
-.nc-preview{font-size:12.5px;color:var(--text-secondary);line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:6px;}
-/* 리스트 카드 썸네일 */
-.nc-thumb-row{display:flex;gap:6px;margin-bottom:8px;}
-.nc-thumb-item{width:56px;height:56px;border-radius:var(--radius-sm);overflow:hidden;flex-shrink:0;position:relative;border:1.5px solid var(--border-light);}
-.nc-thumb-item img{width:100%;height:100%;object-fit:cover;}
-.nc-thumb-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);color:#fff;font-size:18px;}
-.nc-thumb-more{width:56px;height:56px;border-radius:var(--radius-sm);flex-shrink:0;background:var(--bg-base);border:1.5px dashed var(--border-medium);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--text-muted);font-weight:700;letter-spacing:2px;}
-.nc-footer{display:flex;align-items:center;gap:8px;padding-top:8px;border-top:1px solid var(--border-light);margin-top:4px;}
-.nc-footer-meta{display:flex;align-items:center;gap:10px;flex:1;flex-wrap:wrap;}
-.nc-footer-item{display:flex;align-items:center;gap:3px;font-size:11px;color:var(--text-muted);}
-.nc-act-btns{display:flex;gap:4px;}
-.nc-act-btn{width:26px;height:26px;border-radius:var(--radius-sm);border:1px solid var(--border-light);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:.18s;color:var(--text-secondary);}
-.nc-act-btn:hover{background:var(--accent-light);border-color:var(--accent);}
-.nc-act-btn.danger:hover{background:var(--red-bg);border-color:#FECACA;color:var(--red);}
-.nc-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
-.nc-time{font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;}
+/* ━━━ 보낸 알림장 4열 그리드 ━━━ */
+.sent-list-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px 16px;}
 
-/* 단일 알림장 카드: 원아 강조 */
-.nc-single-child{display:flex;align-items:center;gap:8px;margin-top:6px;padding:6px 10px;background:var(--accent-light);border-radius:var(--radius-md);border:1px solid var(--border-medium);}
-.nc-single-child .nc-child-chip-av{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;}
-.nc-single-child-name{font-size:13px;font-weight:700;color:var(--accent-dark);}
+/* ━━━ 다중 스택 래퍼 ━━━ */
+.nc-stack-wrap{position:relative;clip-path:inset(-14px 0 0 0 round var(--radius-lg));}
+.nc-stack-wrap::before{
+    content: '';
+    rotate: 4.2deg;
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(160deg, #e0e7ff 0%, #ddd6fe 100%);
+    border: 1px solid #C7D2FE;
+    z-index: 0;
+    box-shadow: 2px 2px 8px rgba(99,102,241,.12);
+}
+.nc-stack-wrap::after{
+    content: '';
+    rotate: 2.2deg;
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(160deg, #d1dbfc 0%, #cbc0ff 100%);
+    border: 1px solid #C7D2FE;
+    z-index: 1;
+    box-shadow: 4px 4px 14px rgba(99,102,241,.18);
+}
+.nc-stack-wrap .notice-card{position:relative;z-index:2;}
+
+/* ━━━ 보낸 알림장 카드 ━━━ */
+.notice-card{background:var(--bg-surface);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:14px;cursor:pointer;transition:box-shadow .18s,border-color .18s;display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden;height:320px;}
+.notice-card:hover{box-shadow:var(--shadow-md);border-color:var(--border-medium);}
+.notice-card.status-scheduled{opacity:0.78;}
+.notice-card.status-deleted{background:repeating-linear-gradient(135deg,#FEE2E2 0px 8px,#fff 8px 16px);}
+
+/* 카드 헤더 */
+.nc-card-header{display:flex;flex-direction:column;gap:5px;}
+.nc-card-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.nc-card-class{font-size:15px;font-weight:800;color:var(--text-primary);}
+.nc-card-date{font-size:12px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;}
+.nc-card-teacher{font-size:12px;color:var(--text-secondary);}
+.nc-card-badges{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+
+/* 원아 요약 + 툴팁 */
+.nc-tooltip-wrap{position:relative;display:inline-block;}
+.nc-child-summary{font-size:14px;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:5px;}
+.nc-tooltip{display:none;position:absolute;bottom:calc(100% + 8px);left:0;background:rgba(15,23,42,.92);color:#fff;font-size:12px;line-height:1.6;padding:8px 12px;border-radius:10px;white-space:nowrap;z-index:200;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.18);}
+.nc-tooltip::after{content:'';position:absolute;top:100%;left:16px;border:5px solid transparent;border-top-color:rgba(15,23,42,.92);}
+.nc-tooltip-wrap:hover .nc-tooltip{display:block;}
+
+/* 메인 썸네일 */
+.nc-main-thumb{width:100%;height:120px;border-radius:var(--radius-md);overflow:hidden;position:relative;flex-shrink:0;}
+.nc-main-thumb img{width:100%;height:100%;object-fit:cover;}
+.nc-main-thumb-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);color:#fff;font-size:24px;}
+.nc-main-thumb-count{position:absolute;bottom:6px;right:8px;background:rgba(0,0,0,.55);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:8px;}
+
+/* 본문 미리보기 */
+.nc-preview{font-size:12.5px;color:var(--text-secondary);line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+
+/* 원아 칩 (다중) */
+.nc-children{display:flex;flex-wrap:wrap;gap:5px;}
+.nc-child-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px 4px 5px;border-radius:10px;font-size:13px;font-weight:600;background:var(--accent-light);color:var(--accent-dark);border:1px solid transparent;transition:.15s;}
+.nc-child-chip-av{width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff;flex-shrink:0;}
+.nc-chip-cnt{display:inline-flex;align-items:center;justify-content:center;background:var(--amber);color:#fff;font-size:9px;font-weight:800;padding:0 4px;border-radius:6px;min-width:14px;height:14px;margin-left:1px;line-height:1;}
+.nc-chip-cnt.read{background:var(--text-muted);}
+.nc-chip-unread{width:6px;height:6px;border-radius:50%;background:var(--red);flex-shrink:0;margin-left:1px;animation:blink .9s ease-in-out infinite;}
+
+/* 단일 원아 강조 */
+.nc-single-child{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--accent-light);border-radius:var(--radius-md);border:1px solid var(--border-medium);}
+.nc-single-child .nc-child-chip-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;}
+.nc-single-child-name{font-size:14px;font-weight:700;color:var(--accent-dark);}
 .nc-single-child-sub{font-size:11px;color:var(--text-secondary);}
 
-/* 상태 뱃지 */
-.nbadge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:12px;font-size:11px;font-weight:700;}
+/* 푸터 */
+.nc-footer{display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:1px solid rgba(0,0,0,.07);margin-top:auto;}
+.nc-footer-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.nc-footer-item{display:flex;align-items:center;gap:3px;font-size:14px;font-weight:700;color:var(--text-secondary);}
+.nc-act-btns{display:flex;gap:2px;}
+.nc-txt-btn{background:none;border:none;font-size:13px;font-weight:700;color:var(--text-secondary);cursor:pointer;padding:3px 8px;border-radius:var(--radius-sm);transition:.18s;font-family:'Pretendard',sans-serif;}
+.nc-txt-btn:hover{background:var(--bg-base);color:var(--text-primary);}
+.nc-txt-btn.danger{color:var(--red-text);}
+.nc-txt-btn.danger:hover{background:var(--red-bg);}
+
+/* 상태 배지 */
+.nbadge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700;}
 .nbadge-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
 .nb-published{background:var(--green-bg);color:var(--green-text);}
 .nb-draft{background:#F3F4F6;color:#6B7280;}
-.nb-recalled{background:var(--red-bg);color:var(--red-text);}
-.nb-scheduled{background:var(--blue-bg);color:var(--blue-text);}
-.nc-ai-badge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;background:var(--purple-bg);color:var(--purple-text);}
-.nc-type-badge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;}
+.nb-deleted{background:var(--red-bg);color:var(--red-text);}
+.nb-scheduled{background:#FEF3C7;color:#92400E;}
+.nc-type-badge{font-size:12px;font-weight:700;padding:3px 10px;border-radius:6px;}
 .nc-type-single{background:var(--blue-bg);color:var(--blue-text);}
 .nc-type-multi{background:var(--green-bg);color:var(--green-text);}
 
@@ -372,8 +414,13 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .child-select-card.selected{border-color:var(--accent);background:var(--accent-light);}
 .csc-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;margin:0 auto 4px;position:relative;}
 .csc-name{font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:4px;}
-.csc-check{width:16px;height:16px;border-radius:50%;border:2px solid var(--border-medium);margin:4px auto 0;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;}
+.csc-check{width:16px;height:16px;border-radius:50%;border:2px solid var(--border-medium);position:absolute;top:6px;right:6px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;}
 .child-select-card.selected .csc-check{background:var(--accent);border-color:var(--accent);}
+.eval-summary-bar{display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:var(--radius-md);font-size:13px;font-weight:600;margin-bottom:8px;}
+.eval-summary-bar.good{background:var(--green-bg);color:var(--green-text);}
+.eval-summary-bar.warn{background:var(--amber-bg);color:var(--amber-text);}
+.eval-summary-bar.normal{background:#F3F4F6;color:var(--text-secondary);}
+.eval-opt-hint{font-size:11px;color:var(--text-muted);margin-top:3px;font-style:italic;}
 .csc-badges{display:flex;flex-wrap:wrap;justify-content:center;gap:3px;margin-top:2px;}
 .csc-badge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap;}
 .csc-badge-present{background:var(--green-bg);color:var(--green-text);}
@@ -486,6 +533,12 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 /* 작성 푸터 */
 .write-footer{padding:14px 24px;border-top:1px solid var(--border-light);flex-shrink:0;display:flex;gap:8px;justify-content:flex-end;background:#FAFCFF;}
 
+/* ━━━ 임시저장 FAB ━━━ */
+.draft-fab{position:fixed;bottom:28px;right:88px;display:none;align-items:center;gap:8px;background:var(--accent);color:#fff;padding:13px 22px;border-radius:50px;cursor:pointer;box-shadow:0 4px 20px rgba(14,165,233,.35);font-size:14px;font-weight:700;z-index:800;transition:transform .18s,box-shadow .18s;user-select:none;}
+.draft-fab:hover{transform:translateY(-2px);box-shadow:0 6px 26px rgba(14,165,233,.45);}
+.draft-fab-icon{font-size:16px;}
+.draft-fab-count{background:var(--red);color:#fff;font-size:11px;font-weight:800;padding:1px 7px;border-radius:10px;min-width:20px;text-align:center;}
+
 /* ━━━ 토스트 ━━━ */
 .toast-wrap{position:fixed;bottom:24px;right:24px;z-index:900;display:flex;flex-direction:column;gap:8px;}
 .toast{background:#1A1D2E;color:#fff;padding:10px 16px;border-radius:var(--radius-md);font-size:13px;box-shadow:var(--shadow-lg);animation:toastIn .25s ease;display:flex;align-items:center;gap:8px;}
@@ -560,25 +613,26 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
     <div class="filter-bar" id="sentFilterBar">
       <div class="filter-group">
         <div class="fsel-wrap" id="classFilterGroup">
-          <select class="fsel" id="classFilter" onchange="applyFilters()"></select>
+          <select class="fsel" id="classFilter"></select>
         </div>
         <div class="fsel-wrap">
-          <select class="fsel" id="filterStatus" onchange="applyFilters()">
+          <select class="fsel" id="filterStatus">
             <option value="">전체 상태</option>
             <option value="published">발행됨</option>
             <option value="draft">임시저장</option>
-            <option value="recalled">회수됨</option>
+            <option value="deleted">삭제됨</option>
             <option value="scheduled">예약발행</option>
           </select>
         </div>
         <div class="filter-date-range">
-          <input type="date" id="filterDateFrom" onchange="applyFilters()">
+          <input type="date" id="filterDateFrom">
           <span>~</span>
-          <input type="date" id="filterDateTo" onchange="applyFilters()">
+          <input type="date" id="filterDateTo">
         </div>
         <div class="search-wrap">
-          <input class="search-inp" type="text" id="filterChildName" placeholder="원아명 검색" oninput="applyFilters()">
+          <input class="search-inp" type="text" id="filterChildName" placeholder="원아명 검색" onkeydown="if(event.key==='Enter')applyFilters()">
         </div>
+        <button class="btn btn-primary btn-sm" onclick="applyFilters()">검색</button>
         <button class="btn-reset" onclick="resetSentFilters()">초기화</button>
       </div>
     </div>
@@ -710,6 +764,11 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 </div>
 
 <!-- ━━━ 토스트 ━━━ -->
+<div class="draft-fab" id="draftFab" onclick="toggleDraftFilter()">
+  <span class="draft-fab-icon">📝</span>
+  <span>임시저장</span>
+  <span class="draft-fab-count" id="draftFabCount">0</span>
+</div>
 <div class="toast-wrap" id="toastWrap"></div>
 
 <script>
@@ -718,11 +777,12 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const MOCK_SENT = [
+  // ─ 다중·발행·사진5장·댓글혼합(읽음+미읽음)
   {
-    id:'NB001', date:'2026-03-23', class:'햇님반', teacher:'김하늘', teacherColor:'#4361EE',
-    title:'2026년 3월 23일 햇님반 알림장', status:'published', statusLabel:'발행됨',
-    weather:'맑음', childCount:3, readCount:2, commentCount:3,
-    hasAi:true, publishedAt:'08:35', writeType:'multi',
+    id:'NB001', date:'2026-03-30', class:'햇님반', teacher:'김하늘', teacherColor:'#4361EE',
+    status:'published', statusLabel:'발행됨',
+    weather:'맑음', childCount:3, readCount:2, commentCount:4,
+    publishedAt:'08:35', writeType:'multi',
     content:'안녕하세요! 오늘은 봄 날씨답게 따뜻하고 화창한 하루였습니다. 아이들이 즐겁게 봄 활동을 하며 보람찬 하루를 보냈습니다.',
     photos:[
       { url:'https://placehold.co/400x300/E0F2FE/0EA5E9?text=블록놀이', type:'photo', isRepresentative:true },
@@ -732,72 +792,183 @@ const MOCK_SENT = [
       { url:'https://placehold.co/400x300/FCE7F3/EC4899?text=율동영상', type:'video', isRepresentative:false }
     ],
     children:[
-      { id:'C001', name:'김도현', color:'#3B82F6',
-        tags:['활발했어요','블록놀이','잘먹음','잘잠'],
-        individualMemo:'오늘 블록으로 집을 만들어 친구들에게 자랑했어요. 표현력이 많이 늘었답니다.',
-        isRead:true, commentCount:1,
-        comments:[
-          { author:'김민지 엄마', type:'parent', color:'#10B981', relation:'엄마', text:'집에서도 블록 얘기를 하더라고요! 감사합니다 선생님 😊', time:'15:22' },
-          { author:'김선생', type:'teacher', color:'#0EA5E9', text:'도현이가 정말 집중해서 만들었어요. 대단하죠? 내일도 기대해 주세요!', time:'15:45', isReply:true }
-        ]
-      },
-      { id:'C002', name:'이서연', color:'#10B981',
-        tags:['수줍어했어요','그림그리기','조금먹음','조금잠'],
-        individualMemo:'오늘 산책 중에 꽃을 발견하고 친구들에게 보여주는 서연이의 모습이 너무 예뻤어요.',
-        isRead:true, commentCount:2,
+      { id:'C001', name:'김도현', color:'#3B82F6', isRead:true, commentCount:1,
+        comments:[{ author:'김민지 엄마', type:'parent', color:'#10B981', relation:'엄마', text:'집에서도 블록 얘기를 하더라고요! 감사합니다 선생님 😊', time:'15:22' }]},
+      { id:'C002', name:'이서연', color:'#10B981', isRead:true, commentCount:2,
         comments:[
           { author:'이지영 엄마', type:'parent', color:'#10B981', relation:'엄마', text:'점심을 조금 먹었군요, 집에 와서도 입맛이 없더라고요.', time:'16:10' },
-          { author:'김선생', type:'teacher', color:'#0EA5E9', text:'오후 간식은 잘 먹었어요! 너무 걱정 마세요 😊', time:'16:30', isReply:true }
-        ]
-      },
-      { id:'C003', name:'박준서', color:'#F59E0B',
-        tags:['졸려했어요','역할놀이','잘먹음','못잠'],
-        individualMemo:'오후에 병원 예약이 있어 2시에 하원했습니다. 오전에는 활기차게 지냈어요.',
-        isRead:false, commentCount:0, comments:[]
-      }
+          { author:'이지영 엄마', type:'parent', color:'#10B981', relation:'엄마', text:'내일은 잘 먹으면 좋겠어요 😊', time:'16:11' }
+        ]},
+      { id:'C003', name:'박준서', color:'#F59E0B', isRead:false, commentCount:1,
+        comments:[{ author:'박민수 아빠', type:'parent', color:'#F59E0B', relation:'아빠', text:'오늘도 잘 지냈군요, 감사합니다.', time:'17:00' }]}
     ]
   },
+  // ─ 단일·발행·사진·종합평가
   {
-    id:'NB002', date:'2026-03-22', class:'햇님반', teacher:'김하늘', teacherColor:'#4361EE',
-    title:'2026년 3월 22일 김도현 알림장', status:'published', statusLabel:'발행됨',
+    id:'NB002', date:'2026-03-30', class:'햇님반', teacher:'김하늘', teacherColor:'#4361EE',
+    status:'published', statusLabel:'발행됨',
     weather:'구름조금', childCount:1, readCount:1, commentCount:0,
-    hasAi:false, publishedAt:'09:10', writeType:'single',
-    content:'오늘은 봄 미술 활동으로 꽃 그림을 그렸습니다. 도현이의 다양한 색감 표현이 아름다웠어요!',
+    publishedAt:'09:10', writeType:'single',
+    content:'오늘은 봄 미술 활동으로 꽃 그림을 그렸습니다. 도현이의 다양한 색감 표현이 아름다웠어요! 꽃잎 하나하나를 정성껏 색칠하는 모습이 인상적이었습니다.',
     photos:[
       { url:'https://placehold.co/400x300/EDE9FE/8B5CF6?text=꽃그림', type:'photo', isRepresentative:true },
       { url:'https://placehold.co/400x300/DBEAFE/3B82F6?text=공놀이', type:'photo', isRepresentative:false }
     ],
     children:[
       { id:'C001', name:'김도현', color:'#3B82F6',
-        individualMemo:'봄꽃을 색연필로 섬세하게 그려 선생님도 놀랐어요.',
         dailyEval:{ mood:'좋음', health:'좋음', meal:'좋음', toilet:'좋음', activity:'좋음', social:'좋음' },
-        evalSummary:'아주 좋아요 👍',
-        isRead:true, commentCount:0, comments:[]
-      }
+        evalSummary:'아주 좋아요 👍', isRead:true, commentCount:0, comments:[]}
     ]
   },
+  // ─ 다중·발행·사진없음·원아7명(오버플로우)·미읽은댓글
   {
-    id:'NB003', date:'2026-03-22', class:'달님반', teacher:'박소현', teacherColor:'#10B981',
-    title:'2026년 3월 22일 달님반 알림장', status:'draft', statusLabel:'임시저장',
-    weather:'흐림', childCount:4, readCount:0, commentCount:0,
-    hasAi:false, publishedAt:null, writeType:'multi', photos:[],
-    content:'(임시저장)',
-    children:[]
-  },
-  {
-    id:'NB004', date:'2026-03-21', class:'햇님반', teacher:'김하늘', teacherColor:'#4361EE',
-    title:'2026년 3월 21일 이서연 알림장', status:'published', statusLabel:'발행됨',
-    weather:'비', childCount:1, readCount:1, commentCount:0,
-    hasAi:false, publishedAt:'08:50', writeType:'single',
+    id:'NB003', date:'2026-03-29', class:'달님반', teacher:'박소현', teacherColor:'#10B981',
+    status:'published', statusLabel:'발행됨',
+    weather:'흐림', childCount:7, readCount:4, commentCount:5,
+    publishedAt:'08:55', writeType:'multi',
+    content:'날씨가 흐렸지만 아이들은 실내 활동으로 알차게 하루를 보냈어요. 오늘은 종이접기와 그림책 읽기 시간을 가졌습니다. 특히 종이접기 시간에 각자 좋아하는 동물을 만들어 보았어요.',
     photos:[],
-    content:'비 오는 날 실내에서 색칠놀이를 했어요. 서연이가 무지개를 예쁘게 그렸답니다.',
+    children:[
+      { id:'C004', name:'최유진', color:'#8B5CF6', isRead:false, commentCount:2,
+        comments:[
+          { author:'최현정 엄마', type:'parent', color:'#8B5CF6', relation:'엄마', text:'오늘 기분은 어떠나요?', time:'14:10' },
+          { author:'최현정 엄마', type:'parent', color:'#8B5CF6', relation:'엄마', text:'집에서 종이접기 계속 하고 싶다고 하네요 ㅎㅎ', time:'14:12' }
+        ]},
+      { id:'C005', name:'정민호', color:'#F97316', isRead:true, commentCount:1,
+        comments:[{ author:'정기철 아빠', type:'parent', color:'#F97316', relation:'아빠', text:'감사합니다!', time:'15:30' }]},
+      { id:'C006', name:'강지아', color:'#EC4899', isRead:true, commentCount:0, comments:[]},
+      { id:'C007', name:'윤서준', color:'#14B8A6', isRead:false, commentCount:1,
+        comments:[{ author:'윤미나 엄마', type:'parent', color:'#14B8A6', relation:'엄마', text:'서준이가 그림책을 좋아하는군요!', time:'16:00' }]},
+      { id:'C008', name:'임하린', color:'#6366F1', isRead:true, commentCount:1,
+        comments:[{ author:'임수진 엄마', type:'parent', color:'#6366F1', relation:'엄마', text:'잘 지내고 있어서 다행이에요.', time:'16:20' }]},
+      { id:'C009', name:'송채원', color:'#F43F5E', isRead:false, commentCount:0, comments:[]},
+      { id:'C010', name:'조한결', color:'#0EA5E9', isRead:true, commentCount:0, comments:[]}
+    ]
+  },
+  // ─ 단일·발행·사진없음·미읽음(footer 위치 테스트)
+  {
+    id:'NB004', date:'2026-03-29', class:'햇님반', teacher:'김하늘', teacherColor:'#4361EE',
+    status:'published', statusLabel:'발행됨',
+    weather:'비', childCount:1, readCount:0, commentCount:0,
+    publishedAt:'08:50', writeType:'single', photos:[],
+    content:'비 오는 날 실내에서 색칠놀이를 했어요. 서연이가 무지개를 예쁘게 그렸답니다. 집에 가져가니 꼭 보여주세요!',
     children:[
       { id:'C002', name:'이서연', color:'#10B981',
-        individualMemo:'무지개를 그리면서 "엄마 보여줄 거야!"라고 했어요.',
         dailyEval:{ mood:'좋음', health:'좋음', meal:'보통', toilet:'좋음', activity:'좋음', social:'보통' },
-        evalSummary:'무난해요 😊',
-        isRead:true, commentCount:0, comments:[]
-      }
+        evalSummary:'무난해요 😊', isRead:false, commentCount:0, comments:[]}
+    ]
+  },
+  // ─ 다중·예약발행·opacity 효과 테스트
+  {
+    id:'NB005', date:'2026-03-31', class:'별님반', teacher:'정다은', teacherColor:'#F59E0B',
+    status:'scheduled', statusLabel:'예약발행',
+    weather:'맑음', childCount:2, readCount:0, commentCount:0,
+    publishedAt:'09:00', writeType:'multi',
+    content:'내일 봄 소풍 안내입니다. 도시락과 편한 옷을 준비해 주세요. 출발 시간은 오전 10시입니다.',
+    photos:[{ url:'https://placehold.co/400x300/FEF9C3/EAB308?text=소풍예정', type:'photo', isRepresentative:true }],
+    children:[
+      { id:'C011', name:'한서아', color:'#A855F7', isRead:false, commentCount:0, comments:[]},
+      { id:'C012', name:'배도윤', color:'#22C55E', isRead:false, commentCount:0, comments:[]}
+    ]
+  },
+  // ─ 다중·회수됨·빗금 배경 테스트
+  {
+    id:'NB006', date:'2026-03-28', class:'꽃님반', teacher:'최유리', teacherColor:'#EC4899',
+    status:'deleted', statusLabel:'삭제됨',
+    weather:'맑음', childCount:4, readCount:3, commentCount:0,
+    publishedAt:'08:20', writeType:'multi', photos:[],
+    content:'이전에 발송된 알림장에 오류가 있어 회수되었습니다. 수정 후 재발송 예정입니다.',
+    children:[
+      { id:'C013', name:'권나연', color:'#3B82F6', isRead:true, commentCount:0, comments:[]},
+      { id:'C014', name:'오재민', color:'#10B981', isRead:true, commentCount:0, comments:[]},
+      { id:'C015', name:'유하은', color:'#F59E0B', isRead:false, commentCount:0, comments:[]},
+      { id:'C016', name:'홍주원', color:'#8B5CF6', isRead:true, commentCount:0, comments:[]}
+    ]
+  },
+  // ─ 다중·임시저장·내용 미완성
+  {
+    id:'NB007', date:'2026-03-28', class:'달님반', teacher:'박소현', teacherColor:'#10B981',
+    status:'draft', statusLabel:'임시저장',
+    weather:null, childCount:3, readCount:0, commentCount:0,
+    publishedAt:null, writeType:'multi', photos:[],
+    content:'(임시저장 중인 알림장입니다. 아직 발행되지 않았습니다.)',
+    children:[
+      { id:'C004', name:'최유진', color:'#8B5CF6', isRead:false, commentCount:0, comments:[]},
+      { id:'C005', name:'정민호', color:'#F97316', isRead:false, commentCount:0, comments:[]},
+      { id:'C006', name:'강지아', color:'#EC4899', isRead:false, commentCount:0, comments:[]}
+    ]
+  },
+  // ─ 단일·발행·비디오만·미읽은댓글
+  {
+    id:'NB008', date:'2026-03-27', class:'별님반', teacher:'정다은', teacherColor:'#F59E0B',
+    status:'published', statusLabel:'발행됨',
+    weather:'맑음', childCount:1, readCount:0, commentCount:1,
+    publishedAt:'14:05', writeType:'single',
+    content:'오늘 한결이가 친구들 앞에서 동요를 불러 주었습니다! 목소리가 정말 맑고 또렷해서 모두가 박수를 쳤어요.',
+    photos:[{ url:'https://placehold.co/400x300/DCFCE7/16A34A?text=동요발표▶', type:'video', isRepresentative:true }],
+    children:[
+      { id:'C010', name:'조한결', color:'#0EA5E9', isRead:false, commentCount:1,
+        comments:[{ author:'조영철 아빠', type:'parent', color:'#0EA5E9', relation:'아빠', text:'아이가 너무 좋아했어요! 영상 감사드려요 🎵', time:'18:30' }]}
+    ]
+  },
+  // ─ 다중·발행·사진3장·댓글8개·모두읽음
+  {
+    id:'NB009', date:'2026-03-26', class:'햇님반', teacher:'김하늘', teacherColor:'#4361EE',
+    status:'published', statusLabel:'발행됨',
+    weather:'맑음', childCount:5, readCount:5, commentCount:8,
+    publishedAt:'08:40', writeType:'multi',
+    content:'오늘은 텃밭 가꾸기 체험을 했어요. 직접 씨앗을 심고 물을 주는 경험에 아이들이 신이 났답니다. 4월 중순쯤 새싹이 자란 모습을 볼 수 있을 거예요!',
+    photos:[
+      { url:'https://placehold.co/400x300/DCFCE7/16A34A?text=텃밭+1', type:'photo', isRepresentative:true },
+      { url:'https://placehold.co/400x300/FEF3C7/D97706?text=씨앗심기', type:'photo', isRepresentative:false },
+      { url:'https://placehold.co/400x300/E0F2FE/0EA5E9?text=물주기', type:'photo', isRepresentative:false }
+    ],
+    children:[
+      { id:'C001', name:'김도현', color:'#3B82F6', isRead:true, commentCount:2,
+        comments:[
+          { author:'김민지 엄마', type:'parent', color:'#10B981', relation:'엄마', text:'텃밭 체험 좋아요! 집에서 같이 해볼게요 🌱', time:'16:00' },
+          { author:'김민지 엄마', type:'parent', color:'#10B981', relation:'엄마', text:'사진 감사합니다', time:'16:01' }
+        ]},
+      { id:'C002', name:'이서연', color:'#10B981', isRead:true, commentCount:1,
+        comments:[{ author:'이지영 엄마', type:'parent', color:'#10B981', relation:'엄마', text:'서연이가 좋아했겠네요!', time:'16:15' }]},
+      { id:'C003', name:'박준서', color:'#F59E0B', isRead:true, commentCount:2,
+        comments:[
+          { author:'박민수 아빠', type:'parent', color:'#F59E0B', relation:'아빠', text:'와 신기해 보이네요', time:'16:30' },
+          { author:'박민수 아빠', type:'parent', color:'#F59E0B', relation:'아빠', text:'준서가 씩씩하게 잘 하네요 👍', time:'16:31' }
+        ]},
+      { id:'C017', name:'이준혁', color:'#14B8A6', isRead:true, commentCount:2,
+        comments:[
+          { author:'이수현 엄마', type:'parent', color:'#14B8A6', relation:'엄마', text:'준혁이 첫 텃밭 체험이에요!', time:'17:00' },
+          { author:'이수현 엄마', type:'parent', color:'#14B8A6', relation:'엄마', text:'사진 보내주실 수 있나요?', time:'17:01' }
+        ]},
+      { id:'C018', name:'장예은', color:'#F43F5E', isRead:true, commentCount:1,
+        comments:[{ author:'장미래 엄마', type:'parent', color:'#F43F5E', relation:'엄마', text:'예은이 활짝 웃고 있네요!', time:'17:20' }]}
+    ]
+  },
+  // ─ 단일·발행·사진·미읽음·댓글없음
+  {
+    id:'NB010', date:'2026-03-25', class:'꽃님반', teacher:'최유리', teacherColor:'#EC4899',
+    status:'published', statusLabel:'발행됨',
+    weather:'안개', childCount:1, readCount:0, commentCount:0,
+    publishedAt:'09:00', writeType:'single',
+    content:'나연이가 오늘 처음으로 혼자서 신발 끈을 묶었어요! 작은 성취지만 스스로 해냈다는 뿌듯함이 가득한 표정이었습니다.',
+    photos:[{ url:'https://placehold.co/400x300/FDF4FF/A855F7?text=신발끈묶기', type:'photo', isRepresentative:true }],
+    children:[
+      { id:'C013', name:'권나연', color:'#3B82F6', isRead:false, commentCount:0, comments:[]}
+    ]
+  },
+  // ─ 다중·발행·사진1장·원아2명
+  {
+    id:'NB011', date:'2026-03-24', class:'별님반', teacher:'정다은', teacherColor:'#F59E0B',
+    status:'published', statusLabel:'발행됨',
+    weather:'눈', childCount:2, readCount:1, commentCount:1,
+    publishedAt:'10:20', writeType:'multi',
+    content:'오늘은 눈이 내렸어요! 아이들이 창밖의 눈을 보며 신기해하고 즐거워했습니다. 실내에서 눈을 주제로 그림도 그려보았어요.',
+    photos:[{ url:'https://placehold.co/400x300/E0F7FA/0097A7?text=눈오는날', type:'photo', isRepresentative:true }],
+    children:[
+      { id:'C011', name:'한서아', color:'#A855F7', isRead:true, commentCount:1,
+        comments:[{ author:'한정민 엄마', type:'parent', color:'#A855F7', relation:'엄마', text:'눈 보고 신기해했겠어요!', time:'14:00' }]},
+      { id:'C012', name:'배도윤', color:'#22C55E', isRead:false, commentCount:0, comments:[]}
     ]
   }
 ];
@@ -922,6 +1093,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initClassFilter();
   renderTodayDashboard();
   renderList('sent');
+  updateDraftFab();
 
   const prefill = JSON.parse(sessionStorage.getItem('noticePrefill') || 'null');
   if (prefill && prefill.childName) {
@@ -943,6 +1115,28 @@ function switchTab(tab) {
   document.getElementById('sentFilterBar').style.display     = tab === 'sent'     ? 'flex' : 'none';
   document.getElementById('receivedFilterBar').style.display = tab === 'received' ? 'flex' : 'none';
   renderList(tab);
+  updateDraftFab();
+}
+
+function updateDraftFab() {
+  const draftCount = MOCK_SENT.filter(n => n.status === 'draft').length;
+  const fab = document.getElementById('draftFab');
+  if (!fab) return;
+  document.getElementById('draftFabCount').textContent = draftCount;
+  fab.style.display = (currentTab === 'sent' && draftCount > 0) ? 'flex' : 'none';
+}
+
+let draftFilterActive = false;
+function toggleDraftFilter() {
+  draftFilterActive = !draftFilterActive;
+  const sel = document.getElementById('filterStatus');
+  if (sel) sel.value = draftFilterActive ? 'draft' : '';
+  const fab = document.getElementById('draftFab');
+  if (fab) {
+    fab.style.background = draftFilterActive ? 'var(--amber)' : 'var(--accent)';
+    fab.title = draftFilterActive ? '전체 보기' : '임시저장만 보기';
+  }
+  applyFilters();
 }
 
 // ━━━ 오늘의 현황 ━━━
@@ -1009,106 +1203,88 @@ function renderSentList(area) {
     return;
   }
 
-  const grouped = {};
-  data.forEach(n => { if (!grouped[n.date]) grouped[n.date] = []; grouped[n.date].push(n); });
+  const cards = data.sort((a,b) => {
+    const dc = b.date.localeCompare(a.date);
+    return dc !== 0 ? dc : (b.publishedAt||'').localeCompare(a.publishedAt||'');
+  }).map(n => {
+    const isSingle = n.writeType === 'single';
+    const photoCount = (n.photos || []).length;
 
-  area.innerHTML = Object.entries(grouped).sort((a,b)=>b[0].localeCompare(a[0])).map(([date, notices]) => {
-    const d = new Date(date);
-    const label = d.toLocaleDateString('ko-KR', { month:'long', day:'numeric', weekday:'short' });
-    const cards = notices.map(n => {
-      const wi = WEATHER_ICON[n.weather] || '';
-      const parentComments = n.children.reduce((a,c) => a + c.comments.filter(cm=>cm.type==='parent').length, 0);
-      const isSingle = n.writeType === 'single';
-      const photoCount = (n.photos || []).length;
+    // 날짜 표시
+    const d = new Date(n.date);
+    const dateStr = d.toLocaleDateString('ko-KR', { month:'2-digit', day:'2-digit', weekday:'short' });
 
-      // 원아 영역: 단일 → 원아 강조, 다중 → chips
-      let childAreaHTML = '';
-      if (isSingle && n.children.length === 1) {
-        const c = n.children[0];
-        childAreaHTML = `<div class="nc-single-child">
-          <div class="nc-child-chip-av" style="background:${c.color}">${c.name[0]}</div>
-          <div><div class="nc-single-child-name">${c.name}</div>
-          <div class="nc-single-child-sub">1:1 알림장${c.dailyEval ? ' · 종합평가 포함' : ''}</div></div>
-        </div>`;
-      } else if (n.children.length > 0) {
-        childAreaHTML = `<div class="nc-children">${n.children.slice(0,5).map(c => {
-          const isRead = isChildRead(n.id, c.id);
-          const chipStyle = isRead ? 'border-color:#A7F3D0;background:#F0FDF4;' : 'border-color:#FED7AA;background:#FFF7ED;';
-          const parentCnt = c.comments.filter(cm=>cm.type==='parent').length;
-          const unread = parentCnt > 0 && !isRead;
-          const cntBadge = parentCnt > 0 ? `<span class="nc-chip-cnt${unread?'':' read'}">${parentCnt}</span>` : '';
-          const unreadDot = unread ? `<span class="nc-chip-unread"></span>` : '';
-          return `<span class="nc-child-chip" style="${chipStyle}"><span class="nc-child-chip-av" style="background:${c.color}">${c.name[0]}</span>${c.name}${cntBadge}${unreadDot}</span>`;
-        }).join('')}${n.children.length > 5 ? `<span class="nc-child-chip" style="background:#F3F4F6;color:#6B7280;border:none">+${n.children.length-5}</span>` : ''}</div>`;
-      } else {
-        childAreaHTML = `<span style="font-size:11px;color:var(--text-muted)">원아 ${n.childCount}명</span>`;
-      }
-
-      const commentBadge = parentComments > 0 ? `<span class="nc-comment-badge">💬 학부모 댓글 ${parentComments}</span>` : '';
-
-      return `<div class="notice-card" onclick="openSentDetail('${n.id}')">
-        <div class="nc-accent ${n.status}"></div>
-        <div class="nc-left">
-          <div class="nc-teacher-row">
-            <div class="nc-teacher-av" style="background:${n.teacherColor||'#0EA5E9'}">${(n.teacher||'?')[0]}</div>
-            <div class="nc-teacher-info">
-              <div class="nc-teacher-name">${n.teacher} 선생님</div>
-              <div class="nc-teacher-class">${n.class}</div>
-            </div>
-            <span class="nc-type-badge ${isSingle?'nc-type-single':'nc-type-multi'}">${isSingle?'1:1':'다중'}</span>
-            <span class="nbadge nb-${n.status}"><span class="nbadge-dot" style="background:${statusDotColor(n.status)}"></span>${n.statusLabel}</span>
-            ${n.hasAi ? '<span class="nc-ai-badge">✨ AI</span>' : ''}
-          </div>
-          <div class="nc-meta">
-            ${n.weather ? `<span class="nc-meta-item"><span class="nc-weather">${wi}</span> ${n.weather}</span>` : ''}
-          </div>
-          <div class="nc-preview">${n.content}</div>
-          ${(() => {
-            const photos = n.photos || [];
-            if (photos.length === 0) return '';
-            const show = photos.slice(0, 3);
-            const thumbs = show.map(p => `<div class="nc-thumb-item">
-              <img src="${p.url}" alt="${p.type}" onerror="this.parentElement.style.display='none'">
-              ${p.type==='video'?'<div class="nc-thumb-play">▶</div>':''}
-            </div>`).join('');
-            const more = photos.length > 3 ? `<div class="nc-thumb-more">+${photos.length - 3}</div>` : '';
-            return `<div class="nc-thumb-row">${thumbs}${more}</div>`;
-          })()}
-          ${childAreaHTML}
-          <div class="nc-footer">
-            <div class="nc-footer-meta">
-              <span class="nc-footer-item">👁️ ${n.readCount}/${n.childCount}</span>
-              <span class="nc-footer-item">📸 ${photoCount}</span>
-              <span class="nc-footer-item">💬 ${n.commentCount}</span>
-              ${commentBadge}
-              <span class="nc-footer-item" style="margin-left:auto;font-family:'JetBrains Mono',monospace">${n.publishedAt||'--:--'}</span>
-            </div>
-            <div class="nc-act-btns" onclick="event.stopPropagation()">
-              ${(() => {
-                const canAct = !NB_ASSIGNED || n.teacher === sessionStorage.getItem('userName') || NB_USER_ROLE !== 'teacher';
-                if (!canAct) return `<span style="font-size:10px;color:var(--text-muted)">조회만</span>`;
-                return `<div class="nc-act-btn" title="수정" onclick="editNotice('${n.id}')">✏️</div>
-                  ${n.status==='published'?`<div class="nc-act-btn" title="회수" onclick="showToast('알림장이 회수되었습니다.')">↩️</div>`:''}
-                  <div class="nc-act-btn danger" title="삭제" onclick="confirmDelete('${n.id}')">🗑️</div>`;
-              })()}
-            </div>
-          </div>
-        </div>
+    // 원아 영역
+    let childAreaHTML = '';
+    if (isSingle && n.children.length === 1) {
+      const c = n.children[0];
+      childAreaHTML = `<div class="nc-single-child">
+        <div class="nc-child-chip-av" style="background:${c.color}">${c.name[0]}</div>
+        <div><div class="nc-single-child-name">${c.name}</div>
+        <div class="nc-single-child-sub">1:1 알림장${c.dailyEval ? ' · 종합평가 포함' : ''}</div></div>
       </div>`;
-    }).join('');
-    return `<div class="date-group">
-      <div class="date-group-header">
-        <span class="date-group-label">${label}</span>
-        <div class="date-group-line"></div>
-        <span class="date-group-count">${notices.length}건</span>
+    } else if (n.children.length > 0) {
+      const first = n.children[0];
+      const rest = n.children.length - 1;
+      const allNames = n.children.map(c => c.name).join(' · ');
+      const summaryText = rest > 0 ? `${first.name} 외 ${rest}명` : first.name;
+      childAreaHTML = `<div class="nc-tooltip-wrap">
+        <div class="nc-child-summary">👥 ${summaryText}</div>
+        <div class="nc-tooltip">${allNames}</div>
+      </div>`;
+    } else {
+      childAreaHTML = `<div class="nc-child-summary">👥 원아 ${n.childCount}명</div>`;
+    }
+
+    const cardHTML = `<div class="notice-card status-${n.status}" onclick="openSentDetail('${n.id}')">
+      <div class="nc-card-header">
+        <div class="nc-card-meta">
+          <span class="nc-card-class">${n.class}</span>
+          <span class="nc-card-date">${dateStr} ${n.publishedAt||'--:--'}</span>
+          <span class="nc-card-teacher">${n.teacher} 선생님</span>
+        </div>
+        <div class="nc-card-badges">
+          <span class="nc-type-badge ${isSingle?'nc-type-single':'nc-type-multi'}">${isSingle?'1:1':'다중'}</span>
+          <span class="nbadge nb-${n.status}"><span class="nbadge-dot" style="background:${statusDotColor(n.status)}"></span>${n.statusLabel}</span>
+        </div>
       </div>
-      ${cards}
+      ${(() => {
+        const photos = n.photos || [];
+        if (photos.length === 0) return '';
+        const p = photos[0];
+        return `<div class="nc-main-thumb">
+          <img src="${p.url}" alt="${p.type}" onerror="this.parentElement.style.display='none'">
+          ${p.type==='video'?'<div class="nc-main-thumb-play">▶</div>':''}
+          ${photos.length > 1 ? `<div class="nc-main-thumb-count">📸 ${photos.length}</div>` : ''}
+        </div>`;
+      })()}
+      <div class="nc-preview">${n.content}</div>
+      ${childAreaHTML}
+      <div class="nc-footer">
+        <div class="nc-footer-meta">
+          <span class="nc-footer-item">👁️ ${n.readCount}/${n.childCount}</span>
+          <span class="nc-footer-item">💬 ${n.commentCount}</span>
+          ${photoCount > 0 ? `<span class="nc-footer-item">📸 ${photoCount}</span>` : ''}
+        </div>
+        <div class="nc-act-btns" onclick="event.stopPropagation()">
+          ${(() => {
+            const canAct = !NB_ASSIGNED || n.teacher === sessionStorage.getItem('userName') || NB_USER_ROLE !== 'teacher';
+            if (!canAct) return `<span style="font-size:11px;color:var(--text-muted)">조회만</span>`;
+            return `<button class="nc-txt-btn" onclick="editNotice('${n.id}')">수정</button>
+              <button class="nc-txt-btn danger" onclick="confirmDelete('${n.id}')">삭제</button>`;
+          })()}
+        </div>
+      </div>
     </div>`;
+
+    return isSingle ? cardHTML : `<div class="nc-stack-wrap">${cardHTML}</div>`;
   }).join('');
+
+  area.innerHTML = `<div class="sent-list-grid">${cards}</div>`;
 }
 
 function statusDotColor(s) {
-  return s==='published'?'#10B981':s==='draft'?'#9CA3AF':s==='recalled'?'#EF4444':'#3B82F6';
+  return s==='published'?'#10B981':s==='draft'?'#9CA3AF':s==='deleted'?'#EF4444':'#3B82F6';
 }
 
 function renderReceivedList(area) {
@@ -1561,6 +1737,11 @@ function renderWritePanel() {
         <button class="write-mode-btn${writeMode==='single'?' active':''}${isEditMode?' disabled':''}" onclick="switchWriteMode('single')"${isEditMode?' style="opacity:.5;cursor:not-allowed"':''}>📝 단일작성 (1:1)</button>
         <button class="write-mode-btn${writeMode==='multi'?' active':''}${isEditMode?' disabled':''}" onclick="switchWriteMode('multi')"${isEditMode?' style="opacity:.5;cursor:not-allowed"':''}>👥 다중작성</button>
       </div>
+      <div class="write-section-title"><span class="ws-icon">👶</span>${classSelected ? '원아 선택 ' + (writeMode==='single'?'(1명)':'(여러 명)') : '반 선택'} <span class="req">*</span></div>
+      ${classSectionHTML}
+    </div>
+
+    <div class="write-section">
       <div class="write-section-title"><span class="ws-icon">📋</span>기본 설정</div>
       <div class="form-row">
         <div class="form-group">
@@ -1583,11 +1764,6 @@ function renderWritePanel() {
         <button class="ai-btn ai-btn-gen" onclick="aiGenerate()">✨ AI 자동생성</button>
         <button class="ai-btn ai-btn-polish" onclick="aiPolish()">✦ 문장 다듬기</button>
       </div>
-    </div>
-
-    <div class="write-section">
-      <div class="write-section-title"><span class="ws-icon">👶</span>${classSelected ? '원아 선택 ' + (writeMode==='single'?'(1명)':'(여러 명)') : '반 선택'} <span class="req">*</span></div>
-      ${classSectionHTML}
     </div>
 
     <div class="write-section">
@@ -1740,6 +1916,17 @@ function renderWriteChildCardHTML(cid) {
   }
 }
 
+// ━━━ 종합평가 요약 계산 ━━━
+function computeEvalSummary(st) {
+  const vals = [st.evalMood, st.evalHealth, st.evalMeal, st.evalToilet, st.evalActivity, st.evalSocial].filter(v => v);
+  if (!vals.length) return null;
+  const good = vals.filter(v => v === '좋음').length;
+  const bad  = vals.filter(v => v === '나쁨').length;
+  if (good >= 4 && bad === 0) return { cls:'good', text:'아주 좋아요 👍' };
+  if (bad >= 1) return { cls:'warn', text:'확인이 필요해요 ⚠️' };
+  return { cls:'normal', text:'무난해요 😊' };
+}
+
 // ━━━ 단일작성: 종합평가 + 메모 ━━━
 function renderSingleChildCard(c, st) {
   const cid = c.id;
@@ -1747,12 +1934,24 @@ function renderSingleChildCard(c, st) {
     const sc = cur===val ? ` e-${val==='좋음'?'good':val==='보통'?'ok':'bad'}` : '';
     return `<button class="eval-opt-btn${sc}" onclick="setChildEval('${cid}','${field}','${val}')">${val}</button>`;
   };
+  const EVAL_HINTS = {
+    evalMood:    {'좋음':'표정 밝고 활동에 적극적','보통':'평소와 비슷','나쁨':'예민함/울음/분리불안'},
+    evalHealth:  {'좋음':'건강 상태 양호','보통':'약간 처짐','나쁨':'발열·증상 등 확인 필요'},
+    evalMeal:    {'좋음':'급식 잘 먹었어요','보통':'반 정도 먹었어요','나쁨':'거의 못 먹었어요'},
+    evalToilet:  {'좋음':'정상 배변','보통':'평소와 비슷','나쁨':'이상 증상 확인 필요'},
+    evalActivity:{'좋음':'적극적으로 참여','보통':'중간 정도 참여','나쁨':'참여 어려움'},
+    evalSocial:  {'좋음':'친구와 잘 어울렸어요','보통':'평소와 비슷','나쁨':'갈등/혼자 있었어요'},
+  };
+  const hint = (field, cur) => cur ? `<div class="eval-opt-hint">${EVAL_HINTS[field][cur]||''}</div>` : '';
+
+  const summary = computeEvalSummary(st);
+  const summaryHTML = summary ? `<div class="eval-summary-bar ${summary.cls}">오늘 종합 평가는? <strong>${summary.text}</strong></div>` : '';
 
   const healthExpandHTML = st.evalHealth==='나쁨' ? `
     <div class="eval-expand">
       <div><div class="eval-expand-lbl">체온</div>
         <div style="display:flex;align-items:center;gap:6px">
-          <input type="number" class="eval-temp-inp" step="0.1" min="35" max="42" value="${st.evalHealthTemp||''}" placeholder="37.5" onchange="setCdDirect('${cid}','evalHealthTemp',this.value)">
+          <input type="number" class="eval-temp-inp" step="0.1" min="35.6" max="42" value="${st.evalHealthTemp||''}" placeholder="37.5" onchange="setCdDirect('${cid}','evalHealthTemp',this.value)">
           <span style="font-size:12px;color:var(--text-muted)">°C</span>
         </div>
       </div>
@@ -1764,16 +1963,17 @@ function renderSingleChildCard(c, st) {
         </div>
       </div>
       <div><div class="eval-expand-lbl">추가 메모</div>
-        <textarea class="eval-memo-ta" placeholder="건강 관련 메모..." oninput="setCdDirect('${cid}','evalHealthMemo',this.value)">${st.evalHealthMemo||''}</textarea>
+        <textarea class="eval-memo-ta" placeholder="오후에 미열이 있어 활동량을 줄이고 휴식을 도왔어요." oninput="setCdDirect('${cid}','evalHealthMemo',this.value)">${st.evalHealthMemo||''}</textarea>
       </div>
     </div>` : '';
 
-  const mealExpandHTML = st.evalMeal==='나쁨' ? `
+  const MEAL_PH = {'좋음':'급식 대부분 잘 먹었어요.','보통':'반 정도 먹고 남겼어요.','나쁨':'거의 먹지 못해요. 컨디션을 함께 확인 부탁드려요.'};
+  const mealExpandHTML = st.evalMeal ? `
     <div class="eval-expand">
-      <div class="eval-expand-lbl">추가 메모</div>
-      <textarea class="eval-memo-ta" placeholder="식사 관련 메모..." oninput="setCdDirect('${cid}','evalMealMemo',this.value)">${st.evalMealMemo||''}</textarea>
+      <textarea class="eval-memo-ta" placeholder="${MEAL_PH[st.evalMeal]||'식사 관련 메모...'}" oninput="setCdDirect('${cid}','evalMealMemo',this.value)">${st.evalMealMemo||''}</textarea>
     </div>` : '';
 
+  const TOILET_PH = '오늘은 1회 배변했고 상태는 정상입니다.';
   const toiletExpandHTML = `
     <div class="eval-expand">
       <div><div class="eval-expand-lbl">배변 상태</div>
@@ -1788,6 +1988,9 @@ function renderSingleChildCard(c, st) {
         <input type="number" class="toilet-count-inp" min="0" max="9" value="${st.evalToiletCount||''}" placeholder="0" onchange="setCdDirect('${cid}','evalToiletCount',this.value)">
         <span style="font-size:12px;color:var(--text-muted)">회</span>
       </div>
+      ${st.evalToilet ? `<div><div class="eval-expand-lbl">메모</div>
+        <textarea class="eval-memo-ta" placeholder="${TOILET_PH}" oninput="setCdDirect('${cid}','evalToiletMemo',this.value)">${st.evalToiletMemo||''}</textarea>
+      </div>` : ''}
     </div>`;
 
   return `<div class="write-child-card" id="wcc-${cid}">
@@ -1797,37 +2000,40 @@ function renderSingleChildCard(c, st) {
     </div>
     <div class="wcc-body" style="gap:12px">
       <div class="eval-per-child" style="border-top:none;margin-top:0;padding-top:0">
+        ${summaryHTML}
         <div class="eval-field"><div class="eval-field-lbl">기분</div>
           <div class="eval-opts">${eBtn('evalMood','좋음',st.evalMood)}${eBtn('evalMood','보통',st.evalMood)}${eBtn('evalMood','나쁨',st.evalMood)}</div>
+          ${hint('evalMood',st.evalMood)}
         </div>
         <div class="eval-field"><div class="eval-field-lbl">건강</div>
           <div class="eval-opts">${eBtn('evalHealth','좋음',st.evalHealth)}${eBtn('evalHealth','보통',st.evalHealth)}${eBtn('evalHealth','나쁨',st.evalHealth)}</div>
+          ${hint('evalHealth',st.evalHealth)}
           ${healthExpandHTML}
         </div>
         <div class="eval-field"><div class="eval-field-lbl">식사량</div>
           <div class="eval-opts">${eBtn('evalMeal','좋음',st.evalMeal)}${eBtn('evalMeal','보통',st.evalMeal)}${eBtn('evalMeal','나쁨',st.evalMeal)}</div>
+          ${hint('evalMeal',st.evalMeal)}
           ${mealExpandHTML}
         </div>
         <div class="eval-field"><div class="eval-field-lbl">배변</div>
           <div class="eval-opts">${eBtn('evalToilet','좋음',st.evalToilet)}${eBtn('evalToilet','보통',st.evalToilet)}${eBtn('evalToilet','나쁨',st.evalToilet)}</div>
+          ${hint('evalToilet',st.evalToilet)}
           ${toiletExpandHTML}
         </div>
         <div class="eval-field"><div class="eval-field-lbl">참여도</div>
           <div class="eval-opts">${eBtn('evalActivity','좋음',st.evalActivity)}${eBtn('evalActivity','보통',st.evalActivity)}${eBtn('evalActivity','나쁨',st.evalActivity)}</div>
+          ${hint('evalActivity',st.evalActivity)}
           ${st.evalActivity ? `<div class="eval-expand">
-            <textarea class="eval-memo-ta" placeholder="참여도 관련 메모..." oninput="setCdDirect('${cid}','evalActivityMemo',this.value)">${st.evalActivityMemo||''}</textarea>
+            <textarea class="eval-memo-ta" placeholder="${{'좋음':'활동에 적극적으로 참여하고 발표도 했어요.','보통':'중간중간 집중이 흐트러졌지만 잘 따라왔어요.','나쁨':'참여가 어려워 쉬는 시간을 충분히 줬어요.'}[st.evalActivity]||'참여도 관련 메모...'}" oninput="setCdDirect('${cid}','evalActivityMemo',this.value)">${st.evalActivityMemo||''}</textarea>
           </div>` : ''}
         </div>
         <div class="eval-field"><div class="eval-field-lbl">교우관계</div>
           <div class="eval-opts">${eBtn('evalSocial','좋음',st.evalSocial)}${eBtn('evalSocial','보통',st.evalSocial)}${eBtn('evalSocial','나쁨',st.evalSocial)}</div>
+          ${hint('evalSocial',st.evalSocial)}
           ${st.evalSocial ? `<div class="eval-expand">
-            <textarea class="eval-memo-ta" placeholder="교우관계 메모..." oninput="setCdDirect('${cid}','evalSocialMemo',this.value)">${st.evalSocialMemo||''}</textarea>
+            <textarea class="eval-memo-ta" placeholder="${{'좋음':'친구와 협력해서 놀이를 즐겼어요.','보통':'혼자 노는 시간이 있었어요.','나쁨':'친구와 다툼이 있어 상황을 조율했어요.'}[st.evalSocial]||'교우관계 메모...'}" oninput="setCdDirect('${cid}','evalSocialMemo',this.value)">${st.evalSocialMemo||''}</textarea>
           </div>` : ''}
         </div>
-      </div>
-      <div>
-        <div class="wfield-label">개별 메시지</div>
-        <textarea class="form-textarea" style="height:80px" placeholder="${c.name}에게 보내는 메시지..." oninput="setCdDirect('${cid}','memo',this.value)">${st.memo}</textarea>
       </div>
     </div>
   </div>`;
