@@ -8,6 +8,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="operation-sidebar.js" defer></script>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<script>
+if (new URLSearchParams(window.location.search).get('modal') === 'att') {
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+      if (typeof openClassAttendanceModal === 'function') {
+        openClassAttendanceModal('CLS001', '햇님반');
+      }
+    }, 2000);
+  });
+}
+</script>
 <style>
 :root {
   --sidebar-bg:      #0C2D48;
@@ -134,7 +146,7 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg-base); color:
 .hero-stat-lbl { font-size: 10px; color: rgba(255,255,255,0.6); margin-top: 3px; }
 
 /* ━━━ KPI GRID ━━━ */
-.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px; }
 .kpi-card {
   background: var(--bg-surface); border-radius: var(--radius-lg);
   padding: 16px 18px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-light);
@@ -143,14 +155,16 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg-base); color:
 .kpi-card:hover { box-shadow: var(--shadow-md); }
 .kpi-ico { width: 46px; height: 46px; border-radius: var(--radius-md); display:flex;align-items:center;justify-content:center; font-size: 21px; flex-shrink: 0; }
 .kpi-ico.sky    { background: #E0F2FE; }
+.kpi-ico.teal   { background: #CCFBF1; }
 .kpi-ico.green  { background: var(--green-bg); }
 .kpi-ico.amber  { background: var(--amber-bg); }
 .kpi-ico.purple { background: var(--purple-bg); }
 .kpi-ico.red    { background: var(--red-bg); }
-.kpi-label { font-size: 11px; color: var(--text-secondary); font-weight: 500; margin-bottom: 2px; }
+.kpi-info  { flex: 1; min-width: 0; }
+.kpi-label { font-size: 12px; color: var(--text-secondary); font-weight: 500; margin-bottom: 2px; }
 .kpi-value { font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.8px; line-height: 1; }
-.kpi-sub   { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-.kpi-trend { font-size: 11px; font-weight: 600; margin-top: 3px; }
+.kpi-sub   { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+.kpi-trend { font-size: 12px; font-weight: 600; margin-top: 3px; }
 .kpi-trend.up   { color: var(--green); }
 .kpi-trend.down { color: var(--red); }
 
@@ -166,13 +180,22 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg-base); color:
 .card-body   { padding: 14px 18px; }
 
 /* ━━━ 반 현황 카드 그리드 ━━━ */
+#mainCardBody { scrollbar-width: thin; scrollbar-color: var(--border-medium) transparent; }
+#mainCardBody::-webkit-scrollbar { width: 4px; }
+#mainCardBody::-webkit-scrollbar-thumb { background: var(--border-medium); border-radius: 2px; }
+#mainCardBody::-webkit-scrollbar-track { background: transparent; }
 .class-cards { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
 .cls-card {
   padding: 12px 14px; border-radius: var(--radius-md);
-  background: var(--bg-base); border: 1px solid var(--border-light);
-  cursor: pointer; transition: 0.18s;
+  background: var(--bg-surface); border: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: border-color 0.18s ease, box-shadow 0.2s ease, transform 0.15s ease;
 }
-.cls-card:hover { border-color: var(--accent); box-shadow: var(--shadow-sm); }
+.cls-card:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
 /* 교사 비담당 반 스타일 */
 .cls-card.non-assigned {
   opacity: 0.45; cursor: default; pointer-events: none;
@@ -227,18 +250,18 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg-base); color:
 
 /* ━━━ 교사용 원아 테이블 ━━━ */
 .child-table { width: 100%; border-collapse: collapse; }
-.child-table th { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--border-light); background: var(--bg-base); }
-.child-table td { font-size: 12px; padding: 7px 8px; border-bottom: 1px solid var(--border-light); vertical-align: middle; }
+.child-table th { font-size: 12px; font-weight: 700; color: var(--text-secondary); text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--border-light); background: var(--bg-base); }
+.child-table td { font-size: 14px; padding: 7px 8px; border-bottom: 1px solid var(--border-light); vertical-align: middle; }
 .child-table tr:last-child td { border-bottom: none; }
 .child-table tr:hover td { background: var(--bg-base); }
-.sbadge { display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: 700; }
+.sbadge { display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 10px; font-size: 12px; font-weight: 700; }
 .sdot   { width: 5px; height: 5px; border-radius: 50%; }
 
 /* ━━━ 출석 카드 ━━━ */
 .att-row { display: flex; gap: 7px; margin-bottom: 12px; }
 .att-card { flex: 1; padding: 10px; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--border-light); }
 .att-num  { font-size: 20px; font-weight: 800; line-height: 1; }
-.att-lbl  { font-size: 10px; color: var(--text-secondary); margin-top: 3px; }
+.att-lbl  { font-size: 13px; color: var(--text-secondary); margin-top: 3px; }
 
 /* ━━━ 출석현황 전체 모달 ━━━ */
 .att-overlay {
@@ -319,6 +342,50 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg-base); color:
   text-align: center; font-size: 11px; color: var(--text-muted);
   padding: 10px 0 4px; flex-shrink: 0; border-top: 1px solid var(--border-light); margin-top: 4px;
 }
+
+/* ━━━ 최근활동 모달 ━━━ */
+.act-overlay {
+  position: fixed; inset: 0; background: rgba(12,45,72,0.55);
+  z-index: 200; display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.act-overlay.show { opacity: 1; pointer-events: auto; }
+.act-modal-box {
+  background: var(--bg-surface); border-radius: var(--radius-xl);
+  width: min(680px, 90vw); height: min(640px, 86vh);
+  display: flex; flex-direction: column;
+  box-shadow: 0 24px 60px rgba(12,45,72,0.22);
+  transform: translateY(12px); transition: transform 0.22s;
+}
+.act-overlay.show .act-modal-box { transform: translateY(0); }
+.act-modal-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 22px; border-bottom: 1px solid var(--border-light); flex-shrink: 0;
+}
+.act-modal-title { font-size: 16px; font-weight: 800; color: var(--text-primary); }
+.act-modal-title span { font-size: 12px; font-weight: 500; color: var(--text-secondary); margin-left: 8px; }
+.act-modal-close {
+  width: 32px; height: 32px; border-radius: var(--radius-md);
+  background: var(--bg-base); border: 1px solid var(--border-light);
+  cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: 0.15s;
+}
+.act-modal-close:hover { background: var(--red-bg); color: var(--red-text); }
+.act-modal-body { flex: 1; overflow-y: auto; }
+.act-modal-body::-webkit-scrollbar { width: 4px; }
+.act-modal-body::-webkit-scrollbar-thumb { background: var(--border-medium); border-radius: 2px; }
+.act-date-group {
+  padding: 8px 22px 5px; font-size: 11px; font-weight: 700;
+  color: var(--text-secondary); background: var(--bg-base);
+  border-bottom: 1px solid var(--border-light); position: sticky; top: 0; z-index: 1;
+}
+.act-modal-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 22px; border-bottom: 1px solid var(--border-light);
+  cursor: pointer; transition: background 0.15s;
+}
+.act-modal-item:hover { background: var(--accent-light); }
+.act-modal-arrow { font-size: 11px; color: var(--accent); opacity: 0; transition: opacity 0.15s; flex-shrink: 0; }
+.act-modal-item:hover .act-modal-arrow { opacity: 1; }
 
 /* ━━━ 토스트 ━━━ */
 .toast-wrap { position: fixed; bottom: 24px; right: 24px; z-index: 500; display: flex; flex-direction: column; gap: 8px; }
@@ -413,9 +480,9 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg-base); color:
         </div>
       </div>
 
-      <!-- 오늘의 할 일 -->
+      <!-- 오늘 처리 큐 -->
       <div class="card">
-        <div class="card-header"><span class="card-title">✅ 오늘의 할 일</span></div>
+        <div class="card-header"><span class="card-title">✅ 오늘 처리 큐</span></div>
         <div class="card-body" id="todoBody">
           <!-- JS 렌더 -->
         </div>
@@ -448,43 +515,24 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg-base); color:
       </div>
     </div>
 
-    <!-- 주간 차트 + 활동/공지 -->
+    <!-- 최근 활동 + 공지사항 나란히 -->
     <div class="grid-2col">
       <div class="card">
         <div class="card-header">
-          <span class="card-title" id="weekChartTitle">📈 주간 알림장 현황</span>
-          <div class="chart-tabs">
-            <span class="chart-tab active" onclick="switchWeekChart('week',this)">이번주</span>
-            <span class="chart-tab"        onclick="switchWeekChart('month',this)">이번달</span>
-          </div>
+          <span class="card-title">🔔 최근 활동 <span style="font-size:11px;color:var(--text-muted);font-weight:400">전 교직원</span></span>
+          <span class="card-action" id="actMoreBtn" onclick="toggleActivityMore()">더보기</span>
         </div>
-        <div class="card-body">
-          <div class="chart-wrap" style="height:210px"><canvas id="weekChart"></canvas></div>
+        <div class="card-body" style="padding-bottom:8px">
+          <div class="act-list" id="actList"><!-- JS 렌더 --></div>
         </div>
       </div>
-
-      <div style="display:flex;flex-direction:column;gap:16px">
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">🔔 최근 활동</span>
-            <span class="card-action">더보기</span>
-          </div>
-          <div class="card-body">
-            <div class="act-list" id="actList"><!-- JS 렌더 --></div>
-          </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">📢 공지사항 <span style="font-size:11px;color:var(--text-muted);font-weight:400">전체 공지</span></span>
+          <span class="card-action" id="noticeAction" onclick="goToAnnouncement()">작성하기</span>
         </div>
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">📢 공지사항</span>
-            <span class="card-action" id="noticeAction">작성하기</span>
-          </div>
-          <div class="card-body">
-            <div class="notice-list">
-              <div class="notice-item"><span class="notice-tag" style="background:var(--blue-bg);color:var(--blue-text)">전체</span><span class="notice-title">3월 소풍 일정 안내</span><span class="notice-date">03.17</span></div>
-              <div class="notice-item"><span class="notice-tag" style="background:var(--green-bg);color:var(--green-text)">학부모</span><span class="notice-title">입소 서류 제출 안내</span><span class="notice-date">03.15</span></div>
-              <div class="notice-item"><span class="notice-tag" style="background:var(--amber-bg);color:var(--amber-text)">교사</span><span class="notice-title">4월 교사 회의 일정</span><span class="notice-date">03.12</span></div>
-            </div>
-          </div>
+        <div class="card-body">
+          <div class="notice-list" id="noticeList"><!-- JS 렌더 --></div>
         </div>
       </div>
     </div>
@@ -494,11 +542,22 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg-base); color:
 
 <div class="toast-wrap" id="toastWrap"></div>
 
+<!-- ━━━ 최근 활동 모달 ━━━ -->
+<div class="act-overlay" id="actOverlay" onclick="overlayCloseAct(event)">
+  <div class="act-modal-box">
+    <div class="act-modal-head">
+      <div class="act-modal-title">🔔 최근 활동 내역 <span>최근 1개월 · 전 교직원</span></div>
+      <button class="act-modal-close" onclick="closeActivityModal()">✕</button>
+    </div>
+    <div class="act-modal-body" id="actModalBody"><!-- JS 렌더 --></div>
+  </div>
+</div>
+
 <!-- ━━━ 원아 출석현황 전체 모달 ━━━ -->
 <div class="att-overlay" id="attOverlay" onclick="overlayClose(event)">
   <div class="att-modal-box">
     <div class="att-modal-head">
-      <div class="att-modal-title">🧒 원아 출석 현황 <span id="attModalSub">햇님반 · 오늘</span></div>
+      <div class="att-modal-title">📊 오늘의 현황 <span id="attModalSub">햇님반 · 오늘</span></div>
       <button class="att-modal-close" onclick="closeAttendanceModal()">✕</button>
     </div>
     <div class="att-modal-summary" id="attModalSummary"><!-- JS 렌더 --></div>
@@ -531,15 +590,74 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg-base); color:
 // 목업 데이터
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const ALL_CLASSES = [
-  { id:'CLS001', name:'🌸 햇님반',   age:'만3세', teacher:'이하늘', students:18, attend:16, notice:14, icon:'🌸' },
-  { id:'CLS002', name:'🌿 새싹반',   age:'만4세', teacher:'박민지', students:20, attend:18, notice:15, icon:'🌿' },
-  { id:'CLS003', name:'⭐ 별빛반',   age:'만5세', teacher:'최서연', students:22, attend:19, notice:17, icon:'⭐' },
-  { id:'CLS004', name:'🌈 무지개반', age:'만2세', teacher:'김보라', students:14, attend:12, notice:10, icon:'🌈' },
-  { id:'CLS005', name:'🦋 나비반',   age:'만1세', teacher:'정다온', students:10, attend: 9, notice: 7, icon:'🦋' },
+  { id:'CLS001', name:'🌸 햇님반',    plain:'햇님반',    age:'만5세', teacher:'이하늘', assistant:'김보라', icon:'🌸' },
+  { id:'CLS002', name:'🌿 새싹반',    plain:'새싹반',    age:'만5세', teacher:'박민지', assistant:'정다온', icon:'🌿' },
+  { id:'CLS003', name:'⭐ 별빛반',    plain:'별빛반',    age:'만5세', teacher:'최서연', assistant:'김보라', icon:'⭐' },
+  { id:'CLS004', name:'🌈 무지개반',  plain:'무지개반',  age:'만5세', teacher:'강지수', assistant:'이은지', icon:'🌈' },
+  { id:'CLS005', name:'🦋 나비반',    plain:'나비반',    age:'만5세', teacher:'정다온', assistant:'박민지', icon:'🦋' },
+  { id:'CLS006', name:'🌻 해바라기반', plain:'해바라기반', age:'만5세', teacher:'오민준', assistant:'서지아', icon:'🌻' },
+  { id:'CLS007', name:'🐇 토끼반',    plain:'토끼반',    age:'만5세', teacher:'서지아', assistant:'한채린', icon:'🐇' },
+  { id:'CLS008', name:'🌙 달빛반',    plain:'달빛반',    age:'만5세', teacher:'한채린', assistant:'임하늘', icon:'🌙' },
+  { id:'CLS009', name:'🐥 병아리반',  plain:'병아리반',  age:'만5세', teacher:'임하늘', assistant:'오민준', icon:'🐥' },
 ];
 
 // 교사의 담당 반 (테스트: CLS001, CLS003 담당)
 const TEACHER_ASSIGNED = ['CLS001', 'CLS003'];
+
+// 전 교직원 최근 활동 — 1개월치 (반 무관, 원장 포함, relTime=프리뷰용, dateLabel+time=모달용)
+const UNBUILT_PAGES = new Set(['operation-schedule.html', 'operation-consulting.html']);
+const ALL_ACTIVITIES = [
+  // 오늘
+  { name:'이하늘', role:'교사', relTime:'5분 전',   dateLabel:'오늘',      time:'09:05', bg:'linear-gradient(135deg,#0EA5E9,#38BDF8)', href:'operation-notice-board.html',  text:'이하늘 교사가 햇님반 알림장을 작성했습니다.' },
+  { name:'박민지', role:'교사', relTime:'23분 전',  dateLabel:'오늘',      time:'08:47', bg:'linear-gradient(135deg,#8B5CF6,#A78BFA)', href:'operation-album.html',          text:'박민지 교사가 새싹반 앨범을 업로드했습니다.' },
+  { name:'김원장', role:'원장', relTime:'45분 전',  dateLabel:'오늘',      time:'08:25', bg:'linear-gradient(135deg,#F59E0B,#FCD34D)', href:'operation-announcement.html',  text:'김원장 원장이 3월 전체 공지를 등록했습니다.' },
+  { name:'최서연', role:'교사', relTime:'1시간 전', dateLabel:'오늘',      time:'08:10', bg:'linear-gradient(135deg,#10B981,#34D399)', href:'operation-schedule.html',      text:'최서연 교사가 별빛반 일정을 등록했습니다.' },
+  { name:'김보라', role:'교사', relTime:'2시간 전', dateLabel:'오늘',      time:'07:50', bg:'linear-gradient(135deg,#EF4444,#FCA5A5)', href:'operation-medicine.html',      text:'김보라 교사가 투약의뢰서를 확인했습니다.' },
+  // 어제 (3/30)
+  { name:'정다온', role:'교사', relTime:'어제',     dateLabel:'3월 30일',  time:'16:20', bg:'linear-gradient(135deg,#14B8A6,#5EEAD4)', href:'operation-child.html',         text:'정다온 교사가 나비반 원아를 등록했습니다.' },
+  { name:'이하늘', role:'교사', relTime:'어제',     dateLabel:'3월 30일',  time:'14:05', bg:'linear-gradient(135deg,#0EA5E9,#38BDF8)', href:'operation-consulting.html',    text:'이하늘 교사가 학부모 상담을 완료했습니다.' },
+  { name:'김원장', role:'원장', relTime:'어제',     dateLabel:'3월 30일',  time:'11:30', bg:'linear-gradient(135deg,#F59E0B,#FCD34D)', href:'operation-schedule.html',      text:'김원장 원장이 교사 회의 일정을 등록했습니다.' },
+  { name:'박민지', role:'교사', relTime:'어제',     dateLabel:'3월 30일',  time:'09:15', bg:'linear-gradient(135deg,#8B5CF6,#A78BFA)', href:'operation-notice-board.html',  text:'박민지 교사가 새싹반 알림장을 작성했습니다.' },
+  // 3/29
+  { name:'최서연', role:'교사', relTime:'2일 전',   dateLabel:'3월 29일',  time:'15:40', bg:'linear-gradient(135deg,#10B981,#34D399)', href:'operation-album.html',         text:'최서연 교사가 별빛반 앨범을 업로드했습니다.' },
+  { name:'이하늘', role:'교사', relTime:'2일 전',   dateLabel:'3월 29일',  time:'11:00', bg:'linear-gradient(135deg,#0EA5E9,#38BDF8)', href:'operation-invitation.html',    text:'이하늘 교사가 초대장을 발송했습니다.' },
+  { name:'김보라', role:'교사', relTime:'2일 전',   dateLabel:'3월 29일',  time:'09:30', bg:'linear-gradient(135deg,#EF4444,#FCA5A5)', href:'operation-notice-board.html',  text:'김보라 교사가 무지개반 알림장을 작성했습니다.' },
+  // 3/27
+  { name:'정다온', role:'교사', relTime:'4일 전',   dateLabel:'3월 27일',  time:'14:20', bg:'linear-gradient(135deg,#14B8A6,#5EEAD4)', href:'operation-medicine.html',      text:'정다온 교사가 투약의뢰서를 등록했습니다.' },
+  { name:'김원장', role:'원장', relTime:'4일 전',   dateLabel:'3월 27일',  time:'11:45', bg:'linear-gradient(135deg,#F59E0B,#FCD34D)', href:'operation-org-info.html',      text:'김원장 원장이 기관정보를 수정했습니다.' },
+  { name:'박민지', role:'교사', relTime:'4일 전',   dateLabel:'3월 27일',  time:'10:10', bg:'linear-gradient(135deg,#8B5CF6,#A78BFA)', href:'operation-consulting.html',    text:'박민지 교사가 상담 일정을 등록했습니다.' },
+  { name:'최서연', role:'교사', relTime:'4일 전',   dateLabel:'3월 27일',  time:'09:00', bg:'linear-gradient(135deg,#10B981,#34D399)', href:'operation-schedule.html',      text:'최서연 교사가 별빛반 일정을 수정했습니다.' },
+  // 3/25
+  { name:'이하늘', role:'교사', relTime:'6일 전',   dateLabel:'3월 25일',  time:'16:30', bg:'linear-gradient(135deg,#0EA5E9,#38BDF8)', href:'operation-album.html',         text:'이하늘 교사가 햇님반 앨범을 업로드했습니다.' },
+  { name:'김보라', role:'교사', relTime:'6일 전',   dateLabel:'3월 25일',  time:'13:15', bg:'linear-gradient(135deg,#EF4444,#FCA5A5)', href:'operation-child.html',         text:'김보라 교사가 무지개반 원아를 수정했습니다.' },
+  { name:'정다온', role:'교사', relTime:'6일 전',   dateLabel:'3월 25일',  time:'09:45', bg:'linear-gradient(135deg,#14B8A6,#5EEAD4)', href:'operation-notice-board.html',  text:'정다온 교사가 나비반 알림장을 작성했습니다.' },
+  // 3/21
+  { name:'박민지', role:'교사', relTime:'1주 전',   dateLabel:'3월 21일',  time:'15:00', bg:'linear-gradient(135deg,#8B5CF6,#A78BFA)', href:'operation-invitation.html',    text:'박민지 교사가 학부모 초대장을 발송했습니다.' },
+  { name:'김원장', role:'원장', relTime:'1주 전',   dateLabel:'3월 21일',  time:'11:20', bg:'linear-gradient(135deg,#F59E0B,#FCD34D)', href:'operation-announcement.html',  text:'김원장 원장이 4월 공지사항을 등록했습니다.' },
+  { name:'최서연', role:'교사', relTime:'1주 전',   dateLabel:'3월 21일',  time:'09:30', bg:'linear-gradient(135deg,#10B981,#34D399)', href:'operation-medicine.html',      text:'최서연 교사가 투약의뢰서를 완료 처리했습니다.' },
+  // 3/17
+  { name:'이하늘', role:'교사', relTime:'2주 전',   dateLabel:'3월 17일',  time:'14:40', bg:'linear-gradient(135deg,#0EA5E9,#38BDF8)', href:'operation-consulting.html',    text:'이하늘 교사가 상담을 신규 등록했습니다.' },
+  { name:'김보라', role:'교사', relTime:'2주 전',   dateLabel:'3월 17일',  time:'10:00', bg:'linear-gradient(135deg,#EF4444,#FCA5A5)', href:'operation-schedule.html',      text:'김보라 교사가 무지개반 일정을 등록했습니다.' },
+  { name:'정다온', role:'교사', relTime:'2주 전',   dateLabel:'3월 17일',  time:'09:10', bg:'linear-gradient(135deg,#14B8A6,#5EEAD4)', href:'operation-album.html',         text:'정다온 교사가 앨범을 업로드했습니다.' },
+  // 3/10
+  { name:'김원장', role:'원장', relTime:'3주 전',   dateLabel:'3월 10일',  time:'15:30', bg:'linear-gradient(135deg,#F59E0B,#FCD34D)', href:'operation-class.html',         text:'김원장 원장이 반 정보를 업데이트했습니다.' },
+  { name:'박민지', role:'교사', relTime:'3주 전',   dateLabel:'3월 10일',  time:'11:00', bg:'linear-gradient(135deg,#8B5CF6,#A78BFA)', href:'operation-child.html',         text:'박민지 교사가 새싹반 원아를 등록했습니다.' },
+  { name:'최서연', role:'교사', relTime:'3주 전',   dateLabel:'3월 10일',  time:'09:20', bg:'linear-gradient(135deg,#10B981,#34D399)', href:'operation-notice-board.html',  text:'최서연 교사가 알림장을 작성했습니다.' },
+  // 3/03
+  { name:'이하늘', role:'교사', relTime:'4주 전',   dateLabel:'3월 3일',   time:'16:00', bg:'linear-gradient(135deg,#0EA5E9,#38BDF8)', href:'operation-invitation.html',    text:'이하늘 교사가 초대장을 발송했습니다.' },
+  { name:'김보라', role:'교사', relTime:'4주 전',   dateLabel:'3월 3일',   time:'10:30', bg:'linear-gradient(135deg,#EF4444,#FCA5A5)', href:'operation-notice-board.html',  text:'김보라 교사가 3월 알림장을 작성했습니다.' },
+  { name:'김원장', role:'원장', relTime:'4주 전',   dateLabel:'3월 3일',   time:'09:00', bg:'linear-gradient(135deg,#F59E0B,#FCD34D)', href:'operation-schedule.html',      text:'김원장 원장이 3월 일정을 일괄 등록했습니다.' },
+];
+const ACT_PREVIEW_COUNT = 4;
+
+// 공지사항 목록 (반 무관, 전체 공지)
+const ALL_NOTICES = [
+  { tag:'전체',  tagBg:'var(--blue-bg)',   tagColor:'var(--blue-text)',   title:'3월 소풍 일정 안내',        date:'03.17' },
+  { tag:'학부모', tagBg:'var(--green-bg)',  tagColor:'var(--green-text)',  title:'입소 서류 제출 안내',        date:'03.15' },
+  { tag:'교사',  tagBg:'var(--amber-bg)',  tagColor:'var(--amber-text)',  title:'4월 교사 회의 일정',         date:'03.12' },
+  { tag:'전체',  tagBg:'var(--blue-bg)',   tagColor:'var(--blue-text)',   title:'4월 행사 일정 공유',         date:'03.10' },
+  { tag:'학부모', tagBg:'var(--green-bg)',  tagColor:'var(--green-text)',  title:'알림장 앱 사용 안내',        date:'03.08' },
+];
 
 // 원아 목록 (CLS001 햇님반 전체 — 대시보드 & 출석현황 모달 공용)
 const CHILDREN_CLS001 = [
@@ -562,6 +680,160 @@ const CHILDREN_CLS001 = [
   { id:'CHD017', name:'노하진',  attend:'출석', noticeWritten:true,  medicine:null },
   { id:'CHD018', name:'류채은',  attend:'출석', noticeWritten:false, medicine:null },
 ];
+
+// 반별 원아 데이터 맵
+const CHILDREN_DATA = {
+  CLS001: CHILDREN_CLS001,
+  CLS002: [
+    { id:'CHD101', name:'이지유', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD102', name:'김도윤', attend:'출석', noticeWritten:true,  medicine:{count:2, time:'오전 10시'} },
+    { id:'CHD103', name:'박서아', attend:'결석', noticeWritten:false, medicine:null },
+    { id:'CHD104', name:'최준서', attend:'출석', noticeWritten:false, medicine:null },
+    { id:'CHD105', name:'정하린', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD106', name:'강시우', attend:'출석', noticeWritten:true,  medicine:{count:1, time:'점심 후'} },
+    { id:'CHD107', name:'윤소율', attend:'조퇴', noticeWritten:false, medicine:null },
+    { id:'CHD108', name:'임재원', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD109', name:'한예은', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD110', name:'오지후', attend:'출석', noticeWritten:false, medicine:null },
+    { id:'CHD111', name:'장유나', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD112', name:'신준혁', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD113', name:'권아린', attend:'출석', noticeWritten:false, medicine:{count:1, time:'오후 2시'} },
+    { id:'CHD114', name:'문이서', attend:'결석', noticeWritten:false, medicine:null },
+    { id:'CHD115', name:'배지호', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD116', name:'조하율', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD117', name:'노예준', attend:'외출', noticeWritten:true,  medicine:null },
+    { id:'CHD118', name:'류민서', attend:'출석', noticeWritten:false, medicine:null },
+    { id:'CHD119', name:'성채원', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD120', name:'변지안', attend:'출석', noticeWritten:false, medicine:null },
+  ],
+  CLS003: [
+    { id:'CHD201', name:'김수현', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD202', name:'이준우', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD203', name:'박하윤', attend:'출석', noticeWritten:true,  medicine:{count:1, time:'오전 10시'} },
+    { id:'CHD204', name:'최서진', attend:'결석', noticeWritten:false, medicine:null },
+    { id:'CHD205', name:'정유안', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD206', name:'강지우', attend:'출석', noticeWritten:false, medicine:{count:2, time:'점심 후'} },
+    { id:'CHD207', name:'윤도하', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD208', name:'임서율', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD209', name:'한지민', attend:'조퇴', noticeWritten:false, medicine:null },
+    { id:'CHD210', name:'오하준', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD211', name:'장소아', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD212', name:'신이안', attend:'출석', noticeWritten:false, medicine:null },
+    { id:'CHD213', name:'권지호', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD214', name:'문하율', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD215', name:'배서준', attend:'출석', noticeWritten:true,  medicine:{count:1, time:'오후 2시'} },
+    { id:'CHD216', name:'조아린', attend:'결석', noticeWritten:false, medicine:null },
+    { id:'CHD217', name:'노지안', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD218', name:'류서우', attend:'출석', noticeWritten:false, medicine:null },
+    { id:'CHD219', name:'성하은', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD220', name:'변준서', attend:'외출', noticeWritten:true,  medicine:null },
+    { id:'CHD221', name:'마이준', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD222', name:'구하린', attend:'출석', noticeWritten:false, medicine:null },
+  ],
+  CLS004: [
+    { id:'CHD301', name:'황지우', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD302', name:'송예린', attend:'출석', noticeWritten:false, medicine:null },
+    { id:'CHD303', name:'이주원', attend:'출석', noticeWritten:true,  medicine:{count:1, time:'오전 10시'} },
+    { id:'CHD304', name:'김하율', attend:'결석', noticeWritten:false, medicine:null },
+    { id:'CHD305', name:'박지안', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD306', name:'최서하', attend:'출석', noticeWritten:false, medicine:null },
+    { id:'CHD307', name:'정이준', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD308', name:'강유나', attend:'조퇴', noticeWritten:false, medicine:null },
+    { id:'CHD309', name:'윤지호', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD310', name:'임소율', attend:'출석', noticeWritten:true,  medicine:{count:2, time:'점심 후'} },
+    { id:'CHD311', name:'한아린', attend:'출석', noticeWritten:false, medicine:null },
+    { id:'CHD312', name:'오서준', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD313', name:'장하은', attend:'외출', noticeWritten:true,  medicine:null },
+    { id:'CHD314', name:'신도윤', attend:'출석', noticeWritten:false, medicine:null },
+  ],
+  CLS005: [
+    { id:'CHD401', name:'권서아', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD402', name:'문지우', attend:'출석', noticeWritten:false, medicine:{count:1, time:'오전 10시'} },
+    { id:'CHD403', name:'배하준', attend:'결석', noticeWritten:false, medicine:null },
+    { id:'CHD404', name:'조이준', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD405', name:'노서율', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD406', name:'류하윤', attend:'출석', noticeWritten:false, medicine:null },
+    { id:'CHD407', name:'성지안', attend:'출석', noticeWritten:true,  medicine:{count:1, time:'점심 후'} },
+    { id:'CHD408', name:'변서진', attend:'조퇴', noticeWritten:false, medicine:null },
+    { id:'CHD409', name:'마유나', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD410', name:'구도하', attend:'출석', noticeWritten:false, medicine:null },
+  ],
+  CLS006: [
+    { id:'CHD501', name:'이서현', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD502', name:'김준혁', attend:'출석', noticeWritten:true,  medicine:{count:1, time:'오전 10시'} },
+    { id:'CHD503', name:'박소윤', attend:'결석', noticeWritten:false, medicine:null },
+    { id:'CHD504', name:'최지안', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD505', name:'정유준', attend:'출석', noticeWritten:false, medicine:null },
+    { id:'CHD506', name:'강하율', attend:'출석', noticeWritten:true,  medicine:{count:2, time:'점심 후'} },
+    { id:'CHD507', name:'윤서준', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD508', name:'임아윤', attend:'조퇴', noticeWritten:false, medicine:null },
+    { id:'CHD509', name:'한이준', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD510', name:'오서아', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD511', name:'장준서', attend:'출석', noticeWritten:false, medicine:null },
+    { id:'CHD512', name:'신하윤', attend:'외출', noticeWritten:true,  medicine:null },
+    { id:'CHD513', name:'권예준', attend:'출석', noticeWritten:true,  medicine:{count:1, time:'오후 2시'} },
+    { id:'CHD514', name:'문서하', attend:'출석', noticeWritten:false, medicine:null },
+    { id:'CHD515', name:'배이준', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD516', name:'조하서', attend:'결석', noticeWritten:false, medicine:null },
+  ],
+  CLS007: [
+    { id:'CHD601', name:'노준우', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD602', name:'류아서', attend:'출석', noticeWritten:false, medicine:{count:1, time:'오전 10시'} },
+    { id:'CHD603', name:'성이준', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD604', name:'변서윤', attend:'결석', noticeWritten:false, medicine:null },
+    { id:'CHD605', name:'마준하', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD606', name:'구하서', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD607', name:'황서준', attend:'출석', noticeWritten:false, medicine:null },
+    { id:'CHD608', name:'송아윤', attend:'조퇴', noticeWritten:false, medicine:null },
+    { id:'CHD609', name:'이준아', attend:'출석', noticeWritten:true,  medicine:{count:2, time:'점심 후'} },
+    { id:'CHD610', name:'김서율', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD611', name:'박하준', attend:'출석', noticeWritten:false, medicine:null },
+    { id:'CHD612', name:'최이서', attend:'외출', noticeWritten:true,  medicine:null },
+    { id:'CHD613', name:'정아준', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD614', name:'강서하', attend:'출석', noticeWritten:false, medicine:{count:1, time:'오후 2시'} },
+  ],
+  CLS008: [
+    { id:'CHD701', name:'윤준서', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD702', name:'임이준', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD703', name:'한서윤', attend:'출석', noticeWritten:true,  medicine:{count:1, time:'오전 10시'} },
+    { id:'CHD704', name:'오하준', attend:'결석', noticeWritten:false, medicine:null },
+    { id:'CHD705', name:'장서율', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD706', name:'신이서', attend:'출석', noticeWritten:false, medicine:null },
+    { id:'CHD707', name:'권준아', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD708', name:'문하서', attend:'출석', noticeWritten:true,  medicine:{count:2, time:'점심 후'} },
+    { id:'CHD709', name:'배서준', attend:'조퇴', noticeWritten:false, medicine:null },
+    { id:'CHD710', name:'조이서', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD711', name:'노하준', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD712', name:'류서아', attend:'출석', noticeWritten:false, medicine:null },
+    { id:'CHD713', name:'성준하', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD714', name:'변이준', attend:'외출', noticeWritten:true,  medicine:{count:1, time:'오후 2시'} },
+    { id:'CHD715', name:'마서윤', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD716', name:'구준서', attend:'결석', noticeWritten:false, medicine:null },
+    { id:'CHD717', name:'황이준', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD718', name:'송서하', attend:'출석', noticeWritten:false, medicine:null },
+  ],
+  CLS009: [
+    { id:'CHD801', name:'이하준', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD802', name:'김서아', attend:'출석', noticeWritten:false, medicine:{count:1, time:'오전 10시'} },
+    { id:'CHD803', name:'박이준', attend:'결석', noticeWritten:false, medicine:null },
+    { id:'CHD804', name:'최서율', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD805', name:'정하서', attend:'출석', noticeWritten:true,  medicine:null },
+    { id:'CHD806', name:'강준아', attend:'출석', noticeWritten:false, medicine:null },
+    { id:'CHD807', name:'윤서하', attend:'조퇴', noticeWritten:true,  medicine:{count:1, time:'점심 후'} },
+    { id:'CHD808', name:'임이서', attend:'출석', noticeWritten:true,  medicine:null },
+  ],
+};
+
+
+function getCurrentChildren() {
+  if (isTeacher) {
+    const cur = sessionStorage.getItem('currentClass') || (assignedClasses ? assignedClasses[0] : 'CLS001');
+    return CHILDREN_DATA[cur] || CHILDREN_CLS001;
+  }
+  // 기관관리자: 반 선택 시 해당 반 원아, 전체 선택 시 CLS001 기준
+  const cur = sessionStorage.getItem('currentClass') || 'all';
+  return (cur !== 'all' && CHILDREN_DATA[cur]) ? CHILDREN_DATA[cur] : CHILDREN_CLS001;
+}
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // 세션 & 역할 판별
@@ -609,6 +881,7 @@ const assignedClasses = assignedRaw
   renderMainCard();
   renderTodo();
   renderActivity();
+  renderNotices();
   initCharts();
 })();
 
@@ -618,23 +891,32 @@ const assignedClasses = assignedRaw
 // 반 필터 셀렉트 렌더링
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function renderClassFilter() {
+  if (!isTeacher) {
+    // 기관관리자: 반 필터 숨김, 항상 전체 기준
+    document.querySelector('.class-filter-bar').style.display = 'none';
+    sessionStorage.setItem('currentClass', 'all');
+    return;
+  }
+
   const sel = document.getElementById('classFilterSelect');
 
   if (isTeacher) {
-    // 교사: 전체 반 표시, 담당 반만 선택 가능
-    let html = '';
-    // 담당 반이 여러 개면 선택 가능, 단일이면 그냥 고정
-    const hasMultiple = assignedClasses && assignedClasses.length > 1;
+    // 교사: 담당 반 1개면 필터 숨김
+    const isSingleClass = assignedClasses && assignedClasses.length === 1;
+    if (isSingleClass) {
+      document.querySelector('.class-filter-bar').style.display = 'none';
+      sessionStorage.setItem('currentClass', assignedClasses[0]);
+      return;
+    }
 
+    // 담당 반 2개 이상: 담당 반만 선택 가능, 이모지 없는 이름 표시
+    let html = '';
     ALL_CLASSES.forEach(cls => {
       const isAssigned = assignedClasses && assignedClasses.includes(cls.id);
       if (isAssigned) {
-        html += `<option value="${cls.id}">${cls.name} (${cls.age})</option>`;
+        html += `<option value="${cls.id}">${cls.plain} (${cls.age})</option>`;
       } else {
-        // 비담당 반: disabled + 시각적으로 구분
-        html += `<option value="${cls.id}" disabled class="disabled-opt" style="color:#C0C0C0">
-          ${cls.name} (${cls.age}) — 비담당
-        </option>`;
+        html += `<option value="${cls.id}" disabled class="disabled-opt" style="color:#C0C0C0">${cls.plain} (${cls.age}) — 비담당</option>`;
       }
     });
     sel.innerHTML = html;
@@ -643,7 +925,6 @@ function renderClassFilter() {
     if (assignedClasses && assignedClasses.length > 0) {
       sel.value = assignedClasses[0];
     }
-    // 담당 반 1개면 변경 불가 (선택 자체를 막을 필요는 없음 - disabled 옵션만 있으니 자연스럽게 됨)
 
   } else {
     // 기관관리자 / 통합관리자 운영모드: 전체 반 + 전체 선택 옵션
@@ -673,22 +954,26 @@ function onClassChange(sel) {
   } else {
     document.getElementById('classHero').classList.remove('show');
     if (val === 'all') {
-      updateNoticeStats(56, 28);
+      const allCh = ALL_CLASSES.flatMap(cls => CHILDREN_DATA[cls.id] || []);
+      updateNoticeStats(allCh.filter(c=>c.noticeWritten).length, allCh.filter(c=>!c.noticeWritten).length);
     } else {
-      const cls = ALL_CLASSES.find(c => c.id === val);
-      if (cls) updateNoticeStats(cls.notice, cls.students - cls.notice);
+      const ch = CHILDREN_DATA[val] || [];
+      updateNoticeStats(ch.filter(c=>c.noticeWritten).length, ch.filter(c=>!c.noticeWritten).length);
     }
   }
   renderMainCard();
 }
 
 function updateTeacherHero(cls) {
+  const ch = CHILDREN_DATA[cls.id] || [];
+  const attend = ch.filter(c => c.attend === '출석').length;
+  const notice = ch.filter(c => c.noticeWritten).length;
   document.getElementById('heroIcon').textContent      = cls.icon;
-  document.getElementById('heroClassName').textContent = `${cls.name.replace(/^[^\s]+\s/,'')} (${cls.age})`;
-  document.getElementById('heroTotal').textContent     = cls.students;
-  document.getElementById('heroAttend').textContent    = cls.attend;
-  document.getElementById('heroNotice').textContent    = cls.notice;
-  document.getElementById('heroMissing').textContent   = cls.students - cls.notice;
+  document.getElementById('heroClassName').textContent = `${cls.plain} (${cls.age})`;
+  document.getElementById('heroTotal').textContent     = ch.length;
+  document.getElementById('heroAttend').textContent    = attend;
+  document.getElementById('heroNotice').textContent    = notice;
+  document.getElementById('heroMissing').textContent   = ch.length - notice;
 }
 
 function updateNoticeStats(written, missing) {
@@ -709,19 +994,19 @@ function renderKPI() {
   const grid = document.getElementById('kpiGrid');
   if (isTeacher) {
     grid.innerHTML = `
-      <div class="kpi-card"><div class="kpi-ico teal">📋</div><div><div class="kpi-label">오늘 알림장</div><div class="kpi-value">14<span style="font-size:13px;color:var(--text-muted)">/18</span></div><div class="kpi-sub">4건 미작성</div></div></div>
-      <div class="kpi-card"><div class="kpi-ico green">✅</div><div><div class="kpi-label">출석률</div><div class="kpi-value">89<span style="font-size:14px;font-weight:500">%</span></div><div class="kpi-sub">결석 2명</div></div></div>
-      <div class="kpi-card"><div class="kpi-ico amber">💬</div><div><div class="kpi-label">미답변 상담</div><div class="kpi-value">2</div><div class="kpi-sub">오늘 신규 1건</div></div></div>
-      <div class="kpi-card"><div class="kpi-ico red">💊</div><div><div class="kpi-label">투약의뢰서</div><div class="kpi-value">3</div><div class="kpi-sub">오늘 투약 예정</div></div></div>
+      <div class="kpi-card"><div class="kpi-ico teal">📋</div><div class="kpi-info"><div class="kpi-label">오늘 알림장</div><div class="kpi-value">14<span style="font-size:13px;color:var(--text-muted)">/18</span></div><div class="kpi-sub">4건 미작성</div></div></div>
+      <div class="kpi-card"><div class="kpi-ico green">✅</div><div class="kpi-info"><div class="kpi-label">출석률</div><div class="kpi-value">89<span style="font-size:14px;font-weight:500">%</span></div><div class="kpi-sub">결석 2명</div></div></div>
+      <div class="kpi-card"><div class="kpi-ico amber">💬</div><div class="kpi-info"><div class="kpi-label">미답변 상담</div><div class="kpi-value">2</div><div class="kpi-sub">오늘 신규 1건</div></div></div>
+      <div class="kpi-card"><div class="kpi-ico red">💊</div><div class="kpi-info"><div class="kpi-label">투약의뢰서</div><div class="kpi-value">3</div><div class="kpi-sub">오늘 투약 예정</div></div></div>
     `;
     document.getElementById('pageTitle').textContent = `👋 안녕하세요, ${userName}님`;
     document.getElementById('pageSub').textContent   = '담당 반 오늘 현황을 확인하세요.';
   } else {
     grid.innerHTML = `
-      <div class="kpi-card"><div class="kpi-ico sky">👥</div><div><div class="kpi-label">전체 원아 수</div><div class="kpi-value">84</div><div class="kpi-trend up">▲ 2명 이번달 입소</div></div></div>
-      <div class="kpi-card"><div class="kpi-ico green">👩‍🏫</div><div><div class="kpi-label">교사 수</div><div class="kpi-value">12</div><div class="kpi-sub">담임 8 · 보조 4</div></div></div>
-      <div class="kpi-card"><div class="kpi-ico amber">📋</div><div><div class="kpi-label">오늘 알림장</div><div class="kpi-value">56</div><div class="kpi-sub">전체 84건 중</div></div></div>
-      <div class="kpi-card"><div class="kpi-ico purple">📊</div><div><div class="kpi-label">학부모 접속률</div><div class="kpi-value">71<span style="font-size:14px;font-weight:500">%</span></div><div class="kpi-trend up">▲ 3% 전일 대비</div></div></div>
+      <div class="kpi-card"><div class="kpi-ico sky">👥</div><div class="kpi-info"><div class="kpi-label">전체 원아 수</div><div class="kpi-value">${ALL_CLASSES.reduce((s,c)=>s+(CHILDREN_DATA[c.id]||[]).length,0)}</div><div class="kpi-sub">총 ${ALL_CLASSES.length}개반</div></div></div>
+      <div class="kpi-card"><div class="kpi-ico green">👩‍🏫</div><div class="kpi-info"><div class="kpi-label">교사 수</div><div class="kpi-value">12</div><div class="kpi-sub">담임 8 · 보조 4</div></div></div>
+      <div class="kpi-card"><div class="kpi-ico amber">📋</div><div class="kpi-info"><div class="kpi-label">오늘 알림장</div><div class="kpi-value">56</div><div class="kpi-sub">전체 84건 중</div></div></div>
+      <div class="kpi-card"><div class="kpi-ico purple">📊</div><div class="kpi-info"><div class="kpi-label">학부모 접속률</div><div class="kpi-value">71<span style="font-size:14px;font-weight:500">%</span></div><div class="kpi-sub">▲ 3% 전일 대비</div></div></div>
     `;
     document.getElementById('pageTitle').textContent = `👋 ${orgName}`;
     document.getElementById('pageSub').textContent   = '오늘 기관 현황을 한눈에 확인하세요.';
@@ -735,14 +1020,15 @@ function renderMainCard() {
   const currentCls = sessionStorage.getItem('currentClass') || 'all';
 
   if (isTeacher) {
-    // 교사: 원아 출석 현황 테이블
-    document.getElementById('mainCardTitle').textContent = '🧒 원아 출석 현황';
+    // 교사: 오늘의 현황 테이블 (선택된 반 기준)
+    const children = getCurrentChildren();
+    document.getElementById('mainCardTitle').textContent = '📊 오늘의 현황';
     const act = document.getElementById('mainCardAction');
     act.textContent = '전체 보기';
     act.onclick = openAttendanceModal;
 
-    const attCnt = s => CHILDREN_CLS001.filter(c => c.attend === s).length;
-    const preview = CHILDREN_CLS001.slice(0, 5);
+    const attCnt = s => children.filter(c => c.attend === s).length;
+    const preview = children.slice(0, 5);
 
     document.getElementById('mainCardBody').innerHTML = `
       <div class="att-row">
@@ -769,8 +1055,8 @@ function renderMainCard() {
             </tr>`).join('')}
         </tbody>
       </table>
-      <div style="text-align:center;margin-top:10px;font-size:12px;color:var(--text-muted);cursor:pointer"
-           onclick="openAttendanceModal()">+ ${CHILDREN_CLS001.length - 5}명 더 보기 →</div>
+      ${children.length > 5 ? `<div style="text-align:center;margin-top:10px;font-size:12px;color:var(--text-muted);cursor:pointer"
+           onclick="openAttendanceModal()">+ ${children.length - 5}명 더 보기 →</div>` : ''}
     `;
   } else {
     // 기관관리자 / 통합관리자: 반별 현황 카드
@@ -779,20 +1065,44 @@ function renderMainCard() {
       ? ALL_CLASSES
       : ALL_CLASSES.filter(c => c.id === currentCls);
 
-    document.getElementById('mainCardBody').innerHTML = `
+    document.getElementById('mainCardAction').textContent = '';
+    // 7개 이상: mainCardBody 자체에 스크롤 적용 (card의 overflow:hidden 우회)
+    const mainCardBody = document.getElementById('mainCardBody');
+    if (displayClasses.length > 6) {
+      mainCardBody.style.cssText = 'padding:14px 22px 14px 18px;overflow-y:auto;max-height:440px;';
+    } else {
+      mainCardBody.style.cssText = '';
+    }
+    mainCardBody.innerHTML = `
       <div class="class-cards">
         ${displayClasses.map(cls => {
-          const pct = Math.round(cls.attend / cls.students * 100);
+          const ch = CHILDREN_DATA[cls.id] || [];
+          const students = ch.length;
+          const attend   = ch.filter(c => c.attend === '출석').length;
+          const medCount = ch.filter(c => c.medicine).length;
           return `
-            <div class="cls-card">
-              <div class="cls-name">${cls.name} <span style="font-size:10px;color:var(--text-secondary);font-weight:400">(${cls.age})</span></div>
-              <div class="cls-teacher">👩‍🏫 ${cls.teacher} 교사</div>
-              <div class="cls-stats">
-                <div class="cls-stat"><div class="cls-stat-n">${cls.students}</div><div class="cls-stat-l">원아</div></div>
-                <div class="cls-stat"><div class="cls-stat-n">${cls.attend}</div><div class="cls-stat-l">출석</div></div>
-                <div class="cls-stat"><div class="cls-stat-n">${cls.notice}</div><div class="cls-stat-l">알림장</div></div>
+            <div class="cls-card" onclick="openClassAttendanceModal('${cls.id}','${cls.plain}')"
+              style="padding:14px 14px 12px;display:flex;flex-direction:column;gap:10px">
+              <div>
+                <div style="font-size:14px;font-weight:800;color:var(--text-primary);margin-bottom:4px;line-height:1.2">
+                  ${cls.plain}<span style="font-size:12px;color:var(--text-secondary);font-weight:400;margin-left:5px">${cls.age}</span>
+                </div>
+                <div style="font-size:12px;color:var(--text-secondary);font-weight:500">담임 ${cls.teacher}&ensp;보조 ${cls.assistant}</div>
               </div>
-              <div class="cls-bar"><div class="cls-bar-fill" style="width:${pct}%"></div></div>
+              <div style="display:flex;gap:6px">
+                <div style="flex:1;background:var(--bg-base);border:1px solid var(--border-medium);border-radius:8px;padding:9px 4px;text-align:center">
+                  <div style="font-size:20px;font-weight:800;color:var(--text-primary);line-height:1.1">${students}</div>
+                  <div style="font-size:12px;color:var(--text-secondary);margin-top:3px;font-weight:500">원아</div>
+                </div>
+                <div style="flex:1;background:var(--green-bg);border:1px solid #A7F3D0;border-radius:8px;padding:9px 4px;text-align:center">
+                  <div style="font-size:20px;font-weight:800;color:var(--green-text);line-height:1.1">${attend}</div>
+                  <div style="font-size:12px;color:var(--text-secondary);margin-top:3px;font-weight:500">출석</div>
+                </div>
+                <div style="flex:1;background:${medCount>0?'var(--amber-bg)':'#F8FAFC'};border:1px solid ${medCount>0?'#FDE68A':'#E2E8F0'};border-radius:8px;padding:9px 4px;text-align:center">
+                  <div style="font-size:20px;font-weight:800;color:${medCount>0?'var(--amber-text)':'#94A3B8'};line-height:1.1">${medCount}</div>
+                  <div style="font-size:12px;color:var(--text-secondary);margin-top:3px;font-weight:500">투약</div>
+                </div>
+              </div>
             </div>
           `;
         }).join('')}
@@ -806,48 +1116,114 @@ function renderMainCard() {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function renderTodo() {
   const items = isTeacher ? [
-    { dot: 'var(--red)',   text: '미작성 알림장',     cnt: '4건',  bg:'var(--red-bg)',   tc:'var(--red-text)' },
-    { dot: 'var(--amber)', text: '투약의뢰서 확인',   cnt: '3건',  bg:'var(--amber-bg)', tc:'var(--amber-text)' },
-    { dot: 'var(--blue)',  text: '미답변 상담',       cnt: '2건',  bg:'var(--blue-bg)',  tc:'var(--blue-text)' },
-    { dot: '#14B8A6',      text: '학부모 초대 대기',  cnt: '1건',  bg:'#CCFBF1',        tc:'#0D9488' },
+    { dot:'var(--red)',    text:'미작성 알림장',    cnt:'4건',  bg:'var(--red-bg)',    tc:'var(--red-text)',    action:() => location.href='operation-notice-board.html' },
+    { dot:'var(--amber)',  text:'투약의뢰서 요청',  cnt:'3건',  bg:'var(--amber-bg)',  tc:'var(--amber-text)',  action:() => location.href='operation-medicine.html' },
+    { dot:'var(--blue)',   text:'미답변 상담',      cnt:'2건',  bg:'var(--blue-bg)',   tc:'var(--blue-text)',   action:() => showToast('상담 관리 기능 준비 중입니다.') },
+    { dot:'#14B8A6',       text:'오늘 일정',        cnt:'2건',  bg:'#CCFBF1',         tc:'#0D9488',            action:() => showToast('일정 관리 기능 준비 중입니다.') },
+    { dot:'var(--purple)', text:'학부모 초대 대기', cnt:'1건',  bg:'var(--purple-bg)', tc:'var(--purple-text)', action:() => location.href='operation-invitation.html' },
   ] : [
-    { dot: 'var(--red)',   text: '미작성 알림장',     cnt: '28건', bg:'var(--red-bg)',    tc:'var(--red-text)' },
-    { dot: 'var(--amber)', text: '가입 승인 대기',    cnt: '3건',  bg:'var(--amber-bg)',  tc:'var(--amber-text)' },
-    { dot: 'var(--blue)',  text: '답변 대기 상담',    cnt: '2건',  bg:'var(--blue-bg)',   tc:'var(--blue-text)' },
-    { dot: 'var(--green)', text: '투약의뢰서 확인',   cnt: '4건',  bg:'var(--green-bg)',  tc:'var(--green-text)' },
-    { dot: 'var(--purple)',text: '미발송 초대장',     cnt: '2건',  bg:'var(--purple-bg)', tc:'var(--purple-text)' },
+    { dot:'var(--red)',    text:'미작성 알림장',    cnt:'28건', bg:'var(--red-bg)',    tc:'var(--red-text)',    action:() => location.href='operation-notice-board.html' },
+    { dot:'var(--amber)',  text:'가입 승인 대기',   cnt:'3건',  bg:'var(--amber-bg)',  tc:'var(--amber-text)',  action:() => location.href='../member-approval.html' },
+    { dot:'#14B8A6',       text:'오늘 일정',        cnt:'3건',  bg:'#CCFBF1',         tc:'#0D9488',            action:() => showToast('일정 관리 기능 준비 중입니다.') },
+    { dot:'var(--blue)',   text:'답변 대기 상담',   cnt:'2건',  bg:'var(--blue-bg)',   tc:'var(--blue-text)',   action:() => showToast('상담 관리 기능 준비 중입니다.') },
+    { dot:'var(--green)',  text:'투약의뢰서 요청',  cnt:'4건',  bg:'var(--green-bg)',  tc:'var(--green-text)',  action:() => location.href='operation-medicine.html' },
+    { dot:'var(--purple)', text:'미발송 초대장',    cnt:'2건',  bg:'var(--purple-bg)', tc:'var(--purple-text)', action:() => location.href='operation-invitation.html' },
   ];
 
-  document.getElementById('todoBody').innerHTML = `
-    <div class="todo-list">
-      ${items.map(i => `
-        <div class="todo-item">
-          <div class="todo-dot" style="background:${i.dot}"></div>
-          <span class="todo-text">${i.text}</span>
-          <span class="todo-cnt" style="background:${i.bg};color:${i.tc}">${i.cnt}</span>
-        </div>
-      `).join('')}
+  // 클릭 액션은 인라인 온클릭이 아닌 이벤트 위임으로 처리
+  const todoEl = document.createElement('div');
+  todoEl.className = 'todo-list';
+  todoEl.innerHTML = items.map((i, idx) => `
+    <div class="todo-item" data-idx="${idx}">
+      <div class="todo-dot" style="background:${i.dot}"></div>
+      <span class="todo-text">${i.text}</span>
+      <span class="todo-cnt" style="background:${i.bg};color:${i.tc}">${i.cnt}</span>
     </div>
-  `;
+  `).join('');
+  todoEl.querySelectorAll('.todo-item').forEach((el, idx) => {
+    el.addEventListener('click', items[idx].action);
+  });
+  const body = document.getElementById('todoBody');
+  body.innerHTML = '';
+  body.appendChild(todoEl);
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // 활동 내역
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function renderActivity() {
-  const acts = [
-    { name:'이하늘', text:'이하늘 교사가 햇님반 알림장을 작성했습니다.', time:'5분 전',   bg:'linear-gradient(135deg,#0EA5E9,#38BDF8)' },
-    { name:'박민지', text:'박민지 교사가 새싹반 앨범을 업로드했습니다.',  time:'23분 전',  bg:'linear-gradient(135deg,#8B5CF6,#A78BFA)' },
-    { name:'최서연', text:'최서연 교사가 별빛반 일정을 등록했습니다.',   time:'1시간 전',  bg:'linear-gradient(135deg,#10B981,#34D399)' },
-    { name:'김보라', text:'김보라 교사가 투약의뢰서를 확인했습니다.',   time:'2시간 전',  bg:'linear-gradient(135deg,#F59E0B,#FCD34D)' },
-  ];
-  document.getElementById('actList').innerHTML = acts.map(a => `
-    <div class="act-item">
+  const list = ALL_ACTIVITIES.slice(0, ACT_PREVIEW_COUNT);
+  document.getElementById('actList').innerHTML = list.map(a => `
+    <div class="act-item" onclick="actGo('${a.href}')" style="cursor:pointer">
       <div class="act-avatar" style="background:${a.bg}">${a.name.charAt(0)}</div>
-      <div class="act-text" style="flex:1">${a.text}</div>
-      <div class="act-time">${a.time}</div>
+      <div class="act-text">${a.text}</div>
+      <div class="act-time">${a.relTime}</div>
     </div>
   `).join('');
+}
+
+function toggleActivityMore() { openActivityModal(); }
+
+function openActivityModal() {
+  const body = document.getElementById('actModalBody');
+  // dateLabel 순서 유지하며 그룹핑
+  const groups = [];
+  const groupMap = {};
+  ALL_ACTIVITIES.forEach(a => {
+    if (!groupMap[a.dateLabel]) {
+      groupMap[a.dateLabel] = [];
+      groups.push({ label: a.dateLabel, items: groupMap[a.dateLabel] });
+    }
+    groupMap[a.dateLabel].push(a);
+  });
+
+  body.innerHTML = groups.map(g => `
+    <div class="act-date-group">📅 ${g.label}</div>
+    ${g.items.map(a => `
+      <div class="act-modal-item" onclick="actGo('${a.href}')">
+        <div class="act-avatar" style="background:${a.bg};width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0">${a.name.charAt(0)}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12.5px;color:var(--text-primary);line-height:1.4">${a.text}</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:1px">${a.role}</div>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;flex-shrink:0;margin-right:6px">${a.time}</div>
+        <div class="act-modal-arrow">↗</div>
+      </div>
+    `).join('')}
+  `).join('');
+
+  document.getElementById('actOverlay').classList.add('show');
+}
+
+function closeActivityModal() {
+  document.getElementById('actOverlay').classList.remove('show');
+}
+
+function overlayCloseAct(e) {
+  if (e.target === document.getElementById('actOverlay')) closeActivityModal();
+}
+
+function actGo(href) {
+  if (!href) return;
+  if (UNBUILT_PAGES.has(href)) { showToast('준비 중인 기능입니다.'); return; }
+  location.href = href;
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 공지사항 렌더링 (반 무관 전체 공지)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function renderNotices() {
+  document.getElementById('noticeList').innerHTML = ALL_NOTICES.map(n => `
+    <div class="notice-item" onclick="location.href='operation-announcement.html'">
+      <span class="notice-tag" style="background:${n.tagBg};color:${n.tagColor}">${n.tag}</span>
+      <span class="notice-title">${n.title}</span>
+      <span class="notice-date">${n.date}</span>
+    </div>
+  `).join('');
+}
+
+function goToAnnouncement() {
+  location.href = 'operation-announcement.html';
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -864,73 +1240,25 @@ function initCharts() {
       }
     }
   );
-
-  // 주간 바 차트
-  const weekLabels = isTeacher
-    ? ['월', '화', '수', '목', '금', '오늘']
-    : ['월(3/13)', '화(3/14)', '수(3/15)', '목(3/16)', '금(3/17)', '오늘'];
-
-  const weekDatasets = isTeacher ? [
-    { label:'완료', data:[15,16,13,16,15,14], backgroundColor:'rgba(14,165,233,0.8)', borderRadius:4 },
-    { label:'미작성', data:[3,2,5,2,3,4],   backgroundColor:'rgba(239,68,68,0.5)',  borderRadius:4 },
-  ] : [
-    { label:'햇님반', data:[14,15,13,16,14,14], backgroundColor:'rgba(14,165,233,0.8)',  borderRadius:4 },
-    { label:'새싹반', data:[18,17,19,18,16,15], backgroundColor:'rgba(56,189,248,0.6)',  borderRadius:4 },
-    { label:'별빛반', data:[20,19,21,20,18,17], backgroundColor:'rgba(2,132,199,0.5)',   borderRadius:4 },
-    { label:'무지개반',data:[10,11,10,12,11,10], backgroundColor:'rgba(125,211,252,0.5)', borderRadius:4 },
-  ];
-
-  window._weekChart = new Chart(
-    document.getElementById('weekChart').getContext('2d'), {
-      type: isTeacher ? 'line' : 'bar',
-      data: { labels: weekLabels, datasets: weekDatasets },
-      options: {
-        responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{ labels:{ font:{family:'Pretendard',size:11}, boxWidth:10, padding:8 } } },
-        scales:{
-          x:{ grid:{display:false}, ticks:{font:{family:'Pretendard',size:11}} },
-          y:{ grid:{color:'rgba(0,0,0,0.05)'}, ticks:{font:{family:'Pretendard',size:11}} }
-        },
-        ...(isTeacher ? { elements:{ line:{ tension:0.4 } } } : {})
-      }
-    }
-  );
-  if (isTeacher) document.getElementById('weekChartTitle').textContent = '📈 주간 알림장 추이';
 }
 
-function switchWeekChart(type, el) {
-  document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  if (type === 'month') {
-    window._weekChart.data.labels = ['1주', '2주', '3주', '4주'];
-    if (isTeacher) {
-      window._weekChart.data.datasets[0].data = [58, 62, 60, 56];
-      window._weekChart.data.datasets[1].data = [10,  8, 10, 12];
-    } else {
-      window._weekChart.data.datasets.forEach((d,i) => {
-        d.data = [[55,58,60,56],[68,72,70,56],[74,78,76,56],[42,44,46,40]][i];
-      });
-    }
-  } else {
-    window._weekChart.data.labels = isTeacher
-      ? ['월','화','수','목','금','오늘']
-      : ['월(3/13)','화(3/14)','수(3/15)','목(3/16)','금(3/17)','오늘'];
-    if (isTeacher) {
-      window._weekChart.data.datasets[0].data = [15,16,13,16,15,14];
-      window._weekChart.data.datasets[1].data = [3,2,5,2,3,4];
-    } else {
-      window._weekChart.data.datasets.forEach((d,i) => {
-        d.data = [[14,15,13,16,14,14],[18,17,19,18,16,15],[20,19,21,20,18,17],[10,11,10,12,11,10]][i];
-      });
-    }
-  }
-  window._weekChart.update();
-}
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // 출석현황 전체 모달
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 let attCurrentFilter = 'all';
+let _modalOverrideClass = null; // 반별 현황에서 특정 반 클릭 시 사용
+
+function getCurrentChildrenForModal() {
+  if (_modalOverrideClass) return CHILDREN_DATA[_modalOverrideClass] || CHILDREN_CLS001;
+  return getCurrentChildren();
+}
+
+function openClassAttendanceModal(clsId, clsName) {
+  _modalOverrideClass = clsId;
+  document.getElementById('attModalSub').textContent = `${clsName} · 오늘`;
+  openAttendanceModal();
+}
 
 function attendBadge(status) {
   const cfg = {
@@ -948,8 +1276,9 @@ function openAttendanceModal() {
   document.querySelectorAll('.att-filter-btn').forEach(b => b.classList.remove('active'));
   document.querySelector('.att-filter-btn').classList.add('active');
 
+  const children = getCurrentChildrenForModal();
   // 요약 카드
-  const cnt = s => CHILDREN_CLS001.filter(c => c.attend === s).length;
+  const cnt = s => children.filter(c => c.attend === s).length;
   document.getElementById('attModalSummary').innerHTML = `
     <div class="att-modal-stat" style="background:var(--green-bg);border-color:#A7F3D0">
       <div class="att-modal-stat-num" style="color:var(--green-text)">${cnt('출석')}</div>
@@ -968,21 +1297,28 @@ function openAttendanceModal() {
       <div class="att-modal-stat-lbl">외출</div>
     </div>
     <div class="att-modal-stat" style="background:var(--amber-bg);border-color:#FDE68A">
-      <div class="att-modal-stat-num" style="color:var(--amber-text)">${CHILDREN_CLS001.filter(c=>c.medicine).length}</div>
+      <div class="att-modal-stat-num" style="color:var(--amber-text)">${children.filter(c=>c.medicine).length}</div>
       <div class="att-modal-stat-lbl">투약 예정</div>
     </div>
     <div class="att-modal-stat" style="background:var(--red-bg);border-color:#FCA5A5">
-      <div class="att-modal-stat-num" style="color:var(--red-text)">${CHILDREN_CLS001.filter(c=>!c.noticeWritten).length}</div>
+      <div class="att-modal-stat-num" style="color:var(--red-text)">${children.filter(c=>!c.noticeWritten).length}</div>
       <div class="att-modal-stat-lbl">알림장 미작성</div>
     </div>
   `;
 
   renderAttTable('all');
+  // 모달 서브타이틀: override가 없을 때만 기본값 세팅
+  if (!_modalOverrideClass) {
+    const cur = sessionStorage.getItem('currentClass') || (assignedClasses ? assignedClasses[0] : 'CLS001');
+    const cls = ALL_CLASSES.find(c => c.id === cur);
+    document.getElementById('attModalSub').textContent = cls ? `${cls.plain} · 오늘` : '오늘';
+  }
   document.getElementById('attOverlay').classList.add('show');
 }
 
 function closeAttendanceModal() {
   document.getElementById('attOverlay').classList.remove('show');
+  _modalOverrideClass = null;
 }
 
 function overlayClose(e) {
@@ -997,7 +1333,7 @@ function filterAtt(type, btn) {
 }
 
 function renderAttTable(filter) {
-  let list = CHILDREN_CLS001;
+  let list = getCurrentChildrenForModal();
   if (filter === 'miss-notice') list = list.filter(c => !c.noticeWritten);
   if (filter === 'medicine')    list = list.filter(c => c.medicine);
   if (filter === 'absent')      list = list.filter(c => c.attend !== '출석');
@@ -1045,7 +1381,7 @@ function goToAttendance(id, name, currentStatus) {
 
 // changeOrg / exitContext / logout → operation-sidebar.js 에서 전역 노출
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeAttendanceModal();
+  if (e.key === 'Escape') { closeAttendanceModal(); closeActivityModal(); }
 });
 
 function showToast(msg) {

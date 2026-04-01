@@ -1,6 +1,6 @@
 # 🧠 프로젝트 브레인: 운영관리 대시보드
 
-> **최종 업데이트**: 2026-03-24
+> **최종 업데이트**: 2026-03-31
 > **파일**: `src/pages/oper/operation-dashboard.html`
 > **연관 브레인**: `08-OPERATION-MANAGEMENT.md`, `11-NOTICE-BOARD.md`, `10-CHILD-MANAGEMENT.md`
 
@@ -9,11 +9,12 @@
 ## ⚡ QUICK REF
 > 운영관리 대시보드 핵심 요약
 
-- **파일**: `src/pages/oper/operation-dashboard.html` — 구현 진행 중
+- **파일**: `src/pages/oper/operation-dashboard.html` — 완료
 - **역할별 뷰**: 교사(teacher) / 기관관리자(org_admin) / 통합관리자(super) 3가지 분기
-- **교사 뷰 핵심**: 원아 출석현황 미니테이블(5명) + 전체보기 모달(전체 원아)
+- **교사 뷰 핵심**: "오늘의 현황" 미니테이블(5명) + 전체보기 모달, 반 필터 연동 데이터
 - **교차 페이지 연동**: sessionStorage pre-fill 키를 통한 알림장/투약의뢰서 페이지 이동
 - **미결**: 출석 상태 변경 전용 페이지 없음 (toast만 표시)
+- **2026-03-31 개선**: 하단 주간차트 삭제, 최근활동+공지사항 나란히, 더보기 토글, 전 교직원 활동(원장포함), 오늘의 현황 명칭변경, 반필터 원아데이터 연동, 할일 클릭액션, 공지 작성하기 버튼 액션
 
 ---
 

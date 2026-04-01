@@ -539,11 +539,31 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 /* 작성 푸터 */
 .write-footer{padding:14px 24px;border-top:1px solid var(--border-light);flex-shrink:0;display:flex;gap:8px;justify-content:flex-end;background:#FAFCFF;}
 
-/* ━━━ 임시저장 FAB ━━━ */
-.draft-fab{position:fixed;bottom:28px;right:88px;display:none;align-items:center;gap:8px;background:var(--accent);color:#fff;padding:13px 22px;border-radius:50px;cursor:pointer;box-shadow:0 4px 20px rgba(14,165,233,.35);font-size:14px;font-weight:700;z-index:800;transition:transform .18s,box-shadow .18s;user-select:none;}
-.draft-fab:hover{transform:translateY(-2px);box-shadow:0 6px 26px rgba(14,165,233,.45);}
-.draft-fab-icon{font-size:16px;}
-.draft-fab-count{background:var(--red);color:#fff;font-size:11px;font-weight:800;padding:1px 7px;border-radius:10px;min-width:20px;text-align:center;}
+/* ━━━ 임시보관함 버튼 뱃지 ━━━ */
+.draft-count-badge{display:inline-flex;align-items:center;justify-content:center;background:var(--red);color:#fff;font-size:11px;font-weight:800;padding:0 6px;border-radius:10px;min-width:20px;height:18px;line-height:1;margin-left:2px;}
+.draft-count-badge.zero{background:var(--border-medium);color:var(--text-secondary);}
+
+/* ━━━ 임시보관함 모달 ━━━ */
+.draft-vault-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:600;display:none;align-items:center;justify-content:center;}
+.draft-vault-overlay.show{display:flex;}
+.draft-vault-box{background:#fff;border-radius:var(--radius-xl);width:560px;max-width:96vw;max-height:80vh;display:flex;flex-direction:column;box-shadow:var(--shadow-modal);animation:modalIn .22s ease;}
+.draft-vault-header{padding:18px 22px 14px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.draft-vault-title{font-size:16px;font-weight:800;display:flex;align-items:center;gap:8px;}
+.draft-vault-body{flex:1;overflow-y:auto;padding:0 22px 14px;}
+.draft-vault-body::-webkit-scrollbar{width:4px;}
+.draft-vault-body::-webkit-scrollbar-thumb{background:var(--border-medium);border-radius:2px;}
+.dvi{display:flex;align-items:flex-start;gap:12px;padding:14px 10px;border-bottom:1px solid var(--border-light);cursor:pointer;transition:background .15s;border-radius:var(--radius-md);}
+.dvi:last-child{border-bottom:none;}
+.dvi:hover{background:var(--bg-base);}
+.dvi-main{flex:1;min-width:0;}
+.dvi-title{font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dvi-meta{font-size:11px;color:var(--text-secondary);margin-bottom:5px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.dvi-preview{font-size:12px;color:var(--text-muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.dvi-del{flex-shrink:0;width:30px;height:30px;border-radius:var(--radius-sm);border:1px solid var(--border-light);background:var(--bg-base);display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;color:var(--text-muted);transition:.15s;align-self:center;}
+.dvi-del:hover{background:var(--red-bg);border-color:#FECACA;color:var(--red);}
+.draft-vault-empty{text-align:center;padding:40px 20px;color:var(--text-muted);}
+.draft-vault-empty-icon{font-size:36px;margin-bottom:8px;}
+.draft-vault-empty-text{font-size:13px;font-weight:600;color:var(--text-secondary);}
 
 /* ━━━ 토스트 ━━━ */
 .toast-wrap{position:fixed;bottom:24px;right:24px;z-index:900;display:flex;flex-direction:column;gap:8px;}
@@ -594,6 +614,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
         <div class="page-title">📋 알림장</div>
         <div class="page-sub">교사 ↔ 학부모 알림장 현황을 확인하고 관리합니다</div>
       </div>
+      <button class="btn btn-outline btn-sm" onclick="showToast('내보내기 기능은 준비 중입니다.')">📥 내보내기</button>
     </div>
 
     <!-- 오늘의 현황 -->
@@ -625,7 +646,6 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
           <select class="fsel" id="filterStatus">
             <option value="">전체 상태</option>
             <option value="published">발행됨</option>
-            <option value="draft">임시저장</option>
             <option value="deleted">삭제됨</option>
             <option value="scheduled">예약발행</option>
           </select>
@@ -675,7 +695,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
         <span class="total-count">총 <strong id="listCount">0</strong>건</span>
       </div>
       <div class="action-right">
-        <button class="btn btn-outline btn-sm" onclick="showToast('내보내기 기능은 준비 중입니다.')">📥 내보내기</button>
+        <button class="btn btn-outline" id="draftVaultBtn" onclick="openDraftVault()">🗂️ 임시보관함 <span class="draft-count-badge zero" id="draftVaultCount">0</span></button>
         <button class="btn btn-primary" onclick="openWritePanel()">✏️ 알림장 작성</button>
       </div>
     </div>
@@ -686,7 +706,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 </div>
 
 <!-- ━━━ 오버레이 ━━━ -->
-<div class="panel-overlay" id="panelOverlay" onclick="closeAllPanels()"></div>
+<div class="panel-overlay" id="panelOverlay" onclick="overlayClose()"></div>
 
 <!-- ━━━ 보낸 알림장 상세 뷰어 ━━━ -->
 <div class="detail-panel" id="sentDetailPanel">
@@ -722,12 +742,12 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
     <div class="write-title" id="writePanelTitle">✏️ 알림장 작성</div>
     <div class="write-header-actions">
       <button class="btn btn-outline btn-sm" onclick="saveDraft()">🗂️ 임시저장</button>
-      <div class="panel-close" onclick="closeWritePanel()">✕</div>
+      <div class="panel-close" onclick="tryCloseWritePanel()">✕</div>
     </div>
   </div>
   <div class="write-body" id="writePanelBody"></div>
   <div class="write-footer">
-    <button class="btn btn-outline" onclick="closeWritePanel()">취소</button>
+    <button class="btn btn-outline" onclick="tryCloseWritePanel()">취소</button>
     <button class="btn btn-outline" onclick="document.getElementById('scheduleModal').classList.add('show')">🕐 예약 발행</button>
     <button class="btn btn-primary" onclick="publishNotice()">📤 발행하기</button>
   </div>
@@ -749,7 +769,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline btn-sm" onclick="document.getElementById('scheduleModal').classList.remove('show')">취소</button>
-      <button class="btn btn-primary btn-sm" onclick="document.getElementById('scheduleModal').classList.remove('show');showToast('예약 발행이 설정되었습니다.','success')">확인</button>
+      <button class="btn btn-primary btn-sm" onclick="document.getElementById('scheduleModal').classList.remove('show');schedulePublish()">확인</button>
     </div>
   </div>
 </div>
@@ -769,12 +789,55 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
   </div>
 </div>
 
-<!-- ━━━ 토스트 ━━━ -->
-<div class="draft-fab" id="draftFab" onclick="toggleDraftFilter()">
-  <span class="draft-fab-icon">📝</span>
-  <span>임시저장</span>
-  <span class="draft-fab-count" id="draftFabCount">0</span>
+<!-- ━━━ 임시보관함 모달 ━━━ -->
+<div class="draft-vault-overlay" id="draftVaultOverlay" onclick="if(event.target===this)closeDraftVault()">
+  <div class="draft-vault-box">
+    <div class="draft-vault-header">
+      <div class="draft-vault-title">🗂️ 임시보관함 <span class="draft-count-badge" id="draftVaultModalCount">0</span></div>
+      <div class="modal-close" onclick="closeDraftVault()">✕</div>
+    </div>
+    <div class="draft-vault-body" id="draftVaultBody"></div>
+  </div>
 </div>
+
+<!-- ━━━ 임시보관함 삭제 확인 ━━━ -->
+<div class="modal-overlay" id="draftDeleteModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">🗑️ 임시보관함 삭제</div>
+      <div class="modal-close" onclick="document.getElementById('draftDeleteModal').classList.remove('show')">✕</div>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:14px;color:var(--text-primary);line-height:1.6;">해당 임시저장 항목을 삭제하시겠습니까?</p>
+      <p style="font-size:12px;color:var(--red-text);margin-top:8px;">⚠️ 삭제된 임시저장은 복구할 수 없습니다.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('draftDeleteModal').classList.remove('show')">취소</button>
+      <button class="btn btn-sm" style="background:var(--red);color:#fff;" onclick="executeDraftDelete()">삭제</button>
+    </div>
+  </div>
+</div>
+
+<!-- ━━━ 작성 닫기 확인 모달 ━━━ -->
+<div class="modal-overlay" id="writeCloseConfirmModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">✏️ 작성 중인 내용이 있습니다</div>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:14px;color:var(--text-primary);line-height:1.65;">창을 닫으면 지금까지 작성한 내용이 <strong>모두 사라집니다.</strong><br>임시보관함에 저장하고 나중에 이어서 작성하시겠습니까?</p>
+    </div>
+    <div class="modal-footer" style="justify-content:space-between;">
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('writeCloseConfirmModal').classList.remove('show')">계속 작성</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-sm" style="background:var(--red);color:#fff;" onclick="document.getElementById('writeCloseConfirmModal').classList.remove('show');closeWritePanel()">그냥 닫기</button>
+        <button class="btn btn-primary btn-sm" onclick="document.getElementById('writeCloseConfirmModal').classList.remove('show');saveDraft()">🗂️ 임시저장 후 닫기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ━━━ 토스트 ━━━ -->
 <div class="toast-wrap" id="toastWrap"></div>
 
 <script>
@@ -891,19 +954,6 @@ const MOCK_SENT = [
       { id:'C016', name:'홍주원', color:'#8B5CF6', isRead:true, commentCount:0, comments:[]}
     ]
   },
-  // ─ 다중·임시저장·내용 미완성
-  {
-    id:'NB007', date:'2026-03-28', class:'달님반', teacher:'박소현', teacherColor:'#10B981',
-    status:'draft', statusLabel:'임시저장',
-    weather:null, childCount:3, readCount:0, commentCount:0,
-    publishedAt:null, writeType:'multi', photos:[],
-    content:'(임시저장 중인 알림장입니다. 아직 발행되지 않았습니다.)',
-    children:[
-      { id:'C004', name:'최유진', color:'#8B5CF6', isRead:false, commentCount:0, comments:[]},
-      { id:'C005', name:'정민호', color:'#F97316', isRead:false, commentCount:0, comments:[]},
-      { id:'C006', name:'강지아', color:'#EC4899', isRead:false, commentCount:0, comments:[]}
-    ]
-  },
   // ─ 단일·발행·비디오만·미읽은댓글
   {
     id:'NB008', date:'2026-03-27', class:'별님반', teacher:'정다은', teacherColor:'#F59E0B',
@@ -976,6 +1026,27 @@ const MOCK_SENT = [
         comments:[{ author:'한정민 엄마', type:'parent', color:'#A855F7', relation:'엄마', text:'눈 보고 신기해했겠어요!', time:'14:00' }]},
       { id:'C012', name:'배도윤', color:'#22C55E', isRead:false, commentCount:0, comments:[]}
     ]
+  }
+];
+
+// ━━━ 임시보관함 ━━━
+// 사용자(교사)가 작성 중 임시저장한 항목. 발행 시 삭제되고 MOCK_SENT에 추가됨.
+let DRAFT_STORAGE = [
+  {
+    id: 'DRAFT001',
+    savedAt: '2026-03-28 14:23',
+    classId: 'CLS002', className: '달님반',
+    writeType: 'multi',
+    date: '2026-03-28',
+    weather: null,
+    content: '(임시저장 중인 알림장입니다. 아직 발행되지 않았습니다.)',
+    children: [
+      { id:'C004', name:'최유진', color:'#8B5CF6' },
+      { id:'C005', name:'정민호', color:'#F97316' },
+      { id:'C006', name:'강지아', color:'#EC4899' }
+    ],
+    photos: [],
+    childState: {}
   }
 ];
 
@@ -1099,7 +1170,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initClassFilter();
   renderTodayDashboard();
   renderList('sent');
-  updateDraftFab();
+  updateDraftVaultBtn();
 
   const prefill = JSON.parse(sessionStorage.getItem('noticePrefill') || 'null');
   if (prefill && prefill.childName) {
@@ -1121,28 +1192,19 @@ function switchTab(tab) {
   document.getElementById('sentFilterBar').style.display     = tab === 'sent'     ? 'flex' : 'none';
   document.getElementById('receivedFilterBar').style.display = tab === 'received' ? 'flex' : 'none';
   renderList(tab);
-  updateDraftFab();
+  updateDraftVaultBtn();
 }
 
-function updateDraftFab() {
-  const draftCount = MOCK_SENT.filter(n => n.status === 'draft').length;
-  const fab = document.getElementById('draftFab');
-  if (!fab) return;
-  document.getElementById('draftFabCount').textContent = draftCount;
-  fab.style.display = (currentTab === 'sent' && draftCount > 0) ? 'flex' : 'none';
-}
-
-let draftFilterActive = false;
-function toggleDraftFilter() {
-  draftFilterActive = !draftFilterActive;
-  const sel = document.getElementById('filterStatus');
-  if (sel) sel.value = draftFilterActive ? 'draft' : '';
-  const fab = document.getElementById('draftFab');
-  if (fab) {
-    fab.style.background = draftFilterActive ? 'var(--amber)' : 'var(--accent)';
-    fab.title = draftFilterActive ? '전체 보기' : '임시저장만 보기';
+function updateDraftVaultBtn() {
+  const cnt = DRAFT_STORAGE.length;
+  const badge = document.getElementById('draftVaultCount');
+  if (!badge) return;
+  badge.textContent = cnt;
+  if (cnt > 0) {
+    badge.classList.remove('zero');
+  } else {
+    badge.classList.add('zero');
   }
-  applyFilters();
 }
 
 // ━━━ 오늘의 현황 ━━━
@@ -1361,18 +1423,146 @@ function openSentDetail(id) {
   document.getElementById('sdpTitle').textContent = notice.date + ' ' + notice.class;
 
   const tabs = document.getElementById('sdpChildTabs');
-  tabs.innerHTML = `<div class="panel-tab active" onclick="switchChildTab(this,0)">📋 공통</div>` +
-    notice.children.map((c,i) => {
-      const parentCnt = c.comments.filter(cm => cm.type === 'parent').length;
-      const unread = parentCnt > 0 && !isChildRead(notice.id, c.id);
-      const badge = parentCnt > 0 ? `<span class="panel-tab-badge${unread ? '' : ' read'}">${parentCnt}</span>` : '';
-      return `<div class="panel-tab" onclick="switchChildTab(this,${i+1})">${c.name}${badge}</div>`;
-    }).join('');
+  const isSingle = notice.writeType === 'single';
 
-  renderSentDetailCommon(notice);
+  if (isSingle) {
+    // 1:1 알림장: 탭 없이 한 페이지에 모두 표시
+    tabs.innerHTML = '';
+    tabs.style.display = 'none';
+    renderSentDetailSingle(notice);
+  } else {
+    // 다중 알림장: 기존 탭 방식
+    tabs.style.display = '';
+    tabs.innerHTML = `<div class="panel-tab active" onclick="switchChildTab(this,0)">📋 공통</div>` +
+      notice.children.map((c,i) => {
+        const parentCnt = c.comments.filter(cm => cm.type === 'parent').length;
+        const unread = parentCnt > 0 && !isChildRead(notice.id, c.id);
+        const badge = parentCnt > 0 ? `<span class="panel-tab-badge${unread ? '' : ' read'}">${parentCnt}</span>` : '';
+        return `<div class="panel-tab" onclick="switchChildTab(this,${i+1})">${c.name}${badge}</div>`;
+      }).join('');
+    renderSentDetailCommon(notice);
+  }
+
   document.getElementById('sdpEditBtn').onclick = () => editNotice(notice.id);
   document.getElementById('sdpDeleteBtn').onclick = () => confirmDelete(notice.id);
   showPanel('sentDetailPanel');
+}
+
+function renderSentDetailSingle(notice) {
+  const wi = WEATHER_ICON[notice.weather] || '';
+  const photos = notice.photos || [];
+  const body = document.getElementById('sdpBody');
+
+  const photosHTML = photos.length > 0 ? `
+    <div class="psec">
+      <div class="psec-title">📸 사진/동영상 (${photos.length})</div>
+      <div class="photo-grid">
+        ${photos.map(p => `<div style="position:relative">
+          <img class="photo-thumb${p.isRepresentative?' representative':''}" src="${p.url}" alt="${p.type}" onerror="this.style.display='none'">
+          ${p.isRepresentative ? '<div style="position:absolute;bottom:6px;left:6px;background:var(--amber);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;">대표</div>' : ''}
+          ${p.type==='video' ? '<div style="position:absolute;top:6px;right:6px;background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;">영상</div>' : ''}
+        </div>`).join('')}
+      </div>
+    </div>` : '';
+
+  const evalMap = { '좋음':'good', '보통':'ok', '나쁨':'bad' };
+  const evalLabels = [
+    {key:'mood',label:'기분'},{key:'health',label:'건강'},{key:'meal',label:'식사량'},
+    {key:'toilet',label:'배변'},{key:'activity',label:'참여도'},{key:'social',label:'교우관계'}
+  ];
+
+  const childSections = notice.children.map(child => {
+    markChildRead(notice.id, child.id);
+
+    let evalHTML = '';
+    if (child.dailyEval) {
+      const de = child.dailyEval;
+      const vals = Object.values(de).filter(Boolean);
+      const goodCnt = vals.filter(v=>v==='좋음').length;
+      const badCnt = vals.filter(v=>v==='나쁨').length;
+      const summary = child.evalSummary || (badCnt>=1?'확인이 필요해요 ⚠️':goodCnt>=4?'아주 좋아요 👍':'무난해요 😊');
+      const sumCls = summary.includes('👍')?'good':summary.includes('⚠️')?'check':'ok';
+      evalHTML = `<div class="psec">
+        <div class="psec-title">📊 종합평가</div>
+        <div class="eval-summary-card ${sumCls}">
+          <span class="eval-summary-icon">${summary.slice(-2)}</span>
+          <span class="eval-summary-text ${sumCls}">${summary}</span>
+        </div>
+        <div class="eval-grid">
+          ${evalLabels.map(e => {
+            const val = de[e.key];
+            const vc = val ? 'eval-val-' + evalMap[val] : '';
+            return `<div class="eval-item"><div class="eval-item-label">${e.label}</div><div class="eval-item-val ${vc}">${val||'—'}</div></div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    }
+
+    const comments = child.comments.map(cm => {
+      const isTeacher = cm.type === 'teacher';
+      const wrapClass = cm.isReply ? 'comment-item reply-item' : 'comment-item';
+      return `<div class="${wrapClass}">
+        <div class="comment-avatar" style="background:${cm.color}">${cm.author[0]}</div>
+        <div class="comment-bubble ${isTeacher?'teacher-bubble':''}">
+          <div class="comment-meta">
+            <span class="comment-author">${cm.author}</span>
+            <span class="comment-role ${isTeacher?'cr-teacher':'cr-parent'}">${isTeacher?'교사':'학부모'}</span>
+            <span class="comment-time">${cm.time}</span>
+          </div>
+          <div class="comment-text">${cm.text}</div>
+        </div>
+      </div>`;
+    }).join('');
+
+    return `
+      <div style="border-top:2px solid var(--border-light);margin-top:4px;padding-top:16px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+          <div class="tcc-avatar" style="background:${child.color};width:32px;height:32px;font-size:13px;">${child.name[0]}</div>
+          <div style="font-size:14px;font-weight:800;color:var(--text-primary);">${child.name}</div>
+          ${child.dailyEval ? '<span style="background:var(--blue-bg);color:var(--blue-text);font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;">종합평가 있음</span>' : ''}
+        </div>
+      </div>
+      ${evalHTML}
+      <div class="psec">
+        <div class="psec-title">개별 메모</div>
+        <div class="memo-box">${child.individualMemo||'—'}</div>
+      </div>
+      <div class="comment-section">
+        <div class="psec-title" style="margin-bottom:12px;">댓글 · 대댓글</div>
+        <div class="comment-list">${comments||'<p style="font-size:12px;color:var(--text-muted);padding:8px 0">아직 댓글이 없습니다.</p>'}</div>
+        <div class="comment-input-wrap">
+          <textarea class="comment-textarea" placeholder="${child.name} 학부모에게 답글을 작성하세요..."></textarea>
+          <button class="comment-send-btn" onclick="showToast('댓글이 등록되었습니다.','success')">➤</button>
+        </div>
+      </div>`;
+  }).join('');
+
+  body.innerHTML = `
+    <div class="psec">
+      <div class="psec-title">기본 정보</div>
+      <div class="notice-info-row">
+        <span class="ni-icon">${wi}</span>
+        <div class="ni-text">
+          <div class="ni-main">${notice.date} · ${notice.class}</div>
+          <div class="ni-sub">👨‍🏫 ${notice.teacher} · 👶 ${notice.childCount}명 · 1:1 알림장</div>
+        </div>
+        <span class="nbadge nb-${notice.status}"><span class="nbadge-dot" style="background:${statusDotColor(notice.status)}"></span>${notice.statusLabel}</span>
+      </div>
+    </div>
+    <div class="psec">
+      <div class="psec-title">공통 본문</div>
+      <div class="notice-content-box">${notice.content}</div>
+    </div>
+    ${photosHTML}
+    <div class="psec">
+      <div class="psec-title">발행 현황</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+        <div class="eval-item"><div class="eval-item-label">읽음</div><div class="eval-item-val">${notice.readCount}/${notice.childCount}</div></div>
+        <div class="eval-item"><div class="eval-item-label">댓글</div><div class="eval-item-val">${notice.commentCount}</div></div>
+        <div class="eval-item"><div class="eval-item-label">발행시각</div><div class="eval-item-val" style="font-size:11px;font-family:'JetBrains Mono'">${notice.publishedAt||'--:--'}</div></div>
+      </div>
+    </div>
+    ${childSections}`;
 }
 
 function switchChildTab(el, idx) {
@@ -1629,6 +1819,7 @@ let writeSelectedWeather = '맑음';
 let writePhotos = []; // { url, type:'photo'|'video', isRepresentative }
 const writeTagActiveCats = {}; // 원아별 활성 카테고리
 let isEditMode = false; // 수정 모드 여부
+let activeDraftId = null; // 현재 작성 중인 임시저장 ID (프리필 출처)
 let writeSelectedClass = ''; // 선택된 반 ID
 
 const CHILD_STATE = {};
@@ -1657,6 +1848,7 @@ const MOCK_PHOTOS = [
 function openWritePanel() {
   writeMode = 'single';
   isEditMode = false;
+  activeDraftId = null;
   writeSelectedClass = '';
   writeSelectedChildren.clear();
   writePhotos = [];
@@ -1667,7 +1859,33 @@ function openWritePanel() {
   renderWritePanel();
 }
 
+function isWriteDirty() {
+  if (writeSelectedClass) return true;
+  if (writeSelectedChildren.size > 0) return true;
+  const content = document.getElementById('wContent');
+  if (content && content.value.trim()) return true;
+  return false;
+}
+
+function tryCloseWritePanel() {
+  if (isWriteDirty()) {
+    document.getElementById('writeCloseConfirmModal').classList.add('show');
+  } else {
+    closeWritePanel();
+  }
+}
+
+function overlayClose() {
+  const writePanelOpen = document.getElementById('writePanel').classList.contains('show');
+  if (writePanelOpen) {
+    tryCloseWritePanel();
+  } else {
+    closeAllPanels();
+  }
+}
+
 function closeWritePanel() {
+  document.getElementById('writeCloseConfirmModal').classList.remove('show');
   document.getElementById('writePanel').classList.remove('show');
   document.getElementById('panelOverlay').classList.remove('show');
 }
@@ -2212,11 +2430,81 @@ function aiPolish() {
   }, 900);
 }
 
-function saveDraft() { showToast('임시저장되었습니다.', 'success'); }
+function saveDraft() {
+  const content = (document.getElementById('wContent') || {}).value || '';
+  const dateVal = (document.getElementById('wDate') || {}).value || '';
+  const classMap = { CLS001:'햇님반', CLS002:'달님반', CLS003:'별님반', CLS004:'꽃님반' };
+
+  // 선택된 원아 목록 구성
+  const selectedChildren = WRITE_CHILDREN
+    .filter(c => writeSelectedChildren.has(c.id))
+    .map(c => ({ id: c.id, name: c.name, color: c.color }));
+
+  // 현재 원아 상태 스냅샷
+  const stateSnap = {};
+  writeSelectedChildren.forEach(cid => {
+    if (CHILD_STATE[cid]) stateSnap[cid] = { ...CHILD_STATE[cid] };
+  });
+
+  const now = new Date();
+  const savedAt = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+  if (activeDraftId) {
+    // 기존 임시저장 항목 덮어쓰기
+    const idx = DRAFT_STORAGE.findIndex(d => d.id === activeDraftId);
+    if (idx > -1) {
+      DRAFT_STORAGE[idx] = { ...DRAFT_STORAGE[idx],
+        classId: writeSelectedClass, className: classMap[writeSelectedClass] || '',
+        writeType: writeMode, date: dateVal, weather: writeSelectedWeather,
+        content, children: selectedChildren, photos: [...writePhotos],
+        childState: stateSnap, savedAt
+      };
+    }
+  } else {
+    // 신규 임시저장
+    const newId = 'DRAFT' + Date.now();
+    DRAFT_STORAGE.push({
+      id: newId,
+      savedAt,
+      classId: writeSelectedClass, className: classMap[writeSelectedClass] || '',
+      writeType: writeMode,
+      date: dateVal,
+      weather: writeSelectedWeather,
+      content,
+      children: selectedChildren,
+      photos: [...writePhotos],
+      childState: stateSnap
+    });
+    activeDraftId = newId;
+  }
+
+  updateDraftVaultBtn();
+  showToast('임시보관함에 저장되었습니다.', 'success');
+  closeWritePanel();
+}
+
+function schedulePublish() {
+  // 임시보관함에서 제거
+  if (activeDraftId) {
+    const idx = DRAFT_STORAGE.findIndex(d => d.id === activeDraftId);
+    if (idx > -1) DRAFT_STORAGE.splice(idx, 1);
+    activeDraftId = null;
+    updateDraftVaultBtn();
+  }
+  showToast('예약 발행이 설정되었습니다.', 'success');
+  closeWritePanel();
+}
 
 function publishNotice() {
   if (!writeSelectedClass) { showToast('반을 선택해 주세요.'); return; }
   if (writeSelectedChildren.size === 0) { showToast('대상 원아를 선택해 주세요.'); return; }
+  // 임시보관함에서 제거
+  if (activeDraftId) {
+    const idx = DRAFT_STORAGE.findIndex(d => d.id === activeDraftId);
+    if (idx > -1) DRAFT_STORAGE.splice(idx, 1);
+    activeDraftId = null;
+    updateDraftVaultBtn();
+  }
   showToast(`알림장이 발행되었습니다. (${writeMode==='single'?'1:1':'다중'} · ${writeSelectedChildren.size}명)`, 'success');
   closeWritePanel();
 }
@@ -2315,6 +2603,108 @@ function resetSentFilters() {
   applyFilters();
 }
 
+// ━━━ 임시보관함 모달 ━━━
+function openDraftVault() {
+  renderDraftVault();
+  document.getElementById('draftVaultOverlay').classList.add('show');
+}
+
+function closeDraftVault() {
+  document.getElementById('draftVaultOverlay').classList.remove('show');
+}
+
+function renderDraftVault() {
+  const body = document.getElementById('draftVaultBody');
+  const modalCount = document.getElementById('draftVaultModalCount');
+  modalCount.textContent = DRAFT_STORAGE.length;
+
+  if (DRAFT_STORAGE.length === 0) {
+    body.innerHTML = `<div class="draft-vault-empty">
+      <div class="draft-vault-empty-icon">🗂️</div>
+      <div class="draft-vault-empty-text">임시저장된 항목이 없습니다</div>
+    </div>`;
+    return;
+  }
+
+  body.innerHTML = DRAFT_STORAGE.map(d => {
+    const childNames = d.children.length > 0
+      ? d.children.slice(0, 3).map(c => c.name).join(', ') + (d.children.length > 3 ? ` 외 ${d.children.length - 3}명` : '')
+      : '원아 미선택';
+    const typeBadge = d.writeType === 'single'
+      ? `<span style="background:var(--blue-bg);color:var(--blue-text);font-size:10px;font-weight:700;padding:1px 7px;border-radius:6px;">1:1</span>`
+      : `<span style="background:var(--green-bg);color:var(--green-text);font-size:10px;font-weight:700;padding:1px 7px;border-radius:6px;">다중</span>`;
+    const previewText = d.content ? d.content.replace(/\n/g, ' ').substring(0, 80) : '(내용 없음)';
+
+    return `<div class="dvi" onclick="prefillFromDraft('${d.id}')">
+      <div class="dvi-main">
+        <div class="dvi-title">${d.className || '반 미선택'} · ${childNames}</div>
+        <div class="dvi-meta">
+          ${typeBadge}
+          ${d.date ? `<span>📅 ${d.date}</span>` : ''}
+          <span style="color:var(--text-muted);font-size:10px;">저장: ${d.savedAt}</span>
+        </div>
+        <div class="dvi-preview">${previewText}</div>
+      </div>
+      <button class="dvi-del" title="삭제" onclick="event.stopPropagation();confirmDraftDelete('${d.id}')">🗑️</button>
+    </div>`;
+  }).join('');
+}
+
+function prefillFromDraft(draftId) {
+  const draft = DRAFT_STORAGE.find(d => d.id === draftId);
+  if (!draft) return;
+  closeDraftVault();
+
+  setTimeout(() => {
+    writeMode = draft.writeType || 'multi';
+    isEditMode = false;
+    activeDraftId = draftId;
+    writeSelectedWeather = draft.weather || '맑음';
+    writePhotos = (draft.photos || []).map(p => ({...p}));
+    writeSelectedClass = draft.classId || '';
+    WRITE_CHILDREN = CLASS_CHILDREN[writeSelectedClass] || [];
+    WRITE_CHILDREN.forEach(c => resetChildState(c.id));
+
+    writeSelectedChildren.clear();
+    (draft.children || []).forEach(c => writeSelectedChildren.add(c.id));
+
+    // 원아별 상태 복원
+    if (draft.childState) {
+      Object.keys(draft.childState).forEach(cid => {
+        CHILD_STATE[cid] = { ...CHILD_STATE[cid], ...draft.childState[cid] };
+      });
+    }
+
+    document.getElementById('writePanelTitle').innerHTML = '✏️ 알림장 작성 <span style="font-size:11px;color:var(--amber);font-weight:600;margin-left:6px;">📂 임시저장 불러옴</span>';
+    showPanel('writePanel');
+    renderWritePanel();
+
+    setTimeout(() => {
+      const dateEl = document.getElementById('wDate');
+      if (dateEl && draft.date) dateEl.value = draft.date;
+      const contentEl = document.getElementById('wContent');
+      if (contentEl && draft.content) contentEl.value = draft.content;
+    }, 50);
+  }, 150);
+}
+
+let _deleteDraftTargetId = null;
+function confirmDraftDelete(draftId) {
+  _deleteDraftTargetId = draftId;
+  document.getElementById('draftDeleteModal').classList.add('show');
+}
+
+function executeDraftDelete() {
+  if (!_deleteDraftTargetId) return;
+  const idx = DRAFT_STORAGE.findIndex(d => d.id === _deleteDraftTargetId);
+  if (idx > -1) DRAFT_STORAGE.splice(idx, 1);
+  document.getElementById('draftDeleteModal').classList.remove('show');
+  updateDraftVaultBtn();
+  renderDraftVault();
+  showToast('임시저장 항목이 삭제되었습니다.', 'success');
+  _deleteDraftTargetId = null;
+}
+
 // ━━━ 토스트 ━━━
 function showToast(msg, type) {
   const wrap = document.getElementById('toastWrap');
@@ -2326,7 +2716,15 @@ function showToast(msg, type) {
   setTimeout(() => t.remove(), 2600);
 }
 
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllPanels(); });
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  const writePanelOpen = document.getElementById('writePanel').classList.contains('show');
+  if (writePanelOpen) {
+    tryCloseWritePanel();
+  } else {
+    closeAllPanels();
+  }
+});
 </script>
 </body>
 </html>
