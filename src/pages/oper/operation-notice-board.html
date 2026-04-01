@@ -48,34 +48,26 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .breadcrumb .cur{color:var(--text-primary);font-weight:600;}
 .bc-sep{color:var(--text-muted);font-size:11px;}
 
-/* ━━━ 오늘의 현황 ━━━ */
+/* ━━━ 우리 반 현황 ━━━ */
 .today-section{margin-bottom:16px;}
-.today-section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.today-section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
 .today-section-title{font-size:14px;font-weight:800;color:var(--text-primary);display:flex;align-items:center;gap:6px;}
 .today-section-meta{font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;}
-.today-children-grid{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;}
-.today-children-grid::-webkit-scrollbar{height:4px;}
-.today-children-grid::-webkit-scrollbar-thumb{background:var(--border-medium);border-radius:2px;}
-.today-child-card{flex-shrink:0;width:108px;border-radius:var(--radius-lg);padding:12px 8px 10px;display:flex;flex-direction:column;align-items:center;gap:5px;border:1.5px solid transparent;cursor:pointer;transition:box-shadow .18s,transform .18s;position:relative;}
-.today-child-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
-.tcc-present{background:#F0FDF4;border-color:#A7F3D0;}
-.tcc-absent {background:#FEF2F2;border-color:#FECACA;}
-.tcc-sick   {background:#FFFBEB;border-color:#FCD34D;}
-.tcc-leave  {background:#EFF6FF;border-color:#BAD9F7;}
-.tcc-unknown{background:#F9FAFB;border-color:#E5E7EB;}
-.tcc-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff;position:relative;flex-shrink:0;}
-.tcc-comment-dot{position:absolute;top:-3px;right:-3px;width:14px;height:14px;border-radius:50%;background:var(--red);border:2px solid var(--bg-surface);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:800;color:#fff;}
-.tcc-name{font-size:12px;font-weight:700;color:var(--text-primary);text-align:center;line-height:1.2;}
-.tcc-age{font-size:10px;color:var(--text-secondary);font-weight:500;}
-.tcc-attend-label{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;white-space:nowrap;}
-.tcc-al-present{background:var(--green-bg);color:var(--green-text);}
-.tcc-al-absent {background:var(--red-bg);  color:var(--red-text);}
-.tcc-al-sick   {background:var(--amber-bg);color:var(--amber-text);}
-.tcc-al-leave  {background:var(--blue-bg); color:var(--blue-text);}
-.tcc-al-unknown{background:#F3F4F6;color:#9CA3AF;}
-.tcc-notice-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;white-space:nowrap;}
-.tcc-notice-done{background:var(--green-bg);color:var(--green-text);}
-.tcc-notice-none{background:#F3F4F6;color:#9CA3AF;}
+/* 반 필터칩 */
+.today-class-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.today-class-chip{padding:5px 14px;border-radius:20px;border:1.5px solid var(--border-light);background:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Pretendard',sans-serif;transition:.18s;color:var(--text-secondary);}
+.today-class-chip:hover{border-color:var(--accent);background:var(--accent-light);color:var(--accent-dark);}
+.today-class-chip.active{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 2px 8px rgba(14,165,233,.25);}
+/* 원아 그리드 */
+.today-children-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;}
+/* 호버 액션 버튼 */
+.tcc-hover-actions{display:none;position:absolute;top:5px;right:5px;flex-direction:column;gap:3px;z-index:10;}
+.child-select-card:hover .tcc-hover-actions{display:flex;}
+.tcc-action-btn{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;border:none;cursor:pointer;font-family:'Pretendard',sans-serif;transition:.15s;line-height:1.6;white-space:nowrap;}
+.tcc-edit-btn{background:var(--bg-base);color:var(--text-secondary);border:1px solid var(--border-light);}
+.tcc-edit-btn:hover{background:var(--accent-light);color:var(--accent-dark);border-color:var(--accent);}
+.tcc-attend-btn{background:var(--green-bg);color:var(--green-text);border:1px solid #A7F3D0;}
+.tcc-attend-btn:hover{background:var(--green);color:#fff;}
 
 /* 알림장 카드 내 원아 chips */
 .nc-children{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
@@ -617,12 +609,13 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
       <button class="btn btn-outline btn-sm" onclick="showToast('내보내기 기능은 준비 중입니다.')">📥 내보내기</button>
     </div>
 
-    <!-- 오늘의 현황 -->
+    <!-- 우리 반 현황 -->
     <div class="today-section">
       <div class="today-section-header">
-        <div class="today-section-title">📅 오늘의 현황</div>
+        <div class="today-section-title">👶 우리 반 현황</div>
         <span class="today-section-meta" id="todayMeta"></span>
       </div>
+      <div class="today-class-chips" id="todayClassChips"></div>
       <div class="today-children-grid" id="todayChildrenGrid"></div>
     </div>
 
@@ -946,7 +939,7 @@ const MOCK_SENT = [
     status:'deleted', statusLabel:'삭제됨',
     weather:'맑음', childCount:4, readCount:3, commentCount:0,
     publishedAt:'08:20', writeType:'multi', photos:[],
-    content:'이전에 발송된 알림장에 오류가 있어 회수되었습니다. 수정 후 재발송 예정입니다.',
+    content:'안녕하세요! 오늘은 봄맞이 체육 활동으로 달리기와 공놀이를 했습니다. 아이들이 활발하게 움직이며 즐거워했어요. 내일은 미술 활동이 예정되어 있습니다.',
     children:[
       { id:'C013', name:'권나연', color:'#3B82F6', isRead:true, commentCount:0, comments:[]},
       { id:'C014', name:'오재민', color:'#10B981', isRead:true, commentCount:0, comments:[]},
@@ -1168,6 +1161,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('topDate').textContent = now.toLocaleDateString('ko-KR', { year:'numeric', month:'2-digit', day:'2-digit', weekday:'short' });
   document.getElementById('todayMeta').textContent = now.toLocaleDateString('ko-KR', { month:'long', day:'numeric', weekday:'long' }) + ' 기준';
   initClassFilter();
+  renderTodayClassChips();
   renderTodayDashboard();
   renderList('sent');
   updateDraftVaultBtn();
@@ -1207,36 +1201,109 @@ function updateDraftVaultBtn() {
   }
 }
 
-// ━━━ 오늘의 현황 ━━━
+// ━━━ 우리 반 현황 ━━━
+let todayActiveClass = '';
+
+function renderTodayClassChips() {
+  const container = document.getElementById('todayClassChips');
+  if (!container) return;
+  const availClasses = NB_ASSIGNED
+    ? NB_ALL_CLASSES.filter(cl => NB_ASSIGNED.some(a => a.id === cl.id))
+    : NB_ALL_CLASSES.filter(cl => CLASS_CHILDREN[cl.id]);
+  if (!todayActiveClass && availClasses.length > 0) todayActiveClass = availClasses[0].id;
+  container.innerHTML = availClasses.map(cl =>
+    `<button class="today-class-chip${todayActiveClass === cl.id ? ' active' : ''}" onclick="selectTodayClass('${cl.id}')">${cl.name}</button>`
+  ).join('');
+}
+
+function selectTodayClass(classId) {
+  todayActiveClass = classId;
+  renderTodayClassChips();
+  renderTodayDashboard();
+}
+
 function renderTodayDashboard() {
-  const classVal = (document.getElementById('classFilter') || {}).value || '';
   const grid = document.getElementById('todayChildrenGrid');
-  const children = TODAY_CHILDREN.filter(c => !classVal || c.class === classVal);
+  const tccAttendBadge = (a) => {
+    const m = {'출석':'present','결석':'absent','병결':'sick','조퇴':'leave','미확인':'unknown'};
+    return `<span class="csc-badge csc-badge-${m[a]||'unknown'}">${a}</span>`;
+  };
+
+  // CLASS_CHILDREN 기준으로 원아 목록 구성
+  let children = [];
+  Object.entries(CLASS_CHILDREN).forEach(([clsId, kids]) => {
+    if (!todayActiveClass || todayActiveClass === clsId) {
+      kids.forEach(c => children.push({...c, classId: clsId}));
+    }
+  });
+
+  // 정렬: 알림장 작성완료 > 이름순
+  children.sort((a, b) => {
+    if (a.noticeWritten !== b.noticeWritten) return b.noticeWritten ? 1 : -1;
+    return a.name.localeCompare(b.name, 'ko');
+  });
+
   if (children.length === 0) {
     grid.innerHTML = '<div style="font-size:13px;color:var(--text-muted);padding:12px 0">해당 반 원아 데이터가 없습니다.</div>';
     return;
   }
-  const attendConfig = {
-    '출석':{ cls:'tcc-present',labelCls:'tcc-al-present' },
-    '결석':{ cls:'tcc-absent', labelCls:'tcc-al-absent' },
-    '병결':{ cls:'tcc-sick',   labelCls:'tcc-al-sick' },
-    '조퇴':{ cls:'tcc-leave',  labelCls:'tcc-al-leave' },
-    '미확인':{ cls:'tcc-unknown',labelCls:'tcc-al-unknown' },
-  };
+
   grid.innerHTML = children.map(c => {
-    const cfg = attendConfig[c.attendance] || attendConfig['미확인'];
-    const commentDot = c.parentComment ? `<div class="tcc-comment-dot" title="학부모 댓글 있음">!</div>` : '';
     const noticeBadge = c.noticeWritten
-      ? `<span class="tcc-notice-badge tcc-notice-done">✅ 작성완료</span>`
-      : `<span class="tcc-notice-badge tcc-notice-none">✏️ 미작성</span>`;
-    return `<div class="today-child-card ${cfg.cls}" title="${c.name} · ${c.attendance}">
-      <div class="tcc-avatar" style="background:${c.color}">${c.name[0]}${commentDot}</div>
-      <div class="tcc-name">${c.name}</div>
-      <div class="tcc-age">만 ${c.age}세</div>
-      <span class="tcc-attend-label ${cfg.labelCls}">${c.attendance}</span>
-      ${noticeBadge}
+      ? '<span class="csc-badge csc-badge-written">작성완료</span>'
+      : '<span class="csc-badge csc-badge-unwritten">미작성</span>';
+    const medBadge = c.medication === 'need'
+      ? '<span class="csc-badge csc-badge-med-need">💊 투약필요</span>'
+      : c.medication === 'done'
+      ? '<span class="csc-badge csc-badge-med-done">💊 투약완료</span>'
+      : '';
+    const attendBtn = c.attendance === '미확인'
+      ? `<button class="tcc-action-btn tcc-attend-btn" onclick="event.stopPropagation();markTodayAttendance('${c.id}')">출석</button>`
+      : '';
+    return `<div class="child-select-card" onclick="openWritePanelForChild('${c.id}','${c.classId}')">
+      <div class="csc-avatar" style="background:${c.color}">${c.name[0]}</div>
+      <div class="csc-name">${c.name}</div>
+      <div class="csc-badges">
+        ${tccAttendBadge(c.attendance)}
+        ${noticeBadge}
+        ${medBadge}
+      </div>
+      <div class="tcc-hover-actions">
+        <button class="tcc-action-btn tcc-edit-btn" onclick="event.stopPropagation();goToChildEdit('${c.id}')">수정</button>
+        ${attendBtn}
+      </div>
     </div>`;
   }).join('');
+}
+
+function openWritePanelForChild(childId, classId) {
+  writeMode = 'single';
+  isEditMode = false;
+  activeDraftId = null;
+  writeSelectedClass = classId;
+  writeSelectedChildren.clear();
+  writePhotos = [];
+  WRITE_CHILDREN = CLASS_CHILDREN[classId] || [];
+  WRITE_CHILDREN.forEach(c => resetChildState(c.id));
+  writeSelectedWeather = '맑음';
+  writeSelectedChildren.add(childId);
+  document.getElementById('writePanelTitle').innerHTML = '✏️ 1:1 알림장 작성';
+  showPanel('writePanel');
+  renderWritePanel();
+}
+
+function goToChildEdit(childId) {
+  sessionStorage.setItem('childEditPrefill', JSON.stringify({ childId, mode: 'edit' }));
+  window.location.href = '../operation-child.html';
+}
+
+function markTodayAttendance(childId) {
+  Object.values(CLASS_CHILDREN).forEach(kids => {
+    const c = kids.find(k => k.id === childId);
+    if (c) c.attendance = '출석';
+  });
+  renderTodayDashboard();
+  showToast('✅ 출석 처리되었습니다.', 'success');
 }
 
 // ━━━ 목록 렌더 ━━━
