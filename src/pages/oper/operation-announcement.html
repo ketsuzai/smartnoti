@@ -250,7 +250,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .form-label .req{color:var(--red);margin-left:2px;}
 .form-input{border:1.5px solid var(--border-light);border-radius:var(--radius-md);height:38px;padding:0 12px;font-size:14px;font-family:'Pretendard',sans-serif;color:var(--text-primary);background:var(--bg-surface);outline:none;transition:.18s;width:100%;}
 .form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(14,165,233,0.10);}
-.form-textarea{border:1.5px solid var(--border-light);border-radius:var(--radius-md);padding:10px 12px;font-size:14px;font-family:'Pretendard',sans-serif;color:var(--text-primary);background:var(--bg-surface);outline:none;transition:.18s;width:100%;resize:vertical;line-height:1.6;}
+.form-textarea{border:1.5px solid var(--border-light);border-radius:var(--radius-md);padding:10px 12px;font-size:14px;font-family:'Pretendard',sans-serif;color:var(--text-primary);background:var(--bg-surface);outline:none;transition:.18s;width:100%;resize:vertical;line-height:1.6;min-height:300px;}
 .form-textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(14,165,233,0.10);}
 .form-select{border:1.5px solid var(--border-light);border-radius:var(--radius-md);height:38px;padding:0 12px;font-size:14px;font-family:'Pretendard',sans-serif;color:var(--text-primary);background:var(--bg-surface);outline:none;transition:.18s;width:100%;appearance:none;cursor:pointer;}
 .form-select:focus{border-color:var(--accent);}
@@ -273,6 +273,28 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .toggle-blue input:checked + .toggle-track{background:var(--accent);}
 .reserve-time-row{margin-top:6px;display:none;}
 .reserve-time-row.visible{display:block;}
+
+/* ━━━ MINI TOGGLE ━━━ */
+.mini-toggle-row{display:flex;align-items:center;gap:20px;padding:4px 0;margin-bottom:10px;flex-wrap:wrap;}
+.mini-toggle-item{display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none;}
+.mini-toggle-label{font-size:13px;font-weight:600;color:var(--text-secondary);}
+.mini-toggle{position:relative;width:32px;height:18px;flex-shrink:0;cursor:pointer;}
+.mini-toggle input{opacity:0;width:0;height:0;position:absolute;}
+.mini-track{position:absolute;inset:0;background:#D1D5DB;border-radius:9px;transition:.25s;}
+.mini-thumb{position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:50%;transition:.25s;box-shadow:0 1px 2px rgba(0,0,0,.2);}
+.mini-toggle input:checked+.mini-track{background:var(--amber);}
+.mini-toggle input:checked~.mini-thumb{left:16px;}
+.mini-toggle.blue input:checked+.mini-track{background:var(--accent);}
+
+/* ━━━ PAST HEADER BANNER ━━━ */
+.past-header-banner{background:linear-gradient(135deg,var(--accent-light) 0%,var(--bg-base) 100%);border-radius:var(--radius-md);border:1.5px solid var(--accent-light);overflow:hidden;margin-bottom:14px;}
+.past-header-banner .past-section-header{background:transparent;padding:11px 14px;}
+.past-header-banner .past-section-header:hover{background:rgba(14,165,233,.07);}
+.past-header-banner .past-section-title{color:var(--accent-dark);font-weight:800;font-size:13px;}
+.past-header-banner .past-section-toggle{color:var(--accent);}
+
+/* ━━━ SCHEDULE MODAL ━━━ */
+.schedule-modal-box{width:400px;}
 
 /* ━━━ CATEGORY CHIPS (write modal) ━━━ */
 .cat-chip-row{display:flex;gap:6px;flex-wrap:wrap;}
@@ -543,101 +565,67 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
       <button class="modal-close" onclick="closeWriteModal()">✕</button>
     </div>
     <div class="modal-body">
+
+      <!-- 예전 글 불러오기 — 헤더 배너, 최상단 -->
+      <div class="past-section past-header-banner" id="pastSection">
+        <div class="past-section-header" onclick="togglePastSection()">
+          <span class="past-section-title">📅 작년 우리 원에서는 이런 공지를 했어요! (11월)</span>
+          <span class="past-section-toggle">▼</span>
+        </div>
+        <div class="past-section-body">
+          <div class="past-cat-row" id="pastCatChips"></div>
+          <div class="past-items-list" id="pastItemsList"></div>
+        </div>
+      </div>
+
+      <!-- 미니 토글 — 상단 근처 -->
+      <div class="mini-toggle-row">
+        <label class="mini-toggle-item" for="mPinned">
+          <div class="mini-toggle">
+            <input type="checkbox" id="mPinned">
+            <div class="mini-track"></div>
+            <div class="mini-thumb"></div>
+          </div>
+          <span class="mini-toggle-label">📌 중요 공지 고정</span>
+        </label>
+        <label class="mini-toggle-item" for="mCommentAllowed">
+          <div class="mini-toggle blue">
+            <input type="checkbox" id="mCommentAllowed" checked>
+            <div class="mini-track"></div>
+            <div class="mini-thumb"></div>
+          </div>
+          <span class="mini-toggle-label">💬 댓글 허용</span>
+        </label>
+      </div>
+
+      <div class="section-divider" style="margin-top:4px;margin-bottom:14px;"></div>
+
+      <!-- 제목 -->
       <div class="form-field">
         <label class="form-label">제목 <span class="req">*</span></label>
         <input class="form-input" id="mTitle" placeholder="공지 제목을 입력하세요">
       </div>
+
+      <!-- 반 선택 — 제목 바로 하단 -->
+      <div class="form-field">
+        <label class="form-label">대상</label>
+        <div class="cat-chip-row" id="writeClassChips"></div>
+      </div>
+
+      <!-- 카테고리 -->
       <div class="form-field">
         <label class="form-label">카테고리</label>
         <div class="cat-chip-row" id="writeCatChips"></div>
       </div>
-      <div class="form-field">
+
+      <!-- 내용 -->
+      <div class="form-field" style="margin-bottom:6px;">
         <label class="form-label">내용 <span class="req">*</span></label>
-        <textarea class="form-textarea" id="mContent" rows="5" placeholder="공지 내용을 입력하세요" style="height:110px;"></textarea>
-      </div>
-      <div class="form-field">
-        <label class="form-label">대상 <span class="req">*</span></label>
-        <select class="form-select" id="mTargetType" onchange="onTargetTypeChange()">
-          <option value="all">전체</option>
-          <option value="class">반별 선택</option>
-        </select>
-      </div>
-      <div class="form-field" id="classCheckGroup" style="display:none;">
-        <label class="form-label">반 선택</label>
-        <div class="class-checkboxes">
-          <label class="class-check-item"><input type="checkbox" name="mClass" value="햇님반"><span>햇님반</span></label>
-          <label class="class-check-item"><input type="checkbox" name="mClass" value="달님반"><span>달님반</span></label>
-          <label class="class-check-item"><input type="checkbox" name="mClass" value="별님반"><span>별님반</span></label>
-          <label class="class-check-item"><input type="checkbox" name="mClass" value="꽃님반"><span>꽃님반</span></label>
-        </div>
+        <textarea class="form-textarea" id="mContent" placeholder="공지 내용을 입력하세요"></textarea>
       </div>
 
-      <div class="section-divider"></div>
-
-      <div class="toggle-row">
-        <div style="flex:1;">
-          <div class="toggle-label-text">📌 중요 공지 고정</div>
-          <div class="toggle-sub">목록 상단에 고정하여 눈에 띄게 표시합니다</div>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" id="mPinned">
-          <div class="toggle-track"></div>
-          <div class="toggle-thumb"></div>
-        </label>
-      </div>
-      <div class="toggle-row">
-        <div style="flex:1;">
-          <div class="toggle-label-text">🕐 예약 발행</div>
-          <div class="toggle-sub">설정한 날짜/시간에 자동으로 발행됩니다</div>
-        </div>
-        <label class="toggle-switch toggle-blue">
-          <input type="checkbox" id="mReserveToggle" onchange="onReserveToggleChange()">
-          <div class="toggle-track"></div>
-          <div class="toggle-thumb"></div>
-        </label>
-      </div>
-      <div class="reserve-time-row" id="reserveTimeRow">
-        <div class="form-field" style="margin-bottom:0;">
-          <label class="form-label">발행 예약 일시</label>
-          <input type="datetime-local" class="form-input" id="mReserveAt">
-        </div>
-      </div>
-      <div class="toggle-row" style="margin-bottom:0;">
-        <div style="flex:1;">
-          <div class="toggle-label-text">💬 댓글 허용</div>
-          <div class="toggle-sub">학부모와 교사가 댓글을 작성할 수 있습니다 (기본설정 적용)</div>
-        </div>
-        <label class="toggle-switch toggle-blue">
-          <input type="checkbox" id="mCommentAllowed" checked>
-          <div class="toggle-track"></div>
-          <div class="toggle-thumb"></div>
-        </label>
-      </div>
-
-      <div class="section-divider"></div>
-
-      <div class="form-field">
-        <label class="form-label">사진 / 동영상</label>
-        <div class="dropzone" id="mPhotoDropzone">
-          <input type="file" id="mPhotoFiles" multiple accept="image/*,video/*" onchange="onPhotoFilesChange(this)">
-          <div class="dropzone-label">📷 클릭하여 사진/동영상 추가</div>
-          <div class="dropzone-hint">최대 10개 · JPG · PNG · MP4 지원</div>
-        </div>
-        <div class="upload-preview-list" id="mPhotoPreview"></div>
-      </div>
-      <div class="form-field" style="margin-bottom:0;">
-        <label class="form-label">첨부파일</label>
-        <div class="dropzone" id="mAttachDropzone">
-          <input type="file" id="mAttachFiles" multiple onchange="onAttachFilesChange(this)">
-          <div class="dropzone-label">📎 클릭하여 파일 첨부</div>
-          <div class="dropzone-hint">PDF · HWP · DOCX · XLSX 등 지원</div>
-        </div>
-        <div class="upload-preview-list" id="mAttachPreview"></div>
-      </div>
-
-      <div class="section-divider"></div>
-
-      <div class="sample-tool-row">
+      <!-- 자주쓰는 예문 + 맞춤법 검사 — textarea 바로 밑 -->
+      <div class="sample-tool-row" style="margin-bottom:6px;">
         <button class="btn btn-outline btn-sm" onclick="toggleSamplePanel()">📝 자주쓰는 예문</button>
         <button class="btn btn-outline btn-sm" onclick="checkSpelling()">✅ 맞춤법 검사</button>
       </div>
@@ -648,20 +636,33 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 
       <div class="section-divider"></div>
 
-      <div class="past-section" id="pastSection">
-        <div class="past-section-header" onclick="togglePastSection()">
-          <span class="past-section-title">📅 작년 우리 원에서는 이런 공지를 했어요! (11월)</span>
-          <span class="past-section-toggle">▼</span>
+      <!-- 사진 / 동영상 -->
+      <div class="form-field">
+        <label class="form-label">사진 / 동영상</label>
+        <div class="dropzone" id="mPhotoDropzone">
+          <input type="file" id="mPhotoFiles" multiple accept="image/*,video/*" onchange="onPhotoFilesChange(this)">
+          <div class="dropzone-label">📷 클릭하여 사진/동영상 추가</div>
+          <div class="dropzone-hint">최대 10개 · JPG · PNG · MP4 지원</div>
         </div>
-        <div class="past-section-body">
-          <div class="past-cat-row" id="pastCatChips"></div>
-          <div class="past-items-list" id="pastItemsList"></div>
-        </div>
+        <div class="upload-preview-list" id="mPhotoPreview"></div>
       </div>
+
+      <!-- 첨부파일 -->
+      <div class="form-field" style="margin-bottom:0;">
+        <label class="form-label">첨부파일</label>
+        <div class="dropzone" id="mAttachDropzone">
+          <input type="file" id="mAttachFiles" multiple onchange="onAttachFilesChange(this)">
+          <div class="dropzone-label">📎 클릭하여 파일 첨부</div>
+          <div class="dropzone-hint">PDF · HWP · DOCX · XLSX 등 지원</div>
+        </div>
+        <div class="upload-preview-list" id="mAttachPreview"></div>
+      </div>
+
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline btn-sm" onclick="closeWriteModal()">취소</button>
       <button class="btn btn-outline btn-sm" onclick="saveToDraftBox()" style="color:var(--amber-text);border-color:var(--amber-bg);">📂 임시보관함에 저장</button>
+      <button class="btn btn-outline btn-sm" id="scheduleBtn" onclick="openScheduleModal()">🕐 예약 발행</button>
       <button class="btn btn-primary btn-sm" id="saveNoticeBtn" onclick="saveNotice()">저장</button>
     </div>
   </div>
@@ -684,6 +685,33 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
     <div class="modal-footer">
       <button class="btn btn-outline btn-sm" onclick="closeDeleteModal()">취소</button>
       <button class="btn btn-danger btn-sm" onclick="executeDelete()">삭제</button>
+    </div>
+  </div>
+</div>
+
+<!-- ━━━━━━━━━━━━━━━━ SCHEDULE MODAL ━━━━━━━━━━━━━━━━ -->
+<div class="modal-overlay" id="scheduleModal" style="z-index:500;">
+  <div class="modal-box schedule-modal-box">
+    <div class="modal-header">
+      <span class="modal-title">🕐 예약 발행 설정</span>
+      <button class="modal-close" onclick="closeScheduleModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-field" style="margin-bottom:10px;">
+        <label class="form-label">발행 예약 일시 <span class="req">*</span></label>
+        <input type="datetime-local" class="form-input" id="mReserveAt" style="height:42px;" oninput="updateSchedulePreview()">
+      </div>
+      <p style="font-size:13px;color:var(--text-secondary);line-height:1.5;">설정한 시간에 자동으로 공지가 발행되고 학부모에게 푸시 알림이 전송됩니다.</p>
+      <div style="margin-top:12px;padding:10px 12px;background:var(--blue-bg);border-radius:var(--radius-md);min-height:36px;">
+        <p style="font-size:13px;color:var(--blue-text);font-weight:600;" id="schedulePreviewText">날짜와 시간을 선택해주세요</p>
+      </div>
+    </div>
+    <div class="modal-footer" style="justify-content:space-between;">
+      <button class="btn btn-ghost btn-sm" onclick="clearSchedule()" style="color:var(--red-text);">예약 취소</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-outline btn-sm" onclick="closeScheduleModal()">닫기</button>
+        <button class="btn btn-primary btn-sm" onclick="confirmSchedule()">예약 설정</button>
+      </div>
     </div>
   </div>
 </div>
@@ -961,6 +989,8 @@ let activeClassChip = '';
 let activeCategory  = '일반공지';
 let draftSourceId   = null;
 let photoFiles      = [];
+let selectedClasses = [];   // [] = 전체, ['햇님반', ...] = 반별
+let reservedAt      = null; // ISO datetime string or null
 let attachFiles     = [];
 let activeSampleCat = '일반공지';
 let activePastCat   = '일반공지';
@@ -1447,20 +1477,22 @@ function openEditModal(id) {
   renderWriteCatChips();
 
   if (n.target === '전체') {
-    document.getElementById('mTargetType').value = 'all';
-    document.getElementById('classCheckGroup').style.display = 'none';
+    selectedClasses = [];
   } else {
-    document.getElementById('mTargetType').value = 'class';
-    document.getElementById('classCheckGroup').style.display = 'block';
-    document.querySelectorAll('input[name=mClass]').forEach(cb => {
-      cb.checked = n.target.includes(cb.value);
-    });
+    selectedClasses = n.target.split(', ').filter(Boolean);
   }
+  renderWriteClassChips();
 
   if (n.reservedAt) {
-    document.getElementById('mReserveToggle').checked = true;
-    document.getElementById('reserveTimeRow').classList.add('visible');
+    reservedAt = n.reservedAt;
     document.getElementById('mReserveAt').value = n.reservedAt;
+    const d   = new Date(n.reservedAt);
+    const pad = x => String(x).padStart(2,'0');
+    const display = `${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    const btn = document.getElementById('scheduleBtn');
+    btn.textContent    = `🕐 ${display}`;
+    btn.style.color    = 'var(--blue-text)';
+    btn.style.borderColor = 'var(--blue)';
     document.getElementById('saveNoticeBtn').textContent = '예약 발행';
   }
 
@@ -1475,42 +1507,113 @@ function closeWriteModal() {
 function clearWriteForm() {
   document.getElementById('mTitle').value = '';
   document.getElementById('mContent').value = '';
-  document.getElementById('mTargetType').value = 'all';
-  document.getElementById('classCheckGroup').style.display = 'none';
-  document.querySelectorAll('input[name=mClass]').forEach(cb => cb.checked = false);
   document.getElementById('mPinned').checked = false;
-  document.getElementById('mReserveToggle').checked = false;
-  document.getElementById('reserveTimeRow').classList.remove('visible');
-  document.getElementById('mReserveAt').value = '';
   document.getElementById('mCommentAllowed').checked = true;
   document.getElementById('mPhotoPreview').innerHTML = '';
   document.getElementById('mAttachPreview').innerHTML = '';
   document.getElementById('samplePanel').classList.remove('visible');
   document.getElementById('pastSection').classList.remove('open');
-  document.getElementById('saveNoticeBtn').textContent = '저장';
+  const saveBtn = document.getElementById('saveNoticeBtn');
+  if (saveBtn) saveBtn.textContent = '저장';
+  const schBtn = document.getElementById('scheduleBtn');
+  if (schBtn) { schBtn.textContent = '🕐 예약 발행'; schBtn.style.color = ''; schBtn.style.borderColor = ''; }
   photoFiles = [];
   attachFiles = [];
+  reservedAt = null;
+  selectedClasses = [];
+  renderWriteClassChips();
   if (!editMode) {
     activeCategory = '일반공지';
     renderWriteCatChips();
   }
 }
 
-function onTargetTypeChange() {
-  const val = document.getElementById('mTargetType').value;
-  document.getElementById('classCheckGroup').style.display = val==='class' ? 'block' : 'none';
+function getClassListForModal() {
+  if (AN_IS_TEACHER && AN_ASSIGNED_NAMES) return AN_ASSIGNED_NAMES;
+  return ['햇님반','달님반','별님반','꽃님반'];
+}
+
+function renderWriteClassChips() {
+  const classes   = getClassListForModal();
+  const allActive = selectedClasses.length === 0;
+  let html = `<button class="cat-chip${allActive?' active':''}" onclick="selectWriteAllClasses()">전체</button>`;
+  html += classes.map(c =>
+    `<button class="cat-chip${selectedClasses.includes(c)?' active':''}" onclick="toggleWriteClassChip('${c}')">${c}</button>`
+  ).join('');
+  document.getElementById('writeClassChips').innerHTML = html;
+}
+
+function selectWriteAllClasses() {
+  selectedClasses = [];
+  renderWriteClassChips();
+}
+
+function toggleWriteClassChip(name) {
+  const idx = selectedClasses.indexOf(name);
+  if (idx === -1) selectedClasses.push(name);
+  else selectedClasses.splice(idx, 1);
+  renderWriteClassChips();
 }
 
 function getFormTarget() {
-  if (document.getElementById('mTargetType').value === 'all') return '전체';
-  const checked = [...document.querySelectorAll('input[name=mClass]:checked')].map(cb => cb.value);
-  return checked.length ? checked.join(', ') : '전체';
+  return selectedClasses.length ? selectedClasses.join(', ') : '전체';
 }
 
-function onReserveToggleChange() {
-  const on = document.getElementById('mReserveToggle').checked;
-  document.getElementById('reserveTimeRow').classList.toggle('visible', on);
-  document.getElementById('saveNoticeBtn').textContent = on ? '예약 발행' : '저장';
+/* ━━━ SCHEDULE MODAL ━━━ */
+function openScheduleModal() {
+  const pad = n => String(n).padStart(2,'0');
+  if (!document.getElementById('mReserveAt').value) {
+    const now = new Date();
+    document.getElementById('mReserveAt').value =
+      `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T09:00`;
+  }
+  updateSchedulePreview();
+  document.getElementById('scheduleModal').classList.add('open');
+}
+
+function closeScheduleModal() {
+  document.getElementById('scheduleModal').classList.remove('open');
+}
+
+function updateSchedulePreview() {
+  const val = document.getElementById('mReserveAt').value;
+  const el  = document.getElementById('schedulePreviewText');
+  if (!el) return;
+  if (val) {
+    const d   = new Date(val);
+    const pad = n => String(n).padStart(2,'0');
+    el.textContent = `📅 ${d.getFullYear()}년 ${pad(d.getMonth()+1)}월 ${pad(d.getDate())}일 ${pad(d.getHours())}:${pad(d.getMinutes())} 발행 예정`;
+  } else {
+    el.textContent = '날짜와 시간을 선택해주세요';
+  }
+}
+
+function confirmSchedule() {
+  const val = document.getElementById('mReserveAt').value;
+  if (!val) { showToast('예약 일시를 선택해주세요','warning'); return; }
+  reservedAt = val;
+  const d   = new Date(val);
+  const pad = n => String(n).padStart(2,'0');
+  const display = `${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  const btn = document.getElementById('scheduleBtn');
+  btn.textContent    = `🕐 ${display}`;
+  btn.style.color    = 'var(--blue-text)';
+  btn.style.borderColor = 'var(--blue)';
+  document.getElementById('saveNoticeBtn').textContent = '예약 발행';
+  closeScheduleModal();
+  showToast('예약 발행이 설정되었습니다','info');
+}
+
+function clearSchedule() {
+  reservedAt = null;
+  document.getElementById('mReserveAt').value = '';
+  const btn = document.getElementById('scheduleBtn');
+  btn.textContent    = '🕐 예약 발행';
+  btn.style.color    = '';
+  btn.style.borderColor = '';
+  document.getElementById('saveNoticeBtn').textContent = '저장';
+  closeScheduleModal();
+  showToast('예약 발행이 취소되었습니다','warning');
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1675,9 +1778,8 @@ function saveNotice() {
   const target         = getFormTarget();
   const pinned         = document.getElementById('mPinned').checked;
   const commentAllowed = document.getElementById('mCommentAllowed').checked;
-  const reserveOn      = document.getElementById('mReserveToggle').checked;
-  const reservedAt     = reserveOn ? document.getElementById('mReserveAt').value : null;
-  const status         = reserveOn ? '예약발행' : '게시중';
+  const reservedAtVal  = reservedAt || null;
+  const status         = reservedAt ? '예약발행' : '게시중';
   const hasPhoto       = photoFiles.filter(Boolean).length > 0;
   const hasAttachment  = attachFiles.filter(Boolean).length > 0;
   const category       = activeCategory;
@@ -1686,7 +1788,7 @@ function saveNotice() {
     const idx = notices.findIndex(n => n.id === currentNoticeId);
     if (idx !== -1) {
       notices[idx] = { ...notices[idx], title, content, target, pinned, commentAllowed,
-        reservedAt, status, category,
+        reservedAt:reservedAtVal, status, category,
         hasPhoto:     notices[idx].hasPhoto     || hasPhoto,
         hasAttachment:notices[idx].hasAttachment|| hasAttachment,
       };
@@ -1696,7 +1798,7 @@ function saveNotice() {
     const newId = Math.max(0,...notices.map(n => n.id)) + 1;
     notices.unshift({
       id:newId, pinned, title, category, target, author:'관리자',
-      createdDate:'2026.03.24', views:0, status, reservedAt,
+      createdDate:'2026.03.24', views:0, status, reservedAt:reservedAtVal,
       hasPhoto, hasAttachment, commentCount:0, commentAllowed,
       content, readStatus:[], comments:[]
     });
@@ -1704,7 +1806,7 @@ function saveNotice() {
       drafts = drafts.filter(d => d.id !== draftSourceId);
       updateDraftCount();
     }
-    showToast(status==='예약발행'?'예약 발행이 설정되었습니다':'공지가 등록되었습니다','success');
+    showToast(reservedAtVal?'예약 발행이 설정되었습니다':'공지가 등록되었습니다','success');
   }
 
   draftSourceId = null;
@@ -1725,8 +1827,7 @@ function saveToDraftBox() {
   const target         = getFormTarget();
   const pinned         = document.getElementById('mPinned').checked;
   const commentAllowed = document.getElementById('mCommentAllowed').checked;
-  const reservedAt     = document.getElementById('mReserveToggle').checked
-    ? document.getElementById('mReserveAt').value : null;
+  const reservedAtVal  = reservedAt || null;
   const now    = new Date();
   const savedAt = `2026.03.24 ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
 
@@ -1734,12 +1835,12 @@ function saveToDraftBox() {
     const idx = drafts.findIndex(d => d.id === draftSourceId);
     if (idx !== -1) {
       drafts[idx] = {...drafts[idx], title, content, target, pinned, commentAllowed,
-        reservedAt, category:activeCategory, savedAt};
+        reservedAt:reservedAtVal, category:activeCategory, savedAt};
     }
   } else {
     drafts.push({
       id:'d'+Date.now(), title, content, target, category:activeCategory,
-      savedAt, pinned, commentAllowed, reservedAt
+      savedAt, pinned, commentAllowed, reservedAt:reservedAtVal
     });
   }
 
@@ -1789,16 +1890,22 @@ function loadDraft(id) {
   renderWriteCatChips();
 
   if (draft.target && draft.target !== '전체') {
-    document.getElementById('mTargetType').value = 'class';
-    document.getElementById('classCheckGroup').style.display = 'block';
-    document.querySelectorAll('input[name=mClass]').forEach(cb => {
-      cb.checked = draft.target.includes(cb.value);
-    });
+    selectedClasses = draft.target.split(', ').filter(Boolean);
+  } else {
+    selectedClasses = [];
   }
+  renderWriteClassChips();
+
   if (draft.reservedAt) {
-    document.getElementById('mReserveToggle').checked = true;
-    document.getElementById('reserveTimeRow').classList.add('visible');
+    reservedAt = draft.reservedAt;
     document.getElementById('mReserveAt').value = draft.reservedAt;
+    const d   = new Date(draft.reservedAt);
+    const pad = x => String(x).padStart(2,'0');
+    const display = `${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    const btn = document.getElementById('scheduleBtn');
+    btn.textContent    = `🕐 ${display}`;
+    btn.style.color    = 'var(--blue-text)';
+    btn.style.borderColor = 'var(--blue)';
     document.getElementById('saveNoticeBtn').textContent = '예약 발행';
   }
   document.getElementById('writeModalTitle').textContent = '공지 작성 (임시보관함)';
