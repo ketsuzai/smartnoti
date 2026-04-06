@@ -600,11 +600,6 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 
       <div class="section-divider" style="margin-top:4px;margin-bottom:14px;"></div>
 
-      <!-- 제목 -->
-      <div class="form-field">
-        <label class="form-label">제목 <span class="req">*</span></label>
-        <input class="form-input" id="mTitle" placeholder="공지 제목을 입력하세요">
-      </div>
 
       <!-- 반 선택 — 제목 바로 하단 -->
       <div class="form-field">
@@ -617,6 +612,12 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
         <label class="form-label">카테고리</label>
         <div class="cat-chip-row" id="writeCatChips"></div>
       </div>
+      
+      <!-- 제목 -->
+      <div class="form-field">
+        <label class="form-label">제목 <span class="req">*</span></label>
+        <input class="form-input" id="mTitle" placeholder="공지 제목을 입력하세요">
+      </div>
 
       <!-- 내용 -->
       <div class="form-field" style="margin-bottom:6px;">
@@ -624,14 +625,10 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
         <textarea class="form-textarea" id="mContent" placeholder="공지 내용을 입력하세요"></textarea>
       </div>
 
-      <!-- 자주쓰는 예문 + 맞춤법 검사 — textarea 바로 밑 -->
+      <!-- 자주쓰는 예문 저장 + 맞춤법 검사 — textarea 바로 밑 -->
       <div class="sample-tool-row" style="margin-bottom:6px;">
-        <button class="btn btn-outline btn-sm" onclick="toggleSamplePanel()">📝 자주쓰는 예문</button>
+        <button class="btn btn-outline btn-sm" onclick="openSaveSampleModal()">📝 자주쓰는 예문 저장</button>
         <button class="btn btn-outline btn-sm" onclick="checkSpelling()">✅ 맞춤법 검사</button>
-      </div>
-      <div class="sample-panel" id="samplePanel">
-        <div class="sample-cat-row" id="sampleCatChips"></div>
-        <div class="sample-list" id="sampleList"></div>
       </div>
 
       <div class="section-divider"></div>
@@ -685,6 +682,30 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
     <div class="modal-footer">
       <button class="btn btn-outline btn-sm" onclick="closeDeleteModal()">취소</button>
       <button class="btn btn-danger btn-sm" onclick="executeDelete()">삭제</button>
+    </div>
+  </div>
+</div>
+
+<!-- ━━━━━━━━━━━━━━━━ SAVE SAMPLE MODAL ━━━━━━━━━━━━━━━━ -->
+<div class="modal-overlay" id="saveSampleModal" style="z-index:500;">
+  <div class="modal-box" style="width:460px;">
+    <div class="modal-header">
+      <span class="modal-title">📝 자주쓰는 예문 저장</span>
+      <button class="modal-close" onclick="closeSaveSampleModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-field">
+        <label class="form-label">제목</label>
+        <input class="form-input" id="sampleSaveTitle" placeholder="예문 제목을 입력하세요">
+      </div>
+      <div class="form-field" style="margin-bottom:0;">
+        <label class="form-label">내용</label>
+        <textarea class="form-textarea" id="sampleSaveContent" style="min-height:160px;" placeholder="예문 내용을 입력하세요"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="closeSaveSampleModal()">취소</button>
+      <button class="btn btn-primary btn-sm" onclick="confirmSaveSample()">저장</button>
     </div>
   </div>
 </div>
@@ -1511,7 +1532,6 @@ function clearWriteForm() {
   document.getElementById('mCommentAllowed').checked = true;
   document.getElementById('mPhotoPreview').innerHTML = '';
   document.getElementById('mAttachPreview').innerHTML = '';
-  document.getElementById('samplePanel').classList.remove('visible');
   document.getElementById('pastSection').classList.remove('open');
   const saveBtn = document.getElementById('saveNoticeBtn');
   if (saveBtn) saveBtn.textContent = '저장';
@@ -1660,41 +1680,27 @@ function fmtFileSize(b) {
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   SAMPLE PANEL
+   SAVE SAMPLE MODAL
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-function toggleSamplePanel() {
-  const panel = document.getElementById('samplePanel');
-  const vis = panel.classList.toggle('visible');
-  if (vis) { renderSampleCatChips(); renderSampleList(); }
+function openSaveSampleModal() {
+  document.getElementById('sampleSaveTitle').value   = document.getElementById('mTitle').value.trim();
+  document.getElementById('sampleSaveContent').value = document.getElementById('mContent').value.trim();
+  document.getElementById('saveSampleModal').classList.add('open');
 }
 
-function renderSampleCatChips() {
-  document.getElementById('sampleCatChips').innerHTML = CATEGORIES.map(cat =>
-    `<button class="sample-cat-chip${activeSampleCat===cat?' active':''}" onclick="selectSampleCat('${cat}')">${cat}</button>`
-  ).join('');
+function closeSaveSampleModal() {
+  document.getElementById('saveSampleModal').classList.remove('open');
 }
 
-function selectSampleCat(cat) {
-  activeSampleCat = cat;
-  renderSampleCatChips();
-  renderSampleList();
-}
-
-function renderSampleList() {
-  const items = SAMPLE_TEMPLATES[activeSampleCat]||[];
-  document.getElementById('sampleList').innerHTML = items.map(s =>
-    `<div class="sample-item" onclick="insertSampleText('${escAttr(s.title)}','${escAttr(s.content)}')">
-      <span class="sample-item-title">${escHtml(s.title)}</span>
-      <span class="sample-item-hint">클릭하여 입력 →</span>
-    </div>`
-  ).join('');
-}
-
-function insertSampleText(title, content) {
-  document.getElementById('mTitle').value   = title;
-  document.getElementById('mContent').value = content;
-  document.getElementById('samplePanel').classList.remove('visible');
-  showToast('예문이 입력되었습니다','info');
+function confirmSaveSample() {
+  const title   = document.getElementById('sampleSaveTitle').value.trim();
+  const content = document.getElementById('sampleSaveContent').value.trim();
+  if (!title) { showToast('제목을 입력하세요','warning'); return; }
+  const cat = activeCategory || '일반공지';
+  if (!SAMPLE_TEMPLATES[cat]) SAMPLE_TEMPLATES[cat] = [];
+  SAMPLE_TEMPLATES[cat].push({ title, content });
+  closeSaveSampleModal();
+  showToast('예문이 저장되었습니다','success');
 }
 
 function checkSpelling() {
