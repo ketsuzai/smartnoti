@@ -1,6 +1,6 @@
 # 🧠 프로젝트 브레인: 운영관리 기능정의
 
-> **최종 업데이트**: 2026-03-26
+> **최종 업데이트**: 2026-04-06
 > **작업 범위**: 통합관리자 전용 — 운영관리 메뉴
 > **연관 브레인**: `07-ROLE-PERMISSION.md`
 
@@ -13,7 +13,7 @@
 - **컨텍스트 세션**: `sessionStorage.setItem('operationContext', JSON.stringify({orgId, orgName, orgType, contextRole, allClassAccess}))`
 - **상단바**: `🏫 OO어린이집 · 운영관리 모드  [기관 변경]  [컨텍스트 종료]`
 - **사이드바 테마**: `#0C2D48` (딥네이비), 액센트 `#0EA5E9`
-- **서브메뉴 완료**: 알림장 ✅ / 초대관리 ✅ / 기관정보 ✅ / 반관리 ✅ / 원아관리 ✅
+- **서브메뉴 완료**: 알림장 ✅ / 초대관리 ✅ / 기관정보 ✅ / 반관리 ✅ / 원아관리 ✅ / 공지사항 ✅(v2)
 - **서브메뉴 미완**: 일정관리 / 상담관리
 - **기관선택팝업**: ✅ 개선 완료 (페이지네이션, 검색 버튼, 기관관리자/교사관리자 이중 진입)
 - **대시보드**: 교사 뷰 원아 출석현황 모달 구현 완료 (2026-03-24) → `14-OPERATION-DASHBOARD.md` 참조
@@ -227,7 +227,7 @@ if (userRole === 'super' && opContext) {
 | — | ↳ 기관정보 관리 | `operation-org-info.html` | ✅ 완료 (2026-03-23) |
 | — | ↳ 반 관리 | `operation-class.html` | ✅ 완료 (2026-03-23) |
 | — | ↳ 원아 관리 | `operation-child.html` | ✅ 완료 (2026-03-24) |
-| — | ↳ 공지사항 | `operation-announcement.html` | ✅ 완료 (2026-03-24) |
+| — | ↳ 공지사항 | `operation-announcement.html` | ✅ v2 완료 (2026-04-06) — 칩 필터·인디케이터·드로어 재설계·읽음현황·임시보관함·쓰기 모달 확장 → `19-ANNOUNCEMENT.md` 참조 |
 | — | ↳ 앨범 | `operation-album.html` | ✅ 완료 (2026-03-24) |
 | — | ↳ 대시보드 | `operation-dashboard.html` | 🔄 교사 뷰 구현 완료 (2026-03-24) |
 | — | ↳ 일정 관리 | `operation-schedule.html` | 🔲 미시작 |

@@ -77,9 +77,13 @@
 | `src/pages/oper/operation-class.html` | 반 관리 | ✅ 완료 |
 | `src/pages/oper/operation-announcement.html` | 공지사항 | ✅ 완료 |
 | `src/pages/oper/operation-album.html` | 앨범 | ✅ 완료 |
-| `src/pages/oper/operation-schedule.html` | 일정 관리 | 🔲 미시작 |
+| `src/pages/oper/operation-schedule.html` | 스케쥴 | 🔲 미시작 |
 | `src/pages/oper/operation-consulting.html` | 상담 관리 | 🔲 미시작 |
 | `src/pages/oper/operation-medicine.html` | 투약의뢰서 관리 | ✅ 완료 |
+| `src/pages/oper/operation-attendance.html` | 출석부 | 🔲 미시작 |
+| `src/pages/oper/operation-meal.html` | 식단표 | 🔲 미시작 |
+| `src/pages/oper/operation-member.html` | 멤버/승인 (교사+원아 통합) | 🔲 미시작 |
+| `src/pages/oper/operation-graduation.html` | 진급/졸업 | 🔲 미시작 |
 
 ---
 
@@ -106,3 +110,8 @@
 | `12-ORG-INFO.md` | 기관정보 관리 화면 스펙 |
 | `13-CLASS-MANAGEMENT.md` | 반 관리 화면 스펙, 권한 매트릭스 |
 | `14-OPERATION-DASHBOARD.md` | 운영관리 대시보드 — 교사 뷰, 출석현황 모달, pre-fill 연동 |
+| `15-ATTENDANCE.md` | 출석부 스펙 (준비중) |
+| `16-MEAL-PLAN.md` | 식단표 스펙 (준비중) |
+| `17-MEMBER-APPROVAL.md` | 멤버/승인 — 교사+원아 통합 멤버 관리 (준비중) |
+| `18-GRADUATION.md` | 진급/졸업 스펙 (준비중) |
+| `19-ANNOUNCEMENT.md` | 공지사항 v2 전면 개선 스펙 — 칩 필터, 인디케이터, 드로어 재설계, 읽음현황, 임시보관함, 쓰기 모달 확장 |

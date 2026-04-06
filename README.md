@@ -41,9 +41,13 @@
 │           ├── 📄 operation-org-selector.html  ← 기관 선택 팝업 [✅ 완료]
 │           ├── 📄 operation-announcement.html  ← 공지사항 [✅ 완료]
 │           ├── 📄 operation-album.html         ← 앨범 [✅ 완료]
-│           ├── 📄 operation-schedule.html      ← 일정 관리 [🔲 미시작]
+│           ├── 📄 operation-schedule.html      ← 스케쥴 [🔲 미시작]
 │           ├── 📄 operation-consulting.html    ← 상담 관리 [🔲 미시작]
-│           └── 📄 operation-medicine.html      ← 투약의뢰서 관리 [✅ 완료]
+│           ├── 📄 operation-medicine.html      ← 투약의뢰서 관리 [✅ 완료]
+│           ├── 📄 operation-attendance.html    ← 출석부 [🔲 미시작]
+│           ├── 📄 operation-meal.html          ← 식단표 [🔲 미시작]
+│           ├── 📄 operation-member.html        ← 멤버/승인 [🔲 미시작]
+│           └── 📄 operation-graduation.html    ← 진급/졸업 [🔲 미시작]
 └── 📁 .brain/                                  ← 프로젝트 브레인 (지식베이스)
     ├── 📄 00-PROJECT-OVERVIEW.md               ← 프로젝트 개요
     ├── 📄 01-MEMBER-MANAGEMENT.md              ← 회원 관리 기능정의
@@ -58,7 +62,12 @@
     ├── 📄 10-CHILD-MANAGEMENT.md               ← 원아관리 기능정의
     ├── 📄 11-NOTICE-BOARD.md                   ← 알림장 기능정의
     ├── 📄 12-ORG-INFO.md                       ← 기관정보 관리 기능정의
-    └── 📄 13-CLASS-MANAGEMENT.md               ← 반 관리 기능정의
+    ├── 📄 13-CLASS-MANAGEMENT.md               ← 반 관리 기능정의
+    ├── 📄 14-OPERATION-DASHBOARD.md            ← 운영관리 대시보드 교사 뷰, 출석현황 모달
+    ├── 📄 15-ATTENDANCE.md                     ← 출석부 스펙 (준비중)
+    ├── 📄 16-MEAL-PLAN.md                      ← 식단표 스펙 (준비중)
+    ├── 📄 17-MEMBER-APPROVAL.md                ← 멤버/승인 스펙 (준비중)
+    └── 📄 18-GRADUATION.md                     ← 진급/졸업 스펙 (준비중)
 ```
 
 ---
@@ -93,8 +102,12 @@
 | `/src/pages/oper/operation-announcement.html` | 공지사항 | ✅ 완료 |
 | `/src/pages/oper/operation-album.html` | 앨범 | ✅ 완료 |
 | `/src/pages/oper/operation-medicine.html` | 투약의뢰서 관리 | ✅ 완료 |
-| `/src/pages/oper/operation-schedule.html` | 일정 관리 | 🔲 미시작 |
+| `/src/pages/oper/operation-schedule.html` | 스케쥴 | 🔲 미시작 |
 | `/src/pages/oper/operation-consulting.html` | 상담 관리 | 🔲 미시작 |
+| `/src/pages/oper/operation-attendance.html` | 출석부 | 🔲 미시작 |
+| `/src/pages/oper/operation-meal.html` | 식단표 | 🔲 미시작 |
+| `/src/pages/oper/operation-member.html` | 멤버/승인 | 🔲 미시작 |
+| `/src/pages/oper/operation-graduation.html` | 진급/졸업 | 🔲 미시작 |
 
 ---
 
@@ -169,10 +182,15 @@
 - **이중 진입**: 🏫 기관관리자로 접속 / 📚 교사관리자로 접속
 - `operationContext.contextRole`로 다운스트림 뷰 결정 (effectiveRole 패턴)
 
-### 15. 공지사항 (`operation-announcement.html`)
-- KPI 4개 / 반·상태·기간 필터바 + 검색
-- 공지 목록 테이블 (고정핀, 배지, 조회수)
-- 공지 작성·수정·삭제 모달 / 일괄 삭제
+### 15. 공지사항 (`operation-announcement.html`) — v2 전면 개선 (2026-04-06)
+- **반 칩 필터**: `<select>` → pill 버튼 형태 (역할별: org_admin=전체 반, teacher=담당 반만)
+- **제목 인디케이터**: 📷(사진) · 📎(첨부) · 💬N(댓글 수) 뱃지 인라인 표시
+- **리스트 컬럼 정리**: 게시기간 제거 → 작성일 컬럼, 상태 `게시중`/`예약발행` 2종만
+- **상세 드로어 재설계** (520px): 작성자 아바타·읽음현황 헤더, 사진 그리드, 댓글(+답변) 섹션
+- **읽음현황 서브패널**: 드로어 내 View A/B 스왑, 수신자 읽음 테이블, 재전송 CTA
+- **임시보관함**: `drafts[]` 별도 배열, 액션바 버튼(카운트 뱃지)→모달, 이어쓰기 흐름
+- **쓰기 모달 확장** (640px): 카테고리 6종 칩 · 예약발행 토글 · 댓글허용 토글 · 사진/첨부 dropzone
+- **예문 패널** / **맞춤법 검사** 버튼 / **예전 글 불러오기** (중앙 미리보기 모달 포함)
 
 ### 16. 앨범 (`operation-album.html`)
 - KPI 4개 / 반·기간 필터바 + 검색
@@ -190,9 +208,12 @@
 
 | 기능 | 상태 | 설명 |
 |------|------|------|
-| 일정 관리 | 🔲 미시작 | `operation-schedule.html` |
+| 스케쥴 | 🔲 미시작 | `operation-schedule.html` |
 | 상담 관리 | 🔲 미시작 | `operation-consulting.html` |
-| 통계관리 | 🔒 준비중 | 사이드바에 "준비중" 표시 |
+| 출석부 | 🔲 미시작 | `operation-attendance.html` |
+| 식단표 | 🔲 미시작 | `operation-meal.html` |
+| 멤버/승인 | 🔲 미시작 | `operation-member.html` (원아+교사 통합) |
+| 진급/졸업 | 🔲 미시작 | `operation-graduation.html` |
 | 서버 연동 | ❌ 미구현 | 현재 모든 데이터는 프론트엔드 하드코딩 |
 | 실제 인증 | ❌ 미구현 | 클라이언트 사이드 테스트 계정만 |
 | 반응형 모바일 | ⚠️ 부분 | 데스크탑 우선 설계 |
@@ -224,6 +245,11 @@
 - **11-NOTICE-BOARD**: 알림장 스키마, 체크필드, AI 기능, 화면 스펙
 - **12-ORG-INFO**: 기관정보 관리 화면 스펙
 - **13-CLASS-MANAGEMENT**: 반 관리 화면 스펙, 권한 매트릭스
+- **14-OPERATION-DASHBOARD**: 운영관리 대시보드 교사 뷰, 출석현황 모달
+- **15-ATTENDANCE**: 출석부 스펙 (준비중)
+- **16-MEAL-PLAN**: 식단표 스펙 (준비중)
+- **17-MEMBER-APPROVAL**: 멤버/승인 스펙 — 교사+원아 통합 (준비중)
+- **18-GRADUATION**: 진급/졸업 스펙 (준비중)
 
 > AI 협업 시 `CLAUDE.md`를 기준으로 작업하며, `.brain/`에서 상세 기획을 참조합니다.
 
