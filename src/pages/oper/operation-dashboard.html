@@ -1143,9 +1143,10 @@ const isOrgMode = isSuper && opCtx; // 통합관리자 운영관리 컨텍스트
 const orgName   = opCtx ? opCtx.orgName : '해맑은 어린이집';
 
 // 교사 담당 반 (세션에서 읽거나 기본값)
+// org-selector에서 넘어올 때 객체 배열({id,name,...}) 또는 문자열 배열 모두 허용 → ID 문자열 배열로 정규화
 const assignedRaw  = sessionStorage.getItem('assignedClasses');
 const assignedClasses = assignedRaw
-  ? JSON.parse(assignedRaw)
+  ? JSON.parse(assignedRaw).map(a => typeof a === 'string' ? a : a.id)
   : (isTeacher ? TEACHER_ASSIGNED : null); // null = 전체 접근
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1201,6 +1202,21 @@ const UPCOMING_SCHED = [
   document.getElementById('headerDate').textContent = dateStr;
   document.getElementById('heroDate').textContent   = dateStr;
   document.getElementById('heroOrgName').textContent = orgName;
+
+  // 담당 반 없는 교사: 빈 상태 화면만 표시
+  if (isTeacher && (!assignedClasses || assignedClasses.length === 0)) {
+    document.getElementById('pageTitle').textContent = '대시보드';
+    document.getElementById('pageSub').textContent   = '';
+    document.querySelectorAll('.content > *:not(.page-header)').forEach(el => el.style.display = 'none');
+    const emptyDiv = document.createElement('div');
+    emptyDiv.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:80px 20px;gap:12px;';
+    emptyDiv.innerHTML = `
+      <div style="font-size:52px;line-height:1">📭</div>
+      <div style="font-size:18px;font-weight:700;color:var(--text-primary);margin-top:4px">배정된 반이 없습니다.</div>
+      <div style="font-size:14px;color:var(--text-secondary);text-align:center;line-height:1.6">기관 관리자에게 반 배정을 요청해주세요.</div>`;
+    document.querySelector('.content').appendChild(emptyDiv);
+    return;
+  }
 
   renderClassFilter();
   renderKPI();

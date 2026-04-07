@@ -336,7 +336,31 @@
 
 ---
 
-## 12. 관계도 (ERD 요약)
+## 12. meal_plans (식단표)
+
+| 필드명 | 타입 | 필수 | 설명 |
+|--------|------|------|------|
+| id | text (PK) | ✅ | 식단 고유 ID (예: MP001) |
+| org_id | text (FK) | ✅ | 소속 기관 ID |
+| date | text | ✅ | 식단 날짜 (YYYY-MM-DD). 기관당 날짜 유니크 |
+| snack_am_menu | text | | 오전간식 메뉴 (null = 미등록) |
+| snack_am_image_url | text | | 오전간식 이미지 URL |
+| lunch_menu | text | | 점심 메뉴 (null = 미등록) |
+| lunch_image_url | text | | 점심 이미지 URL |
+| snack_pm_menu | text | | 오후간식 메뉴 (null = 미등록) |
+| snack_pm_image_url | text | | 오후간식 이미지 URL |
+| dinner_menu | text | | 석식 메뉴 (null = 미등록) |
+| dinner_image_url | text | | 석식 이미지 URL |
+| created_by | text (FK) | ✅ | 등록 교사/관리자 ID |
+| created_at | datetime | ✅ | 생성 일시 |
+| updated_at | datetime | | 최종 수정 일시 |
+
+> **제약**: `(org_id, date)` 복합 유니크. 날짜별 1건만 허용.  
+> **미결**: 영양사 권한 추가 시 `created_by` 역할 확장 필요.
+
+---
+
+## 13. 관계도 (ERD 요약)
 
 ```
 organizations ──1:N──→ classes
@@ -360,6 +384,8 @@ notice_children ──1:N──→ notice_comments (notice_child_id)
 notice_children ──1:N──→ notice_photos (notice_child_id → 개별사진)
 notice_comments ──N:1──→ members (author_id)
 notice_templates ──N:1──→ members/teacher (teacher_id)
+organizations ──1:N──→ meal_plans (org_id)
+meal_plans ──N:1──→ members (created_by)
 ```
 
 ---

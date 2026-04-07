@@ -102,6 +102,11 @@
     const isTeacher     = effectiveRole === 'teacher';
     const isSuper       = userRole === 'super';
 
+    // 담당 반 없는 교사 여부
+    const assignedRaw    = sessionStorage.getItem('assignedClasses');
+    const assignedArr    = assignedRaw ? JSON.parse(assignedRaw).map(a => typeof a === 'string' ? a : a.id) : null;
+    const noClassTeacher = isTeacher && (!assignedArr || assignedArr.length === 0);
+
     document.getElementById('sideOrgName').textContent = orgName;
     document.getElementById('sideUserName').textContent = userName;
     document.getElementById('sideUserAvatar').textContent = userName.charAt(0);
@@ -133,35 +138,36 @@
     const bcOrg = document.getElementById('breadcrumbOrg');
     if (bcOrg) bcOrg.textContent = orgName;
 
-    renderNav(effectiveRole);
+    renderNav(effectiveRole, noClassTeacher);
   }
 
-  function renderNav(role) {
+  function renderNav(role, noClassTeacher) {
     const isTeacher   = role === 'teacher';
     const inviteBadge = isTeacher ? '1' : '2';
     const noticeBadge = isTeacher ? '3' : '5';
     const filename    = location.pathname.split('/').pop();
 
+    // noClassBlock: true → 담당 반 없는 교사일 때 알럿으로 차단
     const NAV = [
-      { icon:'🏠', label:'대시보드',                             href:'operation-dashboard.html'  },
+      { icon:'🏠', label:'대시보드',                             href:'operation-dashboard.html'                       },
       { section: '콘텐츠' },
       { icon:'📋', label:'알림장',                               href:'operation-notice-board.html',
-                   badge: noticeBadge                                                               },
-      { icon:'📅', label:'출석부',                               href:'operation-attendance.html', comingSoon: true },
-      { icon:'🍱', label:'식단표',                               href:'operation-meal.html',        comingSoon: true },
-      { icon:'📢', label:'공지사항',                             href:'operation-announcement.html'},
-      { icon:'🖼️', label:'앨범',                                 href:'operation-album.html'       },
-      { icon:'🗓️', label:'스케쥴',                               href:'operation-schedule.html',    comingSoon: true },
-      { icon:'💬', label:'상담 관리',                            href:'operation-consulting.html',  comingSoon: true },
-      { icon:'💊', label:'투약의뢰서',                           href:'operation-medicine.html'    },
+                   badge: noticeBadge,                           noClassBlock: true                                    },
+      { icon:'📅', label:'출석부',                               href:'operation-attendance.html', comingSoon: true    },
+      { icon:'🍱', label:'식단표',                               href:'operation-meal.html'                             },
+      { icon:'📢', label:'공지사항',                             href:'operation-announcement.html', noClassBlock: true},
+      { icon:'🖼️', label:'앨범',                                 href:'operation-album.html',        noClassBlock: true},
+      { icon:'🗓️', label:'스케쥴',                               href:'operation-schedule.html',    comingSoon: true   },
+      { icon:'💬', label:'상담 관리',                            href:'operation-consulting.html',  comingSoon: true   },
+      { icon:'💊', label:'투약의뢰서',                           href:'operation-medicine.html',     noClassBlock: true},
       { section: '기관 관리' },
       { icon:'🏢', label: isTeacher ? '기관정보 조회' : '기관정보 관리',
-                   href: 'operation-org-info.html'                                                 },
-      { icon:'👥', label:'멤버/승인',                            href:'operation-member.html',      comingSoon: true },
-      { icon:'🏫', label:'반 관리',                              href:'operation-class.html'       },
-      { icon:'🎓', label:'진급/졸업',                            href:'operation-graduation.html',  comingSoon: true },
+                   href: 'operation-org-info.html'                                                                     },
+      { icon:'👥', label:'멤버/승인',                            href:'operation-member.html',      comingSoon: true   },
+      { icon:'🏫', label:'반 관리',                              href:'operation-class.html',        noClassBlock: true},
+      { icon:'🎓', label:'진급/졸업',                            href:'operation-graduation.html',  comingSoon: true   },
       { icon:'📨', label:'초대장 관리',                          href:'operation-invitation.html',
-                   badge: inviteBadge, badgeClass:'sky'                                            },
+                   badge: inviteBadge, badgeClass:'sky',          noClassBlock: true                                   },
     ];
 
     const nav = document.getElementById('sidebarNav');
@@ -169,10 +175,19 @@
       if (m.section) {
         return `<div class="nav-section"><span class="nav-section-label">${m.section}</span></div>`;
       }
-      const isActive    = (filename === m.href);
-      const badgeHtml   = m.comingSoon
+      const isActive   = (filename === m.href);
+      const isBlocked  = noClassTeacher && m.noClassBlock;
+      const badgeHtml  = m.comingSoon
         ? `<span class="nav-badge soon">준비중</span>`
-        : m.badge ? `<span class="nav-badge ${m.badgeClass || ''}">${m.badge}</span>` : '';
+        : isBlocked
+          ? `<span class="nav-badge soon">미배정</span>`
+          : m.badge ? `<span class="nav-badge ${m.badgeClass || ''}">${m.badge}</span>` : '';
+      if (isBlocked) {
+        return `<a class="nav-item ${isActive ? 'active' : ''}" href="#"
+          onclick="event.preventDefault(); alert('반 배정이 필요합니다.\\n기관에 문의해주세요.')">
+          <span class="nav-icon">${m.icon}</span>${m.label}${badgeHtml}
+        </a>`;
+      }
       const disabledCls = m.comingSoon ? 'disabled' : '';
       return `<a class="nav-item ${isActive ? 'active' : ''} ${disabledCls}" href="${m.comingSoon ? '#' : m.href}">
         <span class="nav-icon">${m.icon}</span>${m.label}${badgeHtml}

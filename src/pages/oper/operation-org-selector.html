@@ -624,17 +624,40 @@ function getTeachersForOrg(org) {
   const names  = ['이하늘','박민지','최서연','강지수','정다온','김보라','오민준','서지아','한채린','임하늘','조현아','배성준','정소연','최현우','이민준','윤성호'];
   const colors = ['#4361EE','#10B981','#F59E0B','#EF4444','#8B5CF6','#0EA5E9','#14B8A6','#EC4899','#6366F1','#84CC16','#F97316','#06B6D4'];
   const count  = Math.min(org.teacher, names.length);
+
+  // ── 고정 케이스 (앞 4명) ──────────────────────────────────────
+  // Case A: 반 1개 담임 (이하늘)
+  // Case B: 반 2개 담임+보조 겸임 (박민지)
+  // Case C: 반 3개 이상 접근 (최서연) — classes[0..2]
+  // Case D: 담당 반 없는 기타 교사 (강지수)
+  const fixedCases = [
+    { role: '담임', assignedClasses: classes.slice(0, 1) },                              // A: 1개
+    { role: '담임', assignedClasses: classes.slice(0, Math.min(2, classes.length)) },    // B: 2개
+    { role: '담임', assignedClasses: classes.slice(0, Math.min(3, classes.length)) },    // C: 3개
+    { role: '기타', assignedClasses: [] },                                                // D: 없음
+  ];
+
   const result = [];
   for (let i = 0; i < count; i++) {
-    const isMain = i < org.cls;
-    const isSub  = !isMain && i < org.cls * 2;
-    result.push({
-      id:             `T${String(i + 1).padStart(3, '0')}`,
-      name:           names[i],
-      role:           isMain ? '담임' : isSub ? '보조' : '기타',
-      color:          colors[i % colors.length],
-      assignedClasses: isMain ? [classes[i]] : (isSub && classes[i - org.cls] ? [classes[i - org.cls]] : [])
-    });
+    if (i < fixedCases.length) {
+      result.push({
+        id:              `T${String(i + 1).padStart(3, '0')}`,
+        name:            names[i],
+        role:            fixedCases[i].role,
+        color:           colors[i % colors.length],
+        assignedClasses: fixedCases[i].assignedClasses,
+      });
+    } else {
+      const isMain = i < org.cls;
+      const isSub  = !isMain && i < org.cls * 2;
+      result.push({
+        id:             `T${String(i + 1).padStart(3, '0')}`,
+        name:           names[i],
+        role:           isMain ? '담임' : isSub ? '보조' : '기타',
+        color:          colors[i % colors.length],
+        assignedClasses: isMain ? [classes[i]] : (isSub && classes[i - org.cls] ? [classes[i - org.cls]] : [])
+      });
+    }
   }
   return result;
 }
