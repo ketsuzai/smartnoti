@@ -405,30 +405,41 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 
 /* 원아 선택 (카드형 그리드) */
 .child-select-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;}
-.child-select-card{border:2px solid var(--border-light);border-radius:var(--radius-md);padding:10px 8px 8px;cursor:pointer;transition:.18s;text-align:center;position:relative;}
-.child-select-card.notice-written{background:#F0FDF4;border-color:#A7F3D0;}
-.child-select-card.notice-unwritten{background:#F9FAFB;border-color:var(--border-light);}
-.child-select-card:hover{border-color:var(--accent);background:var(--accent-light);}
-.child-select-card.selected{border-color:var(--accent);background:var(--accent-light);}
-.csc-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;margin:0 auto 4px;position:relative;}
+/* 작성 패널 전용 원아 선택 그리드 */
+.wp-child-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.wp-child-card{border:1.5px solid var(--border-light);border-radius:10px;padding:7px 10px;cursor:pointer;transition:.18s;background:#fff;position:relative;overflow:hidden;display:flex;align-items:center;gap:7px;}
+.wp-child-card.selected{border-color:var(--accent);background:var(--accent-light);box-shadow:0 0 0 2px var(--accent);}
+.wp-child-card.written{background:#F9FAFB;border-color:#D1D5DB;}
+.wp-child-card.written::after{content:'';position:absolute;inset:0;background:rgba(156,163,175,.18);pointer-events:none;}
+.wp-child-card:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,0,0,.08);border-color:var(--border-medium);}
+.wpc-avatar{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,.15);}
+.wpc-name{font-size:12px;font-weight:700;color:var(--text-primary);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;}
+.wpc-written{font-size:13px;line-height:1;flex-shrink:0;margin-left:auto;}
+.child-select-card{border:1.5px solid var(--border-light);border-radius:16px;padding:10px 8px 8px;cursor:pointer;transition:.18s;text-align:center;position:relative;background:#fff;height:130px;box-sizing:border-box;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;}
+.child-select-card.notice-written{background:#fff;border-color:#D1D5DB;}
+.child-select-card.notice-written::after{content:'';position:absolute;inset:0;background:rgba(156,163,175,.22);border-radius:8px;pointer-events:none;}
+.child-select-card.notice-unwritten{background:#fff;border-color:var(--border-light);}
+.child-select-card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.10);border-color:var(--border-medium);}
+.child-select-card.selected{box-shadow:0 0 0 2px var(--accent);border-color:var(--accent);background:var(--accent-light);}
+.csc-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;margin:0 auto 6px;position:relative;box-shadow:0 2px 6px rgba(0,0,0,.18);flex-shrink:0;}
 .csc-name{font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:4px;}
 .csc-check{width:16px;height:16px;border-radius:50%;border:2px solid var(--border-medium);position:absolute;top:6px;right:6px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;}
 .child-select-card.selected .csc-check{background:var(--accent);border-color:var(--accent);}
+.child-card-wrapper{display:flex;flex-direction:column;align-items:stretch;gap:4px;}
+.csc-written-tag{display:block;text-align:center;font-size:13px;font-weight:600;height:20px;line-height:20px;background:transparent;color:var(--text-secondary);}
 .eval-summary-bar{display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:var(--radius-md);font-size:14px;font-weight:600;margin-bottom:8px;}
 .eval-summary-bar.good{background:var(--green-bg);color:var(--green-text);}
 .eval-summary-bar.warn{background:var(--amber-bg);color:var(--amber-text);}
 .eval-summary-bar.normal{background:#F3F4F6;color:var(--text-secondary);}
 .eval-opt-hint{font-size:12px;color:var(--text-muted);margin-top:3px;font-style:italic;}
-.csc-badges{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:3px;margin-top:2px;}
-.csc-badge{font-size:12px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap;}
+.csc-badges{display:flex;flex-direction:column;align-items:stretch;gap:3px;margin-top:4px;width:100%;}
+.csc-badge{display:block;width:100%;height:20px;line-height:20px;text-align:center;font-size:11px;font-weight:700;border-radius:3px;white-space:nowrap;overflow:hidden;}
 .csc-badge-present{background:var(--green-bg);color:var(--green-text);}
 .csc-badge-absent{background:var(--red-bg);color:var(--red-text);}
 .csc-badge-sick{background:var(--amber-bg);color:var(--amber-text);}
 .csc-badge-unknown{background:#F3F4F6;color:#9CA3AF;}
-.csc-badge-written{background:var(--green-bg);color:var(--green-text);}
-.csc-badge-unwritten{background:#F3F4F6;color:#9CA3AF;}
-.csc-badge-med-need{background:#FEF3C7;color:#92400E;}
-.csc-badge-med-done{background:var(--green-bg);color:var(--green-text);}
+.csc-badge-med-need{color:#92400E;}
+.csc-badge-med-done{color:var(--green-text);}
 .csc-no-class{text-align:center;padding:24px;color:var(--text-muted);font-size:14px;}
 
 /* 반 선택 카드 */
@@ -922,7 +933,7 @@ const MOCK_SENT = [
   },
   // ─ 다중·예약발행·opacity 효과 테스트
   {
-    id:'NB005', date:'2026-03-31', class:'별님반', teacher:'정다은', teacherColor:'#F59E0B',
+    id:'NB005', date:'2026-03-31', class:'별빛반', teacher:'최서연', teacherColor:'#8B5CF6',
     status:'scheduled', statusLabel:'예약발행',
     weather:'맑음', childCount:2, readCount:0, commentCount:0,
     publishedAt:'09:00', writeType:'multi',
@@ -949,7 +960,7 @@ const MOCK_SENT = [
   },
   // ─ 단일·발행·비디오만·미읽은댓글
   {
-    id:'NB008', date:'2026-03-27', class:'별님반', teacher:'정다은', teacherColor:'#F59E0B',
+    id:'NB008', date:'2026-03-27', class:'별빛반', teacher:'최서연', teacherColor:'#8B5CF6',
     status:'published', statusLabel:'발행됨',
     weather:'맑음', childCount:1, readCount:0, commentCount:1,
     publishedAt:'14:05', writeType:'single',
@@ -1008,7 +1019,7 @@ const MOCK_SENT = [
   },
   // ─ 다중·발행·사진1장·원아2명
   {
-    id:'NB011', date:'2026-03-24', class:'별님반', teacher:'정다은', teacherColor:'#F59E0B',
+    id:'NB011', date:'2026-03-24', class:'별빛반', teacher:'최서연', teacherColor:'#8B5CF6',
     status:'published', statusLabel:'발행됨',
     weather:'눈', childCount:2, readCount:1, commentCount:1,
     publishedAt:'10:20', writeType:'multi',
@@ -1122,12 +1133,12 @@ const NB_USER_ROLE   = sessionStorage.getItem('userRole') || 'org_admin';
 const NB_OP_CONTEXT  = JSON.parse(sessionStorage.getItem('operationContext') || 'null');
 const NB_EFFECTIVE   = (NB_OP_CONTEXT && NB_OP_CONTEXT.contextRole) ? NB_OP_CONTEXT.contextRole : NB_USER_ROLE;
 const NB_ASSIGNED    = NB_EFFECTIVE === 'teacher'
-  ? JSON.parse(sessionStorage.getItem('assignedClasses') || '[{"id":"CLS001","name":"햇님반"}]')
+  ? JSON.parse(sessionStorage.getItem('assignedClasses') || '[{"id":"CLS001","name":"햇님반"},{"id":"CLS003","name":"별빛반"}]')
   : null;
 const NB_ALL_CLASSES = [
   { id:'CLS001', name:'햇님반' },
   { id:'CLS002', name:'달님반' },
-  { id:'CLS003', name:'별님반' },
+  { id:'CLS003', name:'별빛반' },
   { id:'CLS004', name:'꽃님반' },
 ];
 
@@ -1237,9 +1248,21 @@ function renderTodayDashboard() {
     }
   });
 
-  // 정렬: 알림장 작성완료 > 이름순
+  // 정렬: 작성완료는 무조건 우측(이름순) / 미작성 그룹 내 우선순위: 출석 > 투약필요·완료 > 기타 > 이름순
   children.sort((a, b) => {
-    if (a.noticeWritten !== b.noticeWritten) return b.noticeWritten ? 1 : -1;
+    const aw = a.noticeWritten ? 1 : 0;
+    const bw = b.noticeWritten ? 1 : 0;
+    if (aw !== bw) return aw - bw;
+    // 작성완료끼리: 이름순
+    if (aw === 1) return a.name.localeCompare(b.name, 'ko');
+    // 미작성끼리: 출석(0) > 투약필요·완료(1) > 기타(2) > 이름순
+    const pri = c => {
+      if (c.attendance === '출석') return 0;
+      if (c.medication === 'need' || c.medication === 'done') return 1;
+      return 2;
+    };
+    const pa = pri(a), pb = pri(b);
+    if (pa !== pb) return pa - pb;
     return a.name.localeCompare(b.name, 'ko');
   });
 
@@ -1249,27 +1272,27 @@ function renderTodayDashboard() {
   }
 
   grid.innerHTML = children.map(c => {
-    const noticeBadge = c.noticeWritten
-      ? '<span class="csc-badge csc-badge-written">작성완료</span>'
-      : '<span class="csc-badge csc-badge-unwritten">미작성</span>';
     const medBadge = c.medication === 'need'
       ? '<span class="csc-badge csc-badge-med-need">💊 투약필요</span>'
       : c.medication === 'done'
       ? '<span class="csc-badge csc-badge-med-done">💊 투약완료</span>'
       : '';
     const noticeClass = c.noticeWritten ? 'notice-written' : 'notice-unwritten';
+    const writtenTag = c.noticeWritten ? '<div class="csc-written-tag">✅ 작성완료</div>' : '';
     const attendHoverBtn = c.attendance === '미확인'
       ? `<div class="tcc-hover-actions"><button class="tcc-action-btn tcc-attend-btn" onclick="event.stopPropagation();markTodayAttendance('${c.id}')">출석</button></div>`
       : '';
-    return `<div class="child-select-card ${noticeClass}" onclick="openWritePanelForChild('${c.id}','${c.classId}')">
-      <div class="csc-avatar" style="background:${c.color}">${c.name[0]}</div>
-      <div class="csc-name">${c.name}</div>
-      <div class="csc-badges">
-        ${tccAttendBadge(c.attendance)}
-        ${noticeBadge}
-        ${medBadge}
+    return `<div class="child-card-wrapper">
+      <div class="child-select-card ${noticeClass}" onclick="openWritePanelForChild('${c.id}','${c.classId}')">
+        <div class="csc-avatar" style="background:${c.color}">${c.name[0]}</div>
+        <div class="csc-name">${c.name}</div>
+        <div class="csc-badges">
+          ${tccAttendBadge(c.attendance)}
+          ${medBadge}
+        </div>
+        ${attendHoverBtn}
       </div>
-      ${attendHoverBtn}
+      ${writtenTag}
     </div>`;
   }).join('');
 }
@@ -1317,7 +1340,7 @@ function renderSentList(area) {
   const childVal  = ((document.getElementById('filterChildName') || {}).value || '').trim().toLowerCase();
   const dateFrom  = (document.getElementById('filterDateFrom') || {}).value || '';
   const dateTo    = (document.getElementById('filterDateTo') || {}).value || '';
-  const classMap  = { CLS001:'햇님반', CLS002:'달님반', CLS003:'별님반', CLS004:'꽃님반' };
+  const classMap  = { CLS001:'햇님반', CLS002:'달님반', CLS003:'별빛반', CLS004:'꽃님반' };
 
   let data = MOCK_SENT.filter(n => {
     if (classVal  && n.class !== classMap[classVal]) return false;
@@ -1582,12 +1605,12 @@ function renderSentDetailSingle(notice) {
     return `
       <div style="border-top:2px solid var(--border-light);margin-top:4px;padding-top:16px;">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-          <div class="tcc-avatar" style="background:${child.color};width:32px;height:32px;font-size:14px;border-radius:50%;">${child.name[0]}</div>
+          <div class="comment-avatar" style="background:${child.color};width:32px;height:32px;font-size:14px;border-radius:50%;">${child.name[0]}</div>
           <div style="font-size:14px;font-weight:800;color:var(--text-primary);">${child.name}</div>
         </div>
       </div>
       ${evalHTML}
-      <div class="psec">
+      <div class="psec" style="display:none;">
         <div class="psec-title">개별 메모</div>
         <div class="memo-box">${child.individualMemo||'—'}</div>
       </div>
@@ -1850,29 +1873,36 @@ function closeAllPanels() {
 
 const CLASS_CHILDREN = {
   CLS001: [
-    { id:'C001', name:'김도현', color:'#3B82F6', attendance:'출석', noticeWritten:true, medication:null },
-    { id:'C002', name:'이서연', color:'#10B981', attendance:'출석', noticeWritten:false, medication:'need' },
-    { id:'C003', name:'박준서', color:'#F59E0B', attendance:'병결', noticeWritten:false, medication:null },
-    { id:'C006', name:'정수아', color:'#EC4899', attendance:'출석', noticeWritten:true, medication:'done' },
-    { id:'C009', name:'오하은', color:'#6366F1', attendance:'미확인', noticeWritten:false, medication:null },
+    { id:'C001', name:'김도현', gender:'남', color:'#3B82F6', attendance:'출석', noticeWritten:true, medication:null },
+    { id:'C002', name:'이서연', gender:'여', color:'#EC4899', attendance:'출석', noticeWritten:false, medication:'need' },
+    { id:'C003', name:'박준서', gender:'남', color:'#0EA5E9', attendance:'병결', noticeWritten:false, medication:null },
+    { id:'C006', name:'정수아', gender:'여', color:'#F43F5E', attendance:'출석', noticeWritten:true, medication:'done' },
+    { id:'C009', name:'오하은', gender:'여', color:'#FB7185', attendance:'미확인', noticeWritten:false, medication:null },
   ],
   CLS002: [
-    { id:'C004', name:'최지아', color:'#8B5CF6', attendance:'결석', noticeWritten:false, medication:null },
-    { id:'C005', name:'한민준', color:'#EF4444', attendance:'출석', noticeWritten:true, medication:'need' },
-    { id:'C010', name:'장예린', color:'#14B8A6', attendance:'출석', noticeWritten:false, medication:null },
-    { id:'C011', name:'송시우', color:'#F97316', attendance:'출석', noticeWritten:true, medication:null },
+    { id:'C004', name:'최지아', gender:'여', color:'#E11D48', attendance:'결석', noticeWritten:false, medication:null },
+    { id:'C005', name:'한민준', gender:'남', color:'#2563EB', attendance:'출석', noticeWritten:true, medication:'need' },
+    { id:'C010', name:'장예린', gender:'여', color:'#F472B6', attendance:'출석', noticeWritten:false, medication:null },
+    { id:'C011', name:'송시우', gender:'남', color:'#0284C7', attendance:'출석', noticeWritten:true, medication:null },
   ],
   CLS003: [
-    { id:'C007', name:'윤지호', color:'#0EA5E9', attendance:'미확인', noticeWritten:false, medication:null },
-    { id:'C008', name:'강민재', color:'#F97316', attendance:'출석', noticeWritten:true, medication:'done' },
-    { id:'C012', name:'임서준', color:'#A855F7', attendance:'출석', noticeWritten:false, medication:null },
+    { id:'C007', name:'윤지호', gender:'남', color:'#38BDF8', attendance:'미확인', noticeWritten:false, medication:null },
+    { id:'C008', name:'강민재', gender:'남', color:'#1D4ED8', attendance:'출석', noticeWritten:true, medication:'done' },
+    { id:'C012', name:'임서준', gender:'남', color:'#6366F1', attendance:'출석', noticeWritten:false, medication:null },
+  ],
+  CLS004: [
+    { id:'C013', name:'배유나', gender:'여', color:'#BE185D', attendance:'출석', noticeWritten:false, medication:null },
+    { id:'C014', name:'조민우', gender:'남', color:'#0369A1', attendance:'출석', noticeWritten:true, medication:null },
+    { id:'C015', name:'황지은', gender:'여', color:'#F87171', attendance:'조퇴', noticeWritten:false, medication:'need' },
+    { id:'C016', name:'신하준', gender:'남', color:'#4F46E5', attendance:'미확인', noticeWritten:false, medication:null },
   ]
 };
 
 const CLASS_INFO = {
   CLS001: { name:'햇님반', headTeacher:'김하늘', assistTeacher:'이민정', childCount:5 },
   CLS002: { name:'달님반', headTeacher:'박소현', assistTeacher:'최유리', childCount:4 },
-  CLS003: { name:'별님반', headTeacher:'정다은', assistTeacher:null, childCount:3 },
+  CLS003: { name:'별빛반', headTeacher:'최서연', assistTeacher:null, childCount:3 },
+  CLS004: { name:'꽃님반', headTeacher:'김나연', assistTeacher:null, childCount:4 },
 };
 
 let WRITE_CHILDREN = []; // 반 선택 시 동적 로딩
@@ -1979,7 +2009,12 @@ function onClassChange(classId) {
 }
 
 function renderClassCardsHTML() {
-  const classIds = Object.keys(CLASS_INFO);
+  let classIds = Object.keys(CLASS_INFO);
+  // 교사: 담당 반만 표시
+  if (NB_ASSIGNED) {
+    const assignedIds = NB_ASSIGNED.map(a => a.id);
+    classIds = classIds.filter(cid => assignedIds.includes(cid));
+  }
   return classIds.map(cid => {
     const ci = CLASS_INFO[cid];
     const children = CLASS_CHILDREN[cid] || [];
@@ -2029,7 +2064,7 @@ function renderWritePanel() {
         <button class="btn btn-outline btn-sm" onclick="deselectAllWriteChildren()">전체 해제</button>
         <span style="font-size:13px;color:var(--text-muted);align-self:center;margin-left:4px" id="selectedCountLabel">${writeSelectedChildren.size}명 선택됨</span>
       </div>` : `<p style="font-size:13px;color:var(--text-secondary);margin-bottom:10px">1:1 알림장 — 원아 1명을 선택하세요</p>`}
-      <div class="child-select-grid" id="childSelectorGrid">${renderChildSelectorHTML()}</div>`
+      <div class="wp-child-grid" id="childSelectorGrid">${renderChildSelectorHTML()}</div>`
     : `<div class="class-select-grid">${renderClassCardsHTML()}</div>`;
 
   body.innerHTML = `
@@ -2087,29 +2122,15 @@ function renderChildSelectorHTML() {
   if (WRITE_CHILDREN.length === 0) {
     return '<div class="csc-no-class">반을 먼저 선택해 주세요</div>';
   }
-  const attendBadge = (a) => {
-    const m = {'출석':'present','결석':'absent','병결':'sick','미확인':'unknown'};
-    return `<span class="csc-badge csc-badge-${m[a]||'unknown'}">${a}</span>`;
-  };
   return WRITE_CHILDREN.map(c => {
-    const noticeBadge = c.noticeWritten
-      ? '<span class="csc-badge csc-badge-written">작성완료</span>'
-      : '<span class="csc-badge csc-badge-unwritten">미작성</span>';
-    const medBadge = c.medication === 'need'
-      ? '<span class="csc-badge csc-badge-med-need">💊 투약필요</span>'
-      : c.medication === 'done'
-      ? '<span class="csc-badge csc-badge-med-done">💊 투약완료</span>'
-      : '';
-    const wpNoticeClass = c.noticeWritten ? ' notice-written' : ' notice-unwritten';
-    return `<div class="child-select-card${writeSelectedChildren.has(c.id) ? ' selected' : wpNoticeClass}" onclick="toggleWriteChild('${c.id}')">
-      <div class="csc-avatar" style="background:${c.color}">${c.name[0]}</div>
-      <div class="csc-name">${c.name}</div>
-      <div class="csc-badges">
-        ${attendBadge(c.attendance)}
-        ${noticeBadge}
-        ${medBadge}
-      </div>
-      <div class="csc-check">${writeSelectedChildren.has(c.id)?'✓':''}</div>
+    const isSelected = writeSelectedChildren.has(c.id);
+    const cardClass = isSelected ? 'selected' : c.noticeWritten ? 'written' : '';
+    const attendLabel = c.attendance || '미확인';
+    const writtenIcon = c.noticeWritten ? '✅' : '❌';
+    return `<div class="wp-child-card ${cardClass}" onclick="toggleWriteChild('${c.id}')">
+      <div class="wpc-avatar" style="background:${c.color}">${c.name[0]}</div>
+      <div class="wpc-name">${c.name}</div>
+      <div class="wpc-written">${writtenIcon}</div>
     </div>`;
   }).join('');
 }
@@ -2296,7 +2317,7 @@ function renderSingleChildCard(c, st) {
     </div>`;
 
   return `<div class="write-child-card" id="wcc-${cid}">
-    <div class="wcc-header">
+    <div class="wcc-header" style="background:linear-gradient(135deg,${c.color}33 0%,var(--bg-base) 100%)">
       <div class="wcc-avatar" style="background:${c.color}">${c.name[0]}</div>
       <span class="wcc-name">${c.name} — 종합평가</span>
     </div>
@@ -2370,7 +2391,7 @@ function renderMultiChildCard(c, st) {
     : '';
 
   return `<div class="write-child-card" id="wcc-${cid}">
-    <div class="wcc-header">
+    <div class="wcc-header" style="background:linear-gradient(135deg,${c.color}33 0%,var(--bg-base) 100%)">
       <div class="wcc-avatar" style="background:${c.color}">${c.name[0]}</div>
       <span class="wcc-name">${c.name}</span>
       <span style="font-size:12px;color:var(--text-muted);margin-left:auto">태그 ${st.tags.length}개</span>
@@ -2498,7 +2519,7 @@ function aiPolish() {
 function saveDraft() {
   const content = (document.getElementById('wContent') || {}).value || '';
   const dateVal = (document.getElementById('wDate') || {}).value || '';
-  const classMap = { CLS001:'햇님반', CLS002:'달님반', CLS003:'별님반', CLS004:'꽃님반' };
+  const classMap = { CLS001:'햇님반', CLS002:'달님반', CLS003:'별빛반', CLS004:'꽃님반' };
 
   // 선택된 원아 목록 구성
   const selectedChildren = WRITE_CHILDREN
@@ -2616,7 +2637,7 @@ function editNotice(id) {
     writePhotos = (notice.photos || []).map(p => ({...p}));
 
     // 반 기반 원아 로딩
-    const classMap = {'햇님반':'CLS001','달님반':'CLS002','별님반':'CLS003','꽃님반':'CLS004'};
+    const classMap = {'햇님반':'CLS001','달님반':'CLS002','별빛반':'CLS003','꽃님반':'CLS004'};
     writeSelectedClass = classMap[notice.class] || '';
     WRITE_CHILDREN = CLASS_CHILDREN[writeSelectedClass] || [];
     WRITE_CHILDREN.forEach(c => resetChildState(c.id));

@@ -19,7 +19,7 @@
 - **사진/동영상**: 포스트(알림장) 레벨 첨부, 대표 이미지 지정 가능
 - **데이터 관계**: notice_boards(1) → notice_children(N) → notice_comments(N)
 - **AI 기능**: 예문 자동생성, 문장 교정(다듬기)
-- **우리 반 현황**: 페이지 상단 독립 섹션. 반 필터칩(알림장 리스트 필터와 독립) → child-select-card 스타일 원아 카드. 카드 배경색: 작성완료=연두/미작성=연회색. 정렬: 알림장완료>이름순. 카드 클릭→1:1 작성패널 오픈(해당 원아 프리필). 출석 미확인 시 호버 [출석] 버튼만 노출.
+- **우리 반 현황**: 페이지 상단 독립 섹션. 반 필터칩(알림장 리스트 필터와 독립) → child-select-card 스타일 원아 카드. 카드 배경색: 작성완료=연두/미작성=연회색. 정렬: 미작성 그룹(출석→투약필요·완료→기타) → 이름순, 작성완료 무조건 우측 이름순. 카드 클릭→1:1 작성패널 오픈(해당 원아 프리필). 출석 미확인 시 호버 [출석] 버튼만 노출.
 
 ---
 
@@ -362,7 +362,7 @@ writePhotos = [
 | 원아 카드 | `.child-select-card` 스타일 동일 적용. `auto-fill minmax(110px, 1fr)` 그리드 |
 | 카드 배경색 | 작성완료: `#F0FDF4` (연두) / 미작성: `#F9FAFB` (연회색). 선택됐을 때는 `.selected` 오버라이드 |
 | 카드 뱃지 | 출석상태 칩 + 작성완료/미작성 칩 + 투약필요/완료 칩 (`.csc-badges`, `align-items:center`) |
-| 정렬 | 알림장 작성완료 먼저 → 같은 조건 내 한글 이름순 (`localeCompare ko`) |
+| 정렬 | **작성완료는 무조건 우측(이름순)**. 미작성 그룹 내 우선순위: ① 출석(`attendance==='출석'`) → ② 투약필요·완료(`medication==='need'\|'done'`) → ③ 기타 → 각 그룹 내 한글 이름순. 쿼리 표현: `ORDER BY notice_written ASC, CASE WHEN attendance='출석' THEN 0 WHEN medication IN ('need','done') THEN 1 ELSE 2 END ASC, child_name ASC` |
 | 카드 클릭 | `openWritePanelForChild(childId, classId)` → 단일작성 모드로 작성 패널 오픈. 해당 반(`writeSelectedClass`) + 해당 원아(`writeSelectedChildren`) 프리필 완료 상태 |
 | 호버 액션 | 출석 미확인(`attendance === '미확인'`) 원아에만 우측상단 [출석] 버튼 표시. 클릭 시 `CLASS_CHILDREN` 내 해당 원아 `attendance` → `'출석'` 갱신 후 리렌더 |
 | 데이터 소스 | `CLASS_CHILDREN` (작성패널과 동일한 목 데이터 공유) |
