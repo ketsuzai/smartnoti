@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>식단표 — 키드키즈</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="operation-sidebar.js" defer></script>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+:root {
+  --sidebar-bg:#0C2D48;--sidebar-hover:#1A4A6B;--sidebar-active:#1E5580;--sidebar-text:#B8D9F0;
+  --sidebar-width:240px;--header-height:60px;
+  --accent:#0EA5E9;--accent-light:#E0F2FE;--accent-dark:#0284C7;
+  --bg-base:#F0F7FF;--bg-surface:#FFFFFF;
+  --text-primary:#0C2D48;--text-secondary:#4B7FA3;--text-muted:#94B8D0;
+  --border-light:#DBEAFE;--border-medium:#BAD9F7;
+  --green:#10B981;--green-bg:#D1FAE5;--green-text:#065F46;
+  --blue:#3B82F6;--blue-bg:#DBEAFE;--blue-text:#1E40AF;
+  --amber:#F59E0B;--amber-bg:#FEF3C7;--amber-text:#92400E;
+  --red:#EF4444;--red-bg:#FEE2E2;--red-text:#991B1B;
+  --purple:#8B5CF6;--purple-bg:#EDE9FE;--purple-text:#5B21B6;
+  --shadow-sm:0 1px 3px rgba(12,45,72,0.06);
+  --shadow-md:0 4px 12px rgba(12,45,72,0.09);
+  --shadow-lg:0 8px 28px rgba(12,45,72,0.11);
+  --shadow-modal:0 20px 60px rgba(0,0,0,0.18);
+  --radius-sm:6px;--radius-md:10px;--radius-lg:14px;--radius-xl:18px;
+
+  /* 식사구분 색상 */
+  --snack-am-bg:#FFF7ED;--snack-am-text:#C2410C;
+  --lunch-bg:#EFF6FF;--lunch-text:#1D4ED8;
+  --snack-pm-bg:#F5F3FF;--snack-pm-text:#6D28D9;
+  --dinner-bg:#EEF2FF;--dinner-text:#3730A3;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--text-primary);display:flex;height:100vh;overflow:hidden;}
+
+/* ━━━ LAYOUT ━━━ */
+.main-wrap{margin-left:var(--sidebar-width);flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:900px;}
+
+/* ━━━ TOPBAR ━━━ */
+.topbar{height:var(--header-height);background:var(--bg-surface);border-bottom:1px solid var(--border-light);display:flex;align-items:center;padding:0 24px;gap:12px;box-shadow:var(--shadow-sm);flex-shrink:0;z-index:50;}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text-secondary);flex:1;}
+.breadcrumb .cur{color:var(--text-primary);font-weight:700;}
+.bc-sep{color:var(--text-muted);font-size:12px;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.topbar-date{font-size:13px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;}
+
+/* ━━━ CONTENT ━━━ */
+.content{flex:1;overflow-y:auto;padding:24px;}
+.content::-webkit-scrollbar{width:5px;}
+.content::-webkit-scrollbar-thumb{background:var(--border-medium);border-radius:3px;}
+.content-inner{max-width:1160px;margin:0 auto;display:flex;flex-direction:column;gap:20px;}
+
+/* ━━━ PAGE HEADER ━━━ */
+.page-header{display:flex;align-items:center;justify-content:space-between;}
+.page-title{font-size:20px;font-weight:800;color:var(--text-primary);}
+.page-title-sub{font-size:13px;color:var(--text-secondary);margin-top:2px;font-weight:500;}
+
+/* ━━━ BUTTONS ━━━ */
+.btn{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 18px;border-radius:var(--radius-md);font-size:14px;font-weight:600;font-family:'Pretendard',sans-serif;cursor:pointer;border:none;transition:.18s;white-space:nowrap;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{background:var(--accent-dark);}
+.btn-outline{background:#fff;color:var(--text-primary);border:1.5px solid var(--border-medium);}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent-dark);background:var(--accent-light);}
+.btn-danger{background:var(--red);color:#fff;}
+.btn-danger:hover{background:#DC2626;}
+.btn-sm{height:32px;padding:0 12px;font-size:13px;}
+
+/* ━━━ CALENDAR CARD ━━━ */
+.calendar-card{background:var(--bg-surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);border:1px solid var(--border-light);overflow:hidden;}
+.cal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border-light);}
+.cal-nav{display:flex;align-items:center;gap:12px;}
+.cal-nav-btn{width:34px;height:34px;border-radius:var(--radius-md);border:1.5px solid var(--border-light);background:var(--bg-base);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--text-secondary);transition:.15s;}
+.cal-nav-btn:hover{background:var(--accent-light);border-color:var(--accent);color:var(--accent-dark);}
+.cal-month{font-size:18px;font-weight:800;color:var(--text-primary);font-family:'JetBrains Mono',monospace;}
+.cal-legend{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.cal-legend-item{display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;}
+.legend-dot{width:8px;height:8px;border-radius:2px;display:inline-block;}
+
+/* Calendar grid */
+.cal-grid{width:100%;}
+.cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1.5px solid var(--border-light);}
+.cal-wday{padding:9px 4px;text-align:center;font-size:11px;font-weight:800;color:var(--text-muted);letter-spacing:.5px;text-transform:uppercase;}
+.cal-wday:first-child{color:#EF4444;}
+.cal-wday:last-child{color:#3B82F6;}
+.cal-days{display:grid;grid-template-columns:repeat(7,1fr);}
+.cal-cell{height:130px;padding:8px 8px 30px;border-right:1px solid var(--border-light);border-bottom:1px solid var(--border-light);cursor:pointer;transition:.15s;position:relative;display:flex;flex-direction:column;gap:6px;}
+.cal-cell:nth-child(7n){border-right:none;}
+/* last row cells - remove bottom border for cells in last row */
+.cal-cell:hover{background:#F8FCFF;}
+.cal-cell.other-month{background:#FAFCFF;cursor:default;pointer-events:none;}
+.cal-cell.other-month .cal-date-num{color:var(--text-muted);opacity:.45;}
+.cal-cell.today .cal-date-num{background:var(--accent);color:#fff;border-radius:50%;}
+.cal-cell.selected{background:var(--accent-light);}
+.cal-cell.selected:hover{background:#D4EDFC;}
+.cal-cell.selected.today .cal-date-num{background:var(--accent-dark);color:#fff;box-shadow:0 0 0 2px #fff,0 0 0 4px var(--accent);}
+.cal-cell.sunday .cal-date-num{color:#EF4444;}
+.cal-cell.saturday .cal-date-num{color:#3B82F6;}
+.cal-cell.today.sunday .cal-date-num,
+.cal-cell.today.saturday .cal-date-num,
+.cal-cell.selected.today.sunday .cal-date-num,
+.cal-cell.selected.today.saturday .cal-date-num{color:#fff;}
+.cal-date-num{width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;border-radius:50%;flex-shrink:0;transition:.15s;}
+.cal-tags{display:flex;flex-direction:column;gap:2px;flex:1;}
+.meal-tag{display:inline-flex;align-items:center;gap:3px;padding:1px 6px;border-radius:3px;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+.meal-tag.snack-am{background:var(--snack-am-bg);color:var(--snack-am-text);}
+.meal-tag.lunch{background:var(--lunch-bg);color:var(--lunch-text);}
+.meal-tag.snack-pm{background:var(--snack-pm-bg);color:var(--snack-pm-text);}
+.meal-tag.dinner{background:var(--dinner-bg);color:var(--dinner-text);}
+.meal-photo-icon{font-size:13px;flex-shrink:0;}
+.cal-hover-btn{display:none;position:absolute;bottom:6px;right:6px;font-size:11px;font-weight:700;padding:3px 8px;border-radius:var(--radius-sm);background:var(--accent);color:#fff;border:none;cursor:pointer;font-family:'Pretendard',sans-serif;white-space:nowrap;}
+.cal-cell:not(.other-month):hover .cal-hover-btn{display:flex;align-items:center;gap:3px;}
+.cal-cell.has-meal:not(.other-month):hover .cal-hover-btn{background:var(--accent-dark);}
+
+/* ━━━ CONTENT PANEL ━━━ */
+.panel-card{background:var(--bg-surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);border:1px solid var(--border-light);overflow:hidden;animation:panelIn .22s ease;}
+@keyframes panelIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.panel-header{padding:16px 20px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;}
+.panel-date{font-size:16px;font-weight:800;color:var(--text-primary);}
+.panel-actions{display:flex;align-items:center;gap:8px;}
+.panel-body{padding:20px;}
+.meal-section{display:flex;flex-direction:column;gap:16px;}
+.meal-item{display:flex;flex-direction:column;gap:10px;padding:14px 16px;background:var(--bg-base);border-radius:var(--radius-lg);border:1px solid var(--border-light);}
+.meal-type-badge{display:inline-flex;align-items:center;padding:4px 12px;border-radius:var(--radius-sm);font-size:12px;font-weight:800;white-space:nowrap;align-self:flex-start;}
+.meal-type-badge.snack-am{background:var(--snack-am-bg);color:var(--snack-am-text);}
+.meal-type-badge.lunch{background:var(--lunch-bg);color:var(--lunch-text);}
+.meal-type-badge.snack-pm{background:var(--snack-pm-bg);color:var(--snack-pm-text);}
+.meal-type-badge.dinner{background:var(--dinner-bg);color:var(--dinner-text);}
+.meal-photo-panel{width:160px;height:160px;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--border-medium);background:var(--border-light);flex-shrink:0;}
+.meal-photo-panel img{width:100%;height:100%;object-fit:cover;display:block;}
+.meal-content{min-width:0;}
+.meal-menu{font-size:14px;color:var(--text-primary);line-height:1.7;font-weight:500;}
+.panel-empty{text-align:center;padding:48px 20px;}
+.panel-empty-icon{font-size:42px;margin-bottom:12px;}
+.panel-empty-title{font-size:15px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;}
+.panel-empty-desc{font-size:13px;color:var(--text-muted);margin-bottom:20px;}
+
+/* ━━━ MODAL OVERLAY ━━━ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:.22s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal-box{background:var(--bg-surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-modal);width:100%;max-width:600px;max-height:90vh;display:flex;flex-direction:column;transform:scale(.95);transition:.22s;}
+.modal-overlay.open .modal-box{transform:scale(1);}
+.modal-header{padding:18px 22px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.modal-title{font-size:16px;font-weight:800;color:var(--text-primary);}
+.modal-close{width:30px;height:30px;border-radius:var(--radius-md);border:1.5px solid var(--border-light);background:var(--bg-base);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--text-secondary);transition:.15s;}
+.modal-close:hover{background:var(--red-bg);border-color:var(--red-bg);color:var(--red-text);}
+.modal-body{flex:1;overflow-y:auto;padding:20px 22px;}
+.modal-body::-webkit-scrollbar{width:4px;}
+.modal-body::-webkit-scrollbar-thumb{background:var(--border-medium);border-radius:2px;}
+.modal-footer{padding:14px 22px;border-top:1px solid var(--border-light);display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-shrink:0;}
+
+/* Modal form */
+.form-field{margin-bottom:18px;}
+.form-label{font-size:13px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;display:block;}
+.form-input{width:100%;height:38px;padding:0 12px;border:1.5px solid var(--border-light);border-radius:var(--radius-md);font-size:14px;font-family:'Pretendard',sans-serif;color:var(--text-primary);background:var(--bg-surface);outline:none;transition:.18s;}
+.form-input:focus{border-color:var(--accent);}
+.meal-section-divider{border:none;border-top:1.5px solid var(--border-light);margin:18px 0 16px;}
+.meal-section-label{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.meal-section-title{font-size:13px;font-weight:800;color:var(--text-secondary);}
+.meal-textarea{width:100%;min-height:70px;padding:10px 12px;border:1.5px solid var(--border-light);border-radius:var(--radius-md);font-size:14px;font-family:'Pretendard',sans-serif;color:var(--text-primary);background:var(--bg-surface);resize:vertical;outline:none;transition:.18s;line-height:1.6;}
+.meal-textarea:focus{border-color:var(--accent);}
+.meal-textarea::placeholder{color:var(--text-muted);}
+.photo-upload-area{width:130px;height:130px;border:1.5px dashed var(--border-medium);border-radius:var(--radius-md);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:.18s;background:var(--bg-base);}
+.photo-upload-area:hover{border-color:var(--accent);background:var(--accent-light);}
+.photo-upload-label{font-size:12px;color:var(--text-muted);}
+.photo-preview-wrap{display:flex;align-items:flex-start;gap:10px;}
+.photo-preview-thumb{width:130px;height:130px;border-radius:var(--radius-md);background:var(--border-light);object-fit:cover;border:1px solid var(--border-medium);display:flex;align-items:center;justify-content:center;font-size:36px;flex-shrink:0;}
+.photo-remove-btn{font-size:12px;color:var(--red-text);background:var(--red-bg);border:none;border-radius:var(--radius-sm);padding:3px 8px;cursor:pointer;font-family:'Pretendard',sans-serif;font-weight:700;transition:.15s;}
+.photo-remove-btn:hover{background:var(--red);color:#fff;}
+.form-hint{font-size:12px;color:var(--text-muted);margin-top:4px;}
+.form-err{font-size:12px;color:var(--red-text);margin-top:4px;display:none;}
+.form-err.show{display:block;}
+
+/* ━━━ CONFIRM MODAL ━━━ */
+.cm-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:400;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:.2s;}
+.cm-overlay.open{opacity:1;pointer-events:all;}
+.cm-box{background:var(--bg-surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-modal);padding:28px 26px;width:360px;text-align:center;transform:scale(.95);transition:.2s;}
+.cm-overlay.open .cm-box{transform:scale(1);}
+.cm-icon{font-size:38px;margin-bottom:12px;}
+.cm-title{font-size:16px;font-weight:800;color:var(--text-primary);margin-bottom:8px;}
+.cm-msg{font-size:14px;color:var(--text-secondary);line-height:1.6;margin-bottom:22px;}
+.cm-btns{display:flex;gap:8px;justify-content:center;}
+.cm-btn{height:38px;padding:0 24px;border-radius:var(--radius-md);font-size:14px;font-weight:700;font-family:'Pretendard',sans-serif;cursor:pointer;border:none;transition:.18s;}
+.cm-cancel{background:var(--bg-base);border:1.5px solid var(--border-medium);color:var(--text-secondary);}
+.cm-cancel:hover{background:var(--border-light);}
+.cm-delete{background:var(--red);color:#fff;}
+.cm-delete:hover{background:#DC2626;}
+
+/* ━━━ TOAST ━━━ */
+.toast-wrap{position:fixed;bottom:28px;right:28px;z-index:500;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.toast{background:#1A2E40;color:#fff;padding:12px 18px;border-radius:var(--radius-lg);font-size:14px;font-weight:600;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:8px;animation:toastIn .25s ease;pointer-events:none;}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.toast.out{animation:toastOut .25s ease forwards;}
+@keyframes toastOut{to{opacity:0;transform:translateY(10px);}}
+</style>
+</head>
+<body>
+<aside id="appSidebar"></aside>
+
+<div class="main-wrap">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="breadcrumb">
+      <span>운영관리</span>
+      <span class="bc-sep">›</span>
+      <span id="breadcrumbOrg">해맑은 어린이집</span>
+      <span class="bc-sep">›</span>
+      <span class="cur">식단표</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-date" id="topbarDate"></span>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <div class="content-inner">
+
+      <!-- Page Header -->
+      <div class="page-header">
+        <div>
+          <div class="page-title">🍱 식단표</div>
+          <div class="page-title-sub">기관 공통 급식 식단을 등록하고 학부모에게 공유합니다</div>
+        </div>
+        <button class="btn btn-primary" id="btnAddMeal">
+          <span>+</span> 식단 등록
+        </button>
+      </div>
+
+      <!-- Calendar Card -->
+      <div class="calendar-card">
+        <div class="cal-header">
+          <div class="cal-nav">
+            <button class="cal-nav-btn" id="btnPrevMonth">‹</button>
+            <div class="cal-month" id="calMonthLabel"></div>
+            <button class="cal-nav-btn" id="btnNextMonth">›</button>
+          </div>
+          <div class="cal-legend">
+            <div class="cal-legend-item"><span class="legend-dot" style="background:#C2410C"></span>오전 간식</div>
+            <div class="cal-legend-item"><span class="legend-dot" style="background:#1D4ED8"></span>점심 식사</div>
+            <div class="cal-legend-item"><span class="legend-dot" style="background:#6D28D9"></span>오후 간식</div>
+            <div class="cal-legend-item"><span class="legend-dot" style="background:#3730A3"></span>석식</div>
+          </div>
+        </div>
+        <div class="cal-grid">
+          <div class="cal-weekdays">
+            <div class="cal-wday">일</div>
+            <div class="cal-wday">월</div>
+            <div class="cal-wday">화</div>
+            <div class="cal-wday">수</div>
+            <div class="cal-wday">목</div>
+            <div class="cal-wday">금</div>
+            <div class="cal-wday">토</div>
+          </div>
+          <div class="cal-days" id="calDays"></div>
+        </div>
+      </div>
+
+      <!-- Content Panel (날짜 선택 시 표시) -->
+      <div id="contentPanel" style="display:none;"></div>
+
+    </div>
+  </div>
+</div>
+
+<!-- 식단 등록/수정 Modal -->
+<div class="modal-overlay" id="mealModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="mealModalTitle">식단 등록</div>
+      <button class="modal-close" onclick="closeMealModal()">×</button>
+    </div>
+    <div class="modal-body" id="mealModalBody">
+      <!-- 날짜 -->
+      <div class="form-field">
+        <label class="form-label">날짜</label>
+        <input type="date" class="form-input" id="mealDateInput">
+      </div>
+
+      <!-- 오전 간식 -->
+      <hr class="meal-section-divider">
+      <div class="meal-section-label">
+        <span class="meal-type-badge snack-am">오전 간식</span>
+      </div>
+      <div class="form-field">
+        <label class="form-label">메뉴 입력</label>
+        <textarea class="meal-textarea" id="snackAmMenu" placeholder="예) 찐빵, 우유"></textarea>
+      </div>
+      <div class="form-field" id="snackAmPhotoField">
+        <label class="form-label">사진 <span style="font-weight:500;color:var(--text-muted)">(선택사항)</span></label>
+        <div id="snackAmPhotoPreview"></div>
+        <div class="photo-upload-area" id="snackAmUploadArea" onclick="triggerPhotoUpload('snack_am')">
+          <div style="font-size:22px">📷</div>
+          <div class="photo-upload-label">클릭하여 사진 업로드</div>
+        </div>
+      </div>
+
+      <!-- 점심 식사 -->
+      <hr class="meal-section-divider">
+      <div class="meal-section-label">
+        <span class="meal-type-badge lunch">점심 식사</span>
+      </div>
+      <div class="form-field">
+        <label class="form-label">메뉴 입력</label>
+        <textarea class="meal-textarea" id="lunchMenu" placeholder="예) 잡곡밥, 미역국, 돈까스, 깍두기, 요구르트"></textarea>
+      </div>
+      <div class="form-field">
+        <label class="form-label">사진 <span style="font-weight:500;color:var(--text-muted)">(선택사항)</span></label>
+        <div id="lunchPhotoPreview"></div>
+        <div class="photo-upload-area" id="lunchUploadArea" onclick="triggerPhotoUpload('lunch')">
+          <div style="font-size:22px">📷</div>
+          <div class="photo-upload-label">클릭하여 사진 업로드</div>
+        </div>
+      </div>
+
+      <!-- 오후 간식 -->
+      <hr class="meal-section-divider">
+      <div class="meal-section-label">
+        <span class="meal-type-badge snack-pm">오후 간식</span>
+      </div>
+      <div class="form-field">
+        <label class="form-label">메뉴 입력</label>
+        <textarea class="meal-textarea" id="snackPmMenu" placeholder="예) 쿠키, 주스"></textarea>
+      </div>
+      <div class="form-field">
+        <label class="form-label">사진 <span style="font-weight:500;color:var(--text-muted)">(선택사항)</span></label>
+        <div id="snackPmPhotoPreview"></div>
+        <div class="photo-upload-area" id="snackPmUploadArea" onclick="triggerPhotoUpload('snack_pm')">
+          <div style="font-size:22px">📷</div>
+          <div class="photo-upload-label">클릭하여 사진 업로드</div>
+        </div>
+      </div>
+
+      <!-- 석식 -->
+      <hr class="meal-section-divider">
+      <div class="meal-section-label">
+        <span class="meal-type-badge dinner">석식</span>
+      </div>
+      <div class="form-field">
+        <label class="form-label">메뉴 입력</label>
+        <textarea class="meal-textarea" id="dinnerMenu" placeholder="예) 된장찌개, 잡채, 현미밥"></textarea>
+      </div>
+      <div class="form-field">
+        <label class="form-label">사진 <span style="font-weight:500;color:var(--text-muted)">(선택사항)</span></label>
+        <div id="dinnerPhotoPreview"></div>
+        <div class="photo-upload-area" id="dinnerUploadArea" onclick="triggerPhotoUpload('dinner')">
+          <div style="font-size:22px">📷</div>
+          <div class="photo-upload-label">클릭하여 사진 업로드</div>
+        </div>
+      </div>
+
+      <div class="form-err" id="modalErr">최소 1개 식사구분을 입력해주세요.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeMealModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveMeal()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 중복 날짜 덮어쓰기 확인 Modal -->
+<div class="cm-overlay" id="dupModal">
+  <div class="cm-box">
+    <div class="cm-icon">⚠️</div>
+    <div class="cm-title">이미 등록된 식단이 있습니다</div>
+    <div class="cm-msg"><strong id="dupModalDate"></strong>에 이미 등록된 식단이 있습니다.<br>현재 입력한 내용으로 덮어쓰시겠습니까?</div>
+    <div class="cm-btns">
+      <button class="cm-btn cm-cancel" onclick="closeDupModal()">취소</button>
+      <button class="cm-btn" style="background:var(--accent);color:#fff;" onclick="confirmDupOverwrite()">덮어쓰기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 삭제 확인 Modal -->
+<div class="cm-overlay" id="deleteModal">
+  <div class="cm-box">
+    <div class="cm-icon">🗑️</div>
+    <div class="cm-title">식단 삭제</div>
+    <div class="cm-msg">해당 날짜의 식단을 삭제하시겠습니까?<br>이 작업은 되돌릴 수 없습니다.</div>
+    <div class="cm-btns">
+      <button class="cm-btn cm-cancel" onclick="closeDeleteModal()">취소</button>
+      <button class="cm-btn cm-delete" onclick="confirmDelete()">삭제</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- Hidden file input -->
+<input type="file" id="photoFileInput" accept="image/*" style="display:none" onchange="handlePhotoSelect(event)">
+
+<script>
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// MOCK DATA
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let mealPlans = [
+  {
+    id: 'MP001', org_id: 'ORG001', date: '2026-04-01',
+    snack_am_menu: '찐빵, 우유', snack_am_image_url: 'img/오전간식1.png',
+    lunch_menu: '잡곡밥, 미역국, 돈까스, 깍두기, 요구르트', lunch_image_url: 'img/점심식사1.png',
+    snack_pm_menu: null, snack_pm_image_url: null,
+    dinner_menu: null, dinner_image_url: null,
+    created_by: 'TCH001', created_at: '2026-03-28T10:00:00', updated_at: '2026-03-28T10:00:00'
+  },
+  {
+    id: 'MP002', org_id: 'ORG001', date: '2026-04-02',
+    snack_am_menu: '바나나, 두유', snack_am_image_url: null,
+    lunch_menu: '흰쌀밥, 된장찌개, 삼겹살구이, 시금치나물', lunch_image_url: 'img/점심식사1.png',
+    snack_pm_menu: '쿠키, 우유', snack_pm_image_url: 'img/오후간식1.png',
+    dinner_menu: null, dinner_image_url: null,
+    created_by: 'TCH001', created_at: '2026-03-28T10:00:00', updated_at: '2026-03-28T10:00:00'
+  },
+  {
+    id: 'MP003', org_id: 'ORG001', date: '2026-04-03',
+    snack_am_menu: '사과, 우유', snack_am_image_url: 'img/오전간식1.png',
+    lunch_menu: '잡곡밥, 김치찌개, 제육볶음, 콩나물무침', lunch_image_url: null,
+    snack_pm_menu: '오렌지주스, 쌀과자', snack_pm_image_url: null,
+    dinner_menu: '현미밥, 잡채, 두부조림', dinner_image_url: null,
+    created_by: 'TCH001', created_at: '2026-03-29T10:00:00', updated_at: '2026-03-29T10:00:00'
+  },
+  {
+    id: 'MP004', org_id: 'ORG001', date: '2026-04-07',
+    snack_am_menu: '요구르트, 크래커', snack_am_image_url: 'img/오전간식1.png',
+    lunch_menu: '잡곡밥, 미역국, 닭볶음탕, 브로콜리무침, 깍두기', lunch_image_url: 'img/점심식사1.png',
+    snack_pm_menu: null, snack_pm_image_url: null,
+    dinner_menu: null, dinner_image_url: null,
+    created_by: 'TCH001', created_at: '2026-04-01T09:00:00', updated_at: '2026-04-01T09:00:00'
+  },
+  {
+    id: 'MP005', org_id: 'ORG001', date: '2026-04-08',
+    snack_am_menu: '귤, 우유', snack_am_image_url: null,
+    lunch_menu: '흰쌀밥, 콩나물국, 불고기, 계란찜', lunch_image_url: 'img/점심식사1.png',
+    snack_pm_menu: '호두과자, 식혜', snack_pm_image_url: 'img/오후간식1.png',
+    dinner_menu: null, dinner_image_url: null,
+    created_by: 'TCH001', created_at: '2026-04-01T09:00:00', updated_at: '2026-04-01T09:00:00'
+  },
+  {
+    id: 'MP006', org_id: 'ORG001', date: '2026-04-10',
+    snack_am_menu: null, snack_am_image_url: null,
+    lunch_menu: '잡곡밥, 순두부찌개, 돼지갈비, 오이무침', lunch_image_url: 'img/점심식사1.png',
+    snack_pm_menu: '딸기, 우유', snack_pm_image_url: 'img/오후간식1.png',
+    dinner_menu: null, dinner_image_url: null,
+    created_by: 'TCH001', created_at: '2026-04-05T09:00:00', updated_at: '2026-04-05T09:00:00'
+  },
+  {
+    id: 'MP007', org_id: 'ORG001', date: '2026-04-14',
+    snack_am_menu: '토마토, 두유', snack_am_image_url: 'img/오전간식1.png',
+    lunch_menu: '잡곡밥, 어묵국, 소불고기, 마카로니샐러드', lunch_image_url: 'img/점심식사1.png',
+    snack_pm_menu: '바나나, 쿠키', snack_pm_image_url: 'img/오후간식1.png',
+    dinner_menu: '현미밥, 청국장찌개, 생선구이', dinner_image_url: null,
+    created_by: 'TCH001', created_at: '2026-04-06T09:00:00', updated_at: '2026-04-06T09:00:00'
+  },
+  {
+    id: 'MP008', org_id: 'ORG001', date: '2026-04-15',
+    snack_am_menu: '찐빵, 우유', snack_am_image_url: 'img/오전간식1.png',
+    lunch_menu: '잡곡밥, 미역국, 돈까스, 김치', lunch_image_url: 'img/점심식사1.png',
+    snack_pm_menu: null, snack_pm_image_url: null,
+    dinner_menu: null, dinner_image_url: null,
+    created_by: 'TCH001', created_at: '2026-04-07T09:00:00', updated_at: '2026-04-07T09:00:00'
+  }
+];
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STATE
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const TODAY = new Date(2026, 3, 7); // 2026-04-07
+let currentYear = TODAY.getFullYear();
+let currentMonth = TODAY.getMonth();
+let selectedDate = null;
+let editingId = null;
+let deletingDate = null;
+let pendingPhotoKey = null;
+let pendingDupDate = null;
+let pendingDupValues = null;
+const mockPhotos = {}; // key -> dataURL or 'mock'
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// INIT
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+document.addEventListener('DOMContentLoaded', () => {
+  updateTopbarDate();
+  renderCalendar();
+  selectDate(formatDate(TODAY));
+
+  document.getElementById('btnPrevMonth').addEventListener('click', () => {
+    currentMonth--;
+    if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+    selectedDate = null;
+    document.getElementById('contentPanel').style.display = 'none';
+    renderCalendar();
+  });
+  document.getElementById('btnNextMonth').addEventListener('click', () => {
+    currentMonth++;
+    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+    selectedDate = null;
+    document.getElementById('contentPanel').style.display = 'none';
+    renderCalendar();
+  });
+
+  document.getElementById('btnAddMeal').addEventListener('click', () => {
+    openMealModal(null);
+  });
+});
+
+function updateTopbarDate() {
+  const d = new Date(2026, 3, 7);
+  document.getElementById('topbarDate').textContent =
+    d.toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric', weekday:'short' });
+}
+
+function formatDate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+
+function getMealPlan(dateStr) {
+  return mealPlans.find(p => p.date === dateStr) || null;
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// CALENDAR RENDER
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function renderCalendar() {
+  const MONTHS_KO = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  document.getElementById('calMonthLabel').textContent = `${currentYear}년 ${MONTHS_KO[currentMonth]}`;
+
+  const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const daysInPrevMonth = new Date(currentYear, currentMonth, 0).getDate();
+
+  const container = document.getElementById('calDays');
+  container.innerHTML = '';
+
+  const todayStr = formatDate(TODAY);
+
+  // Prev month overflow
+  for (let i = firstDay - 1; i >= 0; i--) {
+    const d = daysInPrevMonth - i;
+    const dateStr = formatDate(new Date(currentMonth === 0 ? currentYear - 1 : currentYear, currentMonth === 0 ? 11 : currentMonth - 1, d));
+    container.appendChild(buildCell(d, dateStr, true));
+  }
+
+  // Current month
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = formatDate(new Date(currentYear, currentMonth, d));
+    const cell = buildCell(d, dateStr, false, dateStr === todayStr, dateStr === selectedDate);
+    container.appendChild(cell);
+  }
+
+  // Next month overflow
+  const totalCells = container.children.length;
+  const remaining = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+  for (let d = 1; d <= remaining; d++) {
+    const dateStr = formatDate(new Date(currentMonth === 11 ? currentYear + 1 : currentYear, currentMonth === 11 ? 0 : currentMonth + 1, d));
+    container.appendChild(buildCell(d, dateStr, true));
+  }
+}
+
+function buildCell(day, dateStr, otherMonth, isToday = false, isSelected = false) {
+  const cell = document.createElement('div');
+  const meal = getMealPlan(dateStr);
+  const hasMeal = !!meal;
+  const dow = new Date(dateStr).getDay();
+
+  let cls = 'cal-cell';
+  if (otherMonth) cls += ' other-month';
+  if (isToday) cls += ' today';
+  if (isSelected) cls += ' selected';
+  if (hasMeal) cls += ' has-meal';
+  if (dow === 0) cls += ' sunday';
+  if (dow === 6) cls += ' saturday';
+  cell.className = cls;
+
+  if (!otherMonth) {
+    cell.addEventListener('click', () => selectDate(dateStr));
+  }
+
+  // Date number
+  const numEl = document.createElement('div');
+  numEl.className = 'cal-date-num';
+  numEl.textContent = day;
+  cell.appendChild(numEl);
+
+  // Meal tags
+  if (!otherMonth && hasMeal) {
+    const tagsWrap = document.createElement('div');
+    tagsWrap.className = 'cal-tags';
+
+    const tagDefs = [
+      { key: 'snack_am_menu', cls: 'snack-am', label: '오전 간식' },
+      { key: 'lunch_menu',    cls: 'lunch',    label: '점심 식사'    },
+      { key: 'snack_pm_menu', cls: 'snack-pm', label: '오후 간식'},
+      { key: 'dinner_menu',   cls: 'dinner',   label: '석식'    },
+    ];
+    tagDefs.forEach(td => {
+      if (meal[td.key]) {
+        const tag = document.createElement('div');
+        const hasPhoto = !!(meal[td.key.replace('_menu', '_image_url')]);
+        tag.className = `meal-tag ${td.cls}`;
+        tag.innerHTML = `${td.label}${hasPhoto ? ' <span class="meal-photo-icon">📷</span>' : ''}`;
+        tagsWrap.appendChild(tag);
+      }
+    });
+    cell.appendChild(tagsWrap);
+  }
+
+  // Hover button
+  if (!otherMonth) {
+    const hoverBtn = document.createElement('button');
+    hoverBtn.className = 'cal-hover-btn';
+    if (hasMeal) {
+      hoverBtn.innerHTML = '✏️ 수정하기';
+      hoverBtn.addEventListener('click', (e) => { e.stopPropagation(); selectDate(dateStr); openMealModal(dateStr); });
+    } else {
+      hoverBtn.innerHTML = '+ 등록하기';
+      hoverBtn.addEventListener('click', (e) => { e.stopPropagation(); openMealModal(dateStr); });
+    }
+    cell.appendChild(hoverBtn);
+  }
+
+  return cell;
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// SELECT DATE → SHOW PANEL
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function selectDate(dateStr) {
+  selectedDate = dateStr;
+  renderCalendar();
+  renderPanel(dateStr);
+}
+
+function renderPanel(dateStr) {
+  const panel = document.getElementById('contentPanel');
+  const meal = getMealPlan(dateStr);
+
+  const d = new Date(dateStr + 'T00:00:00');
+  const DAYS = ['일','월','화','수','목','금','토'];
+  const dateLabel = `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 (${DAYS[d.getDay()]})`;
+
+  let html = `
+    <div class="panel-card">
+      <div class="panel-header">
+        <div class="panel-date">${dateLabel}</div>
+        <div class="panel-actions">
+          ${meal ? `
+            <button class="btn btn-outline btn-sm" onclick="openMealModal('${dateStr}')">✏️ 수정</button>
+            <button class="btn btn-sm" style="background:var(--red-bg);color:var(--red-text);border:1.5px solid var(--red-bg);" onclick="openDeleteModal('${dateStr}')">🗑️ 삭제</button>
+          ` : ''}
+        </div>
+      </div>
+      <div class="panel-body">
+  `;
+
+  if (meal) {
+    const sections = [
+      { key_m: 'snack_am_menu', key_i: 'snack_am_image_url', cls: 'snack-am', label: '오전 간식' },
+      { key_m: 'lunch_menu',    key_i: 'lunch_image_url',    cls: 'lunch',    label: '점심 식사'    },
+      { key_m: 'snack_pm_menu', key_i: 'snack_pm_image_url', cls: 'snack-pm', label: '오후 간식'},
+      { key_m: 'dinner_menu',   key_i: 'dinner_image_url',   cls: 'dinner',   label: '석식'    },
+    ];
+    const registered = sections.filter(s => meal[s.key_m]);
+
+    if (registered.length === 0) {
+      html += `<div class="panel-empty"><div class="panel-empty-icon">🍽️</div><div class="panel-empty-title">등록된 식단이 없습니다.</div></div>`;
+    } else {
+      html += `<div class="meal-section">`;
+      registered.forEach(s => {
+        const menuText = meal[s.key_m];
+        const imgUrl   = meal[s.key_i];
+        html += `
+          <div class="meal-item">
+            <span class="meal-type-badge ${s.cls}">${s.label}</span>
+            ${imgUrl ? `<div class="meal-photo-panel"><img src="${imgUrl}" alt="${s.label} 사진"></div>` : ''}
+            <div class="meal-content">
+              <div class="meal-menu">${menuText.replace(/,\s*/g, ' · ')}</div>
+            </div>
+          </div>
+        `;
+      });
+      html += `</div>`;
+    }
+  } else {
+    html += `
+      <div class="panel-empty">
+        <div class="panel-empty-icon">🍽️</div>
+        <div class="panel-empty-title">등록된 식단이 없습니다.</div>
+        <div class="panel-empty-desc">이 날짜에 등록된 식단 정보가 없습니다.</div>
+        <button class="btn btn-primary" onclick="openMealModal('${dateStr}')">+ 식단 등록하기</button>
+      </div>
+    `;
+  }
+
+  html += `</div></div>`;
+  panel.innerHTML = html;
+  panel.style.display = 'block';
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// MEAL MODAL
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const photoPreviewIds = {
+  snack_am: 'snackAmPhotoPreview',
+  lunch: 'lunchPhotoPreview',
+  snack_pm: 'snackPmPhotoPreview',
+  dinner: 'dinnerPhotoPreview'
+};
+const photoUploadAreaIds = {
+  snack_am: 'snackAmUploadArea',
+  lunch: 'lunchUploadArea',
+  snack_pm: 'snackPmUploadArea',
+  dinner: 'dinnerUploadArea'
+};
+
+function openMealModal(dateStr) {
+  const existing = dateStr ? getMealPlan(dateStr) : null;
+  editingId = existing ? existing.id : null;
+
+  document.getElementById('mealModalTitle').textContent = editingId ? '식단 수정' : '식단 등록';
+  document.getElementById('mealDateInput').value = dateStr || formatDate(TODAY);
+  document.getElementById('mealDateInput').disabled = !!dateStr;
+
+  // Reset fields
+  document.getElementById('snackAmMenu').value  = existing?.snack_am_menu  || '';
+  document.getElementById('lunchMenu').value    = existing?.lunch_menu     || '';
+  document.getElementById('snackPmMenu').value  = existing?.snack_pm_menu  || '';
+  document.getElementById('dinnerMenu').value   = existing?.dinner_menu    || '';
+  document.getElementById('modalErr').classList.remove('show');
+
+  // Reset / restore photo previews
+  const imgKeyMap = {
+    snack_am: 'snack_am_image_url',
+    lunch: 'lunch_image_url',
+    snack_pm: 'snack_pm_image_url',
+    dinner: 'dinner_image_url'
+  };
+  ['snack_am','lunch','snack_pm','dinner'].forEach(k => {
+    const existingImg = existing?.[imgKeyMap[k]];
+    if (existingImg) {
+      renderPhotoPreview(k, existingImg);
+    } else {
+      renderPhotoPreview(k, null);
+    }
+  });
+
+  const overlay = document.getElementById('mealModal');
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMealModal() {
+  document.getElementById('mealModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function saveMeal() {
+  const dateVal  = document.getElementById('mealDateInput').value;
+  const snackAm  = document.getElementById('snackAmMenu').value.trim();
+  const lunch    = document.getElementById('lunchMenu').value.trim();
+  const snackPm  = document.getElementById('snackPmMenu').value.trim();
+  const dinner   = document.getElementById('dinnerMenu').value.trim();
+  const errEl    = document.getElementById('modalErr');
+
+  if (!snackAm && !lunch && !snackPm && !dinner) {
+    errEl.classList.add('show');
+    return;
+  }
+  errEl.classList.remove('show');
+
+  if (editingId) {
+    const plan = mealPlans.find(p => p.id === editingId);
+    if (plan) {
+      plan.snack_am_menu  = snackAm  || null;
+      plan.lunch_menu     = lunch    || null;
+      plan.snack_pm_menu  = snackPm  || null;
+      plan.dinner_menu    = dinner   || null;
+      plan.updated_at     = new Date().toISOString();
+    }
+  } else {
+    // Check duplicate
+    const dup = getMealPlan(dateVal);
+    if (dup) {
+      pendingDupDate   = dateVal;
+      pendingDupValues = { snackAm, lunch, snackPm, dinner };
+      const d = new Date(dateVal + 'T00:00:00');
+      const DAYS = ['일','월','화','수','목','금','토'];
+      document.getElementById('dupModalDate').textContent =
+        `${d.getMonth()+1}월 ${d.getDate()}일 (${DAYS[d.getDay()]})`;
+      document.getElementById('dupModal').classList.add('open');
+      return;
+    }
+    const newPlan = {
+      id: 'MP' + String(Date.now()).slice(-4),
+      org_id: 'ORG001',
+      date: dateVal,
+      snack_am_menu: snackAm  || null, snack_am_image_url: null,
+      lunch_menu:    lunch    || null, lunch_image_url:    null,
+      snack_pm_menu: snackPm  || null, snack_pm_image_url: null,
+      dinner_menu:   dinner   || null, dinner_image_url:   null,
+      created_by: 'TCH001',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    mealPlans.push(newPlan);
+  }
+
+  closeMealModal();
+  renderCalendar();
+  if (selectedDate === dateVal || editingId) {
+    renderPanel(dateVal || (mealPlans.find(p => p.id === editingId)?.date));
+  }
+  showToast(editingId ? '✅ 식단이 수정되었습니다.' : '✅ 식단이 등록되었습니다.');
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// DUPLICATE DATE CONFIRM
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function closeDupModal() {
+  document.getElementById('dupModal').classList.remove('open');
+  pendingDupDate   = null;
+  pendingDupValues = null;
+}
+
+function confirmDupOverwrite() {
+  if (!pendingDupDate || !pendingDupValues) return;
+  const plan = getMealPlan(pendingDupDate);
+  if (plan) {
+    plan.snack_am_menu = pendingDupValues.snackAm || null;
+    plan.lunch_menu    = pendingDupValues.lunch    || null;
+    plan.snack_pm_menu = pendingDupValues.snackPm  || null;
+    plan.dinner_menu   = pendingDupValues.dinner   || null;
+    plan.updated_at    = new Date().toISOString();
+  }
+  const savedDate = pendingDupDate;
+  closeDupModal();
+  closeMealModal();
+  renderCalendar();
+  selectDate(savedDate);
+  showToast('✅ 식단이 수정되었습니다.');
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// DELETE
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function openDeleteModal(dateStr) {
+  deletingDate = dateStr;
+  document.getElementById('deleteModal').classList.add('open');
+}
+
+function closeDeleteModal() {
+  document.getElementById('deleteModal').classList.remove('open');
+  deletingDate = null;
+}
+
+function confirmDelete() {
+  if (!deletingDate) return;
+  mealPlans = mealPlans.filter(p => p.date !== deletingDate);
+  closeDeleteModal();
+  renderCalendar();
+  renderPanel(deletingDate);
+  showToast('🗑️ 식단이 삭제되었습니다.');
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PHOTO
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function triggerPhotoUpload(key) {
+  pendingPhotoKey = key;
+  document.getElementById('photoFileInput').click();
+}
+
+function handlePhotoSelect(e) {
+  const file = e.target.files[0];
+  if (!file || !pendingPhotoKey) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    mockPhotos[pendingPhotoKey] = ev.target.result;
+    renderPhotoPreview(pendingPhotoKey, ev.target.result);
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+
+function renderPhotoPreview(key, url) {
+  const wrap = document.getElementById(photoPreviewIds[key]);
+  const uploadArea = document.getElementById(photoUploadAreaIds[key]);
+  if (!wrap) return;
+  if (!url) {
+    wrap.innerHTML = '';
+    if (uploadArea) uploadArea.style.display = '';
+    return;
+  }
+  wrap.innerHTML = `
+    <div class="photo-preview-wrap">
+      <div class="photo-preview-thumb">
+        <img src="${url}" alt="사진 미리보기" style="width:100%;height:100%;object-fit:cover;border-radius:var(--radius-md);">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;justify-content:flex-end;">
+        <button class="photo-remove-btn" onclick="removePhoto('${key}')">삭제</button>
+      </div>
+    </div>
+  `;
+  if (uploadArea) uploadArea.style.display = 'none';
+}
+
+function removePhoto(key) {
+  delete mockPhotos[key];
+  // mock_image_url도 초기화 (수정 시 기존 이미지 제거)
+  if (editingId) {
+    const plan = mealPlans.find(p => p.id === editingId);
+    if (plan) {
+      const imgKeyMap = { snack_am:'snack_am_image_url', lunch:'lunch_image_url', snack_pm:'snack_pm_image_url', dinner:'dinner_image_url' };
+      if (imgKeyMap[key]) plan[imgKeyMap[key]] = null;
+    }
+  }
+  renderPhotoPreview(key, null);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// TOAST
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function showToast(msg) {
+  const wrap = document.getElementById('toastWrap');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  wrap.appendChild(t);
+  setTimeout(() => {
+    t.classList.add('out');
+    setTimeout(() => t.remove(), 260);
+  }, 2600);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ESC KEY
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (document.getElementById('deleteModal').classList.contains('open')) closeDeleteModal();
+    else if (document.getElementById('dupModal').classList.contains('open')) closeDupModal();
+    else if (document.getElementById('mealModal').classList.contains('open')) closeMealModal();
+  }
+});
+document.getElementById('dupModal').addEventListener('click', function(e) {
+  if (e.target === this) closeDupModal();
+});
+
+// Click outside to close modals
+document.getElementById('mealModal').addEventListener('click', function(e) {
+  if (e.target === this) closeMealModal();
+});
+document.getElementById('deleteModal').addEventListener('click', function(e) {
+  if (e.target === this) closeDeleteModal();
+});
+</script>
+</body>
+</html>
