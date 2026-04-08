@@ -211,6 +211,8 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .comment-input:focus{border-color:var(--accent);}
 .comment-send-btn{height:36px;padding:0 14px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-md);font-size:13px;font-weight:700;cursor:pointer;font-family:'Pretendard',sans-serif;}
 .comment-send-btn:hover{background:var(--accent-dark);}
+.comment-delete-btn{background:none;border:none;cursor:pointer;font-size:11px;color:var(--text-muted);padding:0 2px;margin-left:auto;font-family:'Pretendard',sans-serif;line-height:1;transition:color .15s;}
+.comment-delete-btn:hover{color:#EF4444;}
 
 /* ━━━ READ STATUS BTN — unread highlight ━━━ */
 .read-status-btn.has-unread{background:#FFF3E0;border-color:#FB8C00;color:#BF360C;}
@@ -864,7 +866,7 @@ const AN_OP_CTX     = JSON.parse(sessionStorage.getItem('operationContext') || '
 const AN_EFFECTIVE  = (AN_OP_CTX && AN_OP_CTX.contextRole) ? AN_OP_CTX.contextRole : AN_USER_ROLE;
 const AN_IS_TEACHER = AN_EFFECTIVE === 'teacher';
 const AN_ASSIGNED   = AN_IS_TEACHER
-  ? JSON.parse(sessionStorage.getItem('assignedClasses') || '[{"id":"CLS001","name":"햇님반"}]')
+  ? JSON.parse(sessionStorage.getItem('assignedClasses') || '[{"id":"CLS001","name":"햇님반"},{"id":"CLS003","name":"별빛반"}]')
   : null;
 const AN_ASSIGNED_NAMES = AN_ASSIGNED ? AN_ASSIGNED.map(c => c.name) : null;
 
@@ -956,10 +958,10 @@ let notices = [
     ]
   },
   {
-    id:7,pinned:false,title:'별님반 체험학습 준비물 안내',category:'준비물',target:'별님반',
+    id:7,pinned:false,title:'별빛반 체험학습 준비물 안내',category:'준비물',target:'별빛반',
     author:'최교사',createdDate:'2026.03.12',views:29,status:'게시중',reservedAt:null,
     hasPhoto:false,hasAttachment:true,commentCount:0,commentAllowed:true,
-    content:'별님반 체험학습 준비물을 안내드립니다.\n\n체험 장소: 서울숲\n일시: 2026년 3월 20일\n\n준비물:\n- 편한 신발 (운동화)\n- 간식 (개인 지참)\n- 물통\n- 여분 옷\n\n동의서 제출 마감: 3월 19일',
+    content:'별빛반 체험학습 준비물을 안내드립니다.\n\n체험 장소: 서울숲\n일시: 2026년 3월 20일\n\n준비물:\n- 편한 신발 (운동화)\n- 간식 (개인 지참)\n- 물통\n- 여분 옷\n\n동의서 제출 마감: 3월 19일',
     readStatus:[
       {name:'박서연',role:'학부모',read:true,readAt:'2026.03.12 10:05'},
       {name:'최준혁',role:'학부모',read:false,readAt:null},
@@ -1065,7 +1067,7 @@ function initRoleContext() {
 
 function getClassList() {
   if (AN_IS_TEACHER && AN_ASSIGNED_NAMES) return AN_ASSIGNED_NAMES;
-  return ['햇님반','달님반','별님반','꽃님반'];
+  return ['햇님반','달님반','별빛반','꽃님반'];
 }
 
 function renderClassChips() {
@@ -1392,17 +1394,21 @@ function confirmDeleteFromDrawer() {
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function renderComments(comments) {
   const list = document.getElementById('drawerCommentList');
+  const ME = sessionStorage.getItem('userName') || '박교사';
   if (!comments.length) {
     list.innerHTML = '<div class="comment-empty">아직 댓글이 없습니다</div>';
     return;
   }
-  list.innerHTML = comments.map(c => `
+  list.innerHTML = comments.map(c => {
+    const canDel = c.isTeacher && c.author === ME;
+    return `
     <div class="comment-item" id="citem-${c.id}">
       <div class="comment-avatar${c.isTeacher?' teacher':''}">${escHtml(c.initials)}</div>
       <div class="comment-body">
         <div class="comment-header">
           <span class="comment-author">${escHtml(c.author)}</span>
           <span class="comment-time">${c.time}</span>
+          ${canDel ? `<button class="comment-delete-btn" onclick="deleteComment('${c.id}')">삭제</button>` : ''}
         </div>
         <div class="comment-text">${escHtml(c.text)}</div>
         <button class="reply-btn" onclick="toggleReplyInput('${c.id}')">답변</button>
@@ -1411,20 +1417,25 @@ function renderComments(comments) {
           <button class="reply-submit-btn" onclick="submitReply('${c.id}')">전송</button>
         </div>
         ${(c.replies||[]).length ? `<div class="comment-reply-wrap">
-          ${(c.replies||[]).map(r => `
-            <div class="comment-item">
+          ${(c.replies||[]).map(r => {
+            const canDelR = r.isTeacher && r.author === ME;
+            return `
+            <div class="comment-item" id="citem-${r.id}">
               <div class="comment-avatar${r.isTeacher?' teacher':''}">${escHtml(r.initials)}</div>
               <div class="comment-body">
                 <div class="comment-header">
                   <span class="comment-author">${escHtml(r.author)}</span>
                   <span class="comment-time">${r.time}</span>
+                  ${canDelR ? `<button class="comment-delete-btn" onclick="deleteReply('${c.id}','${r.id}')">삭제</button>` : ''}
                 </div>
                 <div class="comment-text">${escHtml(r.text)}</div>
               </div>
-            </div>`).join('')}
+            </div>`;
+          }).join('')}
         </div>` : ''}
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function toggleReplyInput(commentId) {
@@ -1467,6 +1478,31 @@ function submitComment() {
   document.getElementById('drawerCommentCount').textContent = n.comments.length;
   applyFilter();
   showToast('댓글이 등록되었습니다','success');
+}
+
+function deleteComment(commentId) {
+  const n = notices.find(x => x.id === currentNoticeId);
+  if (!n) return;
+  const idx = n.comments.findIndex(x => x.id === commentId);
+  if (idx === -1) return;
+  n.comments.splice(idx, 1);
+  n.commentCount = n.comments.length;
+  renderComments(n.comments);
+  document.getElementById('drawerCommentCount').textContent = n.comments.length;
+  applyFilter();
+  showToast('댓글이 삭제되었습니다', 'success');
+}
+
+function deleteReply(commentId, replyId) {
+  const n = notices.find(x => x.id === currentNoticeId);
+  if (!n) return;
+  const c = n.comments.find(x => x.id === commentId);
+  if (!c) return;
+  const idx = (c.replies||[]).findIndex(x => x.id === replyId);
+  if (idx === -1) return;
+  c.replies.splice(idx, 1);
+  renderComments(n.comments);
+  showToast('답변이 삭제되었습니다', 'success');
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1561,7 +1597,7 @@ function clearWriteForm() {
 
 function getClassListForModal() {
   if (AN_IS_TEACHER && AN_ASSIGNED_NAMES) return AN_ASSIGNED_NAMES;
-  return ['햇님반','달님반','별님반','꽃님반'];
+  return ['햇님반','달님반','별빛반','꽃님반'];
 }
 
 function renderWriteClassChips() {
