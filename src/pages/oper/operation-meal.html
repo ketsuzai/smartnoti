@@ -197,9 +197,12 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .pedit-allergen-label{font-size:11px;font-weight:700;color:var(--amber-text);margin-top:8px;display:flex;align-items:center;gap:4px;}
 
 /* ━━━ PANEL META ━━━ */
-.panel-meta{padding:12px 20px;border-top:1px solid var(--border-light);display:flex;align-items:center;gap:16px;background:var(--bg-base);}
+.panel-meta{padding:12px 20px;border-top:1px solid var(--border-light);display:flex;align-items:center;gap:14px;background:var(--bg-base);flex-wrap:wrap;}
 .panel-meta-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-muted);}
 .panel-meta-item strong{color:var(--text-secondary);font-weight:600;}
+.panel-meta-divider{width:1px;height:14px;background:var(--border-medium);flex-shrink:0;margin:0 2px;}
+.panel-meta-edited{color:var(--amber-text);opacity:.85;}
+.panel-meta-edited strong{color:var(--amber-text);}
 
 /* ━━━ TOAST ━━━ */
 .toast-wrap{position:fixed;bottom:28px;right:28px;z-index:500;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
@@ -309,7 +312,8 @@ let mealPlans = [
     lunch_menu: '잡곡밥, 미역국, 돈까스, 깍두기, 요구르트', lunch_image_url: 'img/점심식사1.png', lunch_allergens: '밀, 돼지고기, 우유',
     snack_pm_menu: null, snack_pm_image_url: null, snack_pm_allergens: null,
     dinner_menu: null, dinner_image_url: null, dinner_allergens: null,
-    created_by: 'TCH001', created_at: '2026-03-28T10:23:00', updated_at: '2026-03-28T10:23:00'
+    created_by: 'TCH001', created_at: '2026-03-28T10:23:00',
+    updated_by: 'TCH002', updated_at: '2026-04-02T14:35:00'  // 박지수 선생님이 수정
   },
   {
     id: 'MP002', org_id: 'ORG001', date: '2026-04-02',
@@ -317,7 +321,8 @@ let mealPlans = [
     lunch_menu: '흰쌀밥, 된장찌개, 삼겹살구이, 시금치나물', lunch_image_url: 'img/점심식사1.png', lunch_allergens: '대두, 돼지고기',
     snack_pm_menu: '쿠키, 우유', snack_pm_image_url: 'img/오후간식1.png', snack_pm_allergens: '밀, 우유, 계란',
     dinner_menu: null, dinner_image_url: null, dinner_allergens: null,
-    created_by: 'TCH001', created_at: '2026-03-28T11:05:00', updated_at: '2026-03-28T11:05:00'
+    created_by: 'TCH001', created_at: '2026-03-28T11:05:00',
+    updated_by: 'TCH001', updated_at: '2026-03-28T11:05:00'  // 본인 작성, 수정 없음
   },
   {
     id: 'MP003', org_id: 'ORG001', date: '2026-04-03',
@@ -325,7 +330,8 @@ let mealPlans = [
     lunch_menu: '잡곡밥, 김치찌개, 제육볶음, 콩나물무침', lunch_image_url: null, lunch_allergens: '돼지고기',
     snack_pm_menu: '오렌지주스, 쌀과자', snack_pm_image_url: null, snack_pm_allergens: null,
     dinner_menu: '현미밥, 잡채, 두부조림', dinner_image_url: null, dinner_allergens: '대두, 계란',
-    created_by: 'TCH002', created_at: '2026-03-29T09:47:00', updated_at: '2026-03-29T09:47:00'
+    created_by: 'TCH002', created_at: '2026-03-29T09:47:00',
+    updated_by: 'TCH002', updated_at: '2026-03-29T09:47:00'
   },
   {
     id: 'MP004', org_id: 'ORG001', date: '2026-04-07',
@@ -333,7 +339,8 @@ let mealPlans = [
     lunch_menu: '잡곡밥, 미역국, 닭볶음탕, 브로콜리무침, 깍두기', lunch_image_url: 'img/점심식사1.png', lunch_allergens: '닭고기',
     snack_pm_menu: null, snack_pm_image_url: null, snack_pm_allergens: null,
     dinner_menu: null, dinner_image_url: null, dinner_allergens: null,
-    created_by: 'TCH001', created_at: '2026-04-01T09:12:00', updated_at: '2026-04-01T09:12:00'
+    created_by: 'TCH001', created_at: '2026-04-01T09:12:00',
+    updated_by: 'ORG001', updated_at: '2026-04-06T16:22:00'  // 원장님이 수정
   },
   {
     id: 'MP005', org_id: 'ORG001', date: '2026-04-08',
@@ -341,7 +348,8 @@ let mealPlans = [
     lunch_menu: '흰쌀밥, 콩나물국, 불고기, 계란찜', lunch_image_url: 'img/점심식사1.png', lunch_allergens: '쇠고기, 계란',
     snack_pm_menu: '호두과자, 식혜', snack_pm_image_url: 'img/오후간식1.png', snack_pm_allergens: '밀, 견과류',
     dinner_menu: null, dinner_image_url: null, dinner_allergens: null,
-    created_by: 'TCH001', created_at: '2026-04-01T09:35:00', updated_at: '2026-04-01T09:35:00'
+    created_by: 'TCH001', created_at: '2026-04-01T09:35:00',
+    updated_by: 'TCH001', updated_at: '2026-04-01T09:35:00'
   },
   {
     id: 'MP006', org_id: 'ORG001', date: '2026-04-10',
@@ -349,7 +357,8 @@ let mealPlans = [
     lunch_menu: '잡곡밥, 순두부찌개, 돼지갈비, 오이무침', lunch_image_url: 'img/점심식사1.png', lunch_allergens: '대두, 돼지고기',
     snack_pm_menu: '딸기, 우유', snack_pm_image_url: 'img/오후간식1.png', snack_pm_allergens: '우유',
     dinner_menu: null, dinner_image_url: null, dinner_allergens: null,
-    created_by: 'TCH002', created_at: '2026-04-05T08:58:00', updated_at: '2026-04-05T08:58:00'
+    created_by: 'TCH002', created_at: '2026-04-05T08:58:00',
+    updated_by: 'TCH002', updated_at: '2026-04-05T08:58:00'
   },
   {
     id: 'MP007', org_id: 'ORG001', date: '2026-04-14',
@@ -357,7 +366,8 @@ let mealPlans = [
     lunch_menu: '잡곡밥, 어묵국, 소불고기, 마카로니샐러드', lunch_image_url: 'img/점심식사1.png', lunch_allergens: '밀, 쇠고기, 계란',
     snack_pm_menu: '바나나, 쿠키', snack_pm_image_url: 'img/오후간식1.png', snack_pm_allergens: '밀, 계란',
     dinner_menu: '현미밥, 청국장찌개, 생선구이', dinner_image_url: null, dinner_allergens: '대두, 생선',
-    created_by: 'TCH001', created_at: '2026-04-06T10:14:00', updated_at: '2026-04-06T10:14:00'
+    created_by: 'TCH001', created_at: '2026-04-06T10:14:00',
+    updated_by: 'TCH001', updated_at: '2026-04-06T10:14:00'
   },
   {
     id: 'MP008', org_id: 'ORG001', date: '2026-04-15',
@@ -365,7 +375,8 @@ let mealPlans = [
     lunch_menu: '잡곡밥, 미역국, 돈까스, 김치', lunch_image_url: 'img/점심식사1.png', lunch_allergens: '밀, 돼지고기',
     snack_pm_menu: null, snack_pm_image_url: null, snack_pm_allergens: null,
     dinner_menu: null, dinner_image_url: null, dinner_allergens: null,
-    created_by: 'TCH001', created_at: '2026-04-07T09:08:00', updated_at: '2026-04-07T09:08:00'
+    created_by: 'TCH001', created_at: '2026-04-07T09:08:00',
+    updated_by: 'TCH001', updated_at: '2026-04-07T09:08:00'
   }
 ];
 
@@ -603,14 +614,22 @@ function renderPanel(dateStr) {
       });
       html += `</div></div>`; // close meal-section + panel-body
 
-      // 작성자 / 작성일시 (panel-card 직속, full-width border-top)
-      const authorName = USERS[meal.created_by] || meal.created_by;
-      const createdDt = new Date(meal.created_at);
-      const createdStr = `${createdDt.getFullYear()}.${String(createdDt.getMonth()+1).padStart(2,'0')}.${String(createdDt.getDate()).padStart(2,'0')} ${String(createdDt.getHours()).padStart(2,'0')}:${String(createdDt.getMinutes()).padStart(2,'0')}`;
+      // 작성자 / 수정자 메타 (panel-card 직속, full-width border-top)
+      const authorName  = USERS[meal.created_by]  || meal.created_by;
+      const editorName  = USERS[meal.updated_by]  || meal.updated_by;
+      const isEdited    = meal.updated_by && meal.updated_by !== meal.created_by;
+      const createdDt   = new Date(meal.created_at);
+      const updatedDt   = new Date(meal.updated_at);
+      const fmtDt = dt => `${dt.getFullYear()}.${String(dt.getMonth()+1).padStart(2,'0')}.${String(dt.getDate()).padStart(2,'0')} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
       html += `
         <div class="panel-meta">
           <div class="panel-meta-item">✍️ 작성자 <strong>${authorName}</strong></div>
-          <div class="panel-meta-item">🕐 작성일시 <strong>${createdStr}</strong></div>
+          <div class="panel-meta-item">🕐 작성일시 <strong>${fmtDt(createdDt)}</strong></div>
+          ${isEdited ? `
+          <div class="panel-meta-divider"></div>
+          <div class="panel-meta-item panel-meta-edited">✏️ 수정자 <strong>${editorName}</strong></div>
+          <div class="panel-meta-item panel-meta-edited">🕐 수정일시 <strong>${fmtDt(updatedDt)}</strong></div>
+          ` : ''}
         </div>`;
       html += `</div>`; // close panel-card
     }
@@ -729,6 +748,7 @@ function savePanelEdit() {
         plan[s.key_a] = allergens[s.key] || null;
         if (panelPhotos[s.key] !== undefined) plan[s.key_i] = panelPhotos[s.key] || null;
       });
+      plan.updated_by = 'TCH001'; // 현재 로그인 사용자 (모킹)
       plan.updated_at = new Date().toISOString();
     }
   } else {
@@ -738,6 +758,7 @@ function savePanelEdit() {
       date: panelEditDate,
       created_by: 'TCH001',
       created_at: new Date().toISOString(),
+      updated_by: 'TCH001',
       updated_at: new Date().toISOString()
     };
     MEAL_SECTIONS.forEach(s => {
