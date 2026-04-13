@@ -356,8 +356,9 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .crb-parent{background:var(--green-bg);color:var(--green-text);}
 .comment-time{font-size:12px;color:var(--text-muted);}
 .comment-text{font-size:13px;color:var(--text-primary);line-height:1.6;word-break:break-word;}
-.comment-delete-btn{background:none;border:none;cursor:pointer;font-size:11px;color:var(--text-muted);padding:0 2px;margin-left:auto;font-family:'Pretendard',sans-serif;line-height:1;transition:color .15s;}
+.comment-delete-btn{background:none;border:none;cursor:pointer;font-size:11px;color:var(--text-muted);padding:0 2px;font-family:'Pretendard',sans-serif;line-height:1;transition:color .15s;}
 .comment-delete-btn:hover{color:#EF4444;}
+.comment-actions{margin-left:auto;display:flex;align-items:center;gap:4px;}
 .comment-empty{font-size:13px;color:var(--text-muted);text-align:center;padding:14px 0;}
 .comment-input-wrap{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border-light);}
 .comment-textarea{flex:1;border:1.5px solid var(--border-light);border-radius:var(--radius-md);padding:9px 12px;font-size:13px;font-family:'Pretendard',sans-serif;resize:none;height:60px;outline:none;transition:border-color .18s;line-height:1.5;}
@@ -1623,8 +1624,7 @@ function _renderNbCommentItem(cm, childId, parentCommentId) {
         <span class="comment-author">${escHtml(cm.author)}</span>
         <span class="comment-role-badge ${isTeacher?'crb-teacher':'crb-parent'}">${isTeacher?'교사':'학부모'}</span>
         <span class="comment-time" data-created="${cm.createdAt||''}" data-edited="${cm.editedAt||''}" data-fallback="${escHtml(cm.time||'')}"></span>
-        ${canAct ? `<button class="comment-edit-btn" onclick="${editFn}">수정</button>` : ''}
-        ${canAct ? `<button class="comment-delete-btn" onclick="${delFn}">삭제</button>` : ''}
+        ${canAct ? `<div class="comment-actions"><button class="comment-edit-btn" onclick="${editFn}">수정</button><button class="comment-delete-btn" onclick="${delFn}">삭제</button></div>` : ''}
       </div>
       <div class="comment-text">${escHtml(cm.text)}</div>
       ${replyRow}${repliesHTML}
@@ -2905,8 +2905,7 @@ function submitNbComment(childId) {
               <span class="comment-author">${escHtml(ME)}</span>
               <span class="comment-role-badge crb-teacher">교사</span>
               <span class="comment-time" data-created="${iso}" data-edited="" data-fallback=""></span>
-              <button class="comment-edit-btn" onclick="editNbComment('${childId}','${newId}')">수정</button>
-              <button class="comment-delete-btn" onclick="deleteNbComment('${childId}','${newId}')">삭제</button>
+              <div class="comment-actions"><button class="comment-edit-btn" onclick="editNbComment('${childId}','${newId}')">수정</button><button class="comment-delete-btn" onclick="deleteNbComment('${childId}','${newId}')">삭제</button></div>
             </div>
             <div class="comment-text">${escHtml(text)}</div>
             <button class="reply-btn" onclick="toggleNbReplyInput('${newId}')">답변</button>
@@ -2995,8 +2994,7 @@ function submitNbReply(contextId, commentId) {
           <span class="comment-author">${escHtml(ME)}</span>
           <span class="comment-role-badge crb-teacher">교사</span>
           <span class="comment-time" data-created="${replyIso}" data-edited="" data-fallback=""></span>
-          <button class="comment-edit-btn" onclick="editNbReply('${contextId}','${commentId}','${newId}')">수정</button>
-          <button class="comment-delete-btn" onclick="deleteNbReply('${contextId}','${commentId}','${newId}')">삭제</button>
+          <div class="comment-actions"><button class="comment-edit-btn" onclick="editNbReply('${contextId}','${commentId}','${newId}')">수정</button><button class="comment-delete-btn" onclick="deleteNbReply('${contextId}','${commentId}','${newId}')">삭제</button></div>
         </div>
         <div class="comment-text">${escHtml(text)}</div>
       </div>`;

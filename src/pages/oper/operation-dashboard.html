@@ -546,6 +546,7 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg-base); color:
 .comment-edit-save{background:var(--accent);color:#fff;border:none;border-radius:5px;padding:3px 10px;font-size:11px;font-weight:600;cursor:pointer;}
 .comment-edit-cancel{background:none;color:var(--text-muted);border:1px solid var(--border-light);border-radius:5px;padding:3px 10px;font-size:11px;cursor:pointer;}
 .comment-edited{font-size:10px;color:var(--text-muted);font-weight:400;margin-left:3px;}
+.comment-actions{margin-left:auto;display:flex;align-items:center;gap:4px;}
 .comment-header{display:flex;align-items:center;gap:5px;margin-bottom:3px;flex-wrap:wrap;}
 .comment-author{font-size:11px;font-weight:700;color:var(--accent-dark);}
 .comment-time{font-size:10px;color:var(--text-muted);}
@@ -886,9 +887,9 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg-base); color:
 
 <script>
 // ━━━ 유틸리티 ━━━
-function formatCommentDate(createdAt, editedAt) {
+function formatCommentDate(createdAt, editedAt, fallbackTime) {
   const edited = editedAt ? ' <span class="comment-edited">(수정됨)</span>' : '';
-  if (!createdAt) return '' + edited;
+  if (!createdAt) return (fallbackTime ? fallbackTime : '') + edited;
   const d = new Date(createdAt);
   const now = new Date();
   const pad = n => String(n).padStart(2, '0');
@@ -1932,7 +1933,8 @@ const QUEUE_NOTICES_DONE_INIT = [
     avBg:'#FEF3C7', avTc:'#92400E', avInit:'박',
     author:'박지훈 아빠', child:'박준서 · 햇님반', time:'08:15 · 04.05',
     body:'선생님, 오늘 준서가 하원 후 피아노 학원 일정이 있어서 3시에 하원하겠습니다.',
-    cmtAuthor:'박선생님', cmtText:'네, 3시에 하원 준비해 둘게요!', cmtTime:'어제 오전 8:22' },
+    cmtAuthor:'박선생님', cmtText:'네, 3시에 하원 준비해 둘게요!', cmtTime:'어제 오전 8:22',
+    cmtCreatedAt:'2026-04-12T08:22:00', cmtEditedAt:null },
 ];
 const QUEUE_COMMENTS = [
   { id:'qc1', typeKey:'notice',   typeLabel:'알림장', avBg:'#FCE7F3', avTc:'#9D174D', avInit:'이',
@@ -2009,6 +2011,8 @@ function _renderQNoticePanel() {
        <div id="qdone-list-notice">${doneHtml}</div>
      </div>`;
   document.getElementById('qbadge-notice').textContent = _qPendingCounts.notice;
+  panel.querySelectorAll('.comment-time').forEach(el =>
+    el.innerHTML = formatCommentDate(el.dataset.created, el.dataset.edited, el.dataset.fallback));
 }
 function _buildNoticeCard(n) {
   const userInit = (userName||'나').charAt(0);
@@ -2056,14 +2060,14 @@ function _buildNoticeDoneCard(n) {
     <div id="${n.id}-list">
       <div class="qcmt-row">
         <div class="qav26" style="background:var(--accent-light);color:var(--accent-dark)">${_esc(userInit)}</div>
-        <div class="qcmt-bubble">
-          <div class="qcmt-author">${_esc(n.cmtAuthor)} <span class="role">교사</span></div>
-          <div class="qcmt-text">${_esc(n.cmtText)}</div>
-          <div class="qcmt-meta">
-            <span class="qcmt-time">${n.cmtTime}</span>
-            <button class="qcmt-act" onclick="_qEditCmt(this)">수정</button>
-            <button class="qcmt-act danger" onclick="_qDelCmt(this)">삭제</button>
+        <div class="qtr-bubble">
+          <div class="comment-header">
+            <span class="comment-author">${_esc(n.cmtAuthor)}</span>
+            <span class="comment-role-badge crb-teacher">교사</span>
+            <span class="comment-time" data-created="${n.cmtCreatedAt||''}" data-edited="${n.cmtEditedAt||''}" data-fallback="${_esc(n.cmtTime||'')}"></span>
+            <div class="comment-actions"><button class="comment-edit-btn" onclick="_qEditCmt(this)">수정</button><button class="qcmt-act danger" onclick="_qDelCmt(this)">삭제</button></div>
           </div>
+          <div class="comment-text">${_esc(n.cmtText)}</div>
         </div>
       </div>
     </div>
@@ -2073,11 +2077,12 @@ function _buildNoticeDoneCard(n) {
 function _qNoticeSubmit(id) {
   const input = document.getElementById(id+'-input');
   const text = input.value.trim(); if (!text) { input.focus(); return; }
-  const now = new Date();
-  const t = `오전 ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const cmtIso = new Date().toISOString();
   const userInit = (userName||'나').charAt(0);
   const row = document.createElement('div'); row.className = 'qcmt-row';
-  row.innerHTML = `<div class="qav26" style="background:var(--accent-light);color:var(--accent-dark)">${_esc(userInit)}</div><div class="qcmt-bubble"><div class="qcmt-author">${_esc(userName)} <span class="role">교사</span></div><div class="qcmt-text">${_esc(text)}</div><div class="qcmt-meta"><span class="qcmt-time">${t}</span><button class="qcmt-act" onclick="_qEditCmt(this)">수정</button><button class="qcmt-act danger" onclick="_qDelCmt(this)">삭제</button></div></div>`;
+  row.innerHTML = `<div class="qav26" style="background:var(--accent-light);color:var(--accent-dark)">${_esc(userInit)}</div><div class="qtr-bubble"><div class="comment-header"><span class="comment-author">${_esc(userName)}</span><span class="comment-role-badge crb-teacher">교사</span><span class="comment-time" data-created="${cmtIso}" data-edited=""></span><div class="comment-actions"><button class="comment-edit-btn" onclick="_qEditCmt(this)">수정</button><button class="qcmt-act danger" onclick="_qDelCmt(this)">삭제</button></div></div><div class="comment-text">${_esc(text)}</div></div>`;
+  row.querySelectorAll('.comment-time').forEach(el =>
+    el.innerHTML = formatCommentDate(el.dataset.created, el.dataset.edited));
   document.getElementById(id+'-list').appendChild(row);
   const cntEl = document.getElementById(id+'-cnt');
   cntEl.textContent = parseInt(cntEl.textContent) + 1;
@@ -2153,8 +2158,7 @@ function _buildCfeedDoneCard(c) {
           <span class="comment-author">${_esc(c.trAuthor)}</span>
           <span class="comment-role-badge crb-teacher">교사</span>
           <span class="comment-time" data-created="${c.trCreatedAt||''}" data-edited="${c.trEditedAt||''}"></span>
-          <button class="comment-edit-btn" onclick="_qEditTr(this)">수정</button>
-          <button class="qcmt-act danger" onclick="_qDelTr(this)">삭제</button>
+          <div class="comment-actions"><button class="comment-edit-btn" onclick="_qEditTr(this)">수정</button><button class="qcmt-act danger" onclick="_qDelTr(this)">삭제</button></div>
         </div>
         <div class="comment-text">${_esc(c.trText)}</div>
       </div>
@@ -2173,7 +2177,7 @@ function _qCfeedSubmit(cardId) {
   const userInit = (userName||'나').charAt(0);
   const trWrap = document.createElement('div'); trWrap.className = 'qtr-wrap';
   const trIso = new Date().toISOString();
-  trWrap.innerHTML = `<div class="qtr-row"><div class="qav26" style="background:var(--accent-light);color:var(--accent-dark)">${_esc(userInit)}</div><div class="qtr-bubble"><div class="comment-header"><span class="comment-author">${_esc(userName)}</span><span class="comment-role-badge crb-teacher">교사</span><span class="comment-time" data-created="${trIso}" data-edited=""></span><button class="comment-edit-btn" onclick="_qEditTr(this)">수정</button><button class="qcmt-act danger" onclick="_qDelTr(this)">삭제</button></div><div class="comment-text">${_esc(text)}</div></div></div>`;
+  trWrap.innerHTML = `<div class="qtr-row"><div class="qav26" style="background:var(--accent-light);color:var(--accent-dark)">${_esc(userInit)}</div><div class="qtr-bubble"><div class="comment-header"><span class="comment-author">${_esc(userName)}</span><span class="comment-role-badge crb-teacher">교사</span><span class="comment-time" data-created="${trIso}" data-edited=""></span><div class="comment-actions"><button class="comment-edit-btn" onclick="_qEditTr(this)">수정</button><button class="qcmt-act danger" onclick="_qDelTr(this)">삭제</button></div></div><div class="comment-text">${_esc(text)}</div></div></div>`;
   trWrap.querySelectorAll('.comment-time').forEach(el =>
     el.innerHTML = formatCommentDate(el.dataset.created, el.dataset.edited));
   const actions = document.getElementById(cardId+'-actions');
@@ -2272,31 +2276,32 @@ function _qMedComplete(id) {
 
 /* ── 수정/삭제 — cmt-bubble (새 글 탭) ── */
 function _qEditCmt(btn) {
-  const bubble = btn.closest('.qcmt-bubble');
-  if (bubble.querySelector('.qcmt-edit-area')) return;
-  const textEl = bubble.querySelector('.qcmt-text');
-  const metaEl = bubble.querySelector('.qcmt-meta');
+  const bubble = btn.closest('.qtr-bubble');
+  if (bubble.querySelector('.comment-edit-area')) return;
+  const textEl = bubble.querySelector('.comment-text');
+  const headerEl = bubble.querySelector('.comment-header');
   const orig = textEl.textContent;
   const ta = document.createElement('textarea');
-  ta.className = 'qcmt-edit-area'; ta.rows = 2; ta.value = orig;
-  const ctrl = document.createElement('div'); ctrl.className = 'qedit-ctrl';
-  const save   = document.createElement('button'); save.className   = 'qbtn-save';   save.textContent   = '저장';
-  const cancel = document.createElement('button'); cancel.className = 'qbtn-cancel'; cancel.textContent = '취소';
+  ta.className = 'comment-edit-area'; ta.rows = 2; ta.value = orig;
+  const ctrl = document.createElement('div'); ctrl.className = 'comment-edit-ctrl';
+  const save   = document.createElement('button'); save.className   = 'comment-edit-save';   save.textContent = '저장';
+  const cancel = document.createElement('button'); cancel.className = 'comment-edit-cancel'; cancel.textContent = '취소';
   ctrl.append(save, cancel);
-  textEl.style.display = 'none'; metaEl.style.display = 'none';
+  textEl.style.display = 'none'; headerEl.style.display = 'none';
   bubble.insertBefore(ta, textEl); bubble.insertBefore(ctrl, textEl);
   ta.focus();
   save.onclick = () => {
     const v = ta.value.trim(); if (!v) return;
     textEl.textContent = v;
-    const tEl = metaEl.querySelector('.qcmt-time');
-    if (tEl && !tEl.textContent.includes('수정됨')) tEl.textContent += ' (수정됨)';
-    ta.remove(); ctrl.remove(); textEl.style.display = ''; metaEl.style.display = '';
+    const now = new Date().toISOString();
+    const timeEl = headerEl.querySelector('.comment-time');
+    if (timeEl) { timeEl.dataset.edited = now; timeEl.innerHTML = formatCommentDate(timeEl.dataset.created, now); }
+    ta.remove(); ctrl.remove(); textEl.style.display = ''; headerEl.style.display = '';
   };
-  cancel.onclick = () => { ta.remove(); ctrl.remove(); textEl.style.display = ''; metaEl.style.display = ''; };
+  cancel.onclick = () => { ta.remove(); ctrl.remove(); textEl.style.display = ''; headerEl.style.display = ''; };
 }
 function _qDelCmt(btn) {
-  const bubble = btn.closest('.qcmt-bubble');
+  const bubble = btn.closest('.qtr-bubble');
   if (bubble.querySelector('.qcmt-del-confirm')) return;
   const conf = document.createElement('div'); conf.className = 'qcmt-del-confirm';
   conf.innerHTML = `<span>댓글을 삭제하시겠어요?</span><button class="qcmt-del-yes">삭제</button><button class="qcmt-del-no">취소</button>`;
