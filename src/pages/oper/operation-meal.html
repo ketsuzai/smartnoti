@@ -187,6 +187,20 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .cm-delete{background:var(--red);color:#fff;}
 .cm-delete:hover{background:#DC2626;}
 
+/* ━━━ ALLERGEN ━━━ */
+.meal-allergen-row{display:flex;align-items:flex-start;gap:6px;margin-top:6px;flex-wrap:wrap;}
+.allergen-label{font-size:11px;font-weight:700;color:var(--amber-text);background:var(--amber-bg);padding:2px 7px;border-radius:3px;white-space:nowrap;flex-shrink:0;}
+.allergen-text{font-size:12px;color:var(--text-secondary);line-height:1.5;}
+.pedit-allergen-input{width:100%;padding:6px 10px;border:1.5px solid var(--border-light);border-radius:var(--radius-md);font-size:12px;font-family:'Pretendard',sans-serif;color:var(--text-primary);background:var(--bg-base);outline:none;transition:.18s;margin-top:6px;}
+.pedit-allergen-input:focus{border-color:var(--amber);background:#fff;}
+.pedit-allergen-input::placeholder{color:var(--text-muted);}
+.pedit-allergen-label{font-size:11px;font-weight:700;color:var(--amber-text);margin-top:8px;display:flex;align-items:center;gap:4px;}
+
+/* ━━━ PANEL META ━━━ */
+.panel-meta{padding:12px 20px;border-top:1px solid var(--border-light);display:flex;align-items:center;gap:16px;background:var(--bg-base);}
+.panel-meta-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-muted);}
+.panel-meta-item strong{color:var(--text-secondary);font-weight:600;}
+
 /* ━━━ TOAST ━━━ */
 .toast-wrap{position:fixed;bottom:28px;right:28px;z-index:500;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
 .toast{background:#1A2E40;color:#fff;padding:12px 18px;border-radius:var(--radius-lg);font-size:14px;font-weight:600;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:8px;animation:toastIn .25s ease;pointer-events:none;}
@@ -286,70 +300,72 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // MOCK DATA
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const USERS = { TCH001: '김다은 선생님', TCH002: '박지수 선생님', ORG001: '원장님' };
+
 let mealPlans = [
   {
     id: 'MP001', org_id: 'ORG001', date: '2026-04-01',
-    snack_am_menu: '찐빵, 우유', snack_am_image_url: 'img/오전간식1.png',
-    lunch_menu: '잡곡밥, 미역국, 돈까스, 깍두기, 요구르트', lunch_image_url: 'img/점심식사1.png',
-    snack_pm_menu: null, snack_pm_image_url: null,
-    dinner_menu: null, dinner_image_url: null,
-    created_by: 'TCH001', created_at: '2026-03-28T10:00:00', updated_at: '2026-03-28T10:00:00'
+    snack_am_menu: '찐빵, 우유', snack_am_image_url: 'img/오전간식1.png', snack_am_allergens: '밀, 우유',
+    lunch_menu: '잡곡밥, 미역국, 돈까스, 깍두기, 요구르트', lunch_image_url: 'img/점심식사1.png', lunch_allergens: '밀, 돼지고기, 우유',
+    snack_pm_menu: null, snack_pm_image_url: null, snack_pm_allergens: null,
+    dinner_menu: null, dinner_image_url: null, dinner_allergens: null,
+    created_by: 'TCH001', created_at: '2026-03-28T10:23:00', updated_at: '2026-03-28T10:23:00'
   },
   {
     id: 'MP002', org_id: 'ORG001', date: '2026-04-02',
-    snack_am_menu: '바나나, 두유', snack_am_image_url: null,
-    lunch_menu: '흰쌀밥, 된장찌개, 삼겹살구이, 시금치나물', lunch_image_url: 'img/점심식사1.png',
-    snack_pm_menu: '쿠키, 우유', snack_pm_image_url: 'img/오후간식1.png',
-    dinner_menu: null, dinner_image_url: null,
-    created_by: 'TCH001', created_at: '2026-03-28T10:00:00', updated_at: '2026-03-28T10:00:00'
+    snack_am_menu: '바나나, 두유', snack_am_image_url: null, snack_am_allergens: '대두',
+    lunch_menu: '흰쌀밥, 된장찌개, 삼겹살구이, 시금치나물', lunch_image_url: 'img/점심식사1.png', lunch_allergens: '대두, 돼지고기',
+    snack_pm_menu: '쿠키, 우유', snack_pm_image_url: 'img/오후간식1.png', snack_pm_allergens: '밀, 우유, 계란',
+    dinner_menu: null, dinner_image_url: null, dinner_allergens: null,
+    created_by: 'TCH001', created_at: '2026-03-28T11:05:00', updated_at: '2026-03-28T11:05:00'
   },
   {
     id: 'MP003', org_id: 'ORG001', date: '2026-04-03',
-    snack_am_menu: '사과, 우유', snack_am_image_url: 'img/오전간식1.png',
-    lunch_menu: '잡곡밥, 김치찌개, 제육볶음, 콩나물무침', lunch_image_url: null,
-    snack_pm_menu: '오렌지주스, 쌀과자', snack_pm_image_url: null,
-    dinner_menu: '현미밥, 잡채, 두부조림', dinner_image_url: null,
-    created_by: 'TCH001', created_at: '2026-03-29T10:00:00', updated_at: '2026-03-29T10:00:00'
+    snack_am_menu: '사과, 우유', snack_am_image_url: 'img/오전간식1.png', snack_am_allergens: '우유',
+    lunch_menu: '잡곡밥, 김치찌개, 제육볶음, 콩나물무침', lunch_image_url: null, lunch_allergens: '돼지고기',
+    snack_pm_menu: '오렌지주스, 쌀과자', snack_pm_image_url: null, snack_pm_allergens: null,
+    dinner_menu: '현미밥, 잡채, 두부조림', dinner_image_url: null, dinner_allergens: '대두, 계란',
+    created_by: 'TCH002', created_at: '2026-03-29T09:47:00', updated_at: '2026-03-29T09:47:00'
   },
   {
     id: 'MP004', org_id: 'ORG001', date: '2026-04-07',
-    snack_am_menu: '요구르트, 크래커', snack_am_image_url: 'img/오전간식1.png',
-    lunch_menu: '잡곡밥, 미역국, 닭볶음탕, 브로콜리무침, 깍두기', lunch_image_url: 'img/점심식사1.png',
-    snack_pm_menu: null, snack_pm_image_url: null,
-    dinner_menu: null, dinner_image_url: null,
-    created_by: 'TCH001', created_at: '2026-04-01T09:00:00', updated_at: '2026-04-01T09:00:00'
+    snack_am_menu: '요구르트, 크래커', snack_am_image_url: 'img/오전간식1.png', snack_am_allergens: '우유, 밀',
+    lunch_menu: '잡곡밥, 미역국, 닭볶음탕, 브로콜리무침, 깍두기', lunch_image_url: 'img/점심식사1.png', lunch_allergens: '닭고기',
+    snack_pm_menu: null, snack_pm_image_url: null, snack_pm_allergens: null,
+    dinner_menu: null, dinner_image_url: null, dinner_allergens: null,
+    created_by: 'TCH001', created_at: '2026-04-01T09:12:00', updated_at: '2026-04-01T09:12:00'
   },
   {
     id: 'MP005', org_id: 'ORG001', date: '2026-04-08',
-    snack_am_menu: '귤, 우유', snack_am_image_url: null,
-    lunch_menu: '흰쌀밥, 콩나물국, 불고기, 계란찜', lunch_image_url: 'img/점심식사1.png',
-    snack_pm_menu: '호두과자, 식혜', snack_pm_image_url: 'img/오후간식1.png',
-    dinner_menu: null, dinner_image_url: null,
-    created_by: 'TCH001', created_at: '2026-04-01T09:00:00', updated_at: '2026-04-01T09:00:00'
+    snack_am_menu: '귤, 우유', snack_am_image_url: null, snack_am_allergens: '우유',
+    lunch_menu: '흰쌀밥, 콩나물국, 불고기, 계란찜', lunch_image_url: 'img/점심식사1.png', lunch_allergens: '쇠고기, 계란',
+    snack_pm_menu: '호두과자, 식혜', snack_pm_image_url: 'img/오후간식1.png', snack_pm_allergens: '밀, 견과류',
+    dinner_menu: null, dinner_image_url: null, dinner_allergens: null,
+    created_by: 'TCH001', created_at: '2026-04-01T09:35:00', updated_at: '2026-04-01T09:35:00'
   },
   {
     id: 'MP006', org_id: 'ORG001', date: '2026-04-10',
-    snack_am_menu: null, snack_am_image_url: null,
-    lunch_menu: '잡곡밥, 순두부찌개, 돼지갈비, 오이무침', lunch_image_url: 'img/점심식사1.png',
-    snack_pm_menu: '딸기, 우유', snack_pm_image_url: 'img/오후간식1.png',
-    dinner_menu: null, dinner_image_url: null,
-    created_by: 'TCH001', created_at: '2026-04-05T09:00:00', updated_at: '2026-04-05T09:00:00'
+    snack_am_menu: null, snack_am_image_url: null, snack_am_allergens: null,
+    lunch_menu: '잡곡밥, 순두부찌개, 돼지갈비, 오이무침', lunch_image_url: 'img/점심식사1.png', lunch_allergens: '대두, 돼지고기',
+    snack_pm_menu: '딸기, 우유', snack_pm_image_url: 'img/오후간식1.png', snack_pm_allergens: '우유',
+    dinner_menu: null, dinner_image_url: null, dinner_allergens: null,
+    created_by: 'TCH002', created_at: '2026-04-05T08:58:00', updated_at: '2026-04-05T08:58:00'
   },
   {
     id: 'MP007', org_id: 'ORG001', date: '2026-04-14',
-    snack_am_menu: '토마토, 두유', snack_am_image_url: 'img/오전간식1.png',
-    lunch_menu: '잡곡밥, 어묵국, 소불고기, 마카로니샐러드', lunch_image_url: 'img/점심식사1.png',
-    snack_pm_menu: '바나나, 쿠키', snack_pm_image_url: 'img/오후간식1.png',
-    dinner_menu: '현미밥, 청국장찌개, 생선구이', dinner_image_url: null,
-    created_by: 'TCH001', created_at: '2026-04-06T09:00:00', updated_at: '2026-04-06T09:00:00'
+    snack_am_menu: '토마토, 두유', snack_am_image_url: 'img/오전간식1.png', snack_am_allergens: '대두',
+    lunch_menu: '잡곡밥, 어묵국, 소불고기, 마카로니샐러드', lunch_image_url: 'img/점심식사1.png', lunch_allergens: '밀, 쇠고기, 계란',
+    snack_pm_menu: '바나나, 쿠키', snack_pm_image_url: 'img/오후간식1.png', snack_pm_allergens: '밀, 계란',
+    dinner_menu: '현미밥, 청국장찌개, 생선구이', dinner_image_url: null, dinner_allergens: '대두, 생선',
+    created_by: 'TCH001', created_at: '2026-04-06T10:14:00', updated_at: '2026-04-06T10:14:00'
   },
   {
     id: 'MP008', org_id: 'ORG001', date: '2026-04-15',
-    snack_am_menu: '찐빵, 우유', snack_am_image_url: 'img/오전간식1.png',
-    lunch_menu: '잡곡밥, 미역국, 돈까스, 김치', lunch_image_url: 'img/점심식사1.png',
-    snack_pm_menu: null, snack_pm_image_url: null,
-    dinner_menu: null, dinner_image_url: null,
-    created_by: 'TCH001', created_at: '2026-04-07T09:00:00', updated_at: '2026-04-07T09:00:00'
+    snack_am_menu: '찐빵, 우유', snack_am_image_url: 'img/오전간식1.png', snack_am_allergens: '밀, 우유',
+    lunch_menu: '잡곡밥, 미역국, 돈까스, 김치', lunch_image_url: 'img/점심식사1.png', lunch_allergens: '밀, 돼지고기',
+    snack_pm_menu: null, snack_pm_image_url: null, snack_pm_allergens: null,
+    dinner_menu: null, dinner_image_url: null, dinner_allergens: null,
+    created_by: 'TCH001', created_at: '2026-04-07T09:08:00', updated_at: '2026-04-07T09:08:00'
   }
 ];
 
@@ -558,31 +574,45 @@ function renderPanel(dateStr) {
 
   if (meal) {
     const sections = [
-      { key_m: 'snack_am_menu', key_i: 'snack_am_image_url', cls: 'snack-am', label: '오전 간식' },
-      { key_m: 'lunch_menu',    key_i: 'lunch_image_url',    cls: 'lunch',    label: '점심 식사' },
-      { key_m: 'snack_pm_menu', key_i: 'snack_pm_image_url', cls: 'snack-pm', label: '오후 간식' },
-      { key_m: 'dinner_menu',   key_i: 'dinner_image_url',   cls: 'dinner',   label: '석식' },
+      { key_m: 'snack_am_menu', key_i: 'snack_am_image_url', key_a: 'snack_am_allergens', cls: 'snack-am', label: '오전 간식' },
+      { key_m: 'lunch_menu',    key_i: 'lunch_image_url',    key_a: 'lunch_allergens',    cls: 'lunch',    label: '점심 식사' },
+      { key_m: 'snack_pm_menu', key_i: 'snack_pm_image_url', key_a: 'snack_pm_allergens', cls: 'snack-pm', label: '오후 간식' },
+      { key_m: 'dinner_menu',   key_i: 'dinner_image_url',   key_a: 'dinner_allergens',   cls: 'dinner',   label: '석식' },
     ];
     const registered = sections.filter(s => meal[s.key_m]);
 
     if (registered.length === 0) {
       html += `<div class="panel-empty"><div class="panel-empty-icon">🍽️</div><div class="panel-empty-title">등록된 식단이 없습니다.</div></div>`;
+      html += `</div></div>`; // close panel-body + panel-card
     } else {
       html += `<div class="meal-section">`;
       registered.forEach(s => {
         const menuText = meal[s.key_m];
         const imgUrl   = meal[s.key_i];
+        const allergen = meal[s.key_a];
         html += `
           <div class="meal-item">
             <span class="meal-type-badge ${s.cls}">${s.label}</span>
             ${imgUrl ? `<div class="meal-photo-panel"><img src="${imgUrl}" alt="${s.label} 사진"></div>` : ''}
             <div class="meal-content">
               <div class="meal-menu">${menuText.replace(/,\s*/g, ' · ')}</div>
+              ${allergen ? `<div class="meal-allergen-row"><span class="allergen-label">⚠️ 알레르기</span><span class="allergen-text">${allergen}</span></div>` : ''}
             </div>
           </div>
         `;
       });
-      html += `</div>`;
+      html += `</div></div>`; // close meal-section + panel-body
+
+      // 작성자 / 작성일시 (panel-card 직속, full-width border-top)
+      const authorName = USERS[meal.created_by] || meal.created_by;
+      const createdDt = new Date(meal.created_at);
+      const createdStr = `${createdDt.getFullYear()}.${String(createdDt.getMonth()+1).padStart(2,'0')}.${String(createdDt.getDate()).padStart(2,'0')} ${String(createdDt.getHours()).padStart(2,'0')}:${String(createdDt.getMinutes()).padStart(2,'0')}`;
+      html += `
+        <div class="panel-meta">
+          <div class="panel-meta-item">✍️ 작성자 <strong>${authorName}</strong></div>
+          <div class="panel-meta-item">🕐 작성일시 <strong>${createdStr}</strong></div>
+        </div>`;
+      html += `</div>`; // close panel-card
     }
   } else {
     html += `
@@ -593,9 +623,9 @@ function renderPanel(dateStr) {
         <button class="btn btn-primary" onclick="openPanelEdit('${dateStr}')">+ 식단 등록하기</button>
       </div>
     `;
+    html += `</div></div>`; // close panel-body + panel-card
   }
 
-  html += `</div></div>`;
   panel.innerHTML = html;
 }
 
@@ -603,10 +633,10 @@ function renderPanel(dateStr) {
 // PANEL EDIT MODE
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const MEAL_SECTIONS = [
-  { key: 'snack_am', key_m: 'snack_am_menu', key_i: 'snack_am_image_url', cls: 'snack-am', label: '오전 간식', placeholder: '예) 찐빵, 우유' },
-  { key: 'lunch',    key_m: 'lunch_menu',    key_i: 'lunch_image_url',    cls: 'lunch',    label: '점심 식사', placeholder: '예) 잡곡밥, 미역국, 돈까스, 깍두기' },
-  { key: 'snack_pm', key_m: 'snack_pm_menu', key_i: 'snack_pm_image_url', cls: 'snack-pm', label: '오후 간식', placeholder: '예) 쿠키, 주스' },
-  { key: 'dinner',   key_m: 'dinner_menu',   key_i: 'dinner_image_url',   cls: 'dinner',   label: '석식',     placeholder: '예) 된장찌개, 잡채, 현미밥' },
+  { key: 'snack_am', key_m: 'snack_am_menu', key_i: 'snack_am_image_url', key_a: 'snack_am_allergens', cls: 'snack-am', label: '오전 간식', placeholder: '예) 찐빵, 우유', allergen_placeholder: '예) 밀, 우유, 계란' },
+  { key: 'lunch',    key_m: 'lunch_menu',    key_i: 'lunch_image_url',    key_a: 'lunch_allergens',    cls: 'lunch',    label: '점심 식사', placeholder: '예) 잡곡밥, 미역국, 돈까스, 깍두기', allergen_placeholder: '예) 밀, 돼지고기, 대두' },
+  { key: 'snack_pm', key_m: 'snack_pm_menu', key_i: 'snack_pm_image_url', key_a: 'snack_pm_allergens', cls: 'snack-pm', label: '오후 간식', placeholder: '예) 쿠키, 주스', allergen_placeholder: '예) 밀, 계란' },
+  { key: 'dinner',   key_m: 'dinner_menu',   key_i: 'dinner_image_url',   key_a: 'dinner_allergens',   cls: 'dinner',   label: '석식',     placeholder: '예) 된장찌개, 잡채, 현미밥', allergen_placeholder: '예) 대두, 생선' },
 ];
 
 function openPanelEdit(dateStr) {
@@ -622,12 +652,15 @@ function openPanelEdit(dateStr) {
 
   let sectionsHtml = MEAL_SECTIONS.map(s => {
     const val = existing?.[s.key_m] || '';
+    const allergenVal = existing?.[s.key_a] || '';
     return `
       <div class="pedit-section">
         <div class="pedit-section-head">
           <span class="meal-type-badge ${s.cls}">${s.label}</span>
         </div>
         <textarea class="pedit-textarea" id="pedit-${s.key}" placeholder="${s.placeholder}">${val}</textarea>
+        <div class="pedit-allergen-label">⚠️ 알레르기 유발성분</div>
+        <input type="text" class="pedit-allergen-input" id="pedit-allergen-${s.key}" placeholder="${s.allergen_placeholder}" value="${allergenVal}">
         <div class="pedit-photo-row">
           <div id="pedit-photo-preview-${s.key}"></div>
           <div class="photo-upload-area" id="pedit-upload-${s.key}" onclick="triggerPanelPhoto('${s.key}')">
@@ -676,8 +709,10 @@ function cancelPanelEdit() {
 
 function savePanelEdit() {
   const values = {};
+  const allergens = {};
   MEAL_SECTIONS.forEach(s => {
     values[s.key] = document.getElementById(`pedit-${s.key}`)?.value.trim() || '';
+    allergens[s.key] = document.getElementById(`pedit-allergen-${s.key}`)?.value.trim() || '';
   });
 
   const hasAny = MEAL_SECTIONS.some(s => values[s.key]);
@@ -691,6 +726,7 @@ function savePanelEdit() {
     if (plan) {
       MEAL_SECTIONS.forEach(s => {
         plan[s.key_m] = values[s.key] || null;
+        plan[s.key_a] = allergens[s.key] || null;
         if (panelPhotos[s.key] !== undefined) plan[s.key_i] = panelPhotos[s.key] || null;
       });
       plan.updated_at = new Date().toISOString();
@@ -706,6 +742,7 @@ function savePanelEdit() {
     };
     MEAL_SECTIONS.forEach(s => {
       newPlan[s.key_m] = values[s.key] || null;
+      newPlan[s.key_a] = allergens[s.key] || null;
       newPlan[s.key_i] = panelPhotos[s.key] || null;
     });
     mealPlans.push(newPlan);
