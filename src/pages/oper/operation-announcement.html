@@ -58,7 +58,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .kpi-sub{font-size:12px;color:var(--text-muted);margin-top:2px;}
 
 /* ━━━ FILTER BAR ━━━ */
-.filter-bar{background:var(--bg-surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);padding:14px 18px;border:1px solid var(--border-light);display:flex;flex-direction:column;gap:10px;}
+.filter-bar{background:var(--bg-surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);padding:14px 18px;border:1px solid var(--border-light);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .filter-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .filter-label{font-size:12px;font-weight:700;color:var(--text-muted);white-space:nowrap;letter-spacing:.3px;}
 .chip-filter-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
@@ -215,6 +215,16 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .comment-send-btn:hover{background:var(--accent-dark);}
 .comment-delete-btn{background:none;border:none;cursor:pointer;font-size:11px;color:var(--text-muted);padding:0 2px;margin-left:auto;font-family:'Pretendard',sans-serif;line-height:1;transition:color .15s;}
 .comment-delete-btn:hover{color:#EF4444;}
+.comment-role-badge{font-size:11px;font-weight:600;padding:1px 5px;border-radius:5px;}
+.crb-teacher{background:var(--blue-bg);color:var(--blue-text);}
+.crb-parent{background:var(--green-bg);color:var(--green-text);}
+.comment-edit-btn{background:none;border:none;cursor:pointer;font-size:11px;color:var(--text-muted);padding:0 2px;font-family:'Pretendard',sans-serif;line-height:1;transition:color .15s;}
+.comment-edit-btn:hover{color:var(--accent);}
+.comment-edit-area{width:100%;border:1.5px solid var(--accent);border-radius:var(--radius-md);padding:7px 10px;font-size:13px;font-family:'Pretendard',sans-serif;resize:none;outline:none;margin:4px 0 6px;color:var(--text-primary);line-height:1.5;}
+.comment-edit-ctrl{display:flex;gap:6px;margin-bottom:4px;}
+.comment-edit-save{background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);padding:4px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif;}
+.comment-edit-cancel{background:none;color:var(--text-muted);border:1px solid var(--border-light);border-radius:var(--radius-sm);padding:4px 12px;font-size:11px;cursor:pointer;font-family:'Pretendard',sans-serif;}
+.comment-edited{font-size:11px;color:var(--text-muted);font-weight:400;margin-left:4px;}
 
 /* ━━━ READ STATUS BTN — unread highlight ━━━ */
 .read-status-btn.has-unread{background:#FFF3E0;border-color:#FB8C00;color:#BF360C;}
@@ -426,11 +436,12 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 
       <!-- FILTER BAR -->
       <div class="filter-bar">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-          <span class="filter-label">반</span>
-          <div class="chip-filter-row" id="classChipRow"></div>
-        </div>
         <div class="filter-row">
+          <div class="fsel-wrap">
+            <select class="fsel" id="filterClass" onchange="applyFilter()">
+              <option value="">전체 반</option>
+            </select>
+          </div>
           <div class="fsel-wrap">
             <select class="fsel" id="filterStatus" onchange="applyFilter()">
               <option value="">전체 상태</option>
@@ -891,11 +902,11 @@ let notices = [
       {name:'정유진',role:'학부모',read:true,readAt:'2026.03.20 14:22'},
     ],
     comments:[
-      {id:'c1',author:'박교사',initials:'박',isTeacher:true,text:'소풍 관련 추가 안내: 우천 시 다음 주로 연기됩니다.',time:'2026.03.21 10:05',replies:[]},
-      {id:'c2',author:'김학부모',initials:'김',isTeacher:false,text:'도시락 알레르기 메뉴 따로 준비해도 되나요?',time:'2026.03.21 11:30',replies:[
-        {id:'c2r1',author:'박교사',initials:'박',isTeacher:true,text:'네, 알레르기 식품 제외하여 준비하셔도 됩니다!',time:'2026.03.21 12:00'}
+      {id:'c1',author:'박교사',initials:'박',isTeacher:true,text:'소풍 관련 추가 안내: 우천 시 다음 주로 연기됩니다.',time:'2026.03.21 10:05',createdAt:'2026-03-21T10:05:00',editedAt:null,replies:[]},
+      {id:'c2',author:'김학부모',initials:'김',isTeacher:false,text:'도시락 알레르기 메뉴 따로 준비해도 되나요?',time:'2026.03.21 11:30',createdAt:'2026-03-21T11:30:00',editedAt:null,replies:[
+        {id:'c2r1',author:'박교사',initials:'박',isTeacher:true,text:'네, 알레르기 식품 제외하여 준비하셔도 됩니다!',time:'2026.03.21 12:00',createdAt:'2026-03-21T12:00:00',editedAt:null}
       ]},
-      {id:'c3',author:'이학부모',initials:'이',isTeacher:false,text:'참석 예정입니다. 감사합니다.',time:'2026.03.22 09:15',replies:[]}
+      {id:'c3',author:'이학부모',initials:'이',isTeacher:false,text:'참석 예정입니다. 감사합니다.',time:'2026.03.22 09:15',createdAt:'2026-03-22T09:15:00',editedAt:null,replies:[]}
     ]
   },
   {
@@ -921,7 +932,7 @@ let notices = [
       {name:'이현우',role:'학부모',read:false,readAt:null},
     ],
     comments:[
-      {id:'c4',author:'김학부모',initials:'김',isTeacher:false,text:'참석하겠습니다!',time:'2026.03.16 09:00',replies:[]}
+      {id:'c4',author:'김학부모',initials:'김',isTeacher:false,text:'참석하겠습니다!',time:'2026.03.16 09:00',createdAt:'2026-03-16T09:00:00',editedAt:null,replies:[]}
     ]
   },
   {
@@ -955,9 +966,9 @@ let notices = [
       {name:'박서연',role:'학부모',read:true,readAt:'2026.03.01 20:11'},
     ],
     comments:[
-      {id:'c5',author:'김학부모',initials:'김',isTeacher:false,text:'신입생 학부모로서 참석하겠습니다!',time:'2026.03.02 09:00',replies:[]},
-      {id:'c6',author:'이학부모',initials:'이',isTeacher:false,text:'주차 공간이 있나요?',time:'2026.03.03 10:00',replies:[
-        {id:'c6r1',author:'김원장',initials:'김',isTeacher:true,text:'원 앞 공영주차장 이용 가능합니다.',time:'2026.03.03 11:00'}
+      {id:'c5',author:'김학부모',initials:'김',isTeacher:false,text:'신입생 학부모로서 참석하겠습니다!',time:'2026.03.02 09:00',createdAt:'2026-03-02T09:00:00',editedAt:null,replies:[]},
+      {id:'c6',author:'이학부모',initials:'이',isTeacher:false,text:'주차 공간이 있나요?',time:'2026.03.03 10:00',createdAt:'2026-03-03T10:00:00',editedAt:null,replies:[
+        {id:'c6r1',author:'김원장',initials:'김',isTeacher:true,text:'원 앞 공영주차장 이용 가능합니다.',time:'2026.03.03 11:00',createdAt:'2026-03-03T11:00:00',editedAt:null}
       ]}
     ]
   },
@@ -982,7 +993,7 @@ let notices = [
       {name:'이현우',role:'학부모',read:false,readAt:null},
     ],
     comments:[
-      {id:'c7',author:'정학부모',initials:'정',isTeacher:false,text:'기대됩니다! 감사합니다.',time:'2026.03.23 09:00',replies:[]}
+      {id:'c7',author:'정학부모',initials:'정',isTeacher:false,text:'기대됩니다! 감사합니다.',time:'2026.03.23 09:00',createdAt:'2026-03-23T09:00:00',editedAt:null,replies:[]}
     ]
   },
   {
@@ -1023,7 +1034,6 @@ let filteredNotices = [...notices];
 let currentNoticeId = null;
 let editMode        = false;
 let deleteTargetId  = null;
-let activeClassChip = '';
 let activeCategory  = '일반공지';
 let draftSourceId   = null;
 let photoFiles      = [];
@@ -1066,7 +1076,13 @@ function setTopbarDate() {
    ROLE CONTEXT & CHIP FILTER
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function initRoleContext() {
-  renderClassChips();
+  const sel = document.getElementById('filterClass');
+  const classes = getClassList();
+  classes.forEach(cls => {
+    const opt = document.createElement('option');
+    opt.value = cls; opt.textContent = cls;
+    sel.appendChild(opt);
+  });
 }
 
 function getClassList() {
@@ -1074,21 +1090,6 @@ function getClassList() {
   return ['햇님반','달님반','별빛반','꽃님반'];
 }
 
-function renderClassChips() {
-  const row = document.getElementById('classChipRow');
-  const classes = getClassList();
-  let html = `<button class="filter-chip${activeClassChip===''?' active':''}" onclick="selectClassChip('')">전체</button>`;
-  classes.forEach(cls => {
-    html += `<button class="filter-chip${activeClassChip===cls?' active':''}" onclick="selectClassChip('${cls}')">${cls}</button>`;
-  });
-  row.innerHTML = html;
-}
-
-function selectClassChip(name) {
-  activeClassChip = name;
-  renderClassChips();
-  applyFilter();
-}
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    KPI
@@ -1186,8 +1187,9 @@ function applyFilter() {
   const status = document.getElementById('filterStatus').value;
   const kw     = document.getElementById('searchInput').value.trim().toLowerCase();
 
+  const cls = document.getElementById('filterClass').value;
   filteredNotices = notices.filter(n => {
-    if (activeClassChip && n.target !== '전체' && n.target !== activeClassChip) return false;
+    if (cls && n.target !== '전체' && n.target !== cls) return false;
     if (status && n.status !== status) return false;
     if (kw && !n.title.toLowerCase().includes(kw)) return false;
     if (AN_IS_TEACHER && AN_ASSIGNED_NAMES && n.target !== '전체' && !AN_ASSIGNED_NAMES.includes(n.target)) return false;
@@ -1199,8 +1201,7 @@ function applyFilter() {
 }
 
 function resetFilter() {
-  activeClassChip = '';
-  renderClassChips();
+  document.getElementById('filterClass').value  = '';
   document.getElementById('filterStatus').value = '';
   document.getElementById('filterPeriod').value = '';
   document.getElementById('searchInput').value  = '';
@@ -1404,15 +1405,34 @@ function renderComments(comments) {
     return;
   }
   list.innerHTML = comments.map(c => {
-    const canDel = c.isTeacher && c.author === ME;
-    return `
-    <div class="comment-item" id="citem-${c.id}">
+    const canAct = c.isTeacher && c.author === ME;
+    const repliesHtml = (c.replies||[]).length ? `<div class="comment-reply-wrap">
+      ${(c.replies||[]).map(r => {
+        const canActR = r.isTeacher && r.author === ME;
+        return `<div class="comment-item" id="citem-${r.id}">
+          <div class="comment-avatar${r.isTeacher?' teacher':''}">${escHtml(r.initials)}</div>
+          <div class="comment-body">
+            <div class="comment-header">
+              <span class="comment-author">${escHtml(r.author)}</span>
+              <span class="comment-role-badge ${r.isTeacher?'crb-teacher':'crb-parent'}">${r.isTeacher?'교사':'학부모'}</span>
+              <span class="comment-time" data-created="${r.createdAt||''}" data-edited="${r.editedAt||''}"></span>
+              ${canActR ? `<button class="comment-edit-btn" onclick="editReply('${c.id}','${r.id}')">수정</button>` : ''}
+              ${canActR ? `<button class="comment-delete-btn" onclick="deleteReply('${c.id}','${r.id}')">삭제</button>` : ''}
+            </div>
+            <div class="comment-text">${escHtml(r.text)}</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>` : '';
+    return `<div class="comment-item" id="citem-${c.id}">
       <div class="comment-avatar${c.isTeacher?' teacher':''}">${escHtml(c.initials)}</div>
       <div class="comment-body">
         <div class="comment-header">
           <span class="comment-author">${escHtml(c.author)}</span>
-          <span class="comment-time">${c.time}</span>
-          ${canDel ? `<button class="comment-delete-btn" onclick="deleteComment('${c.id}')">삭제</button>` : ''}
+          <span class="comment-role-badge ${c.isTeacher?'crb-teacher':'crb-parent'}">${c.isTeacher?'교사':'학부모'}</span>
+          <span class="comment-time" data-created="${c.createdAt||''}" data-edited="${c.editedAt||''}"></span>
+          ${canAct ? `<button class="comment-edit-btn" onclick="editComment('${c.id}')">수정</button>` : ''}
+          ${canAct ? `<button class="comment-delete-btn" onclick="deleteComment('${c.id}')">삭제</button>` : ''}
         </div>
         <div class="comment-text">${escHtml(c.text)}</div>
         <button class="reply-btn" onclick="toggleReplyInput('${c.id}')">답변</button>
@@ -1420,26 +1440,12 @@ function renderComments(comments) {
           <input class="reply-input" id="reply-text-${c.id}" placeholder="답변을 입력하세요">
           <button class="reply-submit-btn" onclick="submitReply('${c.id}')">전송</button>
         </div>
-        ${(c.replies||[]).length ? `<div class="comment-reply-wrap">
-          ${(c.replies||[]).map(r => {
-            const canDelR = r.isTeacher && r.author === ME;
-            return `
-            <div class="comment-item" id="citem-${r.id}">
-              <div class="comment-avatar${r.isTeacher?' teacher':''}">${escHtml(r.initials)}</div>
-              <div class="comment-body">
-                <div class="comment-header">
-                  <span class="comment-author">${escHtml(r.author)}</span>
-                  <span class="comment-time">${r.time}</span>
-                  ${canDelR ? `<button class="comment-delete-btn" onclick="deleteReply('${c.id}','${r.id}')">삭제</button>` : ''}
-                </div>
-                <div class="comment-text">${escHtml(r.text)}</div>
-              </div>
-            </div>`;
-          }).join('')}
-        </div>` : ''}
+        ${repliesHtml}
       </div>
     </div>`;
   }).join('');
+  list.querySelectorAll('.comment-time').forEach(el =>
+    el.innerHTML = formatCommentDate(el.dataset.created, el.dataset.edited));
 }
 
 function toggleReplyInput(commentId) {
@@ -1461,7 +1467,8 @@ function submitReply(commentId) {
   if (!n) return;
   const c = n.comments.find(x => x.id === commentId);
   if (!c) return;
-  c.replies.push({id:'r'+Date.now(),author:'박교사',initials:'박',isTeacher:true,text,time:'2026.03.24 09:00'});
+  const REPLY_ME = sessionStorage.getItem('userName') || '박교사';
+  c.replies.push({id:'r'+Date.now(),author:REPLY_ME,initials:REPLY_ME[0],isTeacher:true,text,time:'',createdAt:new Date().toISOString(),editedAt:null});
   n.commentCount = n.comments.length;
   if (inp) inp.value = '';
   renderComments(n.comments);
@@ -1475,7 +1482,8 @@ function submitComment() {
   if (!text) { showToast('댓글 내용을 입력하세요','warning'); return; }
   const n = notices.find(x => x.id === currentNoticeId);
   if (!n) return;
-  n.comments.push({id:'c'+Date.now(),author:'박교사',initials:'박',isTeacher:true,text,time:'2026.03.24 09:00',replies:[]});
+  const CMT_ME = sessionStorage.getItem('userName') || '박교사';
+  n.comments.push({id:'c'+Date.now(),author:CMT_ME,initials:CMT_ME[0],isTeacher:true,text,time:'',createdAt:new Date().toISOString(),editedAt:null,replies:[]});
   n.commentCount = n.comments.length;
   if (inp) inp.value = '';
   renderComments(n.comments);
@@ -1509,6 +1517,78 @@ function deleteReply(commentId, replyId) {
   c.replies.splice(idx, 1);
   renderComments(n.comments);
   showToast('답변이 삭제되었습니다', 'success');
+}
+
+function formatCommentDate(createdAt, editedAt) {
+  const edited = editedAt ? ' <span class="comment-edited">(수정됨)</span>' : '';
+  if (!createdAt) return '' + edited;
+  const d = new Date(createdAt);
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  const hhmm = () => { const h = d.getHours(), m = d.getMinutes(); return `${h < 12 ? '오전' : '오후'} ${h % 12 || 12}:${pad(m)}`; };
+  const yest = new Date(now); yest.setDate(now.getDate() - 1);
+  if (d.toDateString() === now.toDateString())  return `오늘 ${hhmm()}${edited}`;
+  if (d.toDateString() === yest.toDateString()) return `어제 ${hhmm()}${edited}`;
+  return `${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())}${edited}`;
+}
+
+function editComment(commentId) {
+  const n = notices.find(x => x.id === currentNoticeId);
+  if (!n) return;
+  const c = n.comments.find(x => x.id === commentId);
+  if (!c) return;
+  const itemEl = document.getElementById('citem-' + commentId);
+  if (!itemEl || itemEl.querySelector('.comment-edit-area')) return;
+  const textEl = itemEl.querySelector('.comment-text');
+  const ta = document.createElement('textarea');
+  ta.className = 'comment-edit-area'; ta.rows = 2; ta.value = c.text;
+  const ctrl = document.createElement('div'); ctrl.className = 'comment-edit-ctrl';
+  const save   = document.createElement('button'); save.className = 'comment-edit-save';   save.textContent = '저장';
+  const cancel = document.createElement('button'); cancel.className = 'comment-edit-cancel'; cancel.textContent = '취소';
+  ctrl.append(save, cancel);
+  textEl.style.display = 'none';
+  textEl.insertAdjacentElement('beforebegin', ta);
+  textEl.insertAdjacentElement('beforebegin', ctrl);
+  ta.focus();
+  save.onclick = () => {
+    const v = ta.value.trim(); if (!v) return;
+    c.text = v; c.editedAt = new Date().toISOString();
+    ta.remove(); ctrl.remove(); textEl.style.display = '';
+    textEl.textContent = v;
+    const timeEl = itemEl.querySelector('.comment-header .comment-time');
+    if (timeEl) timeEl.innerHTML = formatCommentDate(c.createdAt, c.editedAt);
+  };
+  cancel.onclick = () => { ta.remove(); ctrl.remove(); textEl.style.display = ''; };
+}
+
+function editReply(commentId, replyId) {
+  const n = notices.find(x => x.id === currentNoticeId);
+  if (!n) return;
+  const c = n.comments.find(x => x.id === commentId);
+  const r = c && (c.replies||[]).find(x => x.id === replyId);
+  if (!r) return;
+  const itemEl = document.getElementById('citem-' + replyId);
+  if (!itemEl || itemEl.querySelector('.comment-edit-area')) return;
+  const textEl = itemEl.querySelector('.comment-text');
+  const ta = document.createElement('textarea');
+  ta.className = 'comment-edit-area'; ta.rows = 2; ta.value = r.text;
+  const ctrl = document.createElement('div'); ctrl.className = 'comment-edit-ctrl';
+  const save   = document.createElement('button'); save.className = 'comment-edit-save';   save.textContent = '저장';
+  const cancel = document.createElement('button'); cancel.className = 'comment-edit-cancel'; cancel.textContent = '취소';
+  ctrl.append(save, cancel);
+  textEl.style.display = 'none';
+  textEl.insertAdjacentElement('beforebegin', ta);
+  textEl.insertAdjacentElement('beforebegin', ctrl);
+  ta.focus();
+  save.onclick = () => {
+    const v = ta.value.trim(); if (!v) return;
+    r.text = v; r.editedAt = new Date().toISOString();
+    ta.remove(); ctrl.remove(); textEl.style.display = '';
+    textEl.textContent = v;
+    const timeEl = itemEl.querySelector('.comment-header .comment-time');
+    if (timeEl) timeEl.innerHTML = formatCommentDate(r.createdAt, r.editedAt);
+  };
+  cancel.onclick = () => { ta.remove(); ctrl.remove(); textEl.style.display = ''; };
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

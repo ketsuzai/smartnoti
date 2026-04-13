@@ -1,6 +1,6 @@
 # 🧠 프로젝트 브레인: 알림장 기능 정의
 
-> **최종 업데이트**: 2026-04-09 (알림장 댓글 답변 버튼 추가 — 공지사항 기준으로 통일; 통합관리자 댓글 작성자 규칙 브레인 명시)
+> **최종 업데이트**: 2026-04-13 (댓글 시스템 전면 통일 — 수정 기능, 상대 날짜 표시, (수정됨) 인디케이터, 렌더 중복 제거)
 > **작업 범위**: 운영관리 내 알림장 (`operation-notice-board.html`)
 > **연관 브레인**: `05-DATABASE-SCHEMA.md`, `10-CHILD-MANAGEMENT.md`, `07-ROLE-PERMISSION.md`
 
@@ -287,6 +287,33 @@ writePhotos = [
 - **삭제 권한**: 통합관리자는 자신이 작성한 댓글/답변을 직접 삭제 가능 (본인 `author_name` 비교)
 - **프론트 구현 참고**: `NB_EFFECTIVE` (`NB_OP_CONTEXT.contextRole || NB_USER_ROLE`) 값을 사용하여 뱃지 결정. 현재 프로토타입은 `sessionStorage.getItem('userName') || '박교사'` 고정이므로, 실제 연동 시 위 규칙으로 대체.
 
+### 4.6 댓글 날짜 표시 규칙 (전역 통일)
+
+> 공지사항·알림장·대시보드 처리 큐 모두 동일한 규칙 사용.
+
+```js
+formatCommentDate(createdAt, editedAt, fallbackTime?)
+```
+
+| 조건 | 표시 예시 |
+|------|---------|
+| 오늘 | `오늘 오후 3:22` |
+| 어제 | `어제 오전 8:30` |
+| 그 이전 | `2026.03.24` |
+| 수정된 경우 | 날짜 뒤에 `(수정됨)` 인라인 표시 |
+| createdAt 없음 (레거시) | fallbackTime 문자열 그대로 표시 |
+
+- `createdAt`: ISO 8601 (`2026-04-13T15:45:00`)
+- `editedAt`: `null` 또는 ISO 8601. 저장 시 `new Date().toISOString()` 사용.
+- `(수정됨)` 텍스트는 `<span class="comment-edited">` 로 렌더링 (HTML 반환 → `.innerHTML` 삽입 필수)
+
+### 4.7 댓글 수정 규칙
+
+- **수정 가능 조건**: `type === 'teacher'` AND `author === NB_ME` (본인 댓글만)
+- **UI 패턴**: 수정 버튼 클릭 → 인라인 textarea 표시, 원본 text 숨김. 저장/취소 ��튼 제공.
+- **저장 시**: `dataObj.text = v; dataObj.editedAt = new Date().toISOString()` 후 DOM 업데이트
+- **공통 헬퍼**: `_inlineNbEdit(itemEl, dataObj)` 함수로 수정 UI 처리 (알림장)
+
 ---
 
 ## 5. 학부모 상황 카테고리 정의 (받은 알림장)
@@ -562,6 +589,9 @@ CHILD_STATE[cid] = {
 | 17 | 현황 카드 배경색 | ✅ 작성완료=연두(`#F0FDF4`), 미작성=연회색(`#F9FAFB`) — 우리 반 현황 + 작성패널 원아 선택 공통 적용 | 2026-04-01 |
 | 18 | 현황 카드 호버 액션 | ✅ [수정] 버튼 없음. 출석 미확인 원아에만 [출석] 버튼 호버 노출 | 2026-04-01 |
 | 19 | 댓글 답변 버튼 | ✅ 공지사항 기준으로 통일 — 각 댓글에 [답변] 버튼, 답변 입력창(토글), 대댓글 표시 및 삭제 지원 | 2026-04-09 |
+| 20 | 댓글 수정 기능 | ✅ 인라인 편집 (textarea → 저장/취소). 본인 댓글만 수정 가능. 저장 후 "(수정됨)" 인디케이터 노출 | 2026-04-13 |
+| 21 | 댓글 날짜 표시 | ✅ `formatCommentDate(createdAt, editedAt, fallback)` — 오늘/어제 상대 표시, 이전은 날짜. 기존 time 필드 fallback 지원 | 2026-04-13 |
+| 22 | 댓글 렌더 중복 제거 | ✅ 3곳에 중복된 HTML 생성 로직 → `_renderNbCommentItem(cm, childId, parentId)` 헬퍼 단일화 | 2026-04-13 |
 
 ### 9.2 교차 페이지 연동
 

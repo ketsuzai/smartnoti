@@ -1,6 +1,6 @@
 # 🧠 프로젝트 브레인: 운영관리 대시보드
 
-> **최종 업데이트**: 2026-03-31
+> **최종 업데이트**: 2026-04-13 (처리 큐 댓글 탭 — 교사 답변 버블 표준 댓글 구조로 교체, formatCommentDate 통일)
 > **파일**: `src/pages/oper/operation-dashboard.html`
 > **연관 브레인**: `08-OPERATION-MANAGEMENT.md`, `11-NOTICE-BOARD.md`, `10-CHILD-MANAGEMENT.md`
 
@@ -126,7 +126,44 @@ const CHILDREN_CLS001 = [
 
 ---
 
-## 4. 미결 사항
+## 4. 처리 큐 모달 — 댓글 탭
+
+### 4.1 구조
+
+- `QUEUE_COMMENTS[]` — 처리 대기 중인 학부모 댓글 피드 (`.qcf` 카드)
+- `QUEUE_COMMENTS_DONE_INIT[]` — 초기 처리완료 예시 데이터
+
+### 4.2 교사 답변 버블 구조 (2026-04-13 표준화)
+
+`.qtr-bubble` 내부가 공지사항·알림장과 동일한 표준 구조로 통일됨:
+
+```html
+<div class="qtr-bubble">
+  <div class="comment-header">
+    <span class="comment-author">교사명</span>
+    <span class="comment-role-badge crb-teacher">교사</span>
+    <span class="comment-time" data-created="ISO" data-edited="ISO|''"></span>
+    <button class="comment-edit-btn" onclick="_qEditTr(this)">수정</button>
+    <button class="qcmt-act danger" onclick="_qDelTr(this)">삭제</button>
+  </div>
+  <div class="comment-text">답글 본문</div>
+</div>
+```
+
+- **날짜 표시**: `formatCommentDate(createdAt, editedAt)` — 오늘/어제/날짜
+- **수정 후**: `.comment-time` data-edited 갱신 + `(수정됨)` 인디케이터 표시
+- **수정 함수**: `_qEditTr(btn)` — `.comment-text` / `.comment-header` 숨김/복원 방식
+
+### 4.3 QUEUE_COMMENTS_DONE_INIT 필드 추가
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `trCreatedAt` | ISO string | 교사 답변 작성 시각 |
+| `trEditedAt` | null \| ISO string | 마지막 수정 시각 |
+
+---
+
+## 5. 미결 사항
 
 | # | 항목 | 내용 |
 |---|------|------|
