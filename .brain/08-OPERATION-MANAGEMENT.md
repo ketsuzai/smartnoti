@@ -77,7 +77,7 @@
 ### 2.6 선택 및 확인 (이중 진입)
 - 카드 클릭 → 선택 상태 강조 (border, 체크 아이콘)
 - **🏫 기관관리자로 접속**: `contextRole: 'org_admin'` 설정, 기관관리자 뷰로 진입
-- **📚 교사관리자로 접속**: `contextRole: 'teacher'` + `allClassAccess: true` 설정, 교사 뷰로 진입 (모든 반 접근 가능)
+- **📚 교사관리자로 접속**: Step 2로 전환 → 해당 기관의 **반 목록** 표시 → 반 1개 선택 → `contextRole: 'teacher'` + `allClassAccess: false` + 선택된 반 1개만 `assignedClasses`에 세팅하여 접속
 - **취소 버튼**: 팝업 닫기 (이전 화면 유지)
 
 ### 2.7 저장 데이터 구조 (sessionStorage)
@@ -88,18 +88,30 @@ sessionStorage.setItem('operationContext', JSON.stringify({
   orgName:        '해맑은 어린이집',
   orgType:        '어린이집',
   director:       '김원장',
-  phone:          '02-1234-5678',      // 기관 전화번호
-  address:        '서울 마포구 신수동 123', // 기관 주소
+  phone:          '02-1234-5678',
+  address:        '서울 마포구 신수동 123',
   enteredAt:      '2026-03-26T10:00:00',
-  contextRole:    'org_admin',          // 'org_admin' | 'teacher'
-  allClassAccess: false                 // teacher 진입 시 true (전체 반 접근)
+  contextRole:    'org_admin',   // 'org_admin' | 'teacher'
+  allClassAccess: false
 }));
 
-// 교사관리자로 접속 시 추가 세팅:
-// contextRole: 'teacher', allClassAccess: true
+// 교사관리자로 접속 시: 반 1개 선택 → 해당 반만 세팅
+sessionStorage.setItem('operationContext', JSON.stringify({
+  orgId:          'ORG001',
+  orgName:        '해맑은 어린이집',
+  orgType:        '어린이집',
+  director:       '김원장',
+  phone:          '02-1234-5678',
+  address:        '서울 마포구 신수동 123',
+  enteredAt:      '2026-03-26T10:00:00',
+  contextRole:    'teacher',
+  allClassAccess: false,
+  proxyClassName: '햇님반',      // 선택된 반 이름
+  proxyClassAge:  '만0세'        // 선택된 반 연령
+}));
 sessionStorage.setItem('assignedClasses', JSON.stringify([
-  { id: 'CLS001', name: '햇님반', age: '만0세', studentCount: 18 },
-  { id: 'CLS002', name: '달님반', age: '만1세', studentCount: 16 }
+  { id: 'CLS001', name: '햇님반', age: '만0세', studentCount: 18 }
+  // 반드시 1개만 — 교사관리자로 접속 시 선택한 반 하나
 ]));
 ```
 
