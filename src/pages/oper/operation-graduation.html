@@ -88,13 +88,19 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .table-title{font-size:14px;font-weight:700;}
 .table-count{font-size:12px;color:var(--text-muted);font-weight:400;margin-left:4px;}
 .table-body{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border-medium) transparent;}
-.table-row{display:grid;grid-template-columns:40px 1fr 120px 140px 40px;gap:12px;align-items:center;padding:12px 18px;border-bottom:1px solid var(--border-light);height:52px;font-size:14px;}
-.table-row:hover{background:var(--bg-base);}
-.table-cell{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:13px;font-weight:700;flex-shrink:0;}
-.child-info{display:flex;align-items:center;gap:10px;}
-.child-name{font-weight:600;color:var(--text-primary);}
-.child-birth{font-size:12px;color:var(--text-muted);}
+.data-table{width:100%;border-collapse:collapse;}
+.data-table th{font-size:12px;font-weight:700;color:var(--text-secondary);text-align:left;padding:10px 12px;border-bottom:1.5px solid var(--border-light);background:var(--bg-base);white-space:nowrap;position:sticky;top:0;z-index:1;}
+.data-table td{font-size:13px;padding:11px 12px;border-bottom:1px solid var(--border-light);vertical-align:middle;}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table tbody tr{cursor:pointer;transition:background 0.15s;}
+.data-table tbody tr:hover td{background:#F8FCFF;}
+.data-table input[type="checkbox"]{width:14px;height:14px;cursor:pointer;accent-color:var(--accent);}
+.name-wrap{display:flex;align-items:center;gap:8px;}
+.child-avatar{width:32px;height:32px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;}
+.main-name{font-size:14px;font-weight:700;color:var(--text-primary);}
+.sub-name{font-size:12px;color:var(--text-muted);}
+.class-badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:10px;font-size:12px;font-weight:600;background:var(--accent-light);color:var(--accent-dark);white-space:nowrap;}
+.enroll-date{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-secondary);}
 .status-select{padding:4px 8px;border:1px solid var(--border-light);border-radius:var(--radius-sm);font-size:13px;cursor:pointer;background:white;color:var(--text-primary);}
 .status-badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:12px;font-weight:600;}
 .status-promoted{background:var(--blue-bg);color:var(--blue-text);}
@@ -155,7 +161,6 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 /* RESPONSIVE */
 @media(max-width:1200px){
   .kpi-grid{grid-template-columns:repeat(2,1fr);}
-  .table-row{grid-template-columns:40px 1fr 100px 100px 40px;}
 }
 
 </style>
@@ -163,7 +168,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 <body>
 
 <!-- SIDEBAR -->
-<div id="sidebar"></div>
+<aside id="appSidebar"></aside>
 
 <!-- MAIN -->
 <div class="main-wrap">
@@ -223,8 +228,23 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
           <div class="table-title">처리 대기 <span class="table-count" id="processingCount"></span></div>
         </div>
         <div class="table-body">
-          <div id="processingTableBody">
-            <!-- JS로 렌더링 -->
+          <div style="overflow-x:auto">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width:40px"><input type="checkbox" id="checkAllProcessing"></th>
+                  <th style="width:180px">원아</th>
+                  <th style="width:70px">만나이</th>
+                  <th style="width:100px">반</th>
+                  <th style="width:120px">주보호자</th>
+                  <th style="width:100px">입소일</th>
+                  <th style="width:150px">자동제안결과</th>
+                </tr>
+              </thead>
+              <tbody id="processingTableBody">
+                <!-- JS로 렌더링 -->
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -245,8 +265,23 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
           <div class="table-title">완료 <span class="table-count" id="completedCount"></span></div>
         </div>
         <div class="table-body">
-          <div id="completedTableBody">
-            <!-- JS로 렌더링 -->
+          <div style="overflow-x:auto">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width:40px"><input type="checkbox" id="checkAllCompleted"></th>
+                  <th style="width:180px">원아</th>
+                  <th style="width:70px">만나이</th>
+                  <th style="width:100px">반</th>
+                  <th style="width:120px">주보호자</th>
+                  <th style="width:100px">입소일</th>
+                  <th style="width:150px">자동제안결과</th>
+                </tr>
+              </thead>
+              <tbody id="completedTableBody">
+                <!-- JS로 렌더링 -->
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -380,13 +415,13 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 <script>
 const effectiveRole = localStorage.getItem('effectiveRole') || 'org_admin';
 const MOCK_CHILDREN = [
-  { id:'CHD001', class_id:'CLS001', class_name:'꽃잎반', name:'강가영', birth:'240628', age:'2세', gender:'남', profile_color:'#4361EE', status:'enrolled', graduation_status:'promoted', graduation_suggestion:'promoted', next_class:{ id:'CLS002', name:'나무반' } },
-  { id:'CHD002', class_id:'CLS001', class_name:'꽃잎반', name:'나가영', birth:'230412', age:'3세', gender:'여', profile_color:'#EC4899', status:'enrolled', graduation_status:'graduated', graduation_suggestion:'graduated', next_class:null },
-  { id:'CHD003', class_id:'CLS002', class_name:'나무반', name:'다가영', birth:'200828', age:'6세', gender:'여', profile_color:'#F59E0B', status:'enrolled', graduation_status:'graduated', graduation_suggestion:'graduated', next_class:null },
-  { id:'CHD004', class_id:'CLS001', class_name:'꽃잎반', name:'라가영', birth:'220101', age:'4세', gender:'남', profile_color:'#10B981', status:'enrolled', graduation_status:'on_hold', graduation_suggestion:'promoted', hold_reason:'반미개설', hold_memo:'', next_class:null },
-  { id:'CHD005', class_id:'CLS003', class_name:'송이반', name:'마가영', birth:'201023', age:'5세', gender:'여', profile_color:'#8B5CF6', status:'enrolled', graduation_status:'promoted', graduation_suggestion:'promoted', next_class:{ id:'CLS004', name:'해반' } },
-  { id:'CHD006', class_id:'CLS002', class_name:'나무반', name:'바가영', birth:'240628', age:'2세', gender:'남', profile_color:'#14B8A6', status:'enrolled', graduation_status:null, graduation_suggestion:'promoted', next_class:null },
-  { id:'CHD007', class_id:'CLS001', class_name:'꽃잎반', name:'사가영', birth:'230101', age:'3세', gender:'여', profile_color:'#D97706', status:'enrolled', graduation_status:null, graduation_suggestion:'promoted', next_class:null },
+  { id:'CHD001', class_id:'CLS001', class_name:'꽃잎반', name:'강가영', birth:'240628', age:'2세', gender:'남', profile_color:'#4361EE', primary_parent_name:'강미라', enroll_date:'2023-03-01', status:'enrolled', graduation_status:'promoted', graduation_suggestion:'promoted', next_class:{ id:'CLS002', name:'나무반' } },
+  { id:'CHD002', class_id:'CLS001', class_name:'꽃잎반', name:'나가영', birth:'230412', age:'3세', gender:'여', profile_color:'#EC4899', primary_parent_name:'나상훈', enroll_date:'2022-02-15', status:'enrolled', graduation_status:'graduated', graduation_suggestion:'graduated', next_class:null },
+  { id:'CHD003', class_id:'CLS002', class_name:'나무반', name:'다가영', birth:'200828', age:'6세', gender:'여', profile_color:'#F59E0B', primary_parent_name:'다영희', enroll_date:'2021-09-01', status:'enrolled', graduation_status:'graduated', graduation_suggestion:'graduated', next_class:null },
+  { id:'CHD004', class_id:'CLS001', class_name:'꽃잎반', name:'라가영', birth:'220101', age:'4세', gender:'남', profile_color:'#10B981', primary_parent_name:'라철수', enroll_date:'2022-06-01', status:'enrolled', graduation_status:'on_hold', graduation_suggestion:'promoted', hold_reason:'반미개설', hold_memo:'', next_class:null },
+  { id:'CHD005', class_id:'CLS003', class_name:'송이반', name:'마가영', birth:'201023', age:'5세', gender:'여', profile_color:'#8B5CF6', primary_parent_name:'마은정', enroll_date:'2021-03-01', status:'enrolled', graduation_status:'promoted', graduation_suggestion:'promoted', next_class:{ id:'CLS004', name:'해반' } },
+  { id:'CHD006', class_id:'CLS002', class_name:'나무반', name:'바가영', birth:'240628', age:'2세', gender:'남', profile_color:'#14B8A6', primary_parent_name:'바준호', enroll_date:'2024-01-01', status:'enrolled', graduation_status:null, graduation_suggestion:'promoted', next_class:null },
+  { id:'CHD007', class_id:'CLS001', class_name:'꽃잎반', name:'사가영', birth:'230101', age:'3세', gender:'여', profile_color:'#D97706', primary_parent_name:'사미숙', enroll_date:'2023-09-01', status:'enrolled', graduation_status:null, graduation_suggestion:'promoted', next_class:null },
 ];
 
 const STATUS_COLORS = {
@@ -470,30 +505,36 @@ function renderProcessingTab() {
 }
 
 function renderProcessingTable(data) {
-  const html = data.map(c => `
-    <div class="table-row">
-      <input type="checkbox" onchange="toggleSelect('${c.id}')" style="width:20px;height:20px;cursor:pointer;">
-      <div class="child-info">
-        <div class="avatar" style="background-color:${c.profile_color}">${c.name.charAt(0)}</div>
-        <div>
-          <div class="child-name">${c.name}</div>
-          <div class="child-birth">${c.birth}</div>
+  const tbody = document.getElementById('processingTableBody');
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px 20px;"><div class="empty-text">조건에 맞는 원아가 없습니다</div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map(c => `
+    <tr>
+      <td><input type="checkbox" data-id="${c.id}" onchange="toggleSelect('${c.id}')" ${selectedIds.has(c.id) ? 'checked' : ''}></td>
+      <td>
+        <div class="name-wrap">
+          <div class="child-avatar" style="background:${c.profile_color}">${c.name.charAt(0)}</div>
+          <div>
+            <div class="main-name">${c.name}</div>
+            <div class="sub-name">${c.birth}</div>
+          </div>
         </div>
-      </div>
-      <div class="table-cell">${c.class_name}</div>
-      <div class="table-cell">
-        <select class="status-select" onchange="setStatusChange('${c.id}', this.value)">
-          <option value="">${STATUS_COLORS[c.graduation_suggestion]?.label || '선택'}</option>
+      </td>
+      <td>${c.age}</td>
+      <td><span class="class-badge">${c.class_name}</span></td>
+      <td>${c.primary_parent_name || '-'}</td>
+      <td class="enroll-date">${c.enroll_date || '-'}</td>
+      <td>
+        <select class="status-select" value="${c.graduation_suggestion}" onchange="setStatusChange('${c.id}', this.value)">
           <option value="promoted">진급</option>
           <option value="graduated">졸업</option>
           <option value="on_hold">보류</option>
         </select>
-      </div>
-      <button class="info-btn" onclick="showToast('원아 정보 조회 기능 준비 중')">ℹ️</button>
-    </div>
+      </td>
+    </tr>
   `).join('');
-
-  document.getElementById('processingTableBody').innerHTML = html || '<div class="empty-state"><div class="empty-text">조건에 맞는 원아가 없습니다</div></div>';
 }
 
 // ═══════════════ COMPLETED TAB ═══════════════
@@ -512,27 +553,34 @@ function renderCompletedTab() {
 }
 
 function renderCompletedTable(data) {
-  const html = data.map(c => `
-    <div class="table-row">
-      <input type="checkbox" style="width:20px;height:20px;cursor:pointer;">
-      <div class="child-info">
-        <div class="avatar" style="background-color:${c.profile_color}">${c.name.charAt(0)}</div>
-        <div>
-          <div class="child-name">${c.name}</div>
-          <div class="child-birth">${c.age}</div>
+  const tbody = document.getElementById('completedTableBody');
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px 20px;"><div class="empty-text">확정된 원아가 없습니다</div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map(c => `
+    <tr>
+      <td><input type="checkbox"></td>
+      <td>
+        <div class="name-wrap">
+          <div class="child-avatar" style="background:${c.profile_color}">${c.name.charAt(0)}</div>
+          <div>
+            <div class="main-name">${c.name}</div>
+            <div class="sub-name">${c.birth}</div>
+          </div>
         </div>
-      </div>
-      <div class="table-cell">${c.next_class?.name || '-'}</div>
-      <div class="table-cell">
+      </td>
+      <td>${c.age}</td>
+      <td><span class="class-badge">${c.class_name}</span></td>
+      <td>${c.primary_parent_name || '-'}</td>
+      <td class="enroll-date">${c.enroll_date || '-'}</td>
+      <td>
         <span class="status-badge ${STATUS_COLORS[c.graduation_status]?.class}">
           ${STATUS_COLORS[c.graduation_status]?.label}
         </span>
-      </div>
-      <button class="info-btn" onclick="showToast('원아 정보 조회 기능 준비 중')">ℹ️</button>
-    </div>
+      </td>
+    </tr>
   `).join('');
-
-  document.getElementById('completedTableBody').innerHTML = html || '<div class="empty-state"><div class="empty-text">확정된 원아가 없습니다</div></div>';
 }
 
 // ═══════════════ INTERACTIONS ═══════════════
