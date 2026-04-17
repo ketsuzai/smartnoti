@@ -131,10 +131,16 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .status-graduated{background:var(--purple-bg);color:var(--purple-text);}
 .status-hold{background:var(--amber-bg);color:var(--amber-text);}
 .status-promoted-auto{background:var(--green-bg);color:var(--green-text);}
+.status-pending{background:var(--bg-base);color:var(--text-secondary);}
+.status-stack{display:flex;flex-direction:column;align-items:flex-start;gap:6px;}
+.status-detail{font-size:12px;line-height:1.5;color:var(--amber-text);}
 .row-action{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
 .row-action .btn{min-width:54px;justify-content:center;}
 .processed-by{font-size:12px;color:var(--text-secondary);}
 .processed-at{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted);}
+.result-cell{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.result-edit-btn{padding:0;border:none;background:none;color:var(--accent-dark);font-size:12px;font-weight:700;cursor:pointer;font-family:'Pretendard',sans-serif;}
+.result-edit-btn:hover{text-decoration:underline;}
 
 /* PAGINATION */
 .pagination{display:flex;align-items:center;justify-content:center;gap:4px;padding:14px 16px;border-top:1px solid var(--border-light);}
@@ -304,6 +310,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
                   <th style="width:100px">반</th>
                   <th style="width:120px">주보호자</th>
                   <th style="width:130px">입소일</th>
+                  <th style="width:170px">처리상태</th>
                   <th style="text-align:right">자동제안결과</th>
                 </tr>
               </thead>
@@ -515,6 +522,42 @@ let processingPage = 1;
 let completedPage = 1;
 const PAGE_SIZE = 15;
 
+function isProcessingTarget(child) {
+  return !child.graduation_status || child.graduation_status === 'on_hold';
+}
+
+function isCompletedTarget(child) {
+  return !!child.graduation_status && child.graduation_status !== 'on_hold';
+}
+
+function getResolvedStatusChange(child) {
+  const draft = statusChanges[child.id] || {};
+  const currentStatus = child.graduation_status === 'on_hold' ? 'on_hold' : (child.graduation_status || child.graduation_suggestion);
+  return {
+    status: draft.status || currentStatus,
+    reason: draft.reason !== undefined ? draft.reason : (child.hold_reason || ''),
+    memo: draft.memo !== undefined ? draft.memo : (child.hold_memo || '')
+  };
+}
+
+function getHoldReasonText(reason, memo) {
+  if (!reason) return '-';
+  if (reason === '기타') return memo || reason;
+  return memo ? `${reason} · ${memo}` : reason;
+}
+
+function renderProcessingStatusCell(child) {
+  if (child.graduation_status === 'on_hold') {
+    return `
+      <div class="status-stack">
+        <span class="status-badge status-hold">보류</span>
+        <div class="status-detail">보류사유: ${getHoldReasonText(child.hold_reason, child.hold_memo)}</div>
+      </div>
+    `;
+  }
+  return `<span class="status-badge status-pending">미확정</span>`;
+}
+
 // ═══════════════ INIT ═══════════════
 function init() {
   document.getElementById('topDate').textContent = new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',weekday:'short'});
@@ -525,7 +568,7 @@ function init() {
 
 // ═══════════════ KPI ═══════════════
 function renderKPI() {
-  const processing = MOCK_CHILDREN.filter(c => !c.graduation_status);
+  const processing = MOCK_CHILDREN.filter(isProcessingTarget);
   const promoted = MOCK_CHILDREN.filter(c => c.graduation_status === 'promoted' || c.graduation_status === 'promoted_auto');
   const graduated = MOCK_CHILDREN.filter(c => c.graduation_status === 'graduated');
 
@@ -571,11 +614,14 @@ function avatarHtml(c) {
 
 // ═══════════════ PROCESSING TAB ═══════════════
 function renderProcessingTab() {
-  const base = MOCK_CHILDREN.filter(c => !c.graduation_status);
+  const base = MOCK_CHILDREN.filter(isProcessingTarget);
+  const waiting = base.filter(c => !c.graduation_status);
+  const hold = base.filter(c => c.graduation_status === 'on_hold');
   document.getElementById('filterChips').innerHTML = `
     <div class="chip ${currentProcessingFilter === 'all' ? 'active' : ''}" onclick="filterProcessing('all', this)">전체</div>
-    <div class="chip ${currentProcessingFilter === 'promoted' ? 'active' : ''}" onclick="filterProcessing('promoted', this)">진급대상(${base.filter(c=>c.graduation_suggestion==='promoted').length})</div>
-    <div class="chip ${currentProcessingFilter === 'graduated' ? 'active' : ''}" onclick="filterProcessing('graduated', this)">졸업대상(${base.filter(c=>c.graduation_suggestion==='graduated').length})</div>
+    <div class="chip ${currentProcessingFilter === 'promoted' ? 'active' : ''}" onclick="filterProcessing('promoted', this)">진급대상(${waiting.filter(c=>c.graduation_suggestion==='promoted').length})</div>
+    <div class="chip ${currentProcessingFilter === 'graduated' ? 'active' : ''}" onclick="filterProcessing('graduated', this)">졸업대상(${waiting.filter(c=>c.graduation_suggestion==='graduated').length})</div>
+    <div class="chip ${currentProcessingFilter === 'hold' ? 'active' : ''}" onclick="filterProcessing('hold', this)">보류(${hold.length})</div>
   `;
   const data = getFilteredProcessingData();
   document.getElementById('processingCount').textContent = data.length;
@@ -584,8 +630,12 @@ function renderProcessingTab() {
 }
 
 function getFilteredProcessingData() {
-  let data = MOCK_CHILDREN.filter(c => !c.graduation_status);
-  if (currentProcessingFilter !== 'all') data = data.filter(c => c.graduation_suggestion === currentProcessingFilter);
+  let data = MOCK_CHILDREN.filter(isProcessingTarget);
+  if (currentProcessingFilter === 'hold') {
+    data = data.filter(c => c.graduation_status === 'on_hold');
+  } else if (currentProcessingFilter !== 'all') {
+    data = data.filter(c => !c.graduation_status && c.graduation_suggestion === currentProcessingFilter);
+  }
   const age = document.getElementById('processingAgeFilter')?.value || '';
   const cls = document.getElementById('processingClassFilter')?.value || '';
   const name = (document.getElementById('processingNameSearch')?.value || '').trim();
@@ -607,7 +657,7 @@ function renderProcessingTable(data) {
   const tbody = document.getElementById('processingTableBody');
   const paginationEl = document.getElementById('processingPagination');
   if (!data.length) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px 20px;"><div class="empty-text">조건에 맞는 원아가 없습니다</div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px 20px;"><div class="empty-text">조건에 맞는 원아가 없습니다</div></td></tr>';
     paginationEl.style.display = 'none';
     updateSelectionControls();
     return;
@@ -631,12 +681,13 @@ function renderProcessingTable(data) {
       <td><span class="class-badge">${c.class_name}</span></td>
       <td>${c.primary_parent_name || '-'}</td>
       <td class="enroll-date">${c.enroll_date || '-'}</td>
+      <td>${renderProcessingStatusCell(c)}</td>
       <td>
         <div class="row-action" onclick="event.stopPropagation()">
           <select class="status-select" onchange="setStatusChange('${c.id}', this.value)">
-            <option value="promoted" ${(statusChanges[c.id]?.status || c.graduation_suggestion) === 'promoted' ? 'selected' : ''}>진급</option>
-            <option value="graduated" ${(statusChanges[c.id]?.status || c.graduation_suggestion) === 'graduated' ? 'selected' : ''}>졸업</option>
-            <option value="on_hold" ${(statusChanges[c.id]?.status || c.graduation_suggestion) === 'on_hold' ? 'selected' : ''}>보류</option>
+            <option value="promoted" ${getResolvedStatusChange(c).status === 'promoted' ? 'selected' : ''}>진급</option>
+            <option value="graduated" ${getResolvedStatusChange(c).status === 'graduated' ? 'selected' : ''}>졸업</option>
+            <option value="on_hold" ${getResolvedStatusChange(c).status === 'on_hold' ? 'selected' : ''}>보류</option>
           </select>
           <button class="btn btn-secondary btn-sm" onclick="processSingleChild('${c.id}')">처리</button>
         </div>
@@ -649,12 +700,11 @@ function renderProcessingTable(data) {
 
 // ═══════════════ COMPLETED TAB ═══════════════
 function renderCompletedTab() {
-  const base = MOCK_CHILDREN.filter(c => c.graduation_status);
+  const base = MOCK_CHILDREN.filter(isCompletedTarget);
   document.getElementById('completedFilterChips').innerHTML = `
     <div class="chip ${currentCompletedFilter === 'all' ? 'active' : ''}" onclick="filterCompleted('all', this)">전체</div>
     <div class="chip ${currentCompletedFilter === 'promoted' ? 'active' : ''}" onclick="filterCompleted('promoted', this)">진급(${base.filter(c=>c.graduation_status==='promoted'||c.graduation_status==='promoted_auto').length})</div>
     <div class="chip ${currentCompletedFilter === 'graduated' ? 'active' : ''}" onclick="filterCompleted('graduated', this)">졸업(${base.filter(c=>c.graduation_status==='graduated').length})</div>
-    <div class="chip ${currentCompletedFilter === 'hold' ? 'active' : ''}" onclick="filterCompleted('hold', this)">확인필요(${base.filter(c=>c.graduation_status==='on_hold').length})</div>
   `;
   const data = getFilteredCompletedData();
   document.getElementById('completedCount').textContent = data.length;
@@ -662,10 +712,9 @@ function renderCompletedTab() {
 }
 
 function getFilteredCompletedData() {
-  let data = MOCK_CHILDREN.filter(c => c.graduation_status);
+  let data = MOCK_CHILDREN.filter(isCompletedTarget);
   if (currentCompletedFilter === 'promoted') data = data.filter(c => c.graduation_status === 'promoted' || c.graduation_status === 'promoted_auto');
   else if (currentCompletedFilter === 'graduated') data = data.filter(c => c.graduation_status === 'graduated');
-  else if (currentCompletedFilter === 'hold') data = data.filter(c => c.graduation_status === 'on_hold');
   const age = document.getElementById('completedAgeFilter')?.value || '';
   const cls = document.getElementById('completedClassFilter')?.value || '';
   const name = (document.getElementById('completedNameSearch')?.value || '').trim();
@@ -710,9 +759,12 @@ function renderCompletedTable(data) {
       <td>${c.primary_parent_name || '-'}</td>
       <td class="enroll-date">${c.enroll_date || '-'}</td>
       <td>
-        <span class="status-badge ${STATUS_COLORS[c.graduation_status]?.class}">
-          ${STATUS_COLORS[c.graduation_status]?.label}
-        </span>
+        <div class="result-cell">
+          <span class="status-badge ${STATUS_COLORS[c.graduation_status]?.class}">
+            ${STATUS_COLORS[c.graduation_status]?.label}
+          </span>
+          <button class="result-edit-btn" type="button" onclick="openCompletedResultChange('${c.id}')">(변경)</button>
+        </div>
       </td>
       <td><span class="processed-by">${c.processed_by || '-'}</span></td>
       <td><span class="processed-at">${c.processed_at || '-'}</span></td>
@@ -733,7 +785,7 @@ function switchTab(tab) {
 function handleRowClick(e, id) {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'BUTTON') return;
   const child = MOCK_CHILDREN.find(c => c.id === id);
-  if (!child || child.graduation_status) return;
+  if (!child || !isProcessingTarget(child)) return;
   const checked = !selectedIds.has(id);
   toggleSelect(id, checked);
   const cb = document.querySelector(`input[data-id="${id}"]`);
@@ -750,7 +802,7 @@ function getVisibleProcessingIds() {
 function getSelectedPendingIds() {
   return Array.from(selectedIds).filter(id => {
     const child = MOCK_CHILDREN.find(c => c.id === id);
-    return child && !child.graduation_status;
+    return child && isProcessingTarget(child);
   });
 }
 
@@ -768,6 +820,10 @@ function updateSelectionControls() {
   const graduateBtn = document.getElementById('graduateSelectedBtn');
   const holdBtn = document.getElementById('holdSelectedBtn');
   const applySuggestedBtn = document.getElementById('applySuggestedBtn');
+  const visibleSuggestedIds = visibleIds.filter(id => {
+    const child = MOCK_CHILDREN.find(c => c.id === id);
+    return child && !child.graduation_status;
+  });
 
   if (selectAllBtn) {
     selectAllBtn.textContent = allVisibleSelected ? '전체해제' : '전체선택';
@@ -775,7 +831,7 @@ function updateSelectionControls() {
   }
   if (selectionSummary) selectionSummary.innerHTML = `선택 <strong>${totalSelectedCount}</strong>명`;
   [promoteBtn, graduateBtn, holdBtn].forEach(btn => { if (btn) btn.disabled = !hasSelection; });
-  if (applySuggestedBtn) applySuggestedBtn.disabled = !hasVisibleItems;
+  if (applySuggestedBtn) applySuggestedBtn.disabled = visibleSuggestedIds.length === 0;
 }
 
 function toggleSelect(id, checked) {
@@ -825,7 +881,10 @@ function bulkAction(status) {
 }
 
 function applySuggestedStatuses() {
-  const targets = getVisibleProcessingIds();
+  const targets = getVisibleProcessingIds().filter(id => {
+    const child = MOCK_CHILDREN.find(c => c.id === id);
+    return child && !child.graduation_status;
+  });
   if (targets.length === 0) {
     showToast('현재 목록에 적용할 원아가 없습니다', 'info');
     return;
@@ -842,15 +901,28 @@ function applySuggestedStatuses() {
 
 function processSingleChild(id) {
   const child = MOCK_CHILDREN.find(c => c.id === id);
-  if (!child || child.graduation_status) return;
-  const current = statusChanges[id]?.status || child.graduation_suggestion;
+  if (!child || !isProcessingTarget(child)) return;
+  const current = getResolvedStatusChange(child);
   statusChanges[id] = {
-    status: current,
-    reason: current === 'on_hold' ? (statusChanges[id]?.reason || '') : '',
-    memo: current === 'on_hold' ? (statusChanges[id]?.memo || '') : ''
+    status: current.status,
+    reason: current.status === 'on_hold' ? current.reason : '',
+    memo: current.status === 'on_hold' ? current.memo : ''
   };
   selectedIds = new Set([id]);
   renderProcessingTable(getFilteredProcessingData());
+  openStatusChangeModal();
+}
+
+function openCompletedResultChange(id) {
+  const child = MOCK_CHILDREN.find(c => c.id === id);
+  if (!child || !isCompletedTarget(child)) return;
+  const current = getResolvedStatusChange(child);
+  statusChanges[id] = {
+    status: current.status,
+    reason: current.reason,
+    memo: current.memo
+  };
+  selectedIds = new Set([id]);
   openStatusChangeModal();
 }
 
@@ -874,7 +946,8 @@ function filterCompleted(type, el) {
 function openStatusChangeModal() {
   const list = Array.from(selectedIds).map(id => {
     const child = MOCK_CHILDREN.find(c => c.id === id);
-    const change = statusChanges[id] || {};
+    if (!child) return '';
+    const change = getResolvedStatusChange(child);
     return `
       <div class="form-group" style="border-bottom:1px solid var(--border-light);padding-bottom:16px;margin-bottom:16px;">
         <div style="font-size:13px;font-weight:600;margin-bottom:8px;">${child.name}</div>
@@ -958,9 +1031,15 @@ function processGraduation() {
       if (change.status === 'on_hold') {
         child.hold_reason = change.reason;
         child.hold_memo = change.memo;
+        child.status = 'enrolled';
+      } else {
+        child.hold_reason = '';
+        child.hold_memo = '';
       }
       if (change.status === 'graduated') {
         child.status = 'graduated';
+      } else {
+        child.status = 'enrolled';
       }
 
       count++;
