@@ -265,7 +265,8 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .pnc-sub{font-size:13px;font-weight:700;color:var(--text-primary);flex:1;}
 .unread-pip{font-size:12px;font-weight:700;padding:2px 8px;border-radius:8px;background:var(--red-bg);color:var(--red-text);}
 .pnc-info{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
-.child-avatar-sm{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0;}
+.child-avatar-sm{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden;}
+.child-avatar-sm img{width:100%;height:100%;object-fit:cover;display:block;}
 .pnc-names{font-size:13px;font-weight:600;color:var(--text-primary);}
 .pnc-names span{color:var(--text-secondary);font-weight:400;}
 .pnc-content{font-size:13px;color:var(--text-secondary);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:8px;}
@@ -360,7 +361,8 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .comment-section{border-top:1px solid var(--border-light);padding-top:14px;}
 .comment-list{display:flex;flex-direction:column;gap:12px;margin-bottom:12px;}
 .comment-item{display:flex;gap:10px;}
-.comment-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0;}
+.comment-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden;}
+.comment-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
 .comment-avatar.teacher{background:var(--green-bg);color:var(--green-text);}
 .comment-body{flex:1;min-width:0;}
 .comment-header{display:flex;align-items:center;gap:6px;margin-bottom:3px;}
@@ -444,18 +446,23 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .wp-child-card{border:1.5px solid var(--border-light);border-radius:10px;padding:7px 10px;cursor:pointer;transition:.18s;background:#fff;position:relative;overflow:hidden;display:flex;align-items:center;gap:7px;}
 .wp-child-card.selected{border-color:var(--accent);background:var(--accent-light);box-shadow:0 0 0 2px var(--accent);}
 .wp-child-card.written{background:#F9FAFB;border-color:#D1D5DB;}
-.wp-child-card.written::after{content:'';position:absolute;inset:0;background:rgba(156,163,175,.18);pointer-events:none;}
+.wp-child-card.written::after{content:'';position:absolute;inset:0;/*background:rgba(156,163,175,.18);*/pointer-events:none;}
 .wp-child-card:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,0,0,.08);border-color:var(--border-medium);}
-.wpc-avatar{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,.15);}
+.wpc-avatar{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,.15);overflow:hidden;}
+.wpc-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+.wpc-meta{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0;flex:1;}
 .wpc-name{font-size:12px;font-weight:700;color:var(--text-primary);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;}
-.wpc-written{font-size:13px;line-height:1;flex-shrink:0;margin-left:auto;}
+.wpc-written{display:inline-flex;align-items:center;justify-content:center;padding:2px 6px;border-radius:999px;font-size:10px;font-weight:800;line-height:1.2;flex-shrink:0;white-space:nowrap;}
+.wpc-written.is-written{background:var(--green-bg);color:var(--green-text);}
+.wpc-written.is-unwritten{background:#F3F4F6;color:#6B7280;}
 .child-select-card{border:1.5px solid var(--border-light);border-radius:16px;padding:10px 8px 8px;cursor:pointer;transition:.18s;text-align:center;position:relative;background:#fff;height:130px;box-sizing:border-box;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;}
 .child-select-card.notice-written{background:#fff;border-color:#D1D5DB;}
 .child-select-card.notice-written::after{content:'';position:absolute;inset:0;background:rgba(156,163,175,.22);border-radius:8px;pointer-events:none;}
 .child-select-card.notice-unwritten{background:#fff;border-color:var(--border-light);}
 .child-select-card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.10);border-color:var(--border-medium);}
 .child-select-card.selected{box-shadow:0 0 0 2px var(--accent);border-color:var(--accent);background:var(--accent-light);}
-.csc-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;margin:0 auto 6px;position:relative;box-shadow:0 2px 6px rgba(0,0,0,.18);flex-shrink:0;}
+.csc-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;margin:0 auto 6px;position:relative;box-shadow:0 2px 6px rgba(0,0,0,.18);flex-shrink:0;overflow:hidden;}
+.csc-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
 .csc-name{font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:4px;}
 .csc-check{width:16px;height:16px;border-radius:50%;border:2px solid var(--border-medium);position:absolute;top:6px;right:6px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;}
 .child-select-card.selected .csc-check{background:var(--accent);border-color:var(--accent);}
@@ -494,7 +501,8 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .write-child-card{border:1.5px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;transition:border-color .18s;margin-bottom:12px;}
 .write-child-card:hover{border-color:var(--border-medium);}
 .wcc-header{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--bg-base);border-bottom:1px solid var(--border-light);}
-.wcc-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;}
+.wcc-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden;}
+.wcc-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
 .wcc-name{font-size:14px;font-weight:800;color:var(--text-primary);flex:1;}
 .wcc-body{padding:12px 14px;display:flex;flex-direction:column;gap:10px;}
 .wfield-label{font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:4px;}
@@ -908,6 +916,52 @@ function formatCommentDate(createdAt, editedAt, fallbackTime) {
   if (d.toDateString() === yest.toDateString()) return `어제 ${hhmm()}${edited}`;
   return `${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())}${edited}`;
 }
+function findChildProfileById(childId) {
+  if (!childId) return null;
+  for (const kids of Object.values(CLASS_CHILDREN || {})) {
+    const found = kids.find(child => child.id === childId);
+    if (found) return found;
+  }
+  for (const notice of MOCK_SENT || []) {
+    const found = (notice.children || []).find(child => child.id === childId);
+    if (found) return found;
+  }
+  return (TODAY_CHILDREN || []).find(child => child.id === childId) || null;
+}
+function findChildProfileByName(childName) {
+  if (!childName) return null;
+  for (const kids of Object.values(CLASS_CHILDREN || {})) {
+    const found = kids.find(child => child.name === childName);
+    if (found) return found;
+  }
+  for (const notice of MOCK_SENT || []) {
+    const found = (notice.children || []).find(child => child.name === childName);
+    if (found) return found;
+  }
+  return (TODAY_CHILDREN || []).find(child => child.name === childName) || null;
+}
+function resolveTargetChild(targetId) {
+  if (!targetId) return null;
+  if (String(targetId).startsWith('RNB')) {
+    const received = (MOCK_RECEIVED || []).find(item => item.id === targetId);
+    if (!received) return null;
+    return findChildProfileById(received.childId) || findChildProfileByName(received.child);
+  }
+  return findChildProfileById(targetId);
+}
+function getChildThumbUrl(child) {
+  if (!child) return '';
+  if (child.thumb) return child.thumb;
+  const profile = child.id ? findChildProfileById(child.id) : findChildProfileByName(child.name);
+  return profile?.thumb || '';
+}
+function renderChildAvatarInner(child, fallbackLabel) {
+  const fallbackText = String((fallbackLabel || child?.name || '?')).trim();
+  const fallbackInitial = escHtml(fallbackText.charAt(0) || '?');
+  const thumbUrl = getChildThumbUrl(child);
+  if (!thumbUrl) return fallbackInitial;
+  return `<img src="${thumbUrl}" alt="${escHtml(fallbackText)}" onerror="this.remove();this.parentElement.textContent='${fallbackInitial}';">`;
+}
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // 목 데이터
@@ -1158,7 +1212,7 @@ let DRAFT_STORAGE = [
 const MOCK_RECEIVED = [
   {
     id:'RNB001', date:'2026-03-23', className:'햇님반', teacher:'김선생',
-    parent:'김민지', relation:'엄마', child:'김도현', childColor:'#3B82F6',
+    parent:'김민지', relation:'엄마', child:'김도현', childId:'C001', childColor:'#3B82F6',
     category:'HEALTH', categoryLabel:'건강/병원', categoryIcon:'🏥',
     subCategory:'HEALTH_C', subLabel:'기침/콧물 증상이 있어요',
     content:'선생님, 도현이가 어제 저녁부터 기침과 콧물 증상이 있어요. 병원은 다녀왔는데 감기 초기라고 합니다. 혹시 원에서 증상이 심해지면 바로 연락 부탁드립니다.',
@@ -1166,7 +1220,7 @@ const MOCK_RECEIVED = [
   },
   {
     id:'RNB002', date:'2026-03-23', className:'햇님반', teacher:'김선생',
-    parent:'박지훈', relation:'아빠', child:'박준서', childColor:'#F59E0B',
+    parent:'박지훈', relation:'아빠', child:'박준서', childId:'C003', childColor:'#F59E0B',
     category:'SCHEDULE', categoryLabel:'일정/가족사유', categoryIcon:'📅',
     subCategory:'SCHEDULE_C', subLabel:'하원 후 일정이 있어요',
     content:'선생님, 오늘 준서가 하원 후 피아노 학원 일정이 있어서 3시에 하원하겠습니다. 준비 부탁드려요.',
@@ -1177,7 +1231,7 @@ const MOCK_RECEIVED = [
   },
   {
     id:'RNB003', date:'2026-03-22', className:'달님반', teacher:'박선생',
-    parent:'최수진', relation:'엄마', child:'최지아', childColor:'#8B5CF6',
+    parent:'최수진', relation:'엄마', child:'최지아', childId:'C004', childColor:'#8B5CF6',
     category:'ABSENCE', categoryLabel:'결석/지각/조퇴', categoryIcon:'🚫',
     subCategory:'ABSENCE_A', subLabel:'오늘 결석할게요',
     content:'선생님, 오늘 지아가 몸이 좋지 않아 결석합니다. 열이 38도까지 올라서 병원에 다녀오려고요.',
@@ -1188,7 +1242,7 @@ const MOCK_RECEIVED = [
   },
   {
     id:'RNB004', date:'2026-03-22', className:'햇님반', teacher:'김선생',
-    parent:'이지영', relation:'엄마', child:'이서연', childColor:'#10B981',
+    parent:'이지영', relation:'엄마', child:'이서연', childId:'C002', childColor:'#10B981',
     category:'SUPPLY', categoryLabel:'준비물/전달', categoryIcon:'🎒',
     subCategory:'SUPPLY_C', subLabel:'전달할 물건이 있어요',
     content:'선생님, 서연이 가방에 선생님께 드리는 작은 선물을 넣어두었어요. 부담 갖지 마시고 받아 주세요!',
@@ -1385,7 +1439,7 @@ function renderTodayDashboard() {
       : '';
     return `<div class="child-card-wrapper">
       <div class="child-select-card ${noticeClass}" onclick="openWritePanelForChild('${c.id}','${c.classId}')">
-        <div class="csc-avatar" style="background:${c.color}">${c.name[0]}</div>
+        <div class="csc-avatar" style="background:${c.color}">${renderChildAvatarInner(c, c.name)}</div>
         <div class="csc-name">${c.name}</div>
         <div class="csc-badges">
           ${tccAttendBadge(c.attendance)}
@@ -1596,7 +1650,7 @@ function renderReceivedList(area) {
           ${!r.isRead ? '<span class="unread-pip">미읽음</span>' : ''}
         </div>
         <div class="pnc-info">
-          <span class="child-avatar-sm" style="background:${r.childColor}">${r.child[0]}</span>
+          <span class="child-avatar-sm" style="background:${r.childColor}">${renderChildAvatarInner(resolveTargetChild(r.id), r.child)}</span>
           <span class="pnc-names">${r.child} · <span>${r.parent} ${r.relation}</span> · ${r.className}</span>
         </div>
         <div class="pnc-content">${r.content}</div>
@@ -1675,7 +1729,11 @@ function _renderNbCommentItem(cm, childId, parentCommentId) {
   const editFn = parentCommentId
     ? `editNbReply('${childId}','${parentCommentId}','${cm.id}')`
     : `editNbComment('${childId}','${cm.id}')`;
+  const matchedChild = isTeacher ? null : resolveTargetChild(childId);
   const avatarStyle = isTeacher ? '' : `style="background:${cm.color}"`;
+  const avatarInner = isTeacher
+    ? escHtml(cm.author[0])
+    : renderChildAvatarInner(matchedChild, matchedChild?.name || cm.author);
   const replyRow = parentCommentId ? '' : `
     <button class="reply-btn" onclick="toggleNbReplyInput('${cm.id}')">답변</button>
     <div id="nb-reply-row-${cm.id}" style="display:none;" class="reply-input-row">
@@ -1685,7 +1743,7 @@ function _renderNbCommentItem(cm, childId, parentCommentId) {
   const repliesHTML = (cm.replies||[]).length
     ? `<div class="comment-reply-wrap">${(cm.replies||[]).map(rp => _renderNbCommentItem(rp, childId, cm.id)).join('')}</div>` : '';
   return `<div class="comment-item" id="nbcitem-${cm.id}">
-    <div class="comment-avatar${isTeacher?' teacher':''}" ${avatarStyle}>${escHtml(cm.author[0])}</div>
+    <div class="comment-avatar${isTeacher?' teacher':''}" ${avatarStyle}>${avatarInner}</div>
     <div class="comment-body">
       <div class="comment-header">
         <span class="comment-author">${escHtml(cm.author)}</span>
@@ -1758,7 +1816,7 @@ function renderSentDetailSingle(notice) {
     return `
       <div style="border-top:2px solid var(--border-light);margin-top:4px;padding-top:16px;">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-          <div class="comment-avatar" style="background:${child.color};width:32px;height:32px;font-size:14px;border-radius:50%;">${child.name[0]}</div>
+          <div class="comment-avatar" style="background:${child.color};width:32px;height:32px;font-size:14px;border-radius:50%;">${renderChildAvatarInner(child, child.name)}</div>
           <div style="font-size:14px;font-weight:800;color:var(--text-primary);">${child.name}</div>
         </div>
       </div>
@@ -1938,6 +1996,12 @@ function renderSentDetailChild(notice, child) {
   const commentsHtml2 = child.comments.map(cm => _renderNbCommentItem(cm, child.id, null)).join('');
 
   body.innerHTML = `
+    <div class="psec">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="comment-avatar" style="background:${child.color};width:32px;height:32px;font-size:14px;border-radius:50%;">${renderChildAvatarInner(child, child.name)}</div>
+        <div style="font-size:14px;font-weight:800;color:var(--text-primary);">${child.name}</div>
+      </div>
+    </div>
     ${evalHTML}
     ${tagsHTML}
     <div class="psec">
@@ -1978,7 +2042,7 @@ function openReceivedDetail(id) {
         <span class="pnc-category" style="background:${cs.bg};color:${cs.text};padding:4px 10px;border-radius:10px;font-size:12px;font-weight:700;">${r.categoryLabel}</span>
       </div>
       <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--bg-base);border-radius:var(--radius-md);border:1px solid var(--border-light);">
-        <span class="child-avatar-sm" style="background:${r.childColor};width:32px;height:32px;font-size:13px;">${r.child[0]}</span>
+        <span class="child-avatar-sm" style="background:${r.childColor};width:32px;height:32px;font-size:13px;">${renderChildAvatarInner(resolveTargetChild(r.id), r.child)}</span>
         <div><div style="font-size:14px;font-weight:700;color:var(--text-primary);">${r.child}</div>
         <div style="font-size:12px;color:var(--text-secondary);">${r.parent} ${r.relation}</div></div>
       </div>
@@ -2027,14 +2091,14 @@ function closeAllPanels() {
 
 const CLASS_CHILDREN = {
   CLS001: [
-    { id:'C001', name:'김도현', gender:'남', color:'#3B82F6', attendance:'출석', noticeWritten:true, medication:null },
-    { id:'C002', name:'이서연', gender:'여', color:'#EC4899', attendance:'출석', noticeWritten:false, medication:'need' },
-    { id:'C003', name:'박준서', gender:'남', color:'#0EA5E9', attendance:'병결', noticeWritten:false, medication:null },
-    { id:'C006', name:'정수아', gender:'여', color:'#F43F5E', attendance:'출석', noticeWritten:true, medication:'done' },
+    { id:'C001', name:'김도현', gender:'남', color:'#3B82F6', thumb:'../../../refer/child_thumb/Ellipse 31-1.png', attendance:'출석', noticeWritten:true, medication:null },
+    { id:'C002', name:'이서연', gender:'여', color:'#EC4899', thumb:'../../../refer/child_thumb/Ellipse 31-2.png', attendance:'출석', noticeWritten:false, medication:'need' },
+    { id:'C003', name:'박준서', gender:'남', color:'#0EA5E9', thumb:'../../../refer/child_thumb/Ellipse 439.png', attendance:'병결', noticeWritten:false, medication:null },
+    { id:'C006', name:'정수아', gender:'여', color:'#F43F5E', thumb:'../../../refer/child_thumb/Ellipse 438.png', attendance:'출석', noticeWritten:true, medication:'done' },
     { id:'C009', name:'오하은', gender:'여', color:'#FB7185', attendance:'미확인', noticeWritten:false, medication:null },
   ],
   CLS002: [
-    { id:'C004', name:'최지아', gender:'여', color:'#E11D48', attendance:'결석', noticeWritten:false, medication:null },
+    { id:'C004', name:'최지아', gender:'여', color:'#E11D48', thumb:'../../../refer/child_thumb/Ellipse 437.png', attendance:'결석', noticeWritten:false, medication:null },
     { id:'C005', name:'한민준', gender:'남', color:'#2563EB', attendance:'출석', noticeWritten:true, medication:'need' },
     { id:'C010', name:'장예린', gender:'여', color:'#F472B6', attendance:'출석', noticeWritten:false, medication:null },
     { id:'C011', name:'송시우', gender:'남', color:'#0284C7', attendance:'출석', noticeWritten:true, medication:null },
@@ -2280,12 +2344,12 @@ function renderChildSelectorHTML() {
   return WRITE_CHILDREN.map(c => {
     const isSelected = writeSelectedChildren.has(c.id);
     const cardClass = isSelected ? 'selected' : c.noticeWritten ? 'written' : '';
-    const attendLabel = c.attendance || '미확인';
-    const writtenIcon = c.noticeWritten ? '✅' : '❌';
     return `<div class="wp-child-card ${cardClass}" onclick="toggleWriteChild('${c.id}')">
-      <div class="wpc-avatar" style="background:${c.color}">${c.name[0]}</div>
-      <div class="wpc-name">${c.name}</div>
-      <div class="wpc-written">${writtenIcon}</div>
+      <div class="wpc-avatar" style="background:${c.color}">${renderChildAvatarInner(c, c.name)}</div>
+      <div class="wpc-meta">
+        <div class="wpc-name">${c.name}</div>
+      </div>
+      <div class="wpc-written ${c.noticeWritten ? 'is-written' : 'is-unwritten'}">${c.noticeWritten ? '작성완료' : '미작성'}</div>
     </div>`;
   }).join('');
 }
@@ -2473,7 +2537,7 @@ function renderSingleChildCard(c, st) {
 
   return `<div class="write-child-card" id="wcc-${cid}">
     <div class="wcc-header" style="background:linear-gradient(135deg,${c.color}33 0%,var(--bg-base) 100%)">
-      <div class="wcc-avatar" style="background:${c.color}">${c.name[0]}</div>
+      <div class="wcc-avatar" style="background:${c.color}">${renderChildAvatarInner(c, c.name)}</div>
       <span class="wcc-name">${c.name} — 종합평가</span>
     </div>
     <div class="wcc-body" style="gap:12px">
@@ -2547,7 +2611,7 @@ function renderMultiChildCard(c, st) {
 
   return `<div class="write-child-card" id="wcc-${cid}">
     <div class="wcc-header" style="background:linear-gradient(135deg,${c.color}33 0%,var(--bg-base) 100%)">
-      <div class="wcc-avatar" style="background:${c.color}">${c.name[0]}</div>
+      <div class="wcc-avatar" style="background:${c.color}">${renderChildAvatarInner(c, c.name)}</div>
       <span class="wcc-name">${c.name}</span>
       <span style="font-size:12px;color:var(--text-muted);margin-left:auto">태그 ${st.tags.length}개</span>
     </div>
