@@ -3,370 +3,631 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>초대 관리 — 키드키즈</title>
+<title>초대 관리</title>
 <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="operation-sidebar.js" defer></script>
 <style>
 :root {
-  --sidebar-bg:     #0C2D48;
-  --sidebar-hover:  #1A4A6B;
-  --sidebar-active: #1E5580;
-  --sidebar-text:   #B8D9F0;
-  --sidebar-width:  240px;
-  --header-height:  60px;
-  --accent:         #0EA5E9;
-  --accent-light:   #E0F2FE;
-  --accent-dark:    #0284C7;
-  --bg-base:        #F0F7FF;
-  --bg-surface:     #FFFFFF;
-  --text-primary:   #0C2D48;
-  --text-secondary: #4B7FA3;
-  --text-muted:     #94B8D0;
-  --border-light:   #DBEAFE;
-  --border-medium:  #BAD9F7;
-  --green:#10B981; --green-bg:#D1FAE5; --green-text:#065F46;
-  --blue: #3B82F6; --blue-bg: #DBEAFE; --blue-text: #1E40AF;
-  --amber:#F59E0B; --amber-bg:#FEF3C7; --amber-text:#92400E;
-  --red:  #EF4444; --red-bg:  #FEE2E2; --red-text:  #991B1B;
-  --purple:#8B5CF6;--purple-bg:#EDE9FE;--purple-text:#5B21B6;
-  --shadow-sm:    0 1px 3px rgba(12,45,72,.06);
-  --shadow-md:    0 4px 12px rgba(12,45,72,.09);
-  --shadow-lg:    0 8px 28px rgba(12,45,72,.11);
-  --shadow-modal: 0 20px 60px rgba(0,0,0,.18);
-  --r-sm:6px; --r-md:10px; --r-lg:14px; --r-xl:18px;
+  --sidebar-width:240px;
+  --header-height:60px;
+  --accent:#0EA5E9;
+  --accent-dark:#0284C7;
+  --accent-light:#E0F2FE;
+  --bg-base:#F0F7FF;
+  --bg-surface:#FFFFFF;
+  --bg-soft:#F8FBFF;
+  --text-primary:#0C2D48;
+  --text-secondary:#4B7FA3;
+  --text-muted:#94B8D0;
+  --border-light:#DBEAFE;
+  --border-medium:#BAD9F7;
+  --green-bg:#D1FAE5;
+  --green-text:#065F46;
+  --amber-bg:#FEF3C7;
+  --amber-text:#92400E;
+  --red-bg:#FEE2E2;
+  --red-text:#991B1B;
+  --blue-bg:#DBEAFE;
+  --blue-text:#1E40AF;
+  --shadow-sm:0 1px 3px rgba(12,45,72,.06);
+  --shadow-md:0 8px 24px rgba(12,45,72,.10);
+  --shadow-lg:0 20px 60px rgba(12,45,72,.16);
+  --r-md:10px;
+  --r-lg:14px;
+  --r-xl:18px;
 }
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--text-primary);display:flex;height:100vh;overflow:hidden;}
-
-/* ── LAYOUT ── */
-.main-wrap{margin-left:var(--sidebar-width);flex:1;display:flex;flex-direction:column;overflow:hidden;}
-.topbar{height:var(--header-height);background:var(--bg-surface);border-bottom:1px solid var(--border-light);display:flex;align-items:center;padding:0 24px;gap:12px;box-shadow:var(--shadow-sm);flex-shrink:0;z-index:50;}
-.breadcrumb{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text-secondary);flex:1;}
-.breadcrumb .cur{color:var(--text-primary);font-weight:600;}
-.bc-sep{color:var(--text-muted);font-size:12px;}
-.topbar-right{display:flex;align-items:center;gap:10px;}
-.topbar-date{font-size:13px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;}
-.icon-btn{width:36px;height:36px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;background:var(--bg-base);border:1px solid var(--border-light);cursor:pointer;font-size:16px;position:relative;transition:.18s;}
-.icon-btn:hover{background:var(--accent-light);border-color:var(--accent);}
-.notif-dot::after{content:'';position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--red);border:1.5px solid var(--bg-surface);}
-.content{flex:1;overflow-y:auto;padding:20px 24px;}
-.content::-webkit-scrollbar{width:5px;}
-.content::-webkit-scrollbar-thumb{background:var(--border-medium);border-radius:3px;}
-.content-inner{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:20px;}
-
-/* ── PAGE HEADER ── */
-.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;gap:16px;}
-.page-title{font-size:21px;font-weight:800;letter-spacing:-.5px;}
-.page-sub{font-size:14px;color:var(--text-secondary);margin-top:3px;}
-
-/* ── ROLE SWITCHER ── */
-.role-sw{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border-light);border-radius:var(--r-lg);padding:7px 12px;flex-shrink:0;}
-.role-sw-label{font-size:12px;color:var(--text-muted);font-weight:600;white-space:nowrap;}
-.rsw-btn{padding:5px 13px;border-radius:var(--r-md);font-size:13px;font-weight:700;font-family:'Pretendard',sans-serif;cursor:pointer;border:1.5px solid var(--border-light);background:#fff;color:var(--text-secondary);transition:.18s;}
-.rsw-btn:hover{border-color:var(--accent);color:var(--accent-dark);}
-.rsw-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
-
-/* ── KPI ── */
-.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
-.kpi-card{background:var(--bg-surface);border-radius:var(--r-lg);padding:14px 16px;box-shadow:var(--shadow-sm);border:1px solid var(--border-light);display:flex;align-items:center;gap:12px;}
-.kpi-ico{width:44px;height:44px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
-.kpi-label{font-size:12px;color:var(--text-secondary);font-weight:500;margin-bottom:2px;}
-.kpi-value{font-size:23px;font-weight:800;letter-spacing:-.8px;line-height:1;}
-
-/* ── TABS ── */
-.tab-bar{display:flex;background:var(--bg-surface);border:1px solid var(--border-light);border-radius:var(--r-lg);padding:5px;margin-bottom:14px;box-shadow:var(--shadow-sm);width:fit-content;}
-.tab-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--text-secondary);font-family:'Pretendard',sans-serif;transition:.18s;}
-.tab-btn:hover{color:var(--accent-dark);background:var(--accent-light);}
-.tab-btn.active{background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(14,165,233,.3);}
-.tab-btn.disabled-tab{opacity:.45;cursor:not-allowed;}
-.tab-btn.disabled-tab:hover{background:transparent;color:var(--text-secondary);}
-.tab-count{font-size:12px;font-weight:700;padding:1px 7px;border-radius:10px;background:rgba(255,255,255,.25);}
-.tab-btn:not(.active) .tab-count{background:var(--border-light);color:var(--text-secondary);}
-.tab-content{display:none;}
-.tab-content.show{display:block;}
-
-/* ── ACTION BAR ── */
-.action-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
-.action-right{margin-left:auto;display:flex;gap:8px;}
-.fsel-wrap{position:relative;}
-.fsel-wrap::after{content:'▾';position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--text-muted);pointer-events:none;}
-.fsel{height:32px;padding:0 26px 0 10px;border:1.5px solid var(--border-light);border-radius:var(--r-md);font-size:13px;font-family:'Pretendard',sans-serif;color:var(--text-primary);background:#fff;appearance:none;cursor:pointer;outline:none;}
-.fsel:focus{border-color:var(--accent);}
-.search-wrap{display:flex;align-items:center;border:1.5px solid var(--border-light);border-radius:var(--r-md);background:#fff;height:32px;overflow:hidden;transition:border .18s;}
-.search-wrap:focus-within{border-color:var(--accent);}
-.search-inp{flex:1;border:none;padding:0 10px;font-size:13px;outline:none;font-family:'Pretendard',sans-serif;color:var(--text-primary);width:150px;}
-.search-btn{width:32px;height:32px;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;flex-shrink:0;}
-
-/* ── BUTTONS ── */
-.btn{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 16px;border-radius:var(--r-md);font-size:14px;font-weight:600;font-family:'Pretendard',sans-serif;cursor:pointer;border:none;transition:.18s;white-space:nowrap;}
-.btn:disabled{opacity:.4;cursor:not-allowed;}
-.btn-primary{background:var(--accent);color:#fff;}
-.btn-primary:not(:disabled):hover{background:var(--accent-dark);}
-.btn-outline{background:#fff;color:var(--text-primary);border:1.5px solid var(--border-medium);}
-.btn-outline:hover{border-color:var(--accent);color:var(--accent-dark);background:var(--accent-light);}
-.btn-ghost{background:#F3F4F6;color:#374151;border:1px solid var(--border-light);}
-.btn-ghost:hover{background:#E5E7EB;}
-.btn-danger{background:var(--red-bg);color:var(--red-text);border:1.5px solid var(--red-bg);}
-.btn-danger:hover{background:#FECACA;}
-.btn-sm{height:30px;padding:0 12px;font-size:13px;}
-.btn-xs{height:26px;padding:0 9px;font-size:12px;border-radius:var(--r-sm);}
-
-/* ── BADGE ── */
-.sbadge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;}
-.sdot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
-.s-active {background:var(--green-bg);color:var(--green-text);} .s-active  .sdot{background:var(--green);}
-.s-stopped{background:var(--amber-bg);color:var(--amber-text);} .s-stopped .sdot{background:var(--amber);}
-.s-none   {background:#F3F4F6;color:#6B7280;}                   .s-none    .sdot{background:#9CA3AF;}
-.s-pending{background:var(--amber-bg);color:var(--amber-text);} .s-pending .sdot{background:var(--amber);}
-.s-used   {background:var(--green-bg);color:var(--green-text);} .s-used    .sdot{background:var(--green);}
-.s-expired{background:var(--red-bg);color:var(--red-text);}     .s-expired .sdot{background:var(--red);}
-.s-inviting{background:var(--blue-bg);color:var(--blue-text);} .s-inviting .sdot{background:var(--blue);}
-.type-badge{padding:2px 8px;border-radius:5px;font-size:12px;font-weight:700;}
-.t-parent {background:#EDE9FE;color:#5B21B6;}
-.t-teacher{background:#DBEAFE;color:#1E40AF;}
-.role-tag{padding:3px 9px;border-radius:20px;font-size:12px;font-weight:700;}
-.r-main{background:#EDE9FE;color:#5B21B6;}
-.r-sub {background:#FEF3C7;color:#92400E;}
-
-/* ── CLASS CARD GRID ── */
-.class-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
-.cls-card{background:var(--bg-surface);border-radius:var(--r-xl);border:1.5px solid var(--border-light);box-shadow:var(--shadow-sm);overflow:hidden;transition:box-shadow .2s;}
-.cls-card:hover{box-shadow:var(--shadow-md);}
-.cls-card-header{padding:14px 16px 10px;border-bottom:1px solid var(--border-light);display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
-.cls-card-name{font-size:15px;font-weight:800;}
-.cls-card-meta{font-size:12px;color:var(--text-muted);margin-top:3px;}
-.cls-card-body{padding:12px 16px;}
-.cls-progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:5px;}
-.cls-progress-label strong{color:var(--text-primary);font-weight:700;}
-.progress-bar{height:6px;background:var(--border-light);border-radius:3px;overflow:hidden;margin-bottom:10px;}
-.progress-fill{height:100%;border-radius:3px;transition:width .3s;}
-.cls-link-row{display:flex;align-items:center;gap:8px;background:var(--bg-base);border-radius:var(--r-md);padding:7px 10px;border:1px solid var(--border-light);}
-.cls-link-text{font-size:12px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.cls-no-link{padding:10px;text-align:center;font-size:13px;color:var(--text-muted);background:var(--bg-base);border-radius:var(--r-md);border:1.5px dashed var(--border-medium);}
-.cls-card-footer{padding:10px 16px 13px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
-.cls-footer-left{display:flex;align-items:center;gap:8px;}
-.cls-footer-right{display:flex;align-items:center;gap:5px;}
-
-/* ── TOGGLE SWITCH ── */
-.toggle-switch{position:relative;width:38px;height:22px;cursor:pointer;flex-shrink:0;}
-.toggle-switch input{opacity:0;width:0;height:0;position:absolute;}
-.toggle-track{position:absolute;inset:0;background:#D1D5DB;border-radius:11px;transition:.25s;}
-.toggle-thumb{position:absolute;top:3px;left:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:.25s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
-.toggle-switch input:checked + .toggle-track{background:var(--green);}
-.toggle-switch input:checked ~ .toggle-thumb{left:19px;}
-.toggle-label{font-size:12px;color:var(--text-muted);font-weight:500;}
-
-/* ── MEMBER COUNT CHIP ── */
-.member-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;background:var(--accent-light);color:var(--accent-dark);font-size:12px;font-weight:700;cursor:pointer;transition:.15s;}
-.member-chip:hover{background:#BAE6FD;}
-
-/* ── TABLE ── */
-.table-card{background:var(--bg-surface);border:1px solid var(--border-light);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-sm);}
-.table-wrap{overflow-x:auto;}
-table{width:100%;border-collapse:collapse;}
-thead th{padding:10px 12px;font-size:12px;font-weight:700;color:var(--text-muted);text-align:left;border-bottom:1.5px solid var(--border-light);white-space:nowrap;background:#F8FBFF;letter-spacing:.3px;}
-thead th:first-child{padding-left:16px;}
-tbody td{padding:11px 12px;font-size:14px;border-bottom:1px solid var(--border-light);vertical-align:middle;}
-tbody td:first-child{padding-left:16px;}
-tbody tr:last-child td{border-bottom:none;}
-tbody tr:hover{background:#F8FBFF;}
-.mono-cell{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text-secondary);}
-.action-cell{text-align:right;white-space:nowrap;}
-.dday-chip{font-size:13px;font-family:'JetBrains Mono',monospace;font-weight:700;}
-
-/* ── EMPTY STATE ── */
-.empty-state{text-align:center;padding:52px 24px;}
-.empty-icon{font-size:40px;margin-bottom:10px;}
-.empty-text{font-size:14px;font-weight:600;color:var(--text-secondary);}
-.empty-sub{font-size:13px;color:var(--text-muted);margin-top:4px;}
-
-/* ── PERMISSION BANNER ── */
-.permission-banner{background:var(--amber-bg);border:1px solid #FCD34D;border-radius:var(--r-lg);padding:14px 18px;margin-bottom:14px;font-size:14px;font-weight:600;color:var(--amber-text);}
-
-/* ── FILTER BAR ── */
-.filter-bar{background:var(--bg-surface);border:1px solid var(--border-light);border-radius:var(--r-lg);padding:12px 16px;margin-bottom:12px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;box-shadow:var(--shadow-sm);}
-.filter-group{display:flex;align-items:center;gap:5px;}
-.filter-label{font-size:12px;font-weight:600;color:var(--text-secondary);white-space:nowrap;}
-.filter-divider{width:1px;height:20px;background:var(--border-light);}
-
-/* ── MODAL ── */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:600;display:none;align-items:center;justify-content:center;}
-.modal-overlay.show{display:flex;}
-.modal-box{background:#fff;border-radius:var(--r-xl);max-width:94vw;box-shadow:var(--shadow-modal);animation:modalIn .22s ease;}
-@keyframes modalIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
-.modal-header{padding:20px 24px 14px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;}
-.modal-title{font-size:16px;font-weight:800;}
-.modal-close{width:30px;height:30px;border-radius:var(--r-sm);border:1px solid var(--border-light);background:var(--bg-base);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:var(--text-secondary);}
-.modal-close:hover{background:var(--red-bg);color:var(--red);border-color:#FECACA;}
-.modal-body{padding:20px 24px;}
-.modal-footer{padding:14px 24px;border-top:1px solid var(--border-light);display:flex;gap:8px;justify-content:flex-end;}
-.form-group{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
-.form-group:last-child{margin-bottom:0;}
-.form-label{font-size:13px;font-weight:700;color:var(--text-secondary);}
-.form-select-modal{height:38px;padding:0 12px;border:1.5px solid var(--border-light);border-radius:var(--r-md);font-size:14px;font-family:'Pretendard',sans-serif;color:var(--text-primary);outline:none;background:#fff;width:100%;transition:border-color .18s;appearance:none;}
-.form-select-modal:focus{border-color:var(--accent);}
-.form-hint{font-size:12px;color:var(--text-muted);margin-top:2px;}
-.info-box{background:var(--accent-light);border:1px solid var(--border-medium);border-radius:var(--r-md);padding:10px 12px;font-size:13px;color:var(--accent-dark);display:flex;gap:8px;align-items:flex-start;margin-bottom:14px;}
-
-/* ── MEMBER LIST (modal) ── */
-.member-list{display:flex;flex-direction:column;gap:7px;}
-.member-row{display:flex;align-items:center;gap:12px;padding:9px 12px;background:var(--bg-base);border-radius:var(--r-md);border:1px solid var(--border-light);}
-.member-av{width:34px;height:34px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0;}
-.member-info{flex:1;min-width:0;}
-.member-name{font-size:14px;font-weight:700;}
-.member-child{font-size:12px;color:var(--text-muted);margin-top:1px;}
-.member-date{font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text-secondary);}
-
-/* ── ROLE TOGGLE ── */
-.btn-group-toggle{display:flex;border:1.5px solid var(--border-light);border-radius:var(--r-md);overflow:hidden;width:100%;}
-.toggle-btn{flex:1;height:36px;border:none;background:#fff;font-size:13px;font-weight:700;font-family:'Pretendard',sans-serif;cursor:pointer;color:var(--text-secondary);transition:.15s;}
-.toggle-btn:not(:last-child){border-right:1px solid var(--border-light);}
-.toggle-btn.active{background:var(--accent);color:#fff;}
-.toggle-btn:not(.active):hover{background:var(--accent-light);}
-
-/* ── SEATS ── */
-.seats-input-wrap{display:flex;align-items:center;gap:8px;}
-.seats-btn{width:32px;height:32px;border:1.5px solid var(--border-light);border-radius:var(--r-md);background:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-primary);transition:.15s;}
-.seats-btn:hover{border-color:var(--accent);color:var(--accent-dark);}
-.seats-inp{width:60px;height:32px;border:1.5px solid var(--border-light);border-radius:var(--r-md);text-align:center;font-size:14px;font-weight:700;font-family:'JetBrains Mono',monospace;outline:none;color:var(--text-primary);}
-.seats-inp:focus{border-color:var(--accent);}
-.seats-hint{font-size:14px;color:var(--text-secondary);}
-
-/* ── TOAST ── */
-.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
-.toast{background:#fff;border-radius:var(--r-lg);padding:12px 18px;font-size:14px;font-weight:600;box-shadow:var(--shadow-lg);border-left:4px solid var(--accent);opacity:0;transform:translateY(10px);transition:.3s;max-width:320px;}
-.toast.show{opacity:1;transform:translateY(0);}
-.toast-success{border-color:var(--green);}
-.toast-warn{border-color:var(--amber);}
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family:'Pretendard',sans-serif;
+  background:var(--bg-base);
+  color:var(--text-primary);
+  display:flex;
+  min-height:100vh;
+}
+.main-wrap { margin-left:var(--sidebar-width); flex:1; display:flex; flex-direction:column; min-width:0; }
+.topbar {
+  height:var(--header-height);
+  background:var(--bg-surface);
+  border-bottom:1px solid var(--border-light);
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:0 24px;
+  box-shadow:var(--shadow-sm);
+  position:sticky;
+  top:0;
+  z-index:30;
+}
+.breadcrumb { display:flex; align-items:center; gap:6px; color:var(--text-secondary); font-size:14px; }
+.breadcrumb .cur { color:var(--text-primary); font-weight:700; }
+.topbar-right { margin-left:auto; display:flex; align-items:center; gap:10px; }
+.topbar-date { font-size:13px; color:var(--text-muted); font-family:'JetBrains Mono',monospace; }
+.icon-btn {
+  width:36px;
+  height:36px;
+  border-radius:var(--r-md);
+  border:1px solid var(--border-light);
+  background:var(--bg-base);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+.content { flex:1; overflow-y:auto; padding:20px 24px 28px; }
+.content-inner { max-width:1080px; margin:0 auto; }
+.page-header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:18px; }
+.page-title { font-size:24px; font-weight:800; letter-spacing:-.5px; }
+.page-sub { margin-top:4px; color:var(--text-secondary); font-size:14px; }
+.role-sw {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 12px;
+  background:var(--bg-surface);
+  border:1px solid var(--border-light);
+  border-radius:var(--r-lg);
+}
+.role-sw-label { font-size:12px; color:var(--text-muted); font-weight:700; }
+.rsw-btn {
+  height:34px;
+  padding:0 14px;
+  border-radius:var(--r-md);
+  border:1.5px solid var(--border-light);
+  background:#fff;
+  color:var(--text-secondary);
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+}
+.rsw-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+.kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:18px; }
+.kpi-card {
+  background:var(--bg-surface);
+  border:1px solid var(--border-light);
+  border-radius:var(--r-lg);
+  box-shadow:var(--shadow-sm);
+  padding:16px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.kpi-icon {
+  width:44px;
+  height:44px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:20px;
+}
+.kpi-label { color:var(--text-secondary); font-size:12px; font-weight:600; margin-bottom:4px; }
+.kpi-value { font-size:24px; font-weight:800; line-height:1; }
+.tab-bar {
+  display:flex;
+  gap:4px;
+  width:fit-content;
+  background:var(--bg-surface);
+  border:1px solid var(--border-light);
+  border-radius:var(--r-lg);
+  padding:5px;
+  box-shadow:var(--shadow-sm);
+  margin-bottom:16px;
+}
+.tab-btn {
+  border:none;
+  background:transparent;
+  color:var(--text-secondary);
+  padding:9px 18px;
+  border-radius:10px;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.tab-btn.active { background:var(--accent); color:#fff; }
+.tab-btn.disabled { opacity:.45; cursor:not-allowed; }
+.tab-count { background:rgba(255,255,255,.24); padding:1px 7px; border-radius:999px; font-size:12px; }
+.tab-btn:not(.active) .tab-count { background:var(--border-light); color:var(--text-secondary); }
+.tab-content { display:none; }
+.tab-content.show { display:block; }
+.toolbar { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+.toolbar-right { margin-left:auto; display:flex; gap:8px; }
+.search-wrap,
+.select-wrap {
+  display:flex;
+  align-items:center;
+  background:#fff;
+  border:1.5px solid var(--border-light);
+  border-radius:var(--r-md);
+  height:36px;
+}
+.search-inp,
+.filter-select,
+.form-input,
+.form-select {
+  font-family:'Pretendard',sans-serif;
+  font-size:14px;
+  color:var(--text-primary);
+  border:none;
+  outline:none;
+}
+.search-inp { width:220px; padding:0 12px; background:transparent; }
+.filter-select,
+.form-select {
+  appearance:none;
+  background:transparent;
+  padding:0 34px 0 12px;
+  height:100%;
+  min-width:130px;
+}
+.select-wrap { position:relative; }
+.select-wrap::after {
+  content:'';
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  border-left:5px solid transparent;
+  border-right:5px solid transparent;
+  border-top:6px solid var(--text-muted);
+  pointer-events:none;
+}
+.btn {
+  height:36px;
+  padding:0 14px;
+  border-radius:var(--r-md);
+  border:none;
+  font-size:14px;
+  font-weight:700;
+  font-family:'Pretendard',sans-serif;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+}
+.btn-primary { background:var(--accent); color:#fff; }
+.btn-outline { background:#fff; color:var(--text-primary); border:1.5px solid var(--border-medium); }
+.btn-ghost { background:#F3F4F6; color:#374151; }
+.btn-danger { background:var(--red-bg); color:var(--red-text); }
+.btn-xs { height:28px; padding:0 10px; font-size:12px; }
+.btn-icon {
+  width:30px;
+  height:30px;
+  border-radius:8px;
+  border:1px solid var(--border-light);
+  background:#fff;
+  color:var(--text-secondary);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+.parent-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+.class-card {
+  background:var(--bg-surface);
+  border:1px solid var(--border-light);
+  border-radius:var(--r-xl);
+  box-shadow:var(--shadow-sm);
+  padding:16px;
+  cursor:pointer;
+}
+.card-head { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:14px; }
+.card-title { font-size:16px; font-weight:800; }
+.card-meta { margin-top:4px; color:var(--text-secondary); font-size:12px; }
+.status-badge {
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+  white-space:nowrap;
+}
+.status-active { background:var(--green-bg); color:var(--green-text); }
+.status-stopped { background:var(--amber-bg); color:var(--amber-text); }
+.progress-meta { display:flex; justify-content:space-between; color:var(--text-secondary); font-size:12px; margin-bottom:7px; }
+.progress-bar { height:8px; background:#E6F2FC; border-radius:999px; overflow:hidden; margin-bottom:12px; }
+.progress-fill { height:100%; background:linear-gradient(90deg, var(--accent), #38BDF8); }
+.link-preview {
+  background:var(--bg-soft);
+  border:1px solid var(--border-light);
+  border-radius:var(--r-md);
+  padding:10px 12px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;
+  color:var(--text-secondary);
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.link-preview.empty { color:var(--text-muted); border-style:dashed; }
+.card-foot { margin-top:12px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.card-foot-note { font-size:12px; color:var(--text-secondary); }
+.empty-state {
+  background:#fff;
+  border:1px dashed var(--border-medium);
+  border-radius:var(--r-lg);
+  padding:42px 24px;
+  text-align:center;
+}
+.empty-title { font-size:15px; font-weight:700; color:var(--text-secondary); }
+.empty-sub { margin-top:6px; font-size:13px; color:var(--text-muted); }
+.table-card { background:#fff; border:1px solid var(--border-light); border-radius:var(--r-lg); box-shadow:var(--shadow-sm); overflow:hidden; }
+.table-wrap { overflow:auto; }
+table { width:100%; border-collapse:collapse; }
+thead th {
+  background:var(--bg-soft);
+  color:var(--text-muted);
+  font-size:12px;
+  font-weight:800;
+  text-align:left;
+  padding:12px 14px;
+  border-bottom:1px solid var(--border-light);
+  white-space:nowrap;
+}
+tbody td { padding:14px; border-bottom:1px solid var(--border-light); font-size:14px; vertical-align:middle; }
+tbody tr:last-child td { border-bottom:none; }
+.action-cell { display:flex; align-items:center; justify-content:flex-end; gap:6px; white-space:nowrap; }
+.mono { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-secondary); }
+.permission-banner {
+  background:var(--amber-bg);
+  border:1px solid #FCD34D;
+  border-radius:var(--r-lg);
+  padding:14px 16px;
+  color:var(--amber-text);
+  font-size:14px;
+  font-weight:700;
+  margin-bottom:14px;
+}
+.type-tag {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+}
+.type-parent { background:#EDE9FE; color:#5B21B6; }
+.type-teacher { background:#DBEAFE; color:#1E40AF; }
+.drawer-overlay,
+.modal-overlay,
+.confirm-overlay {
+  position:fixed;
+  inset:0;
+  background:rgba(10,23,39,.36);
+  display:none;
+  z-index:100;
+}
+.drawer-overlay.show,
+.modal-overlay.show,
+.confirm-overlay.show { display:flex; }
+.drawer-overlay { justify-content:flex-end; }
+.drawer {
+  width:540px;
+  max-width:100vw;
+  height:100vh;
+  background:#fff;
+  display:flex;
+  flex-direction:column;
+  box-shadow:var(--shadow-lg);
+}
+.drawer-hd,
+.modal-header,
+.confirm-header {
+  padding:18px 20px 14px;
+  border-bottom:1px solid var(--border-light);
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+}
+.drawer-title,
+.modal-title,
+.confirm-title { font-size:18px; font-weight:800; }
+.drawer-sub { margin-top:4px; color:var(--text-secondary); font-size:13px; }
+.close-btn {
+  width:32px;
+  height:32px;
+  border:none;
+  border-radius:10px;
+  background:var(--bg-base);
+  color:var(--text-secondary);
+  cursor:pointer;
+}
+.drawer-body { flex:1; overflow-y:auto; padding:18px 20px 24px; }
+.drawer-section + .drawer-section { margin-top:18px; }
+.section-title { font-size:13px; font-weight:800; margin-bottom:10px; }
+.section-row { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.status-chip {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:28px;
+  padding:0 12px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+}
+.toggle-row { background:var(--bg-soft); border:1px solid var(--border-light); border-radius:var(--r-lg); padding:14px 16px; }
+.toggle-label { font-size:14px; font-weight:700; }
+.toggle-help { margin-top:4px; font-size:12px; color:var(--text-secondary); }
+.switch { position:relative; width:48px; height:28px; flex-shrink:0; }
+.switch input { opacity:0; width:0; height:0; }
+.slider {
+  position:absolute;
+  inset:0;
+  border-radius:999px;
+  background:#D1D5DB;
+  transition:.2s;
+  cursor:pointer;
+}
+.slider::before {
+  content:'';
+  position:absolute;
+  width:22px;
+  height:22px;
+  top:3px;
+  left:3px;
+  background:#fff;
+  border-radius:50%;
+  transition:.2s;
+  box-shadow:0 1px 3px rgba(0,0,0,.2);
+}
+.switch input:checked + .slider { background:var(--accent); }
+.switch input:checked + .slider::before { transform:translateX(20px); }
+.link-box { background:var(--bg-soft); border:1px solid var(--border-light); border-radius:var(--r-lg); padding:14px; }
+.link-box.warning { border-color:#FCD34D; background:#FFFBEB; }
+.link-message { font-size:13px; line-height:1.65; color:var(--text-secondary); margin-bottom:12px; }
+.link-warning { margin-top:10px; padding:10px 12px; border-radius:12px; background:var(--amber-bg); color:var(--amber-text); font-size:12px; font-weight:700; }
+.link-url-row { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+.link-url {
+  flex:1;
+  min-width:0;
+  padding:11px 12px;
+  border-radius:12px;
+  border:1px solid var(--border-light);
+  background:#fff;
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;
+  color:var(--blue-text);
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.link-actions { display:flex; gap:8px; flex-wrap:wrap; }
+.member-summary { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; }
+.member-summary-meta { color:var(--text-secondary); font-size:13px; }
+.member-list { display:flex; flex-direction:column; gap:10px; }
+.member-item { border:1px solid var(--border-light); border-radius:var(--r-lg); padding:14px; display:flex; align-items:center; gap:12px; }
+.member-avatar {
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  background:linear-gradient(135deg, #38BDF8, #0EA5E9);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:13px;
+  font-weight:800;
+  flex-shrink:0;
+}
+.member-main { flex:1; min-width:0; }
+.member-name { font-size:14px; font-weight:800; }
+.member-child { margin-top:3px; font-size:12px; color:var(--text-secondary); }
+.member-date { text-align:right; font-size:12px; color:var(--text-muted); font-family:'JetBrains Mono',monospace; min-width:110px; }
+.modal-overlay,
+.confirm-overlay { align-items:center; justify-content:center; padding:20px; }
+.modal-box,
+.confirm-box { width:100%; max-width:520px; background:#fff; border-radius:var(--r-xl); box-shadow:var(--shadow-lg); }
+.modal-body,
+.confirm-body { padding:18px 20px; }
+.modal-footer,
+.confirm-footer { padding:14px 20px 20px; display:flex; justify-content:flex-end; gap:8px; }
+.form-group + .form-group { margin-top:14px; }
+.form-label { display:block; margin-bottom:7px; font-size:13px; font-weight:800; color:var(--text-secondary); }
+.form-input,
+.form-select { width:100%; height:42px; border:1.5px solid var(--border-light); border-radius:var(--r-md); padding:0 12px; }
+.channel-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.channel-card { border:1.5px solid var(--border-light); border-radius:var(--r-lg); padding:14px 10px; text-align:center; background:#fff; cursor:pointer; }
+.channel-card.selected { border-color:var(--accent); background:var(--accent-light); color:var(--accent-dark); }
+.channel-emoji { font-size:20px; margin-bottom:6px; }
+.channel-name { font-size:13px; font-weight:800; }
+.channel-help { margin-top:4px; font-size:11px; color:var(--text-muted); }
+.step-indicator { display:flex; align-items:center; gap:8px; margin-bottom:16px; }
+.step-dot {
+  width:26px;
+  height:26px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:800;
+  background:#E5EEF6;
+  color:var(--text-muted);
+}
+.step-dot.active { background:var(--accent); color:#fff; }
+.step-line { flex:1; height:2px; background:#E5EEF6; }
+.summary-box { background:var(--bg-soft); border:1px solid var(--border-light); border-radius:var(--r-lg); padding:14px; }
+.summary-row + .summary-row { margin-top:10px; }
+.summary-label { font-size:12px; color:var(--text-muted); margin-bottom:4px; }
+.summary-value { font-size:14px; font-weight:700; }
+.footer-note { font-size:12px; color:var(--text-muted); margin-top:10px; line-height:1.6; }
+@media (max-width:900px) {
+  .main-wrap { margin-left:0; }
+  .content { padding:16px; }
+  .page-header { flex-direction:column; align-items:stretch; }
+  .kpi-grid,
+  .parent-grid,
+  .channel-grid { grid-template-columns:1fr; }
+  .drawer { width:100%; }
+}
 </style>
 </head>
 <body>
-
 <aside id="appSidebar"></aside>
 
 <div class="main-wrap">
-
-  <!-- TOPBAR -->
   <div class="topbar">
     <div class="breadcrumb">
-      <span>🏠</span>
-      <span class="bc-sep">›</span>
-      <span id="breadcrumbOrg">해맑은 어린이집</span>
-      <span class="bc-sep">›</span>
+      <span>운영관리</span>
+      <span>/</span>
+      <span>기관 운영</span>
+      <span>/</span>
       <span class="cur">초대 관리</span>
     </div>
     <div class="topbar-right">
       <span class="topbar-date" id="topDate"></span>
-      <div class="icon-btn notif-dot" title="알림">🔔</div>
+      <div class="icon-btn" title="알림">🔔</div>
       <div class="icon-btn" title="설정">⚙️</div>
     </div>
   </div>
 
-  <!-- CONTENT -->
   <div class="content">
     <div class="content-inner">
-
-    <!-- Page header -->
-    <div class="page-header">
-      <div>
-        <div class="page-title">📩 초대 관리</div>
-        <div class="page-sub">반별 초대 링크 및 교직원 초대를 관리합니다</div>
-      </div>
-      <div class="role-sw">
-        <span class="role-sw-label">역할 전환 (프로토타입)</span>
-        <button class="rsw-btn active" id="rsw-org"     onclick="switchRole('org_admin')">🏫 기관관리자</button>
-        <button class="rsw-btn"        id="rsw-teacher" onclick="switchRole('teacher')">📚 교사관리자</button>
-      </div>
-    </div>
-
-    <!-- KPI -->
-    <div class="kpi-grid">
-      <div class="kpi-card">
-        <div class="kpi-ico" style="background:#E0F2FE">📨</div>
+      <div class="page-header">
         <div>
-          <div class="kpi-label">전체 초대 발송</div>
-          <div class="kpi-value" id="kpiTotal" style="color:var(--accent)">0</div>
+          <div class="page-title">초대 관리</div>
+          <div class="page-sub">반별 학부모 초대 링크와 교직원 개별 초대 링크를 운영합니다.</div>
+        </div>
+        <div class="role-sw">
+          <span class="role-sw-label">역할 전환</span>
+          <button class="rsw-btn active" id="roleOrgBtn" onclick="switchRole('org_admin')">기관관리자</button>
+          <button class="rsw-btn" id="roleTeacherBtn" onclick="switchRole('teacher')">교사</button>
         </div>
       </div>
-      <div class="kpi-card">
-        <div class="kpi-ico" style="background:var(--green-bg)">✅</div>
-        <div>
-          <div class="kpi-label">가입 완료</div>
-          <div class="kpi-value" id="kpiJoined" style="color:var(--green)">0</div>
-        </div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-ico" style="background:var(--amber-bg)">⏳</div>
-        <div>
-          <div class="kpi-label">대기 중</div>
-          <div class="kpi-value" id="kpiPending" style="color:var(--amber)">0</div>
-        </div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-ico" style="background:var(--red-bg)">❌</div>
-        <div>
-          <div class="kpi-label">만료됨</div>
-          <div class="kpi-value" id="kpiExpired" style="color:var(--red)">0</div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Tabs -->
-    <div class="tab-bar">
-      <button class="tab-btn active" id="tabBtnParent"  onclick="switchTab('parent')">
-        📩 학부모 초대 <span class="tab-count" id="cntParent">0</span>
-      </button>
-      <button class="tab-btn" id="tabBtnTeacher" onclick="switchTab('teacher')">
-        👨‍🏫 교직원 초대 <span class="tab-count" id="cntTeacher">0</span>
-      </button>
-      <button class="tab-btn" id="tabBtnHistory" onclick="switchTab('history')">
-        📋 초대 이력
-      </button>
-    </div>
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:var(--accent-light)">🔗</div>
+          <div><div class="kpi-label">운영 중인 초대 링크</div><div class="kpi-value" id="kpiLinks">0</div></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:var(--green-bg)">👪</div>
+          <div><div class="kpi-label">가입 완료 학부모</div><div class="kpi-value" id="kpiParents" style="color:var(--green-text)">0</div></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:var(--blue-bg)">👶</div>
+          <div><div class="kpi-label">연결된 자녀</div><div class="kpi-value" id="kpiChildren" style="color:var(--blue-text)">0</div></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:var(--amber-bg)">👩‍🏫</div>
+          <div><div class="kpi-label">교직원 초대 건수</div><div class="kpi-value" id="kpiTeachers" style="color:var(--amber-text)">0</div></div>
+        </div>
+      </div>
 
-    <!-- ── TAB: 학부모 초대 (반 단위) ── -->
-    <div id="tabParent" class="tab-content show">
-      <div class="action-bar">
-        <div class="fsel-wrap">
-          <select class="fsel" id="filterClass" onchange="renderClassCards()">
-            <option value="">전체 반</option>
-          </select>
-        </div>
-        <div class="search-wrap">
-          <input class="search-inp" id="filterSearch" placeholder="반 이름 검색" oninput="renderClassCards()">
-          <button class="search-btn">🔍</button>
-        </div>
-        <div class="action-right">
-          <button class="btn btn-primary btn-sm" onclick="openCreateLinkModal()">＋ 새 초대 링크 생성</button>
-        </div>
+      <div class="tab-bar">
+        <button class="tab-btn active" id="tabBtnParent" onclick="switchTab('parent')">학부모 초대 <span class="tab-count" id="parentCount">0</span></button>
+        <button class="tab-btn" id="tabBtnTeacher" onclick="switchTab('teacher')">교직원 초대 <span class="tab-count" id="teacherCount">0</span></button>
+        <button class="tab-btn" id="tabBtnHistory" onclick="switchTab('history')">초대이력</button>
       </div>
-      <div class="class-grid" id="classGrid"></div>
-      <div id="classEmptyState" class="empty-state" style="display:none">
-        <div class="empty-icon">📭</div>
-        <div class="empty-text">해당 반이 없습니다</div>
-        <div class="empty-sub">검색 조건을 변경해 보세요</div>
-      </div>
-    </div>
 
-    <!-- ── TAB: 교직원 초대 ── -->
-    <div id="tabTeacher" class="tab-content">
-      <div class="permission-banner" id="teacherPermBanner" style="display:none">
-        ⚠️ 교직원 초대는 기관관리자만 사용할 수 있습니다
-      </div>
-      <div id="teacherContent">
-        <div class="action-bar">
-          <div class="fsel-wrap">
-            <select class="fsel" id="filterTeacherStatus" onchange="renderTeacherTable()">
-              <option value="">전체 상태</option>
-              <option value="pending">대기중</option>
-              <option value="used">사용완료</option>
-              <option value="expired">만료</option>
+      <section class="tab-content show" id="tabParent">
+        <div class="toolbar">
+          <div class="select-wrap">
+            <select class="filter-select" id="classFilter" onchange="renderParentCards()">
+              <option value="">전체 반</option>
             </select>
           </div>
-          <div class="action-right">
-            <button class="btn btn-primary btn-sm" onclick="openTeacherModal()">＋ 교직원 초대 발송</button>
+          <div class="search-wrap">
+            <input class="search-inp" id="classSearch" placeholder="반 이름 검색" oninput="renderParentCards()">
+          </div>
+          <div class="toolbar-right">
+            <button class="btn btn-primary" onclick="openCreateParentLinkModal()">새 초대 링크 생성</button>
+          </div>
+        </div>
+        <div class="parent-grid" id="parentGrid"></div>
+        <div class="empty-state" id="parentEmpty" style="display:none">
+          <div class="empty-title">조건에 맞는 반이 없습니다.</div>
+          <div class="empty-sub">필터를 조정하거나 새 초대 링크를 생성해보세요.</div>
+        </div>
+      </section>
+
+      <section class="tab-content" id="tabTeacher">
+        <div class="permission-banner" id="teacherPermissionBanner" style="display:none">교직원 초대는 기관관리자만 사용할 수 있습니다.</div>
+        <div id="teacherTabContent">
+          <div class="toolbar">
+            <div class="select-wrap">
+              <select class="filter-select" id="teacherStatusFilter" onchange="renderTeacherTable()">
+                <option value="">전체 상태</option>
+                <option value="active">초대 가능</option>
+                <option value="stopped">초대 중지</option>
+              </select>
+            </div>
+            <div class="toolbar-right">
+              <button class="btn btn-primary" onclick="openTeacherCreateModal()">교직원 링크 생성</button>
+            </div>
+          </div>
+          <div class="table-card">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>상태</th>
+                    <th>소속 반</th>
+                    <th>역할</th>
+                    <th>생성일</th>
+                    <th>링크</th>
+                    <th style="text-align:right">관리</th>
+                  </tr>
+                </thead>
+                <tbody id="teacherTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="empty-state" id="teacherEmpty" style="display:none">
+            <div class="empty-title">생성된 교직원 초대 링크가 없습니다.</div>
+            <div class="empty-sub">교직원 링크를 생성한 뒤 복사, 발송, 만료 처리를 진행할 수 있습니다.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-content" id="tabHistory">
+        <div class="toolbar">
+          <div class="select-wrap">
+            <select class="filter-select" id="historyTypeFilter" onchange="renderHistoryTable()">
+              <option value="">전체 유형</option>
+              <option value="parent">학부모</option>
+              <option value="teacher">교직원</option>
+            </select>
+          </div>
+          <div class="select-wrap">
+            <select class="filter-select" id="historyStatusFilter" onchange="renderHistoryTable()">
+              <option value="">전체 상태</option>
+              <option value="completed">완료</option>
+              <option value="stopped">중지</option>
+            </select>
+          </div>
+          <div class="search-wrap">
+            <input class="search-inp" id="historySearch" placeholder="이름 또는 반 검색" oninput="renderHistoryTable()">
           </div>
         </div>
         <div class="table-card">
@@ -375,662 +636,709 @@ tbody tr:hover{background:#F8FBFF;}
               <thead>
                 <tr>
                   <th>상태</th>
+                  <th>유형</th>
                   <th>반</th>
-                  <th>역할</th>
-                  <th>발송자</th>
-                  <th>D-Day</th>
-                  <th>가입자</th>
-                  <th style="text-align:right">관리</th>
+                  <th>이름</th>
+                  <th>채널</th>
+                  <th>발송일시</th>
+                  <th>완료일시</th>
                 </tr>
               </thead>
-              <tbody id="teacherTableBody"></tbody>
+              <tbody id="historyTableBody"></tbody>
             </table>
           </div>
-          <div id="teacherEmptyState" class="empty-state" style="display:none">
-            <div class="empty-icon">👨‍🏫</div>
-            <div class="empty-text">교직원 초대 이력이 없습니다</div>
-            <div class="empty-sub">초대 버튼을 눌러 교직원을 초대하세요</div>
-          </div>
         </div>
-      </div>
-    </div>
-
-    <!-- ── TAB: 초대 이력 ── -->
-    <div id="tabHistory" class="tab-content">
-      <div class="filter-bar">
-        <div class="fsel-wrap">
-          <select class="fsel" id="histFilterStatus" onchange="renderHistoryTable()">
-            <option value="">전체 상태</option>
-            <option value="active">활성</option>
-            <option value="stopped">중지</option>
-            <option value="used">사용완료</option>
-            <option value="expired">만료</option>
-          </select>
+        <div class="empty-state" id="historyEmpty" style="display:none">
+          <div class="empty-title">초대이력이 없습니다.</div>
+          <div class="empty-sub">필터를 변경해 다른 기록을 확인해보세요.</div>
         </div>
-        <div class="fsel-wrap">
-          <select class="fsel" id="histFilterType" onchange="renderHistoryTable()">
-            <option value="">전체 유형</option>
-            <option value="parent">학부모</option>
-            <option value="teacher">교직원</option>
-          </select>
-        </div>
-        <div class="search-wrap">
-          <input class="search-inp" id="histFilterSearch" placeholder="이름, 반 검색"
-                 onkeydown="if(event.key==='Enter') renderHistoryTable()">
-          <button class="search-btn" onclick="renderHistoryTable()">검색</button>
-        </div>
-        <button class="btn-reset" onclick="resetHistFilter()">초기화</button>
-      </div>
-      <div class="table-card">
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>상태</th>
-                <th>유형</th>
-                <th>반</th>
-                <th>이름</th>
-                <th>채널</th>
-                <th>발송일</th>
-                <th>가입일</th>
-              </tr>
-            </thead>
-            <tbody id="historyTableBody"></tbody>
-          </table>
-        </div>
-        <div id="historyEmptyState" class="empty-state" style="display:none">
-          <div class="empty-icon">📋</div>
-          <div class="empty-text">초대 이력이 없습니다</div>
-          <div class="empty-sub">조건을 변경해 다시 검색해 보세요</div>
-        </div>
-      </div>
-    </div>
-
-    </div><!-- /content-inner -->
-  </div><!-- /content -->
-</div><!-- /main-wrap -->
-
-<!-- ═══ MODAL: 초대 링크 생성 ═══ -->
-<div class="modal-overlay" id="createLinkModal">
-  <div class="modal-box" style="width:440px">
-    <div class="modal-header">
-      <div class="modal-title">🔗 초대 링크 생성</div>
-      <button class="modal-close" onclick="closeModal('createLinkModal')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="info-box">ℹ️ 선택한 반에 초대 링크가 생성됩니다. 링크를 통해 가입한 학부모는 해당 반에 자동 배정됩니다.</div>
-      <div class="form-group">
-        <label class="form-label">대상 반 <span style="color:var(--red)">*</span></label>
-        <select class="form-select-modal" id="createLinkClass">
-          <option value="">— 반을 선택하세요 —</option>
-        </select>
-        <div class="form-hint">링크가 없는 반만 표시됩니다</div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">만료 기간</label>
-        <select class="form-select-modal" id="createLinkExpiry">
-          <option value="0">만료 없음 (상시 활성)</option>
-          <option value="7">7일</option>
-          <option value="14">14일</option>
-          <option value="30">30일</option>
-        </select>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('createLinkModal')">취소</button>
-      <button class="btn btn-outline" onclick="doCreateAndCopy()">🔗 생성 및 링크 복사</button>
-      <button class="btn btn-primary" onclick="doCreateLink()">생성</button>
+      </section>
     </div>
   </div>
 </div>
 
-<!-- ═══ MODAL: 교직원 초대 ═══ -->
-<div class="modal-overlay" id="teacherModal">
-  <div class="modal-box" style="width:440px">
-    <div class="modal-header">
-      <div class="modal-title">👨‍🏫 교직원 초대 발송</div>
-      <button class="modal-close" onclick="closeModal('teacherModal')">✕</button>
+<div class="drawer-overlay" id="parentDrawerOverlay" onclick="if (event.target === this) closeParentDrawer()">
+  <aside class="drawer">
+    <div class="drawer-hd">
+      <div>
+        <div class="drawer-title" id="parentDrawerTitle">반 초대 관리</div>
+        <div class="drawer-sub" id="parentDrawerSub">반별 마스터 링크와 가입 멤버를 관리합니다.</div>
+      </div>
+      <button class="close-btn" onclick="closeParentDrawer()">✕</button>
     </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">대상 반 <span style="color:var(--red)">*</span></label>
-        <select class="form-select-modal" id="teacherInvClass">
-          <option value="">— 반을 선택하세요 —</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">역할 <span style="color:var(--red)">*</span></label>
-        <div class="btn-group-toggle" id="teacherRoleToggle">
-          <button class="toggle-btn active" onclick="selectTeacherRole('담임교사', this)">담임교사</button>
-          <button class="toggle-btn"        onclick="selectTeacherRole('보조교사', this)">보조교사</button>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">만료일</label>
-        <input type="date" class="form-select-modal" id="teacherExpiry">
-        <div class="form-hint">기본 7일. 직접 수정 가능합니다.</div>
-      </div>
-      <div class="form-group" style="margin-bottom:0">
-        <label class="form-label">최대 좌석 수</label>
-        <div class="seats-input-wrap">
-          <button class="seats-btn" onclick="changeSeat(-1)">−</button>
-          <input type="number" class="seats-inp" id="maxSeats" value="1" min="1" max="10">
-          <button class="seats-btn" onclick="changeSeat(1)">＋</button>
-          <span class="seats-hint">명 (같은 링크로 최대 N명 가입 가능)</span>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost"   onclick="closeModal('teacherModal')">취소</button>
-      <button class="btn btn-primary" onclick="submitTeacherInvite()">초대 발송</button>
-    </div>
-  </div>
+    <div class="drawer-body" id="parentDrawerBody"></div>
+  </aside>
 </div>
 
-<!-- ═══ MODAL: 가입 학부모 목록 ═══ -->
-<div class="modal-overlay" id="membersModal">
-  <div class="modal-box" style="width:460px">
-    <div class="modal-header">
-      <div class="modal-title" id="membersModalTitle">가입 학부모 목록</div>
-      <button class="modal-close" onclick="closeModal('membersModal')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="member-list" id="memberList"></div>
-      <div id="memberEmptyMsg" class="empty-state" style="display:none;padding:24px">
-        <div class="empty-icon">👨‍👩‍👧</div>
-        <div class="empty-text">가입 학부모가 없습니다</div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('membersModal')">닫기</button>
-    </div>
-  </div>
-</div>
-
-<!-- TOAST -->
-<div class="toast-wrap" id="toastWrap"></div>
+<div class="modal-overlay" id="parentCreateModal"><div class="modal-box"><div class="modal-header"><div class="modal-title">새 초대 링크 생성</div><button class="close-btn" onclick="closeModal('parentCreateModal')">✕</button></div><div class="modal-body"><div class="form-group"><label class="form-label" for="parentCreateClass">대상 반</label><div class="select-wrap" style="width:100%;height:42px"><select class="form-select" id="parentCreateClass"></select></div></div><div class="footer-note">링크를 생성하면 해당 반의 학부모를 한 번에 초대할 수 있는 마스터 링크가 발급됩니다.</div></div><div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('parentCreateModal')">취소</button><button class="btn btn-primary" onclick="createParentLink()">생성</button></div></div></div>
+<div class="modal-overlay" id="teacherCreateModal"><div class="modal-box"><div class="modal-header"><div class="modal-title">교직원 링크 생성</div><button class="close-btn" onclick="closeModal('teacherCreateModal')">✕</button></div><div class="modal-body"><div class="form-group"><label class="form-label" for="teacherClassInput">소속 반</label><div class="select-wrap" style="width:100%;height:42px"><select class="form-select" id="teacherClassInput"></select></div></div><div class="form-group"><label class="form-label" for="teacherRoleInput">역할</label><div class="select-wrap" style="width:100%;height:42px"><select class="form-select" id="teacherRoleInput"><option value="담임교사">담임교사</option><option value="보조교사">보조교사</option></select></div></div></div><div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('teacherCreateModal')">취소</button><button class="btn btn-primary" onclick="submitTeacherCreate()">링크 생성</button></div></div></div>
+<div class="modal-overlay" id="teacherResultModal"><div class="modal-box"><div class="modal-header"><div class="modal-title">교직원 링크 생성 완료</div><button class="close-btn" onclick="closeModal('teacherResultModal')">✕</button></div><div class="modal-body" id="teacherResultBody"></div><div class="modal-footer" id="teacherResultFooter"></div></div></div>
+<div class="modal-overlay" id="sendModal"><div class="modal-box"><div class="modal-header"><div class="modal-title">링크 발송</div><button class="close-btn" onclick="closeModal('sendModal')">✕</button></div><div class="modal-body"><div class="step-indicator"><div class="step-dot active" id="sendStep1">1</div><div class="step-line"></div><div class="step-dot" id="sendStep2">2</div><div class="step-line"></div><div class="step-dot" id="sendStep3">3</div></div><div id="sendModalBody"></div></div><div class="modal-footer" id="sendModalFooter"></div></div></div>
+<div class="confirm-overlay" id="confirmModal"><div class="confirm-box"><div class="confirm-header"><div class="confirm-title" id="confirmTitle">확인</div><button class="close-btn" onclick="closeConfirm()">✕</button></div><div class="confirm-body" id="confirmBody"></div><div class="confirm-footer" id="confirmFooter"></div></div></div>
+<div id="toastWrap" style="position:fixed;right:24px;bottom:24px;z-index:120;display:flex;flex-direction:column;gap:8px"></div>
 
 <script>
-// ═══ MOCK DATA ═══
-let CLASSES = [
+const CLASS_LIST = [
   {
-    id:'CLS001', name:'햇님반', teacher:'이지현', age:5, capacity:20, memberCount:18,
-    status:'active', link:'https://kidkids.app/inv/abc123', toggleOn:true,
-    members:[
-      {name:'김미영', child:'김민준', date:'2026-03-02', av:'김', vc:'#0EA5E9'},
-      {name:'이수진', child:'이서윤', date:'2026-03-05', av:'이', vc:'#10B981'},
-      {name:'박현주', child:'박도윤', date:'2026-03-08', av:'박', vc:'#8B5CF6'},
+    id: 'CLS001',
+    name: '햇님반',
+    teacher: '이지현',
+    age: 5,
+    capacity: 20,
+    parentCount: 15,
+    childCount: 18,
+    status: 'active',
+    link: 'https://kidkids.app/invite/happy-sunshine',
+    members: [
+      { id: 'P001', name: '이해연', child: '김민준', joinedAt: '2026-04-17 10:05' },
+      { id: 'P002', name: '박수진', child: '박지성', joinedAt: '2026-04-16 16:42' },
+      { id: 'P003', name: '최보람', child: '최연우', joinedAt: '2026-04-15 14:10' }
     ]
   },
   {
-    id:'CLS002', name:'달님반', teacher:'박수진', age:4, capacity:18, memberCount:12,
-    status:'stopped', link:'https://kidkids.app/inv/def456', toggleOn:false,
-    members:[
-      {name:'최지은', child:'최지호', date:'2026-03-01', av:'최', vc:'#F59E0B'},
-      {name:'정나영', child:'정하은', date:'2026-03-03', av:'정', vc:'#EF4444'},
+    id: 'CLS002',
+    name: '달님반',
+    teacher: '김민지',
+    age: 4,
+    capacity: 18,
+    parentCount: 8,
+    childCount: 10,
+    status: 'stopped',
+    link: 'https://kidkids.app/invite/moon-class',
+    members: [
+      { id: 'P004', name: '정유리', child: '정하윤', joinedAt: '2026-04-11 09:18' },
+      { id: 'P005', name: '윤하늘', child: '윤태오', joinedAt: '2026-04-08 13:55' }
     ]
   },
   {
-    id:'CLS003', name:'별빛반', teacher:'최민준', age:3, capacity:15, memberCount:0,
-    status:'none', link:null, toggleOn:false,
-    members:[]
+    id: 'CLS003',
+    name: '별빛반',
+    teacher: '박소연',
+    age: 3,
+    capacity: 15,
+    parentCount: 0,
+    childCount: 0,
+    status: 'active',
+    link: 'https://kidkids.app/invite/starlight-class',
+    members: []
   },
   {
-    id:'CLS004', name:'새싹반', teacher:'김예진', age:2, capacity:12, memberCount:8,
-    status:'active', link:'https://kidkids.app/inv/ghi789', toggleOn:true,
-    members:[
-      {name:'오민정', child:'오도현', date:'2026-03-10', av:'오', vc:'#0EA5E9'},
-      {name:'강지영', child:'강지우', date:'2026-03-12', av:'강', vc:'#10B981'},
+    id: 'CLS004',
+    name: '새싹반',
+    teacher: '오준석',
+    age: 5,
+    capacity: 20,
+    parentCount: 11,
+    childCount: 15,
+    status: 'active',
+    link: 'https://kidkids.app/invite/sprout-class',
+    members: [
+      { id: 'P006', name: '김아름', child: '김도윤', joinedAt: '2026-04-14 08:05' },
+      { id: 'P007', name: '신서윤', child: '신하린', joinedAt: '2026-04-13 11:26' }
     ]
+  }
+];
+
+const TEACHER_INVITES = [
+  {
+    id: 'T001',
+    classId: 'CLS001',
+    className: '햇님반',
+    role: '담임교사',
+    createdAt: '2026-04-16',
+    status: 'active',
+    link: 'https://kidkids.app/t/teacher-sun'
   },
+  {
+    id: 'T002',
+    classId: 'CLS002',
+    className: '달님반',
+    role: '보조교사',
+    createdAt: '2026-04-14',
+    status: 'stopped',
+    link: 'https://kidkids.app/t/teacher-moon'
+  }
 ];
 
-let TEACHER_INV = [
-  {id:'T001', cls:'햇님반', role:'담임교사', invitedBy:'이관리', sentAt:'2026-03-01', status:'used',    dDay:12,  name:'박선생', link:'https://kidkids.app/t/ABC'},
-  {id:'T002', cls:'달님반', role:'보조교사', invitedBy:'이관리', sentAt:'2026-03-20', status:'pending', dDay:3,   name:'—',      link:'https://kidkids.app/t/DEF'},
-  {id:'T003', cls:'별빛반', role:'담임교사', invitedBy:'이관리', sentAt:'2026-02-20', status:'expired', dDay:-5,  name:'—',      link:'https://kidkids.app/t/GHI'},
+const HISTORY_ROWS = [
+  { status: 'completed', type: 'parent', className: '햇님반', name: '이해연', channel: '카카오톡', sentAt: '2026-04-17 09:50', completedAt: '2026-04-17 10:05' },
+  { status: 'completed', type: 'teacher', className: '햇님반', name: '김지은', channel: '복사', sentAt: '2026-04-16 15:10', completedAt: '2026-04-16 15:30' },
+  { status: 'stopped', type: 'parent', className: '달님반', name: '정유리', channel: '문자발송', sentAt: '2026-04-10 11:22', completedAt: '-' }
 ];
 
-const HISTORY = [
-  {status:'active',  type:'parent',  cls:'햇님반', name:'김미영',  channel:'카카오',    sentAt:'2026-03-01', joinedAt:'2026-03-02'},
-  {status:'stopped', type:'parent',  cls:'달님반', name:'—',       channel:'링크복사',  sentAt:'2026-03-10', joinedAt:'—'},
-  {status:'expired', type:'parent',  cls:'별빛반', name:'—',       channel:'문자',      sentAt:'2026-02-20', joinedAt:'—'},
-  {status:'used',    type:'teacher', cls:'햇님반', name:'박선생',  channel:'링크복사',  sentAt:'2026-03-01', joinedAt:'2026-03-03'},
-  {status:'pending', type:'teacher', cls:'달님반', name:'—',       channel:'문자',      sentAt:'2026-03-20', joinedAt:'—'},
-];
-
-// ═══ STATE ═══
 let currentRole = 'org_admin';
-let currentTab  = 'parent';
-let selectedTeacherRole = '담임교사';
+let currentTab = 'parent';
+let currentParentClassId = null;
+let currentTeacherResultId = null;
+let sendFlow = { targetType: '', targetId: '', className: '', link: '', channel: '', phone: '' };
+let pendingConfirmAction = null;
 
-// ═══ INIT ═══
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('topDate').textContent = new Date().toISOString().slice(0,10);
-  const storedRole = sessionStorage.getItem('userRole') || 'org_admin';
-  const opCtx = JSON.parse(sessionStorage.getItem('operationContext') || 'null');
-  const effectiveRole = (opCtx && opCtx.contextRole) ? opCtx.contextRole : storedRole;
-  applyRole(effectiveRole);
-  populateClassFilters();
+  document.getElementById('topDate').textContent = new Date().toISOString().slice(0, 10);
+  hydrateRoleFromSession();
+  renderFilters();
   renderAll();
-
-  // Set default teacher expiry to +7 days
-  const d = new Date(); d.setDate(d.getDate() + 7);
-  document.getElementById('teacherExpiry').value = d.toISOString().slice(0,10);
-
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') ['createLinkModal','teacherModal','membersModal'].forEach(closeModal);
-  });
-  document.querySelectorAll('.modal-overlay').forEach(o => {
-    o.addEventListener('click', e => { if (e.target === o) closeModal(o.id); });
-  });
 });
 
-// ═══ ROLE ═══
-function applyRole(role) {
-  currentRole = role;
-  document.getElementById('rsw-org').classList.toggle('active', role === 'org_admin');
-  document.getElementById('rsw-teacher').classList.toggle('active', role === 'teacher');
-  const teacherTab = document.getElementById('tabBtnTeacher');
-  if (role === 'teacher') {
-    teacherTab.classList.add('disabled-tab');
-    if (currentTab === 'teacher') switchTab('parent');
-  } else {
-    teacherTab.classList.remove('disabled-tab');
-  }
-}
-function switchRole(role) {
-  sessionStorage.setItem('userRole', role);
-  applyRole(role);
-  populateClassFilters();
-  renderAll();
+function hydrateRoleFromSession() {
+  const storedRole = sessionStorage.getItem('userRole') || 'org_admin';
+  const operationContext = JSON.parse(sessionStorage.getItem('operationContext') || 'null');
+  const effectiveRole = operationContext && operationContext.contextRole ? operationContext.contextRole : storedRole;
+  switchRole(effectiveRole, true);
 }
 
-// ═══ TAB SWITCH ═══
-function switchTab(tab) {
+function switchRole(role, silent) {
+  currentRole = role;
+  sessionStorage.setItem('userRole', role);
+  document.getElementById('roleOrgBtn').classList.toggle('active', role === 'org_admin');
+  document.getElementById('roleTeacherBtn').classList.toggle('active', role === 'teacher');
+  document.getElementById('tabBtnTeacher').classList.toggle('disabled', role === 'teacher');
+  document.getElementById('teacherPermissionBanner').style.display = role === 'teacher' ? 'block' : 'none';
+  document.getElementById('teacherTabContent').style.display = role === 'teacher' ? 'none' : 'block';
+  if (role === 'teacher' && currentTab === 'teacher') currentTab = 'parent';
+  switchTab(currentTab, true);
+  renderFilters();
+  renderAll();
+  if (!silent) showToast(role === 'teacher' ? '교사 권한 보기로 전환되었습니다.' : '기관관리자 권한 보기로 전환되었습니다.');
+}
+
+function switchTab(tab, silent) {
   if (tab === 'teacher' && currentRole === 'teacher') {
-    showToast('교직원 초대는 기관관리자만 이용할 수 있습니다', 'warn');
+    showToast('교직원 초대는 기관관리자만 사용할 수 있습니다.', 'warn');
     return;
   }
   currentTab = tab;
-  ['parent','teacher','history'].forEach(t => {
-    const idMap = {parent:'tabParent', teacher:'tabTeacher', history:'tabHistory'};
-    const btnMap = {parent:'tabBtnParent', teacher:'tabBtnTeacher', history:'tabBtnHistory'};
-    document.getElementById(idMap[t]).classList.toggle('show', t === tab);
-    document.getElementById(btnMap[t]).classList.toggle('active', t === tab);
+  ['parent', 'teacher', 'history'].forEach(key => {
+    document.getElementById('tab' + capitalize(key)).classList.toggle('show', key === tab);
+    document.getElementById('tabBtn' + capitalize(key)).classList.toggle('active', key === tab);
   });
+  if (!silent) renderAll();
 }
 
-// ═══ RENDER ALL ═══
 function renderAll() {
-  renderKPI();
-  renderClassCards();
+  renderKpis();
+  renderParentCards();
   renderTeacherTable();
   renderHistoryTable();
-  updateTabCounts();
+  document.getElementById('parentCount').textContent = getVisibleClasses().length;
+  document.getElementById('teacherCount').textContent = TEACHER_INVITES.length;
 }
 
-// ═══ KPI ═══
-function renderKPI() {
-  const visClasses = getVisibleClasses();
-  const total   = visClasses.reduce((s, c) => s + (c.status !== 'none' ? c.capacity : 0), 0);
-  const joined  = visClasses.reduce((s, c) => s + c.memberCount, 0);
-  const pending = visClasses.reduce((s, c) => s + Math.max(0, c.capacity - c.memberCount), 0);
-  const expired = TEACHER_INV.filter(t => t.status === 'expired').length;
-  document.getElementById('kpiTotal').textContent   = total;
-  document.getElementById('kpiJoined').textContent  = joined;
-  document.getElementById('kpiPending').textContent = pending;
-  document.getElementById('kpiExpired').textContent = expired;
+function renderKpis() {
+  const visibleClasses = getVisibleClasses();
+  const linkCount = visibleClasses.filter(item => item.link).length + TEACHER_INVITES.length;
+  const parentCount = visibleClasses.reduce((sum, item) => sum + item.parentCount, 0);
+  const childCount = visibleClasses.reduce((sum, item) => sum + item.childCount, 0);
+  document.getElementById('kpiLinks').textContent = linkCount;
+  document.getElementById('kpiParents').textContent = parentCount;
+  document.getElementById('kpiChildren').textContent = childCount;
+  document.getElementById('kpiTeachers').textContent = TEACHER_INVITES.length;
 }
 
-// ═══ CLASS FILTER ═══
 function getVisibleClasses() {
-  if (currentRole === 'teacher') return CLASSES.filter(c => c.id === 'CLS001'); // 담당 반만
-  return CLASSES;
-}
-function getFilteredClasses() {
-  let list = getVisibleClasses();
-  const cls    = document.getElementById('filterClass').value;
-  const search = document.getElementById('filterSearch').value.trim().toLowerCase();
-  if (cls)    list = list.filter(c => c.id === cls);
-  if (search) list = list.filter(c => c.name.includes(search));
-  return list;
-}
-function populateClassFilters() {
-  const visClasses = getVisibleClasses(); // 역할별 접근 가능 반
-  // action bar filter
-  const filterClass = document.getElementById('filterClass');
-  filterClass.innerHTML = '<option value="">전체 반</option>' +
-    visClasses.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-  // create link modal (none-status only, 역할 적용)
-  const createSelect = document.getElementById('createLinkClass');
-  const noLink = visClasses.filter(c => c.status === 'none');
-  createSelect.innerHTML = '<option value="">— 반을 선택하세요 —</option>' +
-    noLink.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-  // teacher invite modal — 항상 전체 반 (기관관리자 전용)
-  const teacherSelect = document.getElementById('teacherInvClass');
-  teacherSelect.innerHTML = '<option value="">— 반을 선택하세요 —</option>' +
-    CLASSES.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  return currentRole === 'teacher' ? CLASS_LIST.filter(item => item.id === 'CLS001') : CLASS_LIST;
 }
 
-// ═══ CLASS CARDS ═══
-function renderClassCards() {
-  const list = getFilteredClasses();
-  const grid = document.getElementById('classGrid');
-  const empty = document.getElementById('classEmptyState');
-  if (!list.length) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
-  empty.style.display = 'none';
-  grid.innerHTML = list.map(c => classCardHTML(c)).join('');
+function renderFilters() {
+  const visibleClasses = getVisibleClasses();
+  const allOptions = visibleClasses.map(item => `<option value="${item.id}">${item.name}</option>`).join('');
+  const creatableOptions = visibleClasses.filter(item => !item.link).map(item => `<option value="${item.id}">${item.name}</option>`).join('');
+  document.getElementById('classFilter').innerHTML = '<option value="">전체 반</option>' + allOptions;
+  document.getElementById('parentCreateClass').innerHTML = creatableOptions || '<option value="">생성 가능한 반이 없습니다.</option>';
+  document.getElementById('teacherClassInput').innerHTML = '<option value="">반을 선택하세요</option>' + allOptions;
 }
 
-function classCardHTML(c) {
-  const pct = c.capacity > 0 ? Math.round((c.memberCount / c.capacity) * 100) : 0;
-  const barColor = c.status === 'active'  ? 'var(--green)'
-                 : c.status === 'stopped' ? 'var(--amber)'
-                 : 'var(--border-light)';
-  const badgeMap = {
-    active:  '<span class="sbadge s-active"><span class="sdot"></span>활성</span>',
-    stopped: '<span class="sbadge s-stopped"><span class="sdot"></span>중지됨</span>',
-    none:    '<span class="sbadge s-none"><span class="sdot"></span>미설정</span>',
-  };
-
-  const linkSection = c.link
-    ? `<div class="cls-link-row">
-        <span class="cls-link-text">${c.link}</span>
-        <button class="btn btn-outline btn-xs" onclick="copyLink('${c.link}')">복사</button>
-       </div>`
-    : `<div class="cls-no-link">초대 링크 미생성</div>`;
-
-  const footerLeft = c.status !== 'none'
-    ? `<label class="toggle-switch">
-        <input type="checkbox" ${c.toggleOn ? 'checked' : ''} onchange="toggleClass('${c.id}', this)">
-        <div class="toggle-track"></div>
-        <div class="toggle-thumb"></div>
-       </label>
-       <span class="toggle-label">${c.toggleOn ? '활성' : '비활성'}</span>
-       <span class="member-chip" onclick="openMembersModal('${c.id}')">👥 ${c.memberCount}명 가입</span>`
-    : `<span style="font-size:12px;color:var(--text-muted)">링크 없음</span>`;
-
-  const footerRight = c.status === 'none'
-    ? `<button class="btn btn-primary btn-xs" onclick="createLinkForClass('${c.id}')">링크 생성</button>`
-    : `<div style="display:flex;gap:5px">
-        <button class="btn btn-outline btn-xs" onclick="toggleClass('${c.id}', null, '${c.status}')">${c.status === 'active' ? '중지' : '재개'}</button>
-        <button class="btn btn-danger btn-xs" onclick="deleteLink('${c.id}')">삭제</button>
-       </div>`;
-
-  return `<div class="cls-card">
-    <div class="cls-card-header">
-      <div>
-        <div class="cls-card-name">${c.name}</div>
-        <div class="cls-card-meta">만 ${c.age}세 · 담임: ${c.teacher}</div>
-      </div>
-      ${badgeMap[c.status] || ''}
-    </div>
-    <div class="cls-card-body">
-      <div class="cls-progress-label">
-        <span>가입 학부모</span>
-        <strong>${c.memberCount} / ${c.capacity}명</strong>
-      </div>
-      <div class="progress-bar">
-        <div class="progress-fill" style="width:${pct}%;background:${barColor}"></div>
-      </div>
-      ${linkSection}
-    </div>
-    <div class="cls-card-footer">
-      <div class="cls-footer-left">${footerLeft}</div>
-      <div class="cls-footer-right">${footerRight}</div>
-    </div>
-  </div>`;
-}
-
-// ═══ CLASS ACTIONS ═══
-function toggleClass(clsId, el, currentStatus) {
-  const c = CLASSES.find(x => x.id === clsId);
-  if (!c) return;
-  if (el) {
-    c.toggleOn = el.checked;
-    c.status   = el.checked ? 'active' : 'stopped';
-  } else {
-    const next  = currentStatus === 'active' ? 'stopped' : 'active';
-    c.status    = next;
-    c.toggleOn  = next === 'active';
-  }
-  renderAll();
-  showToast(c.status === 'active' ? `${c.name} 초대 링크가 활성화되었습니다` : `${c.name} 초대 링크가 중지되었습니다`, c.status === 'active' ? 'success' : '');
-}
-
-function createLinkForClass(clsId) {
-  const c = CLASSES.find(x => x.id === clsId);
-  if (!c) return;
-  c.status  = 'active';
-  c.toggleOn = true;
-  c.link    = `https://kidkids.app/inv/${Math.random().toString(36).slice(2,8)}`;
-  populateClassFilters();
-  renderAll();
-  showToast(`${c.name} 초대 링크가 생성되었습니다`, 'success');
-}
-
-function deleteLink(clsId) {
-  const c = CLASSES.find(x => x.id === clsId);
-  if (!c) return;
-  c.status   = 'none';
-  c.toggleOn = false;
-  c.link     = null;
-  c.memberCount = 0;
-  populateClassFilters();
-  renderAll();
-  showToast(`${c.name} 초대 링크가 삭제되었습니다`, '');
-}
-
-function copyLink(link) {
-  navigator.clipboard.writeText(link).catch(()=>{});
-  showToast('링크가 복사되었습니다', 'success');
-}
-
-// ═══ CREATE LINK MODAL ═══
-function openCreateLinkModal() {
-  populateClassFilters();
-  document.getElementById('createLinkModal').classList.add('show');
-}
-
-function doCreateLink() {
-  const clsId = document.getElementById('createLinkClass').value;
-  if (!clsId) { showToast('반을 선택해 주세요', 'warn'); return; }
-  closeModal('createLinkModal');
-  createLinkForClass(clsId);
-}
-
-function doCreateAndCopy() {
-  const clsId = document.getElementById('createLinkClass').value;
-  if (!clsId) { showToast('반을 선택해 주세요', 'warn'); return; }
-  const c = CLASSES.find(x => x.id === clsId);
-  if (!c) return;
-  c.status   = 'active';
-  c.toggleOn = true;
-  c.link     = `https://kidkids.app/inv/${Math.random().toString(36).slice(2,8)}`;
-  closeModal('createLinkModal');
-  populateClassFilters();
-  renderAll();
-  copyLink(c.link);
-  showToast(`${c.name} 링크 생성 및 복사 완료`, 'success');
-}
-
-// ═══ MEMBERS MODAL ═══
-function openMembersModal(clsId) {
-  const c = CLASSES.find(x => x.id === clsId);
-  if (!c) return;
-  document.getElementById('membersModalTitle').textContent = `👥 ${c.name} 가입 학부모`;
-  const list   = document.getElementById('memberList');
-  const empty  = document.getElementById('memberEmptyMsg');
-  if (!c.members.length) {
-    list.innerHTML = '';
+function renderParentCards() {
+  const grid = document.getElementById('parentGrid');
+  const empty = document.getElementById('parentEmpty');
+  const keyword = document.getElementById('classSearch').value.trim().toLowerCase();
+  const classId = document.getElementById('classFilter').value;
+  let rows = getVisibleClasses();
+  if (classId) rows = rows.filter(item => item.id === classId);
+  if (keyword) rows = rows.filter(item => item.name.toLowerCase().includes(keyword));
+  if (!rows.length) {
+    grid.innerHTML = '';
     empty.style.display = 'block';
-  } else {
-    empty.style.display = 'none';
-    list.innerHTML = c.members.map(m => `
-      <div class="member-row">
-        <div class="member-av" style="background:${m.vc}">${m.av}</div>
-        <div class="member-info">
-          <div class="member-name">${m.name}</div>
-          <div class="member-child">자녀: ${m.child}</div>
-        </div>
-        <div class="member-date">가입 ${m.date}</div>
-      </div>`).join('');
+    return;
   }
-  document.getElementById('membersModal').classList.add('show');
-}
-
-// ═══ TEACHER TABLE ═══
-function renderTeacherTable() {
-  const statusFilter = document.getElementById('filterTeacherStatus').value;
-  let list = [...TEACHER_INV];
-  if (statusFilter) list = list.filter(t => t.status === statusFilter);
-
-  const tbody = document.getElementById('teacherTableBody');
-  const empty = document.getElementById('teacherEmptyState');
-
-  if (!list.length) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
   empty.style.display = 'none';
-
-  const statusMap = {
-    pending: '<span class="sbadge s-pending"><span class="sdot"></span>대기중</span>',
-    used:    '<span class="sbadge s-used"><span class="sdot"></span>사용완료</span>',
-    expired: '<span class="sbadge s-expired"><span class="sdot"></span>만료</span>',
-  };
-
-  tbody.innerHTML = list.map(t => {
-    const ddayColor = t.dDay > 0 ? 'var(--amber)' : t.dDay < 0 ? 'var(--red)' : 'var(--green)';
-    const ddayText  = t.dDay > 0 ? `D-${t.dDay}` : t.dDay < 0 ? `D+${Math.abs(t.dDay)}` : 'D-Day';
-    const actionBtn = t.status === 'expired'
-      ? `<button class="btn btn-primary btn-xs" onclick="resendTeacher('${t.id}')">재발송</button>`
-      : t.status === 'pending'
-      ? `<button class="btn btn-outline btn-xs" onclick="resendTeacher('${t.id}')">재발송</button>`
-      : `<button class="btn btn-outline btn-xs" onclick="expireTeacher('${t.id}')">만료처리</button>`;
-    return `<tr>
-      <td>${statusMap[t.status] || t.status}</td>
-      <td style="font-weight:600">${t.cls}</td>
-      <td><span class="role-tag ${t.role === '담임교사' ? 'r-main' : 'r-sub'}">${t.role}</span></td>
-      <td style="font-size:14px">${t.invitedBy}</td>
-      <td class="dday-chip" style="color:${ddayColor}">${ddayText}</td>
-      <td style="font-size:14px;color:${t.name === '—' ? 'var(--text-muted)' : 'var(--green-text)'}">${t.name}</td>
-      <td class="action-cell">${actionBtn}</td>
-    </tr>`;
+  grid.innerHTML = rows.map(item => {
+    const rate = item.capacity ? Math.round((item.childCount / item.capacity) * 100) : 0;
+    return `
+      <article class="class-card" onclick="openParentDrawer('${item.id}')">
+        <div class="card-head">
+          <div>
+            <div class="card-title">${item.name}</div>
+            <div class="card-meta">만 ${item.age}세 · 담임 ${item.teacher}</div>
+          </div>
+          <span class="status-badge ${item.status === 'active' ? 'status-active' : 'status-stopped'}">${item.status === 'active' ? '초대 가능' : '초대 중지'}</span>
+        </div>
+        <div class="progress-meta">
+          <span>가입 멤버</span>
+          <strong>${item.parentCount}명 / 자녀 ${item.childCount}명</strong>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:${Math.min(rate, 100)}%"></div>
+        </div>
+        <div class="link-preview ${item.link ? '' : 'empty'}">${item.link || '아직 생성된 초대 링크가 없습니다.'}</div>
+        <div class="card-foot">
+          <div class="card-foot-note">${item.members.length ? `최신 가입 ${item.members[0].name}` : '가입 멤버 없음'}</div>
+          <button class="btn btn-outline btn-xs" onclick="event.stopPropagation(); openParentDrawer('${item.id}')">관리 열기</button>
+        </div>
+      </article>
+    `;
   }).join('');
 }
 
-function resendTeacher(id) {
-  showToast('초대장이 재발송되었습니다', 'success');
-}
-function expireTeacher(id) {
-  const t = TEACHER_INV.find(x => x.id === id);
-  if (t) { t.status = 'expired'; t.dDay = -1; }
-  renderTeacherTable();
-  showToast('만료 처리되었습니다', '');
-}
-
-// ═══ TEACHER MODAL ═══
-function openTeacherModal() {
+function renderTeacherTable() {
+  const tbody = document.getElementById('teacherTableBody');
+  const empty = document.getElementById('teacherEmpty');
+  const statusFilter = document.getElementById('teacherStatusFilter').value;
+  let rows = [...TEACHER_INVITES];
+  if (statusFilter) rows = rows.filter(item => item.status === statusFilter);
   if (currentRole === 'teacher') {
-    showToast('교직원 초대는 기관관리자만 이용할 수 있습니다', 'warn');
+    tbody.innerHTML = '';
+    empty.style.display = 'none';
     return;
   }
-  document.getElementById('teacherModal').classList.add('show');
-}
-function selectTeacherRole(role, btn) {
-  selectedTeacherRole = role;
-  document.querySelectorAll('#teacherRoleToggle .toggle-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-}
-function changeSeat(delta) {
-  const inp = document.getElementById('maxSeats');
-  inp.value = Math.max(1, Math.min(10, Number(inp.value) + delta));
-}
-function submitTeacherInvite() {
-  const clsId = document.getElementById('teacherInvClass').value;
-  if (!clsId) { showToast('반을 선택해 주세요', 'warn'); return; }
-  const cls = CLASSES.find(c => c.id === clsId);
-  const newInv = {
-    id: 'T' + Date.now(),
-    cls: cls ? cls.name : clsId,
-    role: selectedTeacherRole,
-    invitedBy: '이관리',
-    sentAt: new Date().toISOString().slice(0,10),
-    status: 'pending',
-    dDay: 7,
-    name: '—',
-    link: `https://kidkids.app/t/${Math.random().toString(36).slice(2,6)}`
-  };
-  TEACHER_INV.unshift(newInv);
-  closeModal('teacherModal');
-  renderTeacherTable();
-  updateTabCounts();
-  showToast(`${cls ? cls.name : ''} ${selectedTeacherRole} 초대장이 발송되었습니다`, 'success');
-}
-
-// ═══ HISTORY TABLE ═══
-function renderHistoryTable() {
-  const statusFilter = document.getElementById('histFilterStatus').value;
-  const typeFilter   = document.getElementById('histFilterType').value;
-  const search       = document.getElementById('histFilterSearch').value.trim().toLowerCase();
-  let list = [...HISTORY];
-  // 교사 역할: 담당 반 이력만
-  if (currentRole === 'teacher') {
-    const visIds = getVisibleClasses().map(c => c.name);
-    list = list.filter(h => visIds.includes(h.cls));
+  if (!rows.length) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
   }
-  if (statusFilter) list = list.filter(h => h.status === statusFilter);
-  if (typeFilter)   list = list.filter(h => h.type === typeFilter);
-  if (search)       list = list.filter(h => h.cls.includes(search) || h.name.includes(search));
-
-  const tbody = document.getElementById('historyTableBody');
-  const empty = document.getElementById('historyEmptyState');
-  if (!list.length) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
   empty.style.display = 'none';
-
-  const statusMap = {
-    active:  '<span class="sbadge s-active"><span class="sdot"></span>활성</span>',
-    stopped: '<span class="sbadge s-stopped"><span class="sdot"></span>중지</span>',
-    expired: '<span class="sbadge s-expired"><span class="sdot"></span>만료</span>',
-    used:    '<span class="sbadge s-used"><span class="sdot"></span>사용완료</span>',
-    pending: '<span class="sbadge s-pending"><span class="sdot"></span>대기</span>',
-  };
-  tbody.innerHTML = list.map(h => `<tr>
-    <td>${statusMap[h.status] || h.status}</td>
-    <td><span class="type-badge ${h.type === 'parent' ? 't-parent' : 't-teacher'}">${h.type === 'parent' ? '학부모' : '교직원'}</span></td>
-    <td style="font-weight:600">${h.cls}</td>
-    <td style="font-size:14px;color:${h.name === '—' ? 'var(--text-muted)' : 'inherit'}">${h.name}</td>
-    <td style="font-size:13px;color:var(--text-secondary)">${h.channel}</td>
-    <td class="mono-cell">${h.sentAt}</td>
-    <td class="mono-cell" style="color:${h.joinedAt === '—' ? 'var(--text-muted)' : 'inherit'}">${h.joinedAt}</td>
-  </tr>`).join('');
-}
-function resetHistFilter() {
-  document.getElementById('histFilterStatus').value = '';
-  document.getElementById('histFilterType').value   = '';
-  document.getElementById('histFilterSearch').value = '';
-  renderHistoryTable();
+  tbody.innerHTML = rows.map(item => `
+    <tr>
+      <td><span class="status-badge ${item.status === 'active' ? 'status-active' : 'status-stopped'}">${item.status === 'active' ? '초대 가능' : '초대 중지'}</span></td>
+      <td>${item.className}</td>
+      <td>${item.role}</td>
+      <td class="mono">${item.createdAt}</td>
+      <td class="mono">${item.link}</td>
+      <td>
+        <div class="action-cell">
+          <button class="btn-icon" title="복사" onclick="copyLink('${item.link}')">⧉</button>
+          <button class="btn btn-outline btn-xs" onclick="openSendModal({ targetType: 'teacher', targetId: '${item.id}', className: '${item.className}', link: '${item.link}' })">링크발송</button>
+          <button class="btn btn-danger btn-xs" onclick="confirmExpireTeacher('${item.id}')">만료</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
 }
 
-// ═══ TAB COUNTS ═══
-function updateTabCounts() {
-  document.getElementById('cntParent').textContent  = CLASSES.filter(c => c.status !== 'none').length;
-  document.getElementById('cntTeacher').textContent = TEACHER_INV.length;
+function renderHistoryTable() {
+  const tbody = document.getElementById('historyTableBody');
+  const empty = document.getElementById('historyEmpty');
+  const typeFilter = document.getElementById('historyTypeFilter').value;
+  const statusFilter = document.getElementById('historyStatusFilter').value;
+  const search = document.getElementById('historySearch').value.trim().toLowerCase();
+  let rows = [...HISTORY_ROWS];
+  if (typeFilter) rows = rows.filter(item => item.type === typeFilter);
+  if (statusFilter) rows = rows.filter(item => item.status === statusFilter);
+  if (search) rows = rows.filter(item => item.className.toLowerCase().includes(search) || item.name.toLowerCase().includes(search));
+  if (!rows.length) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  tbody.innerHTML = rows.map(item => `
+    <tr>
+      <td><span class="status-badge ${item.status === 'completed' ? 'status-active' : 'status-stopped'}">${item.status === 'completed' ? '완료' : '중지'}</span></td>
+      <td><span class="type-tag ${item.type === 'parent' ? 'type-parent' : 'type-teacher'}">${item.type === 'parent' ? '학부모' : '교직원'}</span></td>
+      <td>${item.className}</td>
+      <td>${item.name}</td>
+      <td>${item.channel}</td>
+      <td class="mono">${item.sentAt}</td>
+      <td class="mono">${item.completedAt}</td>
+    </tr>
+  `).join('');
 }
 
-// ═══ MODAL CLOSE ═══
+function openParentDrawer(classId) {
+  currentParentClassId = classId;
+  const item = CLASS_LIST.find(row => row.id === classId);
+  if (!item) return;
+  document.getElementById('parentDrawerTitle').textContent = `${item.name} 초대 관리`;
+  document.getElementById('parentDrawerSub').textContent = `담임 ${item.teacher} · 반별 마스터 링크와 가입 멤버를 관리합니다.`;
+  const isActive = item.status === 'active';
+  const membersMarkup = item.members.length
+    ? item.members.map(member => `
+      <div class="member-item">
+        <div class="member-avatar">${member.name.slice(0, 1)}</div>
+        <div class="member-main">
+          <div class="member-name">${member.name}</div>
+          <div class="member-child">자녀 ${member.child}</div>
+        </div>
+        <div class="member-date">${member.joinedAt}</div>
+        <button class="btn btn-danger btn-xs" onclick="confirmExportMember('${item.id}', '${member.id}')">내보내기</button>
+      </div>
+    `).join('')
+    : `
+      <div class="empty-state">
+        <div class="empty-title">아직 가입한 멤버가 없습니다.</div>
+        <div class="empty-sub">초대 링크를 복사하거나 발송해 학부모를 초대해보세요.</div>
+      </div>
+    `;
+  document.getElementById('parentDrawerBody').innerHTML = `
+    <section class="drawer-section">
+      <div class="section-row" style="margin-bottom:10px">
+        <div class="section-title">초대 링크</div>
+        <span class="status-chip ${isActive ? 'status-active' : 'status-stopped'}">${isActive ? '초대 가능' : '초대 중지'}</span>
+      </div>
+      <div class="link-box ${isActive ? '' : 'warning'}">
+        <div class="link-message">
+          반별 마스터 링크가 생성되었습니다.<br>
+          링크를 공유하여 학부모님을 일괄 초대할 수 있습니다.
+        </div>
+        <div class="link-url-row">
+          <div class="link-url">${item.link}</div>
+        </div>
+        <div class="link-actions">
+          <button class="btn btn-primary btn-xs" onclick="copyLink('${item.link}')">복사</button>
+          <button class="btn btn-outline btn-xs" onclick="openSendModal({ targetType: 'parent', targetId: '${item.id}', className: '${item.name}', link: '${item.link}' })">링크발송</button>
+          <button class="btn btn-outline btn-xs" onclick="confirmRegenParentLink('${item.id}')">재생성</button>
+        </div>
+        ${isActive ? '' : '<div class="link-warning">현재 이 링크는 초대 중지 상태입니다. 접속 시 초대 마감 안내 페이지로 이동합니다.</div>'}
+      </div>
+    </section>
+    <section class="drawer-section">
+      <div class="toggle-row">
+        <div class="section-row">
+          <div>
+            <div class="toggle-label">초대 링크 활성화</div>
+            <div class="toggle-help">상태를 끄면 추가 가입이 즉시 차단되고 초대 마감 페이지로 연결됩니다.</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" ${isActive ? 'checked' : ''} onchange="toggleParentLink('${item.id}', this.checked)">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </section>
+    <section class="drawer-section">
+      <div class="member-summary">
+        <div>
+          <div class="section-title" style="margin-bottom:4px">가입 멤버 리스트</div>
+          <div class="member-summary-meta">학부모 ${item.parentCount}명 · 자녀 ${item.childCount}명 · 최신순</div>
+        </div>
+      </div>
+      <div class="member-list">${membersMarkup}</div>
+    </section>
+  `;
+  document.getElementById('parentDrawerOverlay').classList.add('show');
+}
+
+function closeParentDrawer() {
+  document.getElementById('parentDrawerOverlay').classList.remove('show');
+}
+
+function openCreateParentLinkModal() {
+  renderFilters();
+  document.getElementById('parentCreateModal').classList.add('show');
+}
+
+function createParentLink() {
+  const classId = document.getElementById('parentCreateClass').value;
+  const item = CLASS_LIST.find(row => row.id === classId);
+  if (!item) {
+    showToast('생성 가능한 반을 선택해주세요.', 'warn');
+    return;
+  }
+  item.link = `https://kidkids.app/invite/${Math.random().toString(36).slice(2, 10)}`;
+  item.status = 'active';
+  closeModal('parentCreateModal');
+  renderFilters();
+  renderAll();
+  showToast(`${item.name} 초대 링크가 생성되었습니다.`);
+}
+
+function toggleParentLink(classId, checked) {
+  const item = CLASS_LIST.find(row => row.id === classId);
+  if (!item) return;
+  item.status = checked ? 'active' : 'stopped';
+  renderAll();
+  openParentDrawer(classId);
+  showToast(checked ? '초대 링크가 초대 가능 상태로 변경되었습니다.' : '초대 링크가 초대 중지 상태로 변경되었습니다.');
+}
+
+function confirmRegenParentLink(classId) {
+  const item = CLASS_LIST.find(row => row.id === classId);
+  if (!item) return;
+  openConfirm({
+    title: '링크를 재생성할까요?',
+    body: '<div style="font-size:14px;line-height:1.7;color:var(--text-secondary)">기존 링크는 즉시 만료되고, 새 링크를 다시 공유해야 합니다.</div>',
+    confirmLabel: '재생성',
+    confirmClass: 'btn btn-primary',
+    onConfirm: () => {
+      item.link = `https://kidkids.app/invite/${Math.random().toString(36).slice(2, 10)}`;
+      item.status = 'active';
+      renderAll();
+      openParentDrawer(classId);
+      showToast('새 링크가 발급되었습니다. 기존 링크는 만료되었으며 새 링크를 다시 공유해야 합니다.');
+    }
+  });
+}
+
+function confirmExportMember(classId, memberId) {
+  const item = CLASS_LIST.find(row => row.id === classId);
+  if (!item) return;
+  const member = item.members.find(row => row.id === memberId);
+  if (!member) return;
+  openConfirm({
+    title: '멤버를 내보낼까요?',
+    body: `<div style="font-size:14px;line-height:1.7;color:var(--text-secondary)"><strong style="color:var(--text-primary)">${member.name}</strong> 님을 내보내면 반 연결이 해제되고 초대/연결 데이터가 삭제됩니다.<br>이 작업은 되돌릴 수 없습니다.</div>`,
+    confirmLabel: '내보내기',
+    confirmClass: 'btn btn-danger',
+    onConfirm: () => {
+      item.members = item.members.filter(row => row.id !== memberId);
+      item.parentCount = item.members.length;
+      item.childCount = item.members.length ? Math.max(item.childCount - 1, item.members.length) : 0;
+      renderAll();
+      openParentDrawer(classId);
+      showToast(`${member.name} 님이 내보내기 처리되었습니다.`);
+    }
+  });
+}
+
+function openTeacherCreateModal() {
+  if (currentRole === 'teacher') {
+    showToast('교직원 초대는 기관관리자만 사용할 수 있습니다.', 'warn');
+    return;
+  }
+  renderFilters();
+  document.getElementById('teacherCreateModal').classList.add('show');
+}
+
+function submitTeacherCreate() {
+  const classId = document.getElementById('teacherClassInput').value;
+  const role = document.getElementById('teacherRoleInput').value;
+  const classItem = CLASS_LIST.find(item => item.id === classId);
+  if (!classItem) {
+    showToast('소속 반을 선택해주세요.', 'warn');
+    return;
+  }
+  const id = 'T' + Date.now();
+  TEACHER_INVITES.unshift({
+    id,
+    classId,
+    className: classItem.name,
+    role,
+    createdAt: new Date().toISOString().slice(0, 10),
+    status: 'active',
+    link: `https://kidkids.app/t/${Math.random().toString(36).slice(2, 10)}`
+  });
+  currentTeacherResultId = id;
+  closeModal('teacherCreateModal');
+  renderAll();
+  openTeacherResultModal(id);
+  showToast(`${classItem.name} ${role} 초대 링크가 생성되었습니다.`);
+}
+
+function openTeacherResultModal(teacherId) {
+  const item = TEACHER_INVITES.find(row => row.id === teacherId);
+  if (!item) return;
+  currentTeacherResultId = teacherId;
+  document.getElementById('teacherResultBody').innerHTML = `
+    <div class="summary-box">
+      <div class="summary-row">
+        <div class="summary-label">소속 반</div>
+        <div class="summary-value">${item.className}</div>
+      </div>
+      <div class="summary-row">
+        <div class="summary-label">역할</div>
+        <div class="summary-value">${item.role}</div>
+      </div>
+      <div class="summary-row">
+        <div class="summary-label">생성된 링크</div>
+        <div class="summary-value mono">${item.link}</div>
+      </div>
+      <div class="summary-row">
+        <div class="summary-label">상태</div>
+        <div class="summary-value"><span class="status-badge ${item.status === 'active' ? 'status-active' : 'status-stopped'}">${item.status === 'active' ? '초대 가능' : '초대 중지'}</span></div>
+      </div>
+    </div>
+    ${item.status === 'active' ? '' : '<div class="footer-note">현재 이 링크는 초대 중지 상태입니다. 다시 사용하려면 재생성 후 새 링크를 공유해야 합니다.</div>'}
+  `;
+  document.getElementById('teacherResultFooter').innerHTML = `
+    <button class="btn btn-primary" onclick="copyLink('${item.link}')">복사</button>
+    <button class="btn btn-outline" onclick="openSendModal({ targetType: 'teacher', targetId: '${item.id}', className: '${item.className}', link: '${item.link}' })">링크발송</button>
+    <button class="btn btn-outline" onclick="confirmRegenTeacherLink('${item.id}')">재생성</button>
+    <button class="btn btn-danger" onclick="confirmExpireTeacher('${item.id}')">링크 만료 처리</button>
+  `;
+  document.getElementById('teacherResultModal').classList.add('show');
+}
+
+function confirmRegenTeacherLink(teacherId) {
+  const item = TEACHER_INVITES.find(row => row.id === teacherId);
+  if (!item) return;
+  openConfirm({
+    title: '교직원 링크를 재생성할까요?',
+    body: '<div style="font-size:14px;line-height:1.7;color:var(--text-secondary)">기존 링크는 즉시 만료되고 새 링크를 다시 전달해야 합니다.</div>',
+    confirmLabel: '재생성',
+    confirmClass: 'btn btn-primary',
+    onConfirm: () => {
+      item.link = `https://kidkids.app/t/${Math.random().toString(36).slice(2, 10)}`;
+      item.status = 'active';
+      renderAll();
+      openTeacherResultModal(teacherId);
+      showToast('새 링크가 발급되었습니다. 기존 링크는 만료되었으며 새 링크를 다시 공유해야 합니다.');
+    }
+  });
+}
+
+function confirmExpireTeacher(teacherId) {
+  const item = TEACHER_INVITES.find(row => row.id === teacherId);
+  if (!item) return;
+  openConfirm({
+    title: '링크를 만료 처리할까요?',
+    body: '<div style="font-size:14px;line-height:1.7;color:var(--text-secondary)">만료 처리 후에는 해당 링크로 더 이상 초대를 진행할 수 없습니다.</div>',
+    confirmLabel: '링크 만료 처리',
+    confirmClass: 'btn btn-danger',
+    onConfirm: () => {
+      item.status = 'stopped';
+      renderAll();
+      if (currentTeacherResultId === teacherId && document.getElementById('teacherResultModal').classList.contains('show')) {
+        openTeacherResultModal(teacherId);
+      }
+      showToast('링크가 만료 처리되었습니다.');
+    }
+  });
+}
+
+function openSendModal({ targetType, targetId, className, link }) {
+  sendFlow = { targetType, targetId, className, link, channel: '', phone: '' };
+  renderSendStep(1);
+  document.getElementById('sendModal').classList.add('show');
+}
+
+function renderSendStep(step) {
+  document.getElementById('sendStep1').classList.toggle('active', step === 1);
+  document.getElementById('sendStep2').classList.toggle('active', step === 2);
+  document.getElementById('sendStep3').classList.toggle('active', step === 3);
+  const body = document.getElementById('sendModalBody');
+  const footer = document.getElementById('sendModalFooter');
+  if (step === 1) {
+    body.innerHTML = `
+      <div class="form-group">
+        <label class="form-label">채널 선택</label>
+        <div class="channel-grid">
+          <button class="channel-card ${sendFlow.channel === '카카오톡' ? 'selected' : ''}" onclick="selectSendChannel('카카오톡')"><div class="channel-emoji">💬</div><div class="channel-name">카카오톡</div><div class="channel-help">전화번호 입력 후 발송</div></button>
+          <button class="channel-card ${sendFlow.channel === '문자발송' ? 'selected' : ''}" onclick="selectSendChannel('문자발송')"><div class="channel-emoji">✉️</div><div class="channel-name">문자발송</div><div class="channel-help">전화번호 입력 후 발송</div></button>
+          <button class="channel-card ${sendFlow.channel === '복사' ? 'selected' : ''}" onclick="selectSendChannel('복사')"><div class="channel-emoji">🔗</div><div class="channel-name">복사</div><div class="channel-help">즉시 복사</div></button>
+        </div>
+      </div>
+    `;
+    footer.innerHTML = `<button class="btn btn-ghost" onclick="closeModal('sendModal')">취소</button><button class="btn btn-primary" onclick="goToSendStep2()" ${sendFlow.channel ? '' : 'disabled'}>다음</button>`;
+    return;
+  }
+  if (step === 2) {
+    body.innerHTML = `<div class="form-group"><label class="form-label">전화번호 입력</label><input class="form-input" id="sendPhoneInput" placeholder="010-0000-0000" value="${sendFlow.phone}" oninput="formatSendPhone(this)"></div><div class="footer-note">기본은 전화번호 1개 입력이며, 이후 다중 입력 확장이 가능한 구조로 유지합니다.</div>`;
+    footer.innerHTML = `<button class="btn btn-ghost" onclick="renderSendStep(1)">이전</button><button class="btn btn-primary" onclick="goToSendStep3()">확인 단계로</button>`;
+    return;
+  }
+  body.innerHTML = `
+    <div class="summary-box">
+      <div class="summary-row"><div class="summary-label">전화번호</div><div class="summary-value">${sendFlow.phone}</div></div>
+      <div class="summary-row"><div class="summary-label">반 이름</div><div class="summary-value">${sendFlow.className}</div></div>
+      <div class="summary-row"><div class="summary-label">발송 채널</div><div class="summary-value">${sendFlow.channel}</div></div>
+    </div>
+  `;
+  footer.innerHTML = `<button class="btn btn-ghost" onclick="renderSendStep(2)">이전</button><button class="btn btn-primary" onclick="submitSendFlow()">확인</button>`;
+}
+
+function selectSendChannel(channel) {
+  sendFlow.channel = channel;
+  renderSendStep(1);
+}
+
+function goToSendStep2() {
+  if (!sendFlow.channel) {
+    showToast('채널을 선택해주세요.', 'warn');
+    return;
+  }
+  if (sendFlow.channel === '복사') {
+    copyLink(sendFlow.link);
+    closeModal('sendModal');
+    return;
+  }
+  renderSendStep(2);
+}
+
+function goToSendStep3() {
+  const input = document.getElementById('sendPhoneInput');
+  const phone = input.value.trim();
+  if (!phone) {
+    showToast('전화번호를 입력해주세요.', 'warn');
+    input.focus();
+    return;
+  }
+  sendFlow.phone = phone;
+  renderSendStep(3);
+}
+
+function submitSendFlow() {
+  closeModal('sendModal');
+  showToast(`${sendFlow.channel}으로 링크를 발송했습니다.`);
+}
+
+function formatSendPhone(input) {
+  const numbers = input.value.replace(/\D/g, '').slice(0, 11);
+  let formatted = numbers;
+  if (numbers.length > 3 && numbers.length <= 7) formatted = `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+  if (numbers.length > 7) formatted = `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7)}`;
+  input.value = formatted;
+}
+
+function copyLink(link) {
+  navigator.clipboard.writeText(link).then(() => {
+    showToast('링크가 복사되었습니다.');
+  }).catch(() => {
+    showToast('링크를 복사하지 못했습니다.', 'warn');
+  });
+}
+
+function openConfirm({ title, body, confirmLabel, confirmClass, onConfirm }) {
+  pendingConfirmAction = onConfirm;
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmBody').innerHTML = body;
+  document.getElementById('confirmFooter').innerHTML = `<button class="btn btn-ghost" onclick="closeConfirm()">취소</button><button class="${confirmClass}" onclick="runConfirmAction()">${confirmLabel}</button>`;
+  document.getElementById('confirmModal').classList.add('show');
+}
+
+function runConfirmAction() {
+  if (typeof pendingConfirmAction === 'function') pendingConfirmAction();
+  closeConfirm();
+}
+
+function closeConfirm() {
+  pendingConfirmAction = null;
+  document.getElementById('confirmModal').classList.remove('show');
+}
+
 function closeModal(id) {
   document.getElementById(id).classList.remove('show');
 }
 
-// ═══ TOAST ═══
-function showToast(msg, type) {
-  const wrap  = document.getElementById('toastWrap');
+function showToast(message, type) {
+  const wrap = document.getElementById('toastWrap');
   const toast = document.createElement('div');
-  toast.className = 'toast' + (type === 'success' ? ' toast-success' : type === 'warn' ? ' toast-warn' : '');
-  toast.textContent = msg;
+  toast.style.cssText = 'min-width:240px;padding:12px 16px;border-radius:14px;background:#0C2D48;color:#fff;font-size:13px;font-weight:700;box-shadow:0 8px 24px rgba(12,45,72,.16);opacity:0;transform:translateY(8px);transition:.2s ease;';
+  if (type === 'warn') toast.style.background = '#92400E';
+  toast.textContent = message;
   wrap.appendChild(toast);
-  requestAnimationFrame(() => { requestAnimationFrame(() => { toast.classList.add('show'); }); });
-  setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 350); }, 2500);
+  requestAnimationFrame(() => {
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateY(0)';
+  });
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(8px)';
+    setTimeout(() => toast.remove(), 250);
+  }, 2400);
+}
+
+function capitalize(value) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }
 </script>
 </body>
