@@ -1077,34 +1077,25 @@ function goCompletedPage(p) {
 
 function renderPagination(containerId, total, currentPage, fnName) {
   const el = document.getElementById(containerId);
-  const totalPages = Math.ceil(total / PAGE_SIZE);
+  const totalPages = Math.ceil(total / PAGE_SIZE) || 1;
   if (totalPages <= 1) { el.style.display = 'none'; return; }
   el.style.display = 'flex';
 
-  const start = (currentPage - 1) * PAGE_SIZE + 1;
-  const end = Math.min(currentPage * PAGE_SIZE, total);
+  const groupStart = Math.floor((currentPage - 1) / 10) * 10 + 1;
+  const groupEnd   = Math.min(groupStart + 9, totalPages);
+  const pages = [];
+  for (let p = groupStart; p <= groupEnd; p++) pages.push(p);
 
-  let pages = [];
-  if (totalPages <= 7) {
-    pages = Array.from({ length: totalPages }, (_, i) => i + 1);
-  } else {
-    pages = [1];
-    const lo = Math.max(2, currentPage - 1);
-    const hi = Math.min(totalPages - 1, currentPage + 1);
-    if (lo > 2) pages.push('…');
-    for (let p = lo; p <= hi; p++) pages.push(p);
-    if (hi < totalPages - 1) pages.push('…');
-    pages.push(totalPages);
-  }
+  const from = (currentPage - 1) * PAGE_SIZE + 1;
+  const to   = Math.min(currentPage * PAGE_SIZE, total);
 
   el.innerHTML = `
-    <button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="${fnName}(${currentPage - 1})">‹</button>
-    ${pages.map(p => p === '…'
-      ? `<span class="page-btn" style="border:none;cursor:default;color:var(--text-muted)">…</span>`
-      : `<button class="page-btn ${p === currentPage ? 'active' : ''}" onclick="${fnName}(${p})">${p}</button>`
-    ).join('')}
-    <button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="${fnName}(${currentPage + 1})">›</button>
-    <span class="page-info">${start}–${end} / ${total}건</span>
+    <button class="page-btn" ${currentPage===1?'disabled':''} onclick="${fnName}(1)" title="처음">«</button>
+    <button class="page-btn" ${currentPage===1?'disabled':''} onclick="${fnName}(${currentPage-1})" title="이전">‹</button>
+    ${pages.map(p=>`<button class="page-btn${p===currentPage?' active':''}" onclick="${fnName}(${p})">${p}</button>`).join('')}
+    <button class="page-btn" ${currentPage===totalPages?'disabled':''} onclick="${fnName}(${currentPage+1})" title="다음">›</button>
+    <button class="page-btn" ${currentPage===totalPages?'disabled':''} onclick="${fnName}(${totalPages})" title="끝">»</button>
+    <span class="page-info">${from}–${to} / ${total}건</span>
   `;
 }
 
