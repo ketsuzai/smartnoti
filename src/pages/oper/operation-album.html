@@ -445,6 +445,8 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 
       <!-- ALBUM CONTAINER -->
       <div id="albumContainer"></div>
+      <div id="scrollSentinel" style="height:1px;"></div>
+      <div id="albumLoadingSpinner" style="display:none;text-align:center;padding:16px;color:var(--text-muted);font-size:13px;">불러오는 중...</div>
 
     </div>
   </div>
@@ -835,6 +837,12 @@ let deleteTargetId = null;
 let lbPhotos = [];
 let lbIndex  = 0;
 
+const ALBUM_BATCH_FIRST = 12;
+const ALBUM_BATCH_MORE  = 9;
+let albumOffset   = 0;
+let albumLoading  = false;
+let albumObserver = null;
+
 // 작성 모달 상태
 let writeMode = 'create'; // 'create' | 'edit'
 let editTargetId = null;
@@ -968,80 +976,112 @@ function renderAlbums() {
   else renderList(container);
 }
 
+function buildAlbumCard(a) {
+  const key   = getAlbumKey(a);
+  const badge = CLASS_BADGE[key] || CLASS_BADGE['mixed'];
+  const grad  = COVER_GRADIENT[key] || COVER_GRADIENT['mixed'];
+  const emoji = COVER_EMOJI[key]    || '🖼️';
+  const pct   = a.totalRecipients ? Math.round(a.readCount/a.totalRecipients*100) : 0;
+  const isDraft = a.status === 'draft';
+  const canEdit = !AL_IS_TEACHER || a.authorId === 'USR002';
+  return `
+  <div class="album-card${isDraft?' is-draft':''}" onclick="openDetail('${a.id}')">
+    <div class="album-cover" style="background:${grad}">
+      <span class="album-cover-icon">${emoji}</span>
+      <span class="cover-badge-class">${badge.label}</span>
+      ${a.photoCount>0 ? `<span class="cover-badge-count">📷 ${a.photoCount}장</span>` : ''}
+      ${isDraft ? '<span class="draft-ribbon">임시저장</span>' : ''}
+    </div>
+    <div class="album-body">
+      <div class="album-title" title="${a.title}">${a.title}</div>
+      <div class="album-meta">
+        <span>${a.author}</span><span class="album-meta-sep">·</span><span>${a.date}</span>
+      </div>
+    </div>
+    <div class="album-footer">
+      <div class="album-stats" style="flex:1;min-width:0;gap:6px;">
+        <span class="album-stat">❤️ ${a.likes}</span>
+        <span class="album-stat">💬 ${a.comments.length}</span>
+        ${!isDraft ? `<div class="album-read-bar"><div class="album-read-fill" style="width:${pct}%"></div></div><span class="album-read-pct">${pct}%</span>` : ''}
+      </div>
+      <div class="album-actions">
+        ${canEdit ? `<button class="btn btn-outline btn-xs" onclick="openWriteModal('${a.id}',event)">✏️</button>` : ''}
+        ${canEdit ? `<button class="btn btn-danger-outline btn-xs" onclick="openDeleteModalDirect('${a.id}',event)">🗑️</button>` : ''}
+        ${isDraft ? `<button class="btn btn-primary btn-xs" onclick="publishDraft('${a.id}',event)">발송</button>` : ''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function buildAlbumListItem(a) {
+  const key   = getAlbumKey(a);
+  const badge = CLASS_BADGE[key] || CLASS_BADGE['mixed'];
+  const grad  = COVER_GRADIENT[key] || COVER_GRADIENT['mixed'];
+  const emoji = COVER_EMOJI[key]    || '🖼️';
+  const pct   = a.totalRecipients ? Math.round(a.readCount/a.totalRecipients*100) : 0;
+  const isDraft = a.status === 'draft';
+  const canEdit = !AL_IS_TEACHER || a.authorId === 'USR002';
+  return `
+  <div class="album-list-item${isDraft?' is-draft':''}" onclick="openDetail('${a.id}')">
+    <div class="ali-thumb" style="background:${grad}"><span>${emoji}</span></div>
+    <div class="ali-info">
+      <div class="ali-title">${a.title}${isDraft?'  <span class="badge badge-amber" style="font-size:10px;">임시저장</span>':''}</div>
+      <div class="ali-meta">
+        <span>${a.author}</span><span>·</span><span>${a.date}</span><span>·</span><span>📷 ${a.photoCount}장</span>
+      </div>
+    </div>
+    <div class="ali-right">
+      <span class="ali-class-badge badge ${badge.cls}">${badge.label}</span>
+      <div class="ali-stats">
+        <span class="ali-stat">❤️ ${a.likes}</span>
+        <span class="ali-stat">💬 ${a.comments.length}</span>
+        ${!isDraft ? `<span class="ali-read">👁 ${a.readCount}/${a.totalRecipients}</span>` : ''}
+      </div>
+      <div class="ali-actions">
+        ${canEdit ? `<button class="btn btn-outline btn-xs" onclick="openWriteModal('${a.id}',event)">✏️</button>` : ''}
+        ${canEdit ? `<button class="btn btn-danger-outline btn-xs" onclick="openDeleteModalDirect('${a.id}',event)">🗑️</button>` : ''}
+        ${isDraft ? `<button class="btn btn-primary btn-xs" onclick="publishDraft('${a.id}',event)">발송</button>` : ''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function initAlbumInfiniteScroll() {
+  if (albumObserver) albumObserver.disconnect();
+  albumObserver = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting && !albumLoading) loadMoreAlbums();
+  }, { threshold: 0.1 });
+  albumObserver.observe(document.getElementById('scrollSentinel'));
+}
+
+function loadMoreAlbums() {
+  albumLoading = true;
+  const batch = filteredAlbums.slice(albumOffset, albumOffset + ALBUM_BATCH_MORE);
+  if (!batch.length) { albumLoading = false; return; }
+  const wrap = currentView === 'grid'
+    ? document.querySelector('#albumContainer .album-grid')
+    : document.querySelector('#albumContainer .album-list-view');
+  if (wrap) batch.forEach(a => {
+    wrap.insertAdjacentHTML('beforeend', currentView === 'grid' ? buildAlbumCard(a) : buildAlbumListItem(a));
+  });
+  albumOffset += batch.length;
+  albumLoading = false;
+}
+
 function renderGrid(container) {
-  const cards = filteredAlbums.map(a => {
-    const key   = getAlbumKey(a);
-    const badge = CLASS_BADGE[key] || CLASS_BADGE['mixed'];
-    const grad  = COVER_GRADIENT[key] || COVER_GRADIENT['mixed'];
-    const emoji = COVER_EMOJI[key]    || '🖼️';
-    const pct   = a.totalRecipients ? Math.round(a.readCount/a.totalRecipients*100) : 0;
-    const isDraft = a.status === 'draft';
-    const canEdit = !AL_IS_TEACHER || a.authorId === 'USR002';
-    return `
-    <div class="album-card${isDraft?' is-draft':''}" onclick="openDetail('${a.id}')">
-      <div class="album-cover" style="background:${grad}">
-        <span class="album-cover-icon">${emoji}</span>
-        <span class="cover-badge-class">${badge.label}</span>
-        ${a.photoCount>0 ? `<span class="cover-badge-count">📷 ${a.photoCount}장</span>` : ''}
-        ${isDraft ? '<span class="draft-ribbon">임시저장</span>' : ''}
-      </div>
-      <div class="album-body">
-        <div class="album-title" title="${a.title}">${a.title}</div>
-        <div class="album-meta">
-          <span>${a.author}</span><span class="album-meta-sep">·</span><span>${a.date}</span>
-        </div>
-      </div>
-      <div class="album-footer">
-        <div class="album-stats" style="flex:1;min-width:0;gap:6px;">
-          <span class="album-stat">❤️ ${a.likes}</span>
-          <span class="album-stat">💬 ${a.comments.length}</span>
-          ${!isDraft ? `<div class="album-read-bar"><div class="album-read-fill" style="width:${pct}%"></div></div><span class="album-read-pct">${pct}%</span>` : ''}
-        </div>
-        <div class="album-actions">
-          ${canEdit ? `<button class="btn btn-outline btn-xs" onclick="openWriteModal('${a.id}',event)">✏️</button>` : ''}
-          ${canEdit ? `<button class="btn btn-danger-outline btn-xs" onclick="openDeleteModalDirect('${a.id}',event)">🗑️</button>` : ''}
-          ${isDraft ? `<button class="btn btn-primary btn-xs" onclick="publishDraft('${a.id}',event)">발송</button>` : ''}
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-  container.innerHTML = `<div class="album-grid">${cards}</div>`;
+  albumOffset = 0;
+  const first = filteredAlbums.slice(0, ALBUM_BATCH_FIRST);
+  container.innerHTML = `<div class="album-grid">${first.map(buildAlbumCard).join('')}</div>`;
+  albumOffset = first.length;
+  initAlbumInfiniteScroll();
 }
 
 function renderList(container) {
-  const items = filteredAlbums.map(a => {
-    const key   = getAlbumKey(a);
-    const badge = CLASS_BADGE[key] || CLASS_BADGE['mixed'];
-    const grad  = COVER_GRADIENT[key] || COVER_GRADIENT['mixed'];
-    const emoji = COVER_EMOJI[key]    || '🖼️';
-    const pct   = a.totalRecipients ? Math.round(a.readCount/a.totalRecipients*100) : 0;
-    const isDraft = a.status === 'draft';
-    const canEdit = !AL_IS_TEACHER || a.authorId === 'USR002';
-    return `
-    <div class="album-list-item${isDraft?' is-draft':''}" onclick="openDetail('${a.id}')">
-      <div class="ali-thumb" style="background:${grad}"><span>${emoji}</span></div>
-      <div class="ali-info">
-        <div class="ali-title">${a.title}${isDraft?'  <span class="badge badge-amber" style="font-size:10px;">임시저장</span>':''}</div>
-        <div class="ali-meta">
-          <span>${a.author}</span><span>·</span><span>${a.date}</span><span>·</span><span>📷 ${a.photoCount}장</span>
-        </div>
-      </div>
-      <div class="ali-right">
-        <span class="ali-class-badge badge ${badge.cls}">${badge.label}</span>
-        <div class="ali-stats">
-          <span class="ali-stat">❤️ ${a.likes}</span>
-          <span class="ali-stat">💬 ${a.comments.length}</span>
-          ${!isDraft ? `<span class="ali-read">👁 ${a.readCount}/${a.totalRecipients}</span>` : ''}
-        </div>
-        <div class="ali-actions">
-          ${canEdit ? `<button class="btn btn-outline btn-xs" onclick="openWriteModal('${a.id}',event)">✏️</button>` : ''}
-          ${canEdit ? `<button class="btn btn-danger-outline btn-xs" onclick="openDeleteModalDirect('${a.id}',event)">🗑️</button>` : ''}
-          ${isDraft ? `<button class="btn btn-primary btn-xs" onclick="publishDraft('${a.id}',event)">발송</button>` : ''}
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-  container.innerHTML = `<div class="album-list-view">${items}</div>`;
+  albumOffset = 0;
+  const first = filteredAlbums.slice(0, ALBUM_BATCH_FIRST);
+  container.innerHTML = `<div class="album-list-view">${first.map(buildAlbumListItem).join('')}</div>`;
+  albumOffset = first.length;
+  initAlbumInfiniteScroll();
 }
 
 // ══════════════════════════════════════════
@@ -1057,7 +1097,7 @@ function openWriteModal(albumId, e) {
     document.getElementById('writeModalSub').textContent    = '내용을 수정한 뒤 저장하세요';
     document.getElementById('w_title').value  = a.title;
     document.getElementById('w_body').value   = a.body || '';
-    uploadedFiles = Array.from({length:a.photoCount},(,i)=>`photo${i+1}.jpg`);
+    uploadedFiles = Array.from({length:a.photoCount},(_,i)=>`photo${i+1}.jpg`);
     recipientSelection = {
       type: a.targetType,
       childIds: new Set(a.targetChildIds),
@@ -1366,7 +1406,7 @@ function openDetail(id) {
   // 사진 그리드
   document.getElementById('detailPhotoCount').textContent = `(${a.photoCount}장)`;
   const palette = PHOTO_PALETTES[key] || PHOTO_PALETTES['all'];
-  lbPhotos = Array.from({length:a.photoCount},(,i)=>({color:palette[i%palette.length],label:`사진 ${i+1}`,albumTitle:a.title}));
+  lbPhotos = Array.from({length:a.photoCount},(_,i)=>({color:palette[i%palette.length],label:`사진 ${i+1}`,albumTitle:a.title}));
   document.getElementById('photoGrid').innerHTML = lbPhotos.map((p,i) => `
     <div class="photo-item" onclick="openLightbox(${i})">
       <div class="photo-color-box" style="background:${p.color};">📸</div>
