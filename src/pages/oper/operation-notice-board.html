@@ -760,6 +760,8 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 
     <!-- 목록 -->
     <div id="listArea"></div>
+    <div id="scrollSentinel" style="height:1px;"></div>
+    <div id="nbLoadingSpinner" style="display:none;text-align:center;padding:16px;color:var(--text-muted);font-size:13px;">불러오는 중...</div>
   </div>
 </div>
 
@@ -1478,6 +1480,32 @@ function markTodayAttendance(childId) {
   showToast('✅ 출석 처리되었습니다.', 'success');
 }
 
+// ━━━ 무한스크롤 ━━━
+const NB_BATCH_FIRST = 15;
+const NB_BATCH_MORE  = 10;
+let nbSentData    = [];
+let nbSentOffset  = 0;
+let nbLoading     = false;
+let nbObserver    = null;
+
+function initNbInfiniteScroll() {
+  if (nbObserver) nbObserver.disconnect();
+  nbObserver = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting && !nbLoading) loadMoreSent();
+  }, { threshold: 0.1 });
+  nbObserver.observe(document.getElementById('scrollSentinel'));
+}
+
+function loadMoreSent() {
+  nbLoading = true;
+  const batch = nbSentData.slice(nbSentOffset, nbSentOffset + NB_BATCH_MORE);
+  if (!batch.length) { nbLoading = false; return; }
+  const grid = document.querySelector('#listArea .sent-list-grid');
+  if (grid) batch.forEach(n => { grid.insertAdjacentHTML('beforeend', buildSentCard(n)); });
+  nbSentOffset += batch.length;
+  nbLoading = false;
+}
+
 // ━━━ 목록 렌더 ━━━
 function renderList(tab) {
   const area = document.getElementById('listArea');
@@ -1511,100 +1539,102 @@ function renderSentList(area) {
 
   if (data.length === 0) {
     area.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">조건에 맞는 알림장이 없습니다</div></div>`;
+    nbSentData = []; nbSentOffset = 0;
     return;
   }
 
-  const cards = data.sort((a,b) => {
+  nbSentData = data.sort((a,b) => {
     const dc = b.date.localeCompare(a.date);
     return dc !== 0 ? dc : (b.publishedAt||'').localeCompare(a.publishedAt||'');
-  }).map(n => {
-    const isSingle = n.writeType === 'single';
-    const photoCount = (n.photos || []).length;
+  });
+  nbSentOffset = 0;
 
-    // 날짜 표시
-    const d = new Date(n.date);
-    const dateStr = d.toLocaleDateString('ko-KR', { month:'2-digit', day:'2-digit', weekday:'short' });
+  const first = nbSentData.slice(0, NB_BATCH_FIRST);
+  area.innerHTML = `<div class="sent-list-grid">${first.map(buildSentCard).join('')}</div>`;
+  nbSentOffset = first.length;
+  initNbInfiniteScroll();
+}
 
-    // 원아 영역
-    let childAreaHTML = '';
-    if (isSingle && n.children.length === 1) {
-      const c = n.children[0];
-      childAreaHTML = `<div class="nc-single-child">
-        <div class="nc-child-chip-av" style="background:${c.color}">${c.name[0]}</div>
-        <div><div class="nc-single-child-name">${c.name}</div>
-        <div class="nc-single-child-sub">1:1 알림장${c.dailyEval ? ' · 종합평가 포함' : ''}</div></div>
+function buildSentCard(n) {
+  const isSingle = n.writeType === 'single';
+  const d = new Date(n.date);
+  const dateStr = d.toLocaleDateString('ko-KR', { month:'2-digit', day:'2-digit', weekday:'short' });
+
+  let childAreaHTML = '';
+  if (isSingle && n.children.length === 1) {
+    const c = n.children[0];
+    childAreaHTML = `<div class="nc-single-child">
+      <div class="nc-child-chip-av" style="background:${c.color}">${c.name[0]}</div>
+      <div><div class="nc-single-child-name">${c.name}</div>
+      <div class="nc-single-child-sub">1:1 알림장${c.dailyEval ? ' · 종합평가 포함' : ''}</div></div>
+    </div>`;
+  } else if (n.children.length > 0) {
+    const first = n.children[0];
+    const rest = n.children.length - 1;
+    const allNames = n.children.map(c => c.name).join(' · ');
+    const summaryText = rest > 0 ? `${first.name} 외 ${rest}명` : first.name;
+    childAreaHTML = `<div class="nc-tooltip-wrap">
+      <div class="nc-child-summary">👥 ${summaryText}</div>
+      <div class="nc-tooltip">${allNames}</div>
+    </div>`;
+  } else {
+    childAreaHTML = `<div class="nc-child-summary">👥 원아 ${n.childCount}명</div>`;
+  }
+
+  const thumbHTML = (() => {
+    const photos = n.photos || [];
+    if (photos.length === 0) return '';
+    if (photos.length === 1) {
+      const p = photos[0];
+      return `<div class="nc-thumb-solo">
+        <img src="${p.url}" alt="${p.type}" onerror="this.parentElement.style.display='none'">
+        ${p.type==='video'?'<div class="nc-thumb-solo-play">▶</div>':''}
       </div>`;
-    } else if (n.children.length > 0) {
-      const first = n.children[0];
-      const rest = n.children.length - 1;
-      const allNames = n.children.map(c => c.name).join(' · ');
-      const summaryText = rest > 0 ? `${first.name} 외 ${rest}명` : first.name;
-      childAreaHTML = `<div class="nc-tooltip-wrap">
-        <div class="nc-child-summary">👥 ${summaryText}</div>
-        <div class="nc-tooltip">${allNames}</div>
-      </div>`;
-    } else {
-      childAreaHTML = `<div class="nc-child-summary">👥 원아 ${n.childCount}명</div>`;
     }
-
-    // 썸네일 HTML
-    const thumbHTML = (() => {
-      const photos = n.photos || [];
-      if (photos.length === 0) return '';
-      if (photos.length === 1) {
-        const p = photos[0];
-        return `<div class="nc-thumb-solo">
-          <img src="${p.url}" alt="${p.type}" onerror="this.parentElement.style.display='none'">
-          ${p.type==='video'?'<div class="nc-thumb-solo-play">▶</div>':''}
-        </div>`;
-      }
-      const p0 = photos[0], p1 = photos[1];
-      return `<div class="nc-thumb-row">
-        <div class="nc-thumb-item">
-          <img src="${p0.url}" alt="${p0.type}" onerror="this.parentElement.style.background='var(--bg-base)'">
-          ${p0.type==='video'?'<div class="nc-thumb-item-play">▶</div>':''}
-        </div>
-        <div class="nc-thumb-item">
-          <img src="${p1.url}" alt="${p1.type}" onerror="this.parentElement.style.background='var(--bg-base)'">
-          ${p1.type==='video'?'<div class="nc-thumb-item-play">▶</div>':''}
-          ${photos.length > 2 ? `<div class="nc-thumb-count">📸 ${photos.length}</div>` : ''}
-        </div>
-      </div>`;
-    })();
-
-    const cardHTML = `<div class="notice-card status-${n.status}" onclick="openSentDetail('${n.id}')">
-      <span class="nbadge nb-${n.status} nc-status-badge-abs"><span class="nbadge-dot" style="background:${statusDotColor(n.status)}"></span>${n.statusLabel}</span>
-      <div class="nc-card-header">
-        <div class="nc-card-class">${n.class}</div>
-        <div class="nc-card-meta-sub">
-          <span class="nc-card-date">${dateStr} ${n.publishedAt||'--:--'}</span>
-          <span class="nc-card-sep">·</span>
-          <span class="nc-card-teacher">${n.teacher} 선생님</span>
-        </div>
+    const p0 = photos[0], p1 = photos[1];
+    return `<div class="nc-thumb-row">
+      <div class="nc-thumb-item">
+        <img src="${p0.url}" alt="${p0.type}" onerror="this.parentElement.style.background='var(--bg-base)'">
+        ${p0.type==='video'?'<div class="nc-thumb-item-play">▶</div>':''}
       </div>
-      ${thumbHTML}
-      <div class="nc-preview">${n.content}</div>
-      ${childAreaHTML}
-      <div class="nc-footer" style="margin-top:auto">
-        <div class="nc-footer-meta">
-          <span class="nc-footer-item">👁️ ${n.readCount}/${n.childCount}</span>
-          <span class="nc-footer-item">💬 ${n.commentCount}</span>
-        </div>
-        <div class="nc-act-btns" onclick="event.stopPropagation()">
-          ${(() => {
-            const canAct = !NB_ASSIGNED || n.teacher === sessionStorage.getItem('userName') || NB_USER_ROLE !== 'teacher';
-            if (!canAct) return `<span style="font-size:12px;color:var(--text-muted)">조회만</span>`;
-            return `<button class="nc-txt-btn" onclick="editNotice('${n.id}')">수정</button>
-              <button class="nc-txt-btn danger" onclick="confirmDelete('${n.id}')">삭제</button>`;
-          })()}
-        </div>
+      <div class="nc-thumb-item">
+        <img src="${p1.url}" alt="${p1.type}" onerror="this.parentElement.style.background='var(--bg-base)'">
+        ${p1.type==='video'?'<div class="nc-thumb-item-play">▶</div>':''}
+        ${photos.length > 2 ? `<div class="nc-thumb-count">📸 ${photos.length}</div>` : ''}
       </div>
     </div>`;
+  })();
 
-    return isSingle ? cardHTML : `<div class="nc-stack-wrap">${cardHTML}</div>`;
-  }).join('');
+  const cardHTML = `<div class="notice-card status-${n.status}" onclick="openSentDetail('${n.id}')">
+    <span class="nbadge nb-${n.status} nc-status-badge-abs"><span class="nbadge-dot" style="background:${statusDotColor(n.status)}"></span>${n.statusLabel}</span>
+    <div class="nc-card-header">
+      <div class="nc-card-class">${n.class}</div>
+      <div class="nc-card-meta-sub">
+        <span class="nc-card-date">${dateStr} ${n.publishedAt||'--:--'}</span>
+        <span class="nc-card-sep">·</span>
+        <span class="nc-card-teacher">${n.teacher} 선생님</span>
+      </div>
+    </div>
+    ${thumbHTML}
+    <div class="nc-preview">${n.content}</div>
+    ${childAreaHTML}
+    <div class="nc-footer" style="margin-top:auto">
+      <div class="nc-footer-meta">
+        <span class="nc-footer-item">👁️ ${n.readCount}/${n.childCount}</span>
+        <span class="nc-footer-item">💬 ${n.commentCount}</span>
+      </div>
+      <div class="nc-act-btns" onclick="event.stopPropagation()">
+        ${(() => {
+          const canAct = !NB_ASSIGNED || n.teacher === sessionStorage.getItem('userName') || NB_USER_ROLE !== 'teacher';
+          if (!canAct) return `<span style="font-size:12px;color:var(--text-muted)">조회만</span>`;
+          return `<button class="nc-txt-btn" onclick="editNotice('${n.id}')">수정</button>
+            <button class="nc-txt-btn danger" onclick="confirmDelete('${n.id}')">삭제</button>`;
+        })()}
+      </div>
+    </div>
+  </div>`;
 
-  area.innerHTML = `<div class="sent-list-grid">${cards}</div>`;
+  return isSingle ? cardHTML : `<div class="nc-stack-wrap">${cardHTML}</div>`;
 }
 
 function statusDotColor(s) {
