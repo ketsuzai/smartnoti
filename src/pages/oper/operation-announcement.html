@@ -409,6 +409,14 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .toast-warning{background:var(--amber);}
 .toast-danger{background:var(--red);}
 @keyframes toastIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+/* ━━━ PAGINATION ━━━ */
+.pagination{display:flex;align-items:center;justify-content:center;gap:4px;padding:14px 16px;border-top:1px solid var(--border-light);}
+.page-btn{min-width:32px;height:32px;padding:0 6px;border-radius:var(--radius-md);border:1.5px solid var(--border-light);background:var(--bg-surface);font-size:13px;font-weight:600;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:0.15s;font-family:'Pretendard',sans-serif;}
+.page-btn:hover:not(:disabled){background:var(--accent-light);border-color:var(--accent);color:var(--accent-dark);}
+.page-btn.active{background:var(--accent);border-color:var(--accent);color:white;}
+.page-btn:disabled{opacity:.4;cursor:not-allowed;}
+.page-info{font-size:12px;color:var(--text-muted);margin-left:8px;}
 </style>
 </head>
 <body>
@@ -498,6 +506,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
             </thead>
             <tbody id="noticeBody"></tbody>
           </table>
+          <div id="noticePagination" class="pagination" style="display:none;"></div>
         </div>
         <div class="table-footer">
           <div class="bulk-actions hidden" id="bulkActions">
@@ -1031,6 +1040,8 @@ let drafts = [
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 let filteredNotices = [...notices];
 let currentNoticeId = null;
+const PAGE_SIZE = 10;
+let noticePage = 1;
 let editMode        = false;
 let deleteTargetId  = null;
 let activeCategory  = '일반공지';
@@ -1123,6 +1134,36 @@ function catBadge(cat) {
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   PAGINATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function renderPagination(containerId, total, currentPage, goFnName) {
+  const el = document.getElementById(containerId);
+  const totalPages = Math.ceil(total / PAGE_SIZE) || 1;
+  if (totalPages <= 1) { el.style.display = 'none'; return; }
+  el.style.display = 'flex';
+  const groupStart = Math.floor((currentPage - 1) / 10) * 10 + 1;
+  const groupEnd   = Math.min(groupStart + 9, totalPages);
+  const pages = [];
+  for (let p = groupStart; p <= groupEnd; p++) pages.push(p);
+  const from = (currentPage - 1) * PAGE_SIZE + 1;
+  const to   = Math.min(currentPage * PAGE_SIZE, total);
+  el.innerHTML = `
+    <button class="page-btn" ${currentPage===1?'disabled':''} onclick="${goFnName}(1)" title="처음">«</button>
+    <button class="page-btn" ${currentPage===1?'disabled':''} onclick="${goFnName}(${currentPage-1})" title="이전">‹</button>
+    ${pages.map(p=>`<button class="page-btn${p===currentPage?' active':''}" onclick="${goFnName}(${p})">${p}</button>`).join('')}
+    <button class="page-btn" ${currentPage===totalPages?'disabled':''} onclick="${goFnName}(${currentPage+1})" title="다음">›</button>
+    <button class="page-btn" ${currentPage===totalPages?'disabled':''} onclick="${goFnName}(${totalPages})" title="끝">»</button>
+    <span class="page-info">${from}–${to} / ${total}건</span>
+  `;
+}
+
+function goNoticePage(p) {
+  noticePage = p;
+  renderTable(filteredNotices);
+  document.querySelector('.content').scrollTo(0, 0);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    TABLE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function renderTable(data) {
@@ -1137,11 +1178,14 @@ function renderTable(data) {
         <div class="empty-state-title">공지가 없습니다</div>
         <div class="empty-state-desc">검색 조건을 변경하거나 새 공지를 작성해 주세요</div>
       </div></td></tr>`;
+    document.getElementById('noticePagination').style.display = 'none';
     return;
   }
 
   const sorted = [...data].sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0));
-  tbody.innerHTML = sorted.map(n => {
+  const start  = (noticePage - 1) * PAGE_SIZE;
+  const pageData = sorted.slice(start, start + PAGE_SIZE);
+  tbody.innerHTML = pageData.map(n => {
     const tClass = n.pinned ? 'pinned-row' : '';
     const targetCls = n.target==='전체' ? 'all' : '';
     const ind = [
@@ -1170,6 +1214,7 @@ function renderTable(data) {
       </td>
     </tr>`;
   }).join('');
+  renderPagination('noticePagination', data.length, noticePage, 'goNoticePage');
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1187,6 +1232,7 @@ function applyFilter() {
     if (AN_IS_TEACHER && AN_ASSIGNED_NAMES && n.target !== '전체' && !AN_ASSIGNED_NAMES.includes(n.target)) return false;
     return true;
   });
+  noticePage = 1;
   renderTable(filteredNotices);
   document.getElementById('checkAll').checked = false;
   updateBulkActions();
@@ -1198,6 +1244,7 @@ function resetFilter() {
   document.getElementById('filterPeriod').value = '';
   document.getElementById('searchInput').value  = '';
   filteredNotices = [...notices];
+  noticePage = 1;
   renderTable(filteredNotices);
 }
 
