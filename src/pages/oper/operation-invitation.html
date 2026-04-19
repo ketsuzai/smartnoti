@@ -512,6 +512,14 @@ tbody tr:last-child td { border-bottom:none; }
   .channel-grid { grid-template-columns:1fr; }
   .drawer { width:100%; }
 }
+
+/* ━━━ PAGINATION ━━━ */
+.pagination{display:flex;align-items:center;justify-content:center;gap:4px;padding:14px 16px;border-top:1px solid var(--border-light);}
+.page-btn{min-width:32px;height:32px;padding:0 6px;border-radius:6px;border:1.5px solid var(--border-light);background:#fff;font-size:13px;font-weight:600;color:#4B7FA3;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:0.15s;font-family:'Pretendard',sans-serif;}
+.page-btn:hover:not(:disabled){background:#E0F2FE;border-color:#0EA5E9;color:#0284C7;}
+.page-btn.active{background:#0EA5E9;border-color:#0EA5E9;color:white;}
+.page-btn:disabled{opacity:.4;cursor:not-allowed;}
+.page-info{font-size:12px;color:#94B8D0;margin-left:8px;}
 </style>
 </head>
 <body>
@@ -632,20 +640,20 @@ tbody tr:last-child td { border-bottom:none; }
       <section class="tab-content" id="tabHistory">
         <div class="filter-bar">
           <div class="filter-row">
-            <select class="filter-select" id="historyTypeFilter" onchange="renderHistoryTable()">
+            <select class="filter-select" id="historyTypeFilter" onchange="applyHistoryFilter()">
               <option value="">전체 유형</option>
               <option value="parent">학부모</option>
               <option value="teacher">교직원</option>
             </select>
             <div class="filter-divider"></div>
-            <select class="filter-select" id="historyStatusFilter" onchange="renderHistoryTable()">
+            <select class="filter-select" id="historyStatusFilter" onchange="applyHistoryFilter()">
               <option value="">전체 상태</option>
               <option value="completed">완료</option>
               <option value="stopped">중지</option>
             </select>
             <div class="filter-divider"></div>
             <div class="filter-search-wrap">
-              <input class="filter-search" id="historySearch" placeholder="이름 또는 반 검색" oninput="renderHistoryTable()">
+              <input class="filter-search" id="historySearch" placeholder="이름 또는 반 검색" oninput="applyHistoryFilter()">
             </div>
           </div>
         </div>
@@ -665,6 +673,7 @@ tbody tr:last-child td { border-bottom:none; }
               </thead>
               <tbody id="historyTableBody"></tbody>
             </table>
+            <div id="historyPagination" class="pagination" style="display:none;"></div>
           </div>
         </div>
         <div class="empty-state" id="historyEmpty" style="display:none">
@@ -788,6 +797,8 @@ const HISTORY_ROWS = [
 let currentRole = 'org_admin';
 let currentTab = 'parent';
 let currentParentClassId = null;
+const HISTORY_PAGE_SIZE = 10;
+let historyPage = 1;
 let currentTeacherResultId = null;
 let sendFlow = { targetType: '', targetId: '', className: '', link: '', channel: '', phone: '' };
 let pendingConfirmAction = null;
@@ -943,6 +954,29 @@ function renderTeacherTable() {
   `).join('');
 }
 
+function renderHistoryPagination(total, currentPage) {
+  const el = document.getElementById('historyPagination');
+  const totalPages = Math.ceil(total / HISTORY_PAGE_SIZE) || 1;
+  if (totalPages <= 1) { el.style.display = 'none'; return; }
+  el.style.display = 'flex';
+  const groupStart = Math.floor((currentPage - 1) / 10) * 10 + 1;
+  const groupEnd   = Math.min(groupStart + 9, totalPages);
+  const pages = [];
+  for (let p = groupStart; p <= groupEnd; p++) pages.push(p);
+  const from = (currentPage - 1) * HISTORY_PAGE_SIZE + 1;
+  const to   = Math.min(currentPage * HISTORY_PAGE_SIZE, total);
+  el.innerHTML = `
+    <button class="page-btn" ${currentPage===1?'disabled':''} onclick="goHistoryPage(1)" title="처음">«</button>
+    <button class="page-btn" ${currentPage===1?'disabled':''} onclick="goHistoryPage(${currentPage-1})" title="이전">‹</button>
+    ${pages.map(p=>`<button class="page-btn${p===currentPage?' active':''}" onclick="goHistoryPage(${p})">${p}</button>`).join('')}
+    <button class="page-btn" ${currentPage===totalPages?'disabled':''} onclick="goHistoryPage(${currentPage+1})" title="다음">›</button>
+    <button class="page-btn" ${currentPage===totalPages?'disabled':''} onclick="goHistoryPage(${totalPages})" title="끝">»</button>
+    <span class="page-info">${from}–${to} / ${total}건</span>
+  `;
+}
+
+function goHistoryPage(p) { historyPage = p; renderHistoryTable(); }
+
 function renderHistoryTable() {
   const tbody = document.getElementById('historyTableBody');
   const empty = document.getElementById('historyEmpty');
@@ -956,10 +990,13 @@ function renderHistoryTable() {
   if (!rows.length) {
     tbody.innerHTML = '';
     empty.style.display = 'block';
+    document.getElementById('historyPagination').style.display = 'none';
     return;
   }
   empty.style.display = 'none';
-  tbody.innerHTML = rows.map(item => `
+  const start    = (historyPage - 1) * HISTORY_PAGE_SIZE;
+  const pageData = rows.slice(start, start + HISTORY_PAGE_SIZE);
+  tbody.innerHTML = pageData.map(item => `
     <tr>
       <td><span class="status-badge ${item.status === 'completed' ? 'status-active' : 'status-stopped'}">${item.status === 'completed' ? '완료' : '중지'}</span></td>
       <td><span class="type-tag ${item.type === 'parent' ? 'type-parent' : 'type-teacher'}">${item.type === 'parent' ? '학부모' : '교직원'}</span></td>
@@ -970,7 +1007,10 @@ function renderHistoryTable() {
       <td class="mono">${item.completedAt}</td>
     </tr>
   `).join('');
+  renderHistoryPagination(rows.length, historyPage);
 }
+
+function applyHistoryFilter() { historyPage = 1; renderHistoryTable(); }
 
 function openParentDrawer(classId) {
   currentParentClassId = classId;
