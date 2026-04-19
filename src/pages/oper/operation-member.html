@@ -181,13 +181,13 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .empty-sub{font-size:13px;margin-top:4px;}
 
 /* PAGINATION */
-.pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-top:1px solid var(--border-light);}
-.page-info{font-size:13px;color:var(--text-muted);}
-.page-btns{display:flex;gap:4px;}
-.page-btn{width:30px;height:30px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--border-light);background:#fff;color:var(--text-secondary);transition:0.18s;}
-.page-btn:hover{border-color:var(--accent);color:var(--accent-dark);}
-.page-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
-.page-btn.disabled{opacity:0.35;cursor:not-allowed;pointer-events:none;}
+.pagination{display:flex;align-items:center;justify-content:center;gap:4px;padding:14px 16px;border-top:1px solid var(--border-light);}
+.page-info{font-size:12px;color:var(--text-muted);margin-left:8px;}
+.page-btns{display:flex;align-items:center;gap:4px;}
+.page-btn{min-width:32px;height:32px;padding:0 6px;border-radius:var(--radius-md);border:1.5px solid var(--border-light);background:var(--bg-surface);font-size:13px;font-weight:600;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:0.15s;font-family:'Pretendard',sans-serif;}
+.page-btn:hover:not(:disabled){background:var(--accent-light);border-color:var(--accent);color:var(--accent-dark);}
+.page-btn.active{background:var(--accent);border-color:var(--accent);color:white;}
+.page-btn:disabled{opacity:.4;cursor:not-allowed;}
 
 /* SIDE PANEL */
 .panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:300;opacity:0;pointer-events:none;transition:opacity 0.25s;}
@@ -419,10 +419,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
             <div class="empty-icon">👩‍🏫</div>
             <div class="empty-text">조건에 맞는 교직원이 없습니다</div>
           </div>
-          <div class="pagination">
-            <span class="page-info" id="teacherPageInfo">0명</span>
-            <div class="page-btns" id="teacherPageBtns"></div>
-          </div>
+          <div class="pagination" id="teacherPageBtns" style="display:none;"></div>
         </div>
       </div>
 
@@ -494,10 +491,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
             <div class="empty-icon">👶</div>
             <div class="empty-text">조건에 맞는 원아가 없습니다</div>
           </div>
-          <div class="pagination">
-            <span class="page-info" id="childPageInfo">0명</span>
-            <div class="page-btns" id="childPageBtns"></div>
-          </div>
+          <div class="pagination" id="childPageBtns" style="display:none;"></div>
         </div>
       </div>
     </div>
@@ -992,11 +986,10 @@ function renderTeacherTable() {
   const page  = filteredTeachers.slice(start, end);
 
   document.getElementById('teacherTableCount').textContent = `(${total}명)`;
-  document.getElementById('teacherPageInfo').textContent = total ? `${start+1}–${end} / 전체 ${total}명` : '0명';
 
   const empty = document.getElementById('teacherEmpty');
   const tbody = document.getElementById('teacherTableBody');
-  if (!total) { tbody.innerHTML=''; empty.style.display=''; renderPageBtns('teacherPageBtns',0,teacherPage,p=>{teacherPage=p;renderTeacherTable();}); return; }
+  if (!total) { tbody.innerHTML=''; empty.style.display=''; document.getElementById('teacherPageBtns').style.display='none'; return; }
   empty.style.display='none';
 
   tbody.innerHTML = page.map(t => {
@@ -1018,7 +1011,7 @@ function renderTeacherTable() {
     `;
   }).join('');
 
-  renderPageBtns('teacherPageBtns', total, teacherPage, p=>{ teacherPage=p; renderTeacherTable(); });
+  renderPageBtns('teacherPageBtns', total, teacherPage, 'goTeacherPage');
 }
 
 function toggleCheckTeacher(id, el) {
@@ -1168,11 +1161,10 @@ function renderChildTable() {
   const page  = filteredChildren.slice(start,end);
 
   document.getElementById('childTableCount').textContent = `(${total}명)`;
-  document.getElementById('childPageInfo').textContent = total ? `${start+1}–${end} / 전체 ${total}명` : '0명';
 
   const empty = document.getElementById('childEmpty');
   const tbody = document.getElementById('childTableBody');
-  if (!total) { tbody.innerHTML=''; empty.style.display=''; renderPageBtns('childPageBtns',0,childPage,p=>{childPage=p;renderChildTable();}); return; }
+  if (!total) { tbody.innerHTML=''; empty.style.display=''; document.getElementById('childPageBtns').style.display='none'; return; }
   empty.style.display='none';
 
   tbody.innerHTML = page.map(c => {
@@ -1199,7 +1191,7 @@ function renderChildTable() {
     `;
   }).join('');
 
-  renderPageBtns('childPageBtns', total, childPage, p=>{ childPage=p; renderChildTable(); });
+  renderPageBtns('childPageBtns', total, childPage, 'goChildPage');
 }
 
 function toggleCheckChild(id,el) {
@@ -1454,14 +1446,28 @@ function closePanel() {
 }
 
 // ━━━ 유틸 ━━━
-function renderPageBtns(wrId, total, cur, cb) {
-  const totalPages = Math.ceil(total/PAGE_SIZE)||1;
-  const wrap = document.getElementById(wrId);
-  let html = `<div class="page-btn ${cur===1?'disabled':''}" onclick="(${cb})(${cur-1})">‹</div>`;
-  for (let i=1;i<=totalPages;i++)
-    html += `<div class="page-btn ${i===cur?'active':''}" onclick="(${cb})(${i})">${i}</div>`;
-  html += `<div class="page-btn ${cur===totalPages?'disabled':''}" onclick="(${cb})(${cur+1})">›</div>`;
-  wrap.innerHTML=html;
+function goTeacherPage(p) { teacherPage = p; renderTeacherTable(); }
+function goChildPage(p)   { childPage   = p; renderChildTable();   }
+
+function renderPageBtns(containerId, total, currentPage, goFnName) {
+  const el = document.getElementById(containerId);
+  const totalPages = Math.ceil(total / PAGE_SIZE) || 1;
+  if (totalPages <= 1) { el.style.display = 'none'; return; }
+  el.style.display = 'flex';
+  const groupStart = Math.floor((currentPage - 1) / 10) * 10 + 1;
+  const groupEnd   = Math.min(groupStart + 9, totalPages);
+  const pages = [];
+  for (let p = groupStart; p <= groupEnd; p++) pages.push(p);
+  const from = (currentPage - 1) * PAGE_SIZE + 1;
+  const to   = Math.min(currentPage * PAGE_SIZE, total);
+  el.innerHTML = `
+    <button class="page-btn" ${currentPage===1?'disabled':''} onclick="${goFnName}(1)" title="처음">«</button>
+    <button class="page-btn" ${currentPage===1?'disabled':''} onclick="${goFnName}(${currentPage-1})" title="이전">‹</button>
+    ${pages.map(p=>`<button class="page-btn${p===currentPage?' active':''}" onclick="${goFnName}(${p})">${p}</button>`).join('')}
+    <button class="page-btn" ${currentPage===totalPages?'disabled':''} onclick="${goFnName}(${currentPage+1})" title="다음">›</button>
+    <button class="page-btn" ${currentPage===totalPages?'disabled':''} onclick="${goFnName}(${totalPages})" title="끝">»</button>
+    <span class="page-info">${from}–${to} / ${total}건</span>
+  `;
 }
 
 function formatDate(iso) {
