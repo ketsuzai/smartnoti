@@ -121,6 +121,8 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .data-table tbody tr:hover td{background:#F8FCFF;}
 .data-table tbody tr.row-checked td{background:#EFF8FF;}
 .data-table tbody tr.row-checked:hover td{background:#E0F2FE;}
+.data-table tbody tr.row-highlight td{background:#FEF3C7 !important;animation:flashHighlight 1.5s ease;}
+@keyframes flashHighlight{0%{background:#FEF9C3;}100%{background:#FEF3C7;}}
 .data-table input[type="checkbox"]{width:14px;height:14px;cursor:pointer;accent-color:var(--accent);}
 .name-wrap{display:flex;align-items:center;gap:8px;}
 .child-avatar{width:32px;height:32px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden;}
@@ -308,7 +310,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
             <table class="data-table">
               <thead>
                 <tr>
-                  <th style="width:40px"></th>
+                  <th style="width:40px"><input type="checkbox" id="checkAllProcessing" onchange="toggleSelectAllVisible()" onclick="event.stopPropagation()"></th>
                   <th style="width:200px">원아</th>
                   <th style="width:70px">만나이</th>
                   <th style="width:100px">반</th>
@@ -367,9 +369,17 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
       </div>
 
       <!-- ACTION BAR -->
-      <div class="action-bar" style="margin: 20px 0;">
+      <div class="action-bar">
         <div class="action-left">
           <span class="total-count">총 <strong id="completedCount">0</strong>건</span>
+          <span class="divider-v"></span>
+          <span class="sel-count" id="completedSelectionSummary">선택 <strong>0</strong>명</span>
+        </div>
+        <div class="action-right" style="margin: 20px 0;">
+          <button type="button" class="btn btn-outline btn-sm" id="completedSelectAllBtn" onclick="toggleSelectAllVisibleCompleted()">전체선택</button>
+          <button class="btn btn-outline btn-sm" id="completedPromoteBtn" onclick="bulkActionCompleted('promoted')">선택진급</button>
+          <button class="btn btn-outline btn-sm" id="completedGraduateBtn" onclick="bulkActionCompleted('graduated')">선택졸업</button>
+          <button class="btn btn-outline btn-sm" id="completedHoldBtn" onclick="bulkActionCompleted('on_hold')">보류처리</button>
         </div>
       </div>
 
@@ -380,7 +390,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
             <table class="data-table">
               <thead>
                 <tr>
-                  <th style="width:40px"></th>
+                  <th style="width:40px"><input type="checkbox" id="checkAllCompleted" onchange="toggleSelectAllVisibleCompleted()" onclick="event.stopPropagation()"></th>
                   <th style="width:200px">원아</th>
                   <th style="width:70px">만나이</th>
                   <th style="width:100px">반</th>
@@ -421,7 +431,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('statusChangeModal')">이전</button>
+      <button class="btn btn-secondary" onclick="handleBackClick()">이전</button>
       <button class="btn btn-primary" id="confirmChangeBtn" onclick="confirmStatusChange()">변경확정(0)</button>
     </div>
   </div>
@@ -522,6 +532,8 @@ let currentProcessingFilter = 'all';
 let currentCompletedFilter = 'all';
 let selectedIds = new Set();
 let statusChanges = {};
+let statusChangesSnapshot = '{}';
+let recentlyHeldIds = new Set();
 let teacherClass = effectiveRole === 'teacher' ? 'CLS001' : null;
 let processingPage = 1;
 let completedPage = 1;
@@ -660,8 +672,12 @@ function renderProcessingTable(data) {
   const totalPages = Math.ceil(data.length / PAGE_SIZE);
   if (processingPage > totalPages) processingPage = totalPages;
   const paged = data.slice((processingPage - 1) * PAGE_SIZE, processingPage * PAGE_SIZE);
-  tbody.innerHTML = paged.map(c => `
-    <tr class="${selectedIds.has(c.id) ? 'row-checked' : ''}" onclick="handleRowClick(event, '${c.id}')">
+  tbody.innerHTML = paged.map(c => {
+    const cls = [];
+    if (selectedIds.has(c.id)) cls.push('row-checked');
+    if (recentlyHeldIds.has(c.id)) cls.push('row-highlight');
+    return `
+    <tr class="${cls.join(' ')}" onclick="handleRowClick(event, '${c.id}')">
       <td><input type="checkbox" data-id="${c.id}" onchange="toggleSelect('${c.id}', this.checked)" ${selectedIds.has(c.id) ? 'checked' : ''} onclick="event.stopPropagation()"></td>
       <td>
         <div class="name-wrap">
@@ -687,8 +703,8 @@ function renderProcessingTable(data) {
           <button class="btn btn-secondary btn-sm" onclick="processSingleChild('${c.id}')">처리</button>
         </div>
       </td>
-    </tr>
-  `).join('');
+    </tr>`;
+  }).join('');
   renderPagination('processingPagination', data.length, processingPage, 'goProcessingPage');
   updateSelectionControls();
 }
@@ -732,8 +748,8 @@ function renderCompletedTable(data) {
   if (completedPage > totalPages) completedPage = totalPages;
   const paged = data.slice((completedPage - 1) * PAGE_SIZE, completedPage * PAGE_SIZE);
   tbody.innerHTML = paged.map(c => `
-    <tr>
-      <td></td>
+    <tr class="${selectedIds.has(c.id) ? 'row-checked' : ''}" onclick="handleRowClick(event, '${c.id}')">
+      <td><input type="checkbox" data-id="${c.id}" onchange="toggleSelect('${c.id}', this.checked)" ${selectedIds.has(c.id) ? 'checked' : ''} onclick="event.stopPropagation()"></td>
       <td>
         <div class="name-wrap">
           ${avatarHtml(c)}
@@ -748,7 +764,7 @@ function renderCompletedTable(data) {
       <td>${c.primary_parent_name || '-'}</td>
       <td class="enroll-date">${c.enroll_date || '-'}</td>
       <td>
-        <div class="result-cell">
+        <div class="result-cell" onclick="event.stopPropagation()">
           <span class="status-badge ${STATUS_COLORS[c.graduation_status]?.class}">
             ${STATUS_COLORS[c.graduation_status]?.label}
           </span>
@@ -760,6 +776,7 @@ function renderCompletedTable(data) {
     </tr>
   `).join('');
   renderPagination('completedPagination', data.length, completedPage, 'goCompletedPage');
+  updateSelectionControls();
 }
 
 // ═══════════════ INTERACTIONS ═══════════════
@@ -769,12 +786,16 @@ function switchTab(tab) {
   event.target.classList.add('active');
   document.getElementById('processingTab').style.display = tab === 'processing' ? 'block' : 'none';
   document.getElementById('completedTab').style.display = tab === 'completed' ? 'block' : 'none';
+  selectedIds.clear();
+  statusChanges = {};
+  renderProcessingTable(getFilteredProcessingData());
+  renderCompletedTable(getFilteredCompletedData());
 }
 
 function handleRowClick(e, id) {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'BUTTON') return;
   const child = MOCK_CHILDREN.find(c => c.id === id);
-  if (!child || !isProcessingTarget(child)) return;
+  if (!child) return;
   const checked = !selectedIds.has(id);
   toggleSelect(id, checked);
   const cb = document.querySelector(`input[data-id="${id}"]`);
@@ -788,6 +809,11 @@ function getVisibleProcessingIds() {
   return data.slice((processingPage - 1) * PAGE_SIZE, processingPage * PAGE_SIZE).map(c => c.id);
 }
 
+function getVisibleCompletedIds() {
+  const data = getFilteredCompletedData();
+  return data.slice((completedPage - 1) * PAGE_SIZE, completedPage * PAGE_SIZE).map(c => c.id);
+}
+
 function getSelectedPendingIds() {
   return Array.from(selectedIds).filter(id => {
     const child = MOCK_CHILDREN.find(c => c.id === id);
@@ -795,32 +821,67 @@ function getSelectedPendingIds() {
   });
 }
 
+function getSelectedCompletedIds() {
+  return Array.from(selectedIds).filter(id => {
+    const child = MOCK_CHILDREN.find(c => c.id === id);
+    return child && isCompletedTarget(child);
+  });
+}
+
 function updateSelectionControls() {
-  const visibleIds = getVisibleProcessingIds();
-  const selectedVisibleCount = visibleIds.filter(id => selectedIds.has(id)).length;
-  const totalSelectedCount = getSelectedPendingIds().length;
-  const allVisibleSelected = visibleIds.length > 0 && selectedVisibleCount === visibleIds.length;
-  const hasSelection = totalSelectedCount > 0;
-  const hasVisibleItems = visibleIds.length > 0;
+  // ─── Processing tab ───
+  const pVisible = getVisibleProcessingIds();
+  const pSelectedVisible = pVisible.filter(id => selectedIds.has(id)).length;
+  const pTotal = getSelectedPendingIds().length;
+  const pAllVisible = pVisible.length > 0 && pSelectedVisible === pVisible.length;
 
   const selectAllBtn = document.getElementById('selectAllBtn');
+  const checkAllProcessing = document.getElementById('checkAllProcessing');
   const selectionSummary = document.getElementById('selectionSummary');
   const promoteBtn = document.getElementById('promoteSelectedBtn');
   const graduateBtn = document.getElementById('graduateSelectedBtn');
   const holdBtn = document.getElementById('holdSelectedBtn');
   const applySuggestedBtn = document.getElementById('applySuggestedBtn');
-  const visibleSuggestedIds = visibleIds.filter(id => {
+  const visibleSuggestedIds = pVisible.filter(id => {
     const child = MOCK_CHILDREN.find(c => c.id === id);
     return child && !child.graduation_status;
   });
 
   if (selectAllBtn) {
-    selectAllBtn.textContent = allVisibleSelected ? '전체해제' : '전체선택';
-    selectAllBtn.disabled = !hasVisibleItems;
+    selectAllBtn.textContent = pAllVisible ? '전체해제' : '전체선택';
+    selectAllBtn.disabled = pVisible.length === 0;
   }
-  if (selectionSummary) selectionSummary.innerHTML = `선택 <strong>${totalSelectedCount}</strong>명`;
-  [promoteBtn, graduateBtn, holdBtn].forEach(btn => { if (btn) btn.disabled = !hasSelection; });
+  if (checkAllProcessing) {
+    checkAllProcessing.checked = pAllVisible;
+    checkAllProcessing.indeterminate = pSelectedVisible > 0 && !pAllVisible;
+  }
+  if (selectionSummary) selectionSummary.innerHTML = `선택 <strong>${pTotal}</strong>명`;
+  [promoteBtn, graduateBtn, holdBtn].forEach(btn => { if (btn) btn.disabled = pTotal === 0; });
   if (applySuggestedBtn) applySuggestedBtn.disabled = visibleSuggestedIds.length === 0;
+
+  // ─── Completed tab ───
+  const cVisible = getVisibleCompletedIds();
+  const cSelectedVisible = cVisible.filter(id => selectedIds.has(id)).length;
+  const cTotal = getSelectedCompletedIds().length;
+  const cAllVisible = cVisible.length > 0 && cSelectedVisible === cVisible.length;
+
+  const cSelectAllBtn = document.getElementById('completedSelectAllBtn');
+  const checkAllCompleted = document.getElementById('checkAllCompleted');
+  const cSelSummary = document.getElementById('completedSelectionSummary');
+  const cPromoteBtn = document.getElementById('completedPromoteBtn');
+  const cGraduateBtn = document.getElementById('completedGraduateBtn');
+  const cHoldBtn = document.getElementById('completedHoldBtn');
+
+  if (cSelectAllBtn) {
+    cSelectAllBtn.textContent = cAllVisible ? '전체해제' : '전체선택';
+    cSelectAllBtn.disabled = cVisible.length === 0;
+  }
+  if (checkAllCompleted) {
+    checkAllCompleted.checked = cAllVisible;
+    checkAllCompleted.indeterminate = cSelectedVisible > 0 && !cAllVisible;
+  }
+  if (cSelSummary) cSelSummary.innerHTML = `선택 <strong>${cTotal}</strong>명`;
+  [cPromoteBtn, cGraduateBtn, cHoldBtn].forEach(btn => { if (btn) btn.disabled = cTotal === 0; });
 }
 
 function toggleSelect(id, checked) {
@@ -839,9 +900,20 @@ function toggleSelectAllVisible() {
   renderProcessingTable(getFilteredProcessingData());
 }
 
+function toggleSelectAllVisibleCompleted() {
+  const visibleIds = getVisibleCompletedIds();
+  const allVisibleSelected = visibleIds.length > 0 && visibleIds.every(id => selectedIds.has(id));
+  visibleIds.forEach(id => {
+    if (allVisibleSelected) selectedIds.delete(id);
+    else selectedIds.add(id);
+  });
+  renderCompletedTable(getFilteredCompletedData());
+}
+
 function clearSelection() {
   selectedIds.clear();
   renderProcessingTable(getFilteredProcessingData());
+  renderCompletedTable(getFilteredCompletedData());
 }
 
 function setStatusChange(id, status) {
@@ -864,8 +936,33 @@ function bulkAction(status) {
     return;
   }
   targets.forEach(id => {
-    statusChanges[id] = { status, reason: '', memo: '' };
+    const prev = statusChanges[id] || {};
+    statusChanges[id] = {
+      status,
+      reason: status === 'on_hold' ? (prev.reason || '') : '',
+      memo: status === 'on_hold' ? (prev.memo || '') : ''
+    };
   });
+  selectedIds = new Set(targets);
+  openStatusChangeModal();
+}
+
+function bulkActionCompleted(status) {
+  const targets = getSelectedCompletedIds();
+  if (targets.length === 0) {
+    showToast('먼저 변경할 원아를 선택해 주세요', 'info');
+    return;
+  }
+  targets.forEach(id => {
+    const child = MOCK_CHILDREN.find(c => c.id === id);
+    const prev = statusChanges[id] || {};
+    statusChanges[id] = {
+      status,
+      reason: status === 'on_hold' ? (prev.reason || child?.hold_reason || '') : '',
+      memo: status === 'on_hold' ? (prev.memo || child?.hold_memo || '') : ''
+    };
+  });
+  selectedIds = new Set(targets);
   openStatusChangeModal();
 }
 
@@ -929,6 +1026,12 @@ function applyCompletedFilter() {
 
 // ═══════════════ MODALS ═══════════════
 function openStatusChangeModal() {
+  renderStatusChangeModal();
+  statusChangesSnapshot = JSON.stringify(statusChanges);
+  document.getElementById('statusChangeModal').classList.add('show');
+}
+
+function renderStatusChangeModal() {
   const list = Array.from(selectedIds).map(id => {
     const child = MOCK_CHILDREN.find(c => c.id === id);
     if (!child) return '';
@@ -945,12 +1048,12 @@ function openStatusChangeModal() {
         ${change.status === 'on_hold' ? `
           <div style="margin-top:12px;">
             <div class="form-label">보류 사유</div>
-            <select class="form-select" onchange="updateStatusChange('${id}', 'reason', this.value)">
+            <select class="form-select" onchange="updateStatusChange('${id}', 'reason', this.value)" onfocus="this.scrollIntoView({block:'start',behavior:'smooth'});">
               <option value="">선택</option>
               ${HOLD_REASONS.map(r => `<option value="${r}" ${change.reason === r ? 'selected' : ''}>${r}</option>`).join('')}
             </select>
             ${change.reason === '기타' ? `
-              <input type="text" class="form-input" placeholder="기타 사유 입력" style="margin-top:8px;" onchange="updateStatusChange('${id}', 'memo', this.value)" value="${change.memo || ''}">
+              <input type="text" class="form-input" placeholder="기타 사유 입력" style="margin-top:8px;" onchange="updateStatusChange('${id}', 'memo', this.value)" onfocus="this.scrollIntoView({block:'start',behavior:'smooth'});" value="${change.memo || ''}">
             ` : ''}
           </div>
         ` : ''}
@@ -960,7 +1063,6 @@ function openStatusChangeModal() {
 
   document.getElementById('statusChangeList').innerHTML = list;
   document.getElementById('confirmChangeBtn').textContent = `변경확정(${selectedIds.size})`;
-  document.getElementById('statusChangeModal').classList.add('show');
 }
 
 function updateStatusChange(id, field, value) {
@@ -971,7 +1073,15 @@ function updateStatusChange(id, field, value) {
       statusChanges[id].reason = '';
       statusChanges[id].memo = '';
     }
-    openStatusChangeModal();
+    renderStatusChangeModal();
+  }
+}
+
+function handleBackClick() {
+  if (JSON.stringify(statusChanges) !== statusChangesSnapshot) {
+    document.getElementById('backWarningModal').classList.add('show');
+  } else {
+    closeModal('statusChangeModal');
   }
 }
 
@@ -1041,21 +1151,34 @@ function processGraduation() {
             localStorage.setItem('graduation_confirmed', JSON.stringify(saved));
           }
 
-          const hasHold = Array.from(selectedIds).some(id => statusChanges[id].status === 'on_hold');
+          const heldTargets = Array.from(selectedIds).filter(id => statusChanges[id]?.status === 'on_hold');
+          const hasHold = heldTargets.length > 0;
 
           renderKPI();
-          renderProcessingTab();
-          renderCompletedTab();
 
           if (hasHold) {
             currentTab = 'processing';
             document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === 0));
             document.getElementById('processingTab').style.display = 'block';
             document.getElementById('completedTab').style.display = 'none';
-            document.getElementById('filterChips').querySelector('.chip').click();
+            const statusSel = document.getElementById('processingStatusFilter');
+            if (statusSel) statusSel.value = 'hold';
+            currentProcessingFilter = 'hold';
+            processingPage = 1;
+            recentlyHeldIds = new Set(heldTargets);
+            selectedIds.clear();
+            renderProcessingTab();
+            renderCompletedTab();
+            setTimeout(() => {
+              recentlyHeldIds.clear();
+              renderProcessingTable(getFilteredProcessingData());
+            }, 1600);
+          } else {
+            selectedIds.clear();
+            renderProcessingTab();
+            renderCompletedTab();
           }
 
-          clearSelection();
           showToast('진급/졸업 처리가 완료되었습니다.', 'success');
         }, 500);
       }
@@ -1106,6 +1229,13 @@ function closeModal(id) {
 function confirmBack() {
   closeModal('backWarningModal');
   closeModal('statusChangeModal');
+  try {
+    statusChanges = JSON.parse(statusChangesSnapshot || '{}');
+  } catch (e) {
+    statusChanges = {};
+  }
+  renderProcessingTable(getFilteredProcessingData());
+  renderCompletedTable(getFilteredCompletedData());
 }
 
 function showToast(msg, type = 'info') {

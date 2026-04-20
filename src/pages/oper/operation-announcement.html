@@ -136,8 +136,6 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .views-cell{font-size:13px;font-weight:700;color:var(--text-secondary);}
 .action-cell{display:flex;align-items:center;gap:4px;justify-content:center;}
 .row-check{width:15px;height:15px;accent-color:var(--accent);cursor:pointer;}
-.table-footer{padding:12px 18px;border-top:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;}
-.table-footer-info{font-size:13px;color:var(--text-muted);}
 .bulk-actions{display:flex;align-items:center;gap:8px;}
 .bulk-actions.hidden{visibility:hidden;}
 
@@ -416,7 +414,6 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .page-btn:hover:not(:disabled){background:var(--accent-light);border-color:var(--accent);color:var(--accent-dark);}
 .page-btn.active{background:var(--accent);border-color:var(--accent);color:white;}
 .page-btn:disabled{opacity:.4;cursor:not-allowed;}
-.page-info{font-size:12px;color:var(--text-muted);margin-left:8px;}
 </style>
 </head>
 <body>
@@ -508,13 +505,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
           </table>
           <div id="noticePagination" class="pagination" style="display:none;"></div>
         </div>
-        <div class="table-footer">
-          <div class="bulk-actions hidden" id="bulkActions">
-            <span id="checkedCount" style="font-size:13px;font-weight:700;color:var(--text-secondary);"></span>
-            <button class="btn btn-danger-outline btn-xs" onclick="bulkDelete()">선택 삭제</button>
-          </div>
-          <span class="table-footer-info" id="tableFooterInfo"></span>
-        </div>
+
       </div>
 
     </div>
@@ -1233,7 +1224,6 @@ function renderPagination(containerId, total, currentPage, goFnName) {
     ${pages.map(p=>`<button class="page-btn${p===currentPage?' active':''}" onclick="${goFnName}(${p})">${p}</button>`).join('')}
     <button class="page-btn" ${currentPage===totalPages?'disabled':''} onclick="${goFnName}(${currentPage+1})" title="다음">›</button>
     <button class="page-btn" ${currentPage===totalPages?'disabled':''} onclick="${goFnName}(${totalPages})" title="끝">»</button>
-    <span class="page-info">${from}–${to} / ${total}건</span>
   `;
 }
 
@@ -1249,7 +1239,7 @@ function goNoticePage(p) {
 function renderTable(data) {
   const tbody = document.getElementById('noticeBody');
   document.getElementById('resultsCount').textContent = data.length;
-  document.getElementById('tableFooterInfo').textContent = `전체 ${notices.length}건 중 ${data.length}건 표시`;
+
 
   if (!data.length) {
     tbody.innerHTML = `<tr><td colspan="10">

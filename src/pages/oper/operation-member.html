@@ -1363,15 +1363,16 @@ function renderChildPanelContent(tab, c) {
         <div class="info-grid">
           <div class="info-item"><div class="info-label">생년월일</div><div class="info-value">${c.birth}</div></div>
           <div class="info-item"><div class="info-label">만 나이 / 성별</div><div class="info-value">${c.age} / ${c.gender==='남'?'♂ 남아':'♀ 여아'}</div></div>
-          <div class="info-item"><div class="info-label">소속 반</div><div class="info-value"><span class="class-badge">${c.class_name}</span></div></div>
-          <div class="info-item"><div class="info-label">등록 경로</div><div class="info-value">${c.reg_route}</div></div>
           <div class="info-item"><div class="info-label">입소일</div><div class="info-value">${c.enroll_date}</div></div>
+          <div class="info-item"><div class="info-label">소속 반</div><div class="info-value"><span class="class-badge">${c.class_name}</span></div></div>
+          <!--<div class="info-item"><div class="info-label">등록 경로</div><div class="info-value">${c.reg_route}</div></div>-->
+          
           <div class="info-item"><div class="info-label">예상 졸업</div><div class="info-value ${!c.expected_graduate?'muted':''}">${c.expected_graduate||'미입력'}</div></div>
           ${c.graduate_date?`<div class="info-item full"><div class="info-label">졸업·퇴소일</div><div class="info-value">${c.graduate_date}</div></div>`:''}
         </div>
       </div>
-      <div class="panel-section">
-        <div class="panel-section-title">관리 정보</div>
+      <div class="panel-section" style="display: none;">
+        <div class="panel-section-title" >관리 정보</div>
         <div class="info-grid">
           <div class="info-item full"><div class="info-label">원아 ID</div><div class="info-value" style="font-family:'JetBrains Mono',monospace;font-size:13px">${c.id}</div></div>
           <div class="info-item"><div class="info-label">최종 수정일</div><div class="info-value" style="font-size:13px">${c.updated_at.slice(0,10)}</div></div>
