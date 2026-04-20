@@ -983,7 +983,7 @@ const MOCK_SENT = [
     ],
     children:[
       { id:'C001', name:'김도현', color:'#3B82F6', isRead:true, commentCount:2,
-        thumb:'../../../refer/child_thumb/Ellipse 31-1.png',
+        thumb:'./child_thumb/Ellipse 31-1.png',
         tags:['활발했어요', '블록놀이', '잘먹음'],
         individualMemo:'오늘 블록 활동에 특히 집중해서 멋진 건물을 완성했어요. 친구들에게 자랑도 하는 모습이 귀여웠어요.',
         comments:[
@@ -991,7 +991,7 @@ const MOCK_SENT = [
           { id:'nb_c2', author:'박교사', type:'teacher', color:'#3B82F6', relation:'교사', text:'네, 오늘 정말 집중해서 잘 했어요 😊', time:'15:45', createdAt:'2026-04-13T15:45:00', editedAt:null, replies:[] }
         ]},
       { id:'C002', name:'이서연', color:'#10B981', isRead:true, commentCount:2,
-        thumb:'../../../refer/child_thumb/Ellipse 31-2.png',
+        thumb:'./child_thumb/Ellipse 31-2.png',
         tags:['기뻐했어요', '색칠하기', '조금먹음'],
         individualMemo:'점심을 조금 먹었는데 오후 간식은 잘 먹었어요. 미술 활동 때 집중력이 좋았습니다.',
         comments:[
@@ -1031,7 +1031,7 @@ const MOCK_SENT = [
     photos:[],
     children:[
       { id:'C004', name:'최유진', color:'#8B5CF6', isRead:false, commentCount:2,
-        thumb:'../../../refer/child_thumb/Ellipse 437.png',
+        thumb:'./child_thumb/Ellipse 437.png',
         tags:['활발했어요', '퍼즐', '잘먹음'],
         individualMemo:'종이접기 시간에 강아지를 만들었어요! 완성하고 너무 좋아했습니다.',
         comments:[
@@ -1039,7 +1039,7 @@ const MOCK_SENT = [
           { id:'nb_c7', author:'최현정 엄마', type:'parent', color:'#8B5CF6', relation:'엄마', text:'집에서 종이접기 계속 하고 싶다고 하네요 ㅎㅎ', time:'14:12', createdAt:'2026-03-29T14:12:00', editedAt:null, replies:[] }
         ]},
       { id:'C005', name:'정민호', color:'#F97316', isRead:true, commentCount:1,
-        thumb:'../../../refer/child_thumb/Ellipse 439.png',
+        thumb:'./child_thumb/Ellipse 439.png',
         tags:['자신감있었어요', '그림그리기', '잘먹음'],
         individualMemo:'',
         comments:[{ id:'nb_c8', author:'정기철 아빠', type:'parent', color:'#F97316', relation:'아빠', text:'감사합니다!', time:'15:30', createdAt:'2026-03-29T15:30:00', editedAt:null, replies:[] }]},
@@ -1048,7 +1048,7 @@ const MOCK_SENT = [
         individualMemo:'그림책을 끝까지 집중해서 읽었어요.',
         comments:[]},
       { id:'C007', name:'윤서준', color:'#14B8A6', isRead:false, commentCount:1,
-        thumb:'../../../refer/child_thumb/Ellipse 438.png',
+        thumb:'./child_thumb/Ellipse 438.png',
         tags:['기뻐했어요', '독서', '잘먹음'],
         individualMemo:'그림책을 정말 좋아해요. 내일도 읽어달라고 했답니다.',
         comments:[{ id:'nb_c9', author:'윤미나 엄마', type:'parent', color:'#14B8A6', relation:'엄마', text:'서준이가 그림책을 좋아하는군요!', time:'16:00', createdAt:'2026-03-29T16:00:00', editedAt:null, replies:[] }]},
@@ -2380,14 +2380,14 @@ function closeAllPanels() {
 
 const CLASS_CHILDREN = {
   CLS001: [
-    { id:'C001', name:'김도현', gender:'남', color:'#3B82F6', thumb:'../../../refer/child_thumb/Ellipse 31-1.png', attendance:'출석', noticeWritten:true, medication:null },
-    { id:'C002', name:'이서연', gender:'여', color:'#EC4899', thumb:'../../../refer/child_thumb/Ellipse 31-2.png', attendance:'출석', noticeWritten:false, medication:'need' },
-    { id:'C003', name:'박준서', gender:'남', color:'#0EA5E9', thumb:'../../../refer/child_thumb/Ellipse 439.png', attendance:'병결', noticeWritten:false, medication:null },
-    { id:'C006', name:'정수아', gender:'여', color:'#F43F5E', thumb:'../../../refer/child_thumb/Ellipse 438.png', attendance:'출석', noticeWritten:true, medication:'done' },
+    { id:'C001', name:'김도현', gender:'남', color:'#3B82F6', thumb:'./child_thumb/Ellipse 31-1.png', attendance:'출석', noticeWritten:true, medication:null },
+    { id:'C002', name:'이서연', gender:'여', color:'#EC4899', thumb:'./child_thumb/Ellipse 31-2.png', attendance:'출석', noticeWritten:false, medication:'need' },
+    { id:'C003', name:'박준서', gender:'남', color:'#0EA5E9', thumb:'./child_thumb/Ellipse 439.png', attendance:'병결', noticeWritten:false, medication:null },
+    { id:'C006', name:'정수아', gender:'여', color:'#F43F5E', thumb:'./child_thumb/Ellipse 438.png', attendance:'출석', noticeWritten:true, medication:'done' },
     { id:'C009', name:'오하은', gender:'여', color:'#FB7185', attendance:'미확인', noticeWritten:false, medication:null },
   ],
   CLS002: [
-    { id:'C004', name:'최지아', gender:'여', color:'#E11D48', thumb:'../../../refer/child_thumb/Ellipse 437.png', attendance:'결석', noticeWritten:false, medication:null },
+    { id:'C004', name:'최지아', gender:'여', color:'#E11D48', thumb:'./child_thumb/Ellipse 437.png', attendance:'결석', noticeWritten:false, medication:null },
     { id:'C005', name:'한민준', gender:'남', color:'#2563EB', attendance:'출석', noticeWritten:true, medication:'need' },
     { id:'C010', name:'장예린', gender:'여', color:'#F472B6', attendance:'출석', noticeWritten:false, medication:null },
     { id:'C011', name:'송시우', gender:'남', color:'#0284C7', attendance:'출석', noticeWritten:true, medication:null },
