@@ -42,6 +42,9 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
 .content::-webkit-scrollbar{width:5px;}
 .content::-webkit-scrollbar-thumb{background:var(--border-medium);border-radius:3px;}
 .content-inner{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:20px;}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;}
+.page-title{font-size:21px;font-weight:800;letter-spacing:-0.5px;color:var(--text-primary);}
+.page-sub{font-size:14px;color:var(--text-secondary);margin-top:6px;line-height:1.5;}
 
 /* KPI */
 .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
@@ -286,6 +289,12 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg-base);color:var(--t
   </div>
   <div class="content">
     <div class="content-inner">
+      <div class="page-header">
+        <div>
+          <div class="page-title">🏫 반관리</div>
+          <div class="page-sub">반 단위로 교사와 원아를 배치하고 반 운영 상태를 관리합니다</div>
+        </div>
+      </div>
       <div class="kpi-row" id="kpiRow"></div>
       <div class="filter-bar">
         <div class="filter-group">
